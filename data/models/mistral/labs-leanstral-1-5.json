@@ -17,6 +17,12 @@
       "label": "Mistral models",
       "last_checked": "2026-10-17",
       "excerpt": "Leanstral 1.5 | 1.5 | labs-leanstral-1-5 | 9/29/2026 9/30/2026"
+    },
+    {
+      "url": "https://docs.mistral.ai/models/leanstral-1-5",
+      "label": "Mistral model docs",
+      "last_checked": "2026-10-17",
+      "excerpt": "labs-leanstral-1-5 | Context 256k"
     }
   ],
   "specs": {
@@ -25,7 +31,7 @@
     "cached_input_price_per_mtok": null,
     "batch_discount_pct": null,
     "currency": null,
-    "context_window_tokens": null,
+    "context_window_tokens": 256000,
     "max_output_tokens": null,
     "modalities_in": null,
     "modalities_out": null,
@@ -38,8 +44,13 @@
     "reasoning": null,
     "knowledge_cutoff": null,
     "endpoints": null,
-    "specs_sources": {}
+    "specs_sources": {
+      "context_window_tokens": {
+        "url": "https://docs.mistral.ai/models/leanstral-1-5",
+        "last_checked": "2026-10-17"
+      }
+    }
   },
   "first_seen": "2026-10-17T15:59:19.574Z",
-  "updated_at": "2026-10-17T15:59:19.574Z"
+  "updated_at": "2026-10-17T21:10:47.568Z"
 }

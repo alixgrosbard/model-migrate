@@ -23,7 +23,7 @@
     "change_pct": null
   },
   "max_output_diff": {
-    "old_tokens": null,
+    "old_tokens": 32768,
     "new_tokens": null,
     "change_pct": null
   },
@@ -62,6 +62,12 @@
       "label": "OpenAI deprecations",
       "last_checked": "2026-10-17",
       "excerpt": "2025-10-27 | text-moderation-007 | omni-moderation"
+    },
+    {
+      "url": "https://developers.openai.com/api/docs/models/text-moderation-latest.md",
+      "label": "OpenAI model docs",
+      "last_checked": "2026-10-17",
+      "excerpt": "Model ID: text-moderation-latest | max output 32768 | Default snapshot text-moderation-007"
     },
     {
       "url": "https://developers.openai.com/api/docs/deprecations",

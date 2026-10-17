@@ -17,16 +17,28 @@
       "label": "Gemini API deprecations",
       "last_checked": "2026-10-17",
       "excerpt": "gemini-3.8-flash | September 2, 2026 | No shutdown date announced"
+    },
+    {
+      "url": "https://ai.google.dev/gemini-api/docs/pricing",
+      "label": "Gemini API pricing",
+      "last_checked": "2026-10-17",
+      "excerpt": "gemini-3.8-flash | Standard pricing"
+    },
+    {
+      "url": "https://ai.google.dev/gemini-api/docs/models/gemini-3.8-flash",
+      "label": "Gemini model docs",
+      "last_checked": "2026-10-17",
+      "excerpt": "gemini-3.8-flash input token limit 1048576 | max output tokens 65536"
     }
   ],
   "specs": {
     "input_price_per_mtok": 0.75,
     "output_price_per_mtok": 3.75,
-    "cached_input_price_per_mtok": null,
+    "cached_input_price_per_mtok": 0.075,
     "batch_discount_pct": null,
     "currency": "USD",
-    "context_window_tokens": null,
-    "max_output_tokens": null,
+    "context_window_tokens": 1048576,
+    "max_output_tokens": 65536,
     "modalities_in": null,
     "modalities_out": null,
     "supports_tools": null,
@@ -46,9 +58,21 @@
       "output_price_per_mtok": {
         "url": "https://ai.google.dev/gemini-api/docs/pricing",
         "last_checked": "2026-10-17"
+      },
+      "cached_input_price_per_mtok": {
+        "url": "https://ai.google.dev/gemini-api/docs/pricing",
+        "last_checked": "2026-10-17"
+      },
+      "context_window_tokens": {
+        "url": "https://ai.google.dev/gemini-api/docs/models/gemini-3.8-flash",
+        "last_checked": "2026-10-17"
+      },
+      "max_output_tokens": {
+        "url": "https://ai.google.dev/gemini-api/docs/models/gemini-3.8-flash",
+        "last_checked": "2026-10-17"
       }
     }
   },
   "first_seen": "2026-10-17T15:59:19.574Z",
-  "updated_at": "2026-10-17T15:59:19.574Z"
+  "updated_at": "2026-10-17T21:02:23.949Z"
 }

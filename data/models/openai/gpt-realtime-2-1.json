@@ -17,16 +17,22 @@
       "label": "Named as an official replacement",
       "last_checked": "2026-10-17",
       "excerpt": "Named as an official replacement for gpt-realtime. No shutdown date was published for this id on that page."
+    },
+    {
+      "url": "https://developers.openai.com/api/docs/models/gpt-realtime-2.1.md",
+      "label": "OpenAI model docs",
+      "last_checked": "2026-10-17",
+      "excerpt": "Model ID: gpt-realtime-2.1 | context window 128000 | max output 32000 | input $4 | output $24"
     }
   ],
   "specs": {
-    "input_price_per_mtok": null,
-    "output_price_per_mtok": null,
-    "cached_input_price_per_mtok": null,
+    "input_price_per_mtok": 4,
+    "output_price_per_mtok": 24,
+    "cached_input_price_per_mtok": 0.4,
     "batch_discount_pct": null,
-    "currency": null,
-    "context_window_tokens": null,
-    "max_output_tokens": null,
+    "currency": "USD",
+    "context_window_tokens": 128000,
+    "max_output_tokens": 32000,
     "modalities_in": null,
     "modalities_out": null,
     "supports_tools": null,
@@ -38,8 +44,29 @@
     "reasoning": null,
     "knowledge_cutoff": null,
     "endpoints": null,
-    "specs_sources": {}
+    "specs_sources": {
+      "input_price_per_mtok": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-realtime-2.1.md",
+        "last_checked": "2026-10-17"
+      },
+      "output_price_per_mtok": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-realtime-2.1.md",
+        "last_checked": "2026-10-17"
+      },
+      "cached_input_price_per_mtok": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-realtime-2.1.md",
+        "last_checked": "2026-10-17"
+      },
+      "context_window_tokens": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-realtime-2.1.md",
+        "last_checked": "2026-10-17"
+      },
+      "max_output_tokens": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-realtime-2.1.md",
+        "last_checked": "2026-10-17"
+      }
+    }
   },
   "first_seen": "2026-10-17T15:59:19.574Z",
-  "updated_at": "2026-10-17T15:59:19.574Z"
+  "updated_at": "2026-10-17T21:02:23.949Z"
 }

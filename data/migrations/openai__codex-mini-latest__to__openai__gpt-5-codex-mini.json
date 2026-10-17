@@ -12,18 +12,18 @@
   "price_diff": {
     "input_pct_change": null,
     "output_pct_change": null,
-    "example_monthly_cost_old": null,
+    "example_monthly_cost_old": 27,
     "example_monthly_cost_new": null,
     "currency": "USD",
     "example_label": "Example monthly cost for 10M input tokens and 2M output tokens. Labeled example, not a bill."
   },
   "context_diff": {
-    "old_tokens": null,
+    "old_tokens": 200000,
     "new_tokens": null,
     "change_pct": null
   },
   "max_output_diff": {
-    "old_tokens": null,
+    "old_tokens": 100000,
     "new_tokens": null,
     "change_pct": null
   },
@@ -62,6 +62,12 @@
       "label": "OpenAI deprecations",
       "last_checked": "2026-10-17",
       "excerpt": "2026-02-12 | codex-mini-latest | gpt-5-codex-mini"
+    },
+    {
+      "url": "https://developers.openai.com/api/docs/models/codex-mini-latest.md",
+      "label": "OpenAI model docs",
+      "last_checked": "2026-10-17",
+      "excerpt": "Model ID: codex-mini-latest | context window 200000 | max output 100000 | input $1.5 | output $6"
     },
     {
       "url": "https://developers.openai.com/api/docs/deprecations",

@@ -18,9 +18,9 @@
     "example_label": "Example monthly cost for 10M input tokens and 2M output tokens. Labeled example, not a bill."
   },
   "context_diff": {
-    "old_tokens": null,
-    "new_tokens": null,
-    "change_pct": null
+    "old_tokens": 256000,
+    "new_tokens": 32000,
+    "change_pct": -87.5
   },
   "max_output_diff": {
     "old_tokens": null,
@@ -64,10 +64,22 @@
       "excerpt": "Codestral Mamba 7B | 0.1 | open-codestral-mamba | 6/6/2025 6/6/2025 | Codestral"
     },
     {
+      "url": "https://docs.mistral.ai/models/codestral-mamba-7b-0-1",
+      "label": "Mistral model docs",
+      "last_checked": "2026-10-17",
+      "excerpt": "open-codestral-mamba | Context 256k"
+    },
+    {
       "url": "https://docs.mistral.ai/models",
       "label": "Mistral models",
       "last_checked": "2026-10-17",
       "excerpt": "Codestral | 24.05 | codestral-2405 | 12/2/2024 6/16/2025 | Codestral"
+    },
+    {
+      "url": "https://docs.mistral.ai/models/codestral-24-05",
+      "label": "Mistral model docs",
+      "last_checked": "2026-10-17",
+      "excerpt": "codestral-2405 | Context 32k"
     }
   ]
 }

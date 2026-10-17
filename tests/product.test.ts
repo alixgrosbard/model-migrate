@@ -7,6 +7,8 @@ import { buildMigration } from "../scrapers/migrations.ts";
 import { modelSchema, type ModelRecord } from "../src/schema.ts";
 import { graph, modelGraph } from "../src/jsonld.ts";
 import { answerSentence } from "../src/lib/format.ts";
+import { llmsTxt } from "../src/lib/llms.ts";
+import { siteOrigin } from "../src/lib/site.ts";
 import { scanRepo, loadModels, type ModelHit } from "../action/src/scan.ts";
 import { THANK_YOU, rateLimited, resetRateLimits, validEmail } from "../service/src/subscribe.ts";
 
@@ -33,6 +35,7 @@ describe("migrations and json-ld", () => {
     const json = graph(modelGraph("https://sunsetdiff.onrender.com/", model, provider));
     const faq = json["@graph"].find((node) => node["@type"] === "FAQPage") as { mainEntity: { acceptedAnswer: { text: string } }[] };
     expect(faq.mainEntity[0].acceptedAnswer.text).toBe(answer);
+    expect(answer.split(". ").length).toBeGreaterThanOrEqual(3);
     expect(JSON.stringify(json)).toContain("TechArticle");
     expect(JSON.stringify(json)).toContain("SoftwareApplication");
   });
@@ -43,6 +46,18 @@ describe("migrations and json-ld", () => {
     const diff = buildMigration(from, to, "2026-10-17");
     expect(diff.price_diff.input_pct_change).toBe(100);
     expect(diff.price_diff.example_monthly_cost_old).toBe(14);
+  });
+});
+
+describe("citation files", () => {
+  it("lists key pages and the CC BY dataset", () => {
+    const text = llmsTxt("https://sunsetdiff.onrender.com", [], []);
+    expect(text).toContain("/dataset/sunsetdiff.json");
+    expect(text).toContain("/dataset/sunsetdiff.csv");
+    expect(text).toContain("CC BY 4.0");
+    expect(text).toContain("/#soonest");
+    expect(text).toContain("/data/");
+    expect(siteOrigin()).toBe("https://sunsetdiff.onrender.com");
   });
 });
 

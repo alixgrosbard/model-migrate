@@ -19,12 +19,12 @@
   },
   "context_diff": {
     "old_tokens": null,
-    "new_tokens": null,
+    "new_tokens": 1048576,
     "change_pct": null
   },
   "max_output_diff": {
     "old_tokens": null,
-    "new_tokens": null,
+    "new_tokens": 65536,
     "change_pct": null
   },
   "capability_changes": [],
@@ -68,6 +68,12 @@
       "label": "Gemini API deprecations",
       "last_checked": "2026-10-17",
       "excerpt": "gemini-3.1-pro-preview | February 19, 2026 | No shutdown date announced"
+    },
+    {
+      "url": "https://ai.google.dev/gemini-api/docs/models/gemini-3.1-pro-preview",
+      "label": "Gemini model docs",
+      "last_checked": "2026-10-17",
+      "excerpt": "gemini-3.1-pro-preview input token limit 1048576 | max output tokens 65536"
     }
   ]
 }

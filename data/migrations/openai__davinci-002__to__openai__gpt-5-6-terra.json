@@ -19,13 +19,13 @@
   },
   "context_diff": {
     "old_tokens": null,
-    "new_tokens": null,
+    "new_tokens": 1050000,
     "change_pct": null
   },
   "max_output_diff": {
-    "old_tokens": null,
-    "new_tokens": null,
-    "change_pct": null
+    "old_tokens": 16384,
+    "new_tokens": 128000,
+    "change_pct": 681.3
   },
   "capability_changes": [],
   "api_changes": [],
@@ -64,10 +64,22 @@
       "excerpt": "2026-09-28 | davinci-002 | gpt-5.6-terra"
     },
     {
+      "url": "https://developers.openai.com/api/docs/models/davinci-002.md",
+      "label": "OpenAI model docs",
+      "last_checked": "2026-10-17",
+      "excerpt": "Model ID: davinci-002 | max output 16384 | input $2 | output $2"
+    },
+    {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "Named as an official replacement",
       "last_checked": "2026-10-17",
       "excerpt": "Named as an official replacement for gpt-5-mini-2025-08-07. No shutdown date was published for this id on that page."
+    },
+    {
+      "url": "https://developers.openai.com/api/docs/models/gpt-5.6-terra.md",
+      "label": "OpenAI model docs",
+      "last_checked": "2026-10-17",
+      "excerpt": "Model ID: gpt-5.6-terra | context window 1050000 | max output 128000 | input $2 | output $12"
     }
   ]
 }

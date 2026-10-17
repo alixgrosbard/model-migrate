@@ -10,22 +10,22 @@
     "slug": "gpt-5-6-sol"
   },
   "price_diff": {
-    "input_pct_change": null,
-    "output_pct_change": null,
-    "example_monthly_cost_old": null,
+    "input_pct_change": 220,
+    "output_pct_change": 100,
+    "example_monthly_cost_old": 32.5,
     "example_monthly_cost_new": 80,
     "currency": "USD",
     "example_label": "Example monthly cost for 10M input tokens and 2M output tokens. Labeled example, not a bill."
   },
   "context_diff": {
-    "old_tokens": null,
-    "new_tokens": null,
-    "change_pct": null
+    "old_tokens": 400000,
+    "new_tokens": 1050000,
+    "change_pct": 162.5
   },
   "max_output_diff": {
-    "old_tokens": null,
-    "new_tokens": null,
-    "change_pct": null
+    "old_tokens": 128000,
+    "new_tokens": 128000,
+    "change_pct": 0
   },
   "capability_changes": [],
   "api_changes": [],
@@ -54,7 +54,7 @@
     "Re-check price, context, and parameters on the provider pages linked here.",
     "Ship the change before the published shutdown date."
   ],
-  "confidence": "partial",
+  "confidence": "official",
   "last_checked": "2026-10-17",
   "sources": [
     {
@@ -64,10 +64,22 @@
       "excerpt": "July 23, 2026 | gpt-5.1-codex | gpt-5.6-sol"
     },
     {
+      "url": "https://developers.openai.com/api/docs/models/gpt-5.1-codex.md",
+      "label": "OpenAI model docs",
+      "last_checked": "2026-10-17",
+      "excerpt": "Model ID: gpt-5.1-codex | context window 400000 | max output 128000 | input $1.25 | output $10"
+    },
+    {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "Named as an official replacement",
       "last_checked": "2026-10-17",
       "excerpt": "Named as an official replacement for gpt-5-2025-08-07. No shutdown date was published for this id on that page."
+    },
+    {
+      "url": "https://developers.openai.com/api/docs/models/gpt-daybreak-blue-latest.md",
+      "label": "OpenAI model docs",
+      "last_checked": "2026-10-17",
+      "excerpt": "Model ID: gpt-daybreak-blue-latest | context window 1050000 | max output 128000 | Default snapshot gpt-5.6-sol"
     }
   ]
 }

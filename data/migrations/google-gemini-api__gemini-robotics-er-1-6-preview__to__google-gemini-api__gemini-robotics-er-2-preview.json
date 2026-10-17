@@ -18,14 +18,14 @@
     "example_label": "Example monthly cost for 10M input tokens and 2M output tokens. Labeled example, not a bill."
   },
   "context_diff": {
-    "old_tokens": null,
-    "new_tokens": null,
-    "change_pct": null
+    "old_tokens": 131072,
+    "new_tokens": 131072,
+    "change_pct": 0
   },
   "max_output_diff": {
-    "old_tokens": null,
-    "new_tokens": null,
-    "change_pct": null
+    "old_tokens": 65536,
+    "new_tokens": 65536,
+    "change_pct": 0
   },
   "capability_changes": [],
   "api_changes": [],
@@ -64,10 +64,28 @@
       "excerpt": "gemini-robotics-er-1.6-preview | April 14, 2026 | August 31, 2026 | gemini-robotics-er-2-preview"
     },
     {
+      "url": "https://ai.google.dev/gemini-api/docs/models/gemini-robotics-er-1.6-preview",
+      "label": "Gemini model docs",
+      "last_checked": "2026-10-17",
+      "excerpt": "gemini-robotics-er-1.6-preview input token limit 131072 | max output tokens 65536"
+    },
+    {
       "url": "https://ai.google.dev/gemini-api/docs/deprecations",
       "label": "Named as an official replacement",
       "last_checked": "2026-10-17",
       "excerpt": "Named as an official replacement for gemini-robotics-er-1.6-preview. No shutdown date was published for this id on that page."
+    },
+    {
+      "url": "https://ai.google.dev/gemini-api/docs/pricing",
+      "label": "Gemini API pricing",
+      "last_checked": "2026-10-17",
+      "excerpt": "gemini-robotics-er-2-preview | Standard pricing"
+    },
+    {
+      "url": "https://ai.google.dev/gemini-api/docs/models/gemini-robotics-er-2-preview",
+      "label": "Gemini model docs",
+      "last_checked": "2026-10-17",
+      "excerpt": "gemini-robotics-er-2-preview input token limit 131072 | max output tokens 65536"
     }
   ]
 }

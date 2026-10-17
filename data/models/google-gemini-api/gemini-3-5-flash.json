@@ -17,6 +17,12 @@
       "label": "Gemini API deprecations",
       "last_checked": "2026-10-17",
       "excerpt": "gemini-3.5-flash | May 19, 2026 | N/A | gemini-3.6-flash (not available to select in Google AI Studio; the endpoint is not shutting down and automatically routes API requests to gemini-3.6-flash)"
+    },
+    {
+      "url": "https://ai.google.dev/gemini-api/docs/models/gemini-3.5-flash",
+      "label": "Gemini model docs",
+      "last_checked": "2026-10-17",
+      "excerpt": "gemini-3.5-flash input token limit 1048576 | max output tokens 65536"
     }
   ],
   "specs": {
@@ -25,8 +31,8 @@
     "cached_input_price_per_mtok": null,
     "batch_discount_pct": null,
     "currency": null,
-    "context_window_tokens": null,
-    "max_output_tokens": null,
+    "context_window_tokens": 1048576,
+    "max_output_tokens": 65536,
     "modalities_in": null,
     "modalities_out": null,
     "supports_tools": null,
@@ -38,8 +44,17 @@
     "reasoning": null,
     "knowledge_cutoff": null,
     "endpoints": null,
-    "specs_sources": {}
+    "specs_sources": {
+      "context_window_tokens": {
+        "url": "https://ai.google.dev/gemini-api/docs/models/gemini-3.5-flash",
+        "last_checked": "2026-10-17"
+      },
+      "max_output_tokens": {
+        "url": "https://ai.google.dev/gemini-api/docs/models/gemini-3.5-flash",
+        "last_checked": "2026-10-17"
+      }
+    }
   },
   "first_seen": "2026-10-17T15:59:19.574Z",
-  "updated_at": "2026-10-17T15:59:19.574Z"
+  "updated_at": "2026-10-17T21:02:23.949Z"
 }

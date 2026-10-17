@@ -18,14 +18,14 @@
     "example_label": "Example monthly cost for 10M input tokens and 2M output tokens. Labeled example, not a bill."
   },
   "context_diff": {
-    "old_tokens": null,
-    "new_tokens": null,
-    "change_pct": null
+    "old_tokens": 128000,
+    "new_tokens": 400000,
+    "change_pct": 212.5
   },
   "max_output_diff": {
-    "old_tokens": null,
-    "new_tokens": null,
-    "change_pct": null
+    "old_tokens": 4096,
+    "new_tokens": 128000,
+    "change_pct": 3025
   },
   "capability_changes": [],
   "api_changes": [],
@@ -64,10 +64,22 @@
       "excerpt": "2026‑03‑26 | gpt-4-0125-preview (including gpt-4-turbo-preview and gpt-4-turbo-preview-completions, which point to this snapshot) | gpt-5 or gpt-4.1*"
     },
     {
+      "url": "https://developers.openai.com/api/docs/models/gpt-4-turbo-preview.md",
+      "label": "OpenAI model docs",
+      "last_checked": "2026-10-17",
+      "excerpt": "Model ID: gpt-4-turbo-preview | context window 128000 | max output 4096 | input $10 | output $30 | Default snapshot gpt-4-0125-preview"
+    },
+    {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "Named as an official replacement",
       "last_checked": "2026-10-17",
       "excerpt": "Named as an official replacement for gpt-4-0314. No shutdown date was published for this id on that page."
+    },
+    {
+      "url": "https://developers.openai.com/api/docs/models/gpt-5.md",
+      "label": "OpenAI model docs",
+      "last_checked": "2026-10-17",
+      "excerpt": "Model ID: gpt-5 | context window 400000 | max output 128000 | input $1.25 | output $10"
     }
   ]
 }

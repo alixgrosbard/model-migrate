@@ -83,6 +83,10 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fo
 .tabs { display: flex; gap: 0.4rem; flex-wrap: wrap; }
 .tabs a { border: 1px solid var(--line); padding: 0.2rem 0.45rem; text-decoration: none; }
 footer { color: var(--muted); border-top: 1px solid var(--line); margin-top: 2rem; }
+footer nav { margin-bottom: 0.6rem; }
+footer nav a { margin-right: 0.7rem; }
+.faq { margin: 0.8rem 0 1.2rem; }
+.faq h3 { font-size: 1.05rem; margin-bottom: 0.2rem; }
 @media (max-width: 640px) {
   h1 { font-size: 1.45rem; }
   nav a { display: inline-block; margin: 0.2rem 0.6rem 0.2rem 0; }

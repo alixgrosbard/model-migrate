@@ -30,6 +30,12 @@
       "label": "OpenAI deprecations",
       "last_checked": "2026-10-17",
       "excerpt": "Feb 26, 2027 | gpt-4o-transcribe-diarize | gpt-live-transcribe or gpt-transcribe"
+    },
+    {
+      "url": "https://developers.openai.com/api/docs/models/gpt-4o-transcribe-diarize.md",
+      "label": "OpenAI model docs",
+      "last_checked": "2026-10-17",
+      "excerpt": "Model ID: gpt-4o-transcribe-diarize | context window 16000 | max output 2000"
     }
   ],
   "specs": {
@@ -38,8 +44,8 @@
     "cached_input_price_per_mtok": null,
     "batch_discount_pct": null,
     "currency": null,
-    "context_window_tokens": null,
-    "max_output_tokens": null,
+    "context_window_tokens": 16000,
+    "max_output_tokens": 2000,
     "modalities_in": null,
     "modalities_out": null,
     "supports_tools": null,
@@ -51,8 +57,17 @@
     "reasoning": null,
     "knowledge_cutoff": null,
     "endpoints": null,
-    "specs_sources": {}
+    "specs_sources": {
+      "context_window_tokens": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-4o-transcribe-diarize.md",
+        "last_checked": "2026-10-17"
+      },
+      "max_output_tokens": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-4o-transcribe-diarize.md",
+        "last_checked": "2026-10-17"
+      }
+    }
   },
   "first_seen": "2026-10-17T15:59:19.574Z",
-  "updated_at": "2026-10-17T15:59:19.574Z"
+  "updated_at": "2026-10-17T21:02:23.949Z"
 }

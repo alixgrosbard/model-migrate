@@ -17,6 +17,12 @@
       "label": "Mistral models",
       "last_checked": "2026-10-17",
       "excerpt": "Mistral Small 3.0 | 25.01 | mistral-small-2501 | 11/6/2025 11/30/2025 | Mistral Small 4"
+    },
+    {
+      "url": "https://docs.mistral.ai/models/mistral-small-3-0-25-01",
+      "label": "Mistral model docs",
+      "last_checked": "2026-10-17",
+      "excerpt": "mistral-small-2501 | Context 32k"
     }
   ],
   "specs": {
@@ -25,7 +31,7 @@
     "cached_input_price_per_mtok": null,
     "batch_discount_pct": null,
     "currency": null,
-    "context_window_tokens": null,
+    "context_window_tokens": 32000,
     "max_output_tokens": null,
     "modalities_in": null,
     "modalities_out": null,
@@ -38,8 +44,13 @@
     "reasoning": null,
     "knowledge_cutoff": null,
     "endpoints": null,
-    "specs_sources": {}
+    "specs_sources": {
+      "context_window_tokens": {
+        "url": "https://docs.mistral.ai/models/mistral-small-3-0-25-01",
+        "last_checked": "2026-10-17"
+      }
+    }
   },
   "first_seen": "2026-10-17T15:59:19.574Z",
-  "updated_at": "2026-10-17T15:59:19.574Z"
+  "updated_at": "2026-10-17T21:10:47.568Z"
 }

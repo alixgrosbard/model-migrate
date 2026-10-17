@@ -30,14 +30,20 @@
       "label": "OpenAI deprecations",
       "last_checked": "2026-10-17",
       "excerpt": "October 23, 2026 | gpt-image-1 | gpt-image-2.5-sunburst or gpt-image-2.5-flare"
+    },
+    {
+      "url": "https://developers.openai.com/api/docs/models/gpt-image-1.md",
+      "label": "OpenAI model docs",
+      "last_checked": "2026-10-17",
+      "excerpt": "Model ID: gpt-image-1 | input $5"
     }
   ],
   "specs": {
-    "input_price_per_mtok": null,
+    "input_price_per_mtok": 5,
     "output_price_per_mtok": null,
-    "cached_input_price_per_mtok": null,
+    "cached_input_price_per_mtok": 1.25,
     "batch_discount_pct": null,
-    "currency": null,
+    "currency": "USD",
     "context_window_tokens": null,
     "max_output_tokens": null,
     "modalities_in": null,
@@ -51,8 +57,17 @@
     "reasoning": null,
     "knowledge_cutoff": null,
     "endpoints": null,
-    "specs_sources": {}
+    "specs_sources": {
+      "input_price_per_mtok": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-image-1.md",
+        "last_checked": "2026-10-17"
+      },
+      "cached_input_price_per_mtok": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-image-1.md",
+        "last_checked": "2026-10-17"
+      }
+    }
   },
   "first_seen": "2026-10-17T15:59:19.574Z",
-  "updated_at": "2026-10-17T15:59:19.574Z"
+  "updated_at": "2026-10-17T21:02:23.949Z"
 }

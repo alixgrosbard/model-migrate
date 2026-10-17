@@ -3,9 +3,11 @@ import path from "node:path";
 import { zodToJsonSchema } from "zod-to-json-schema";
 import { migrationSchema, modelSchema, providerSchema } from "../src/schema.ts";
 import { loadChanges, loadMigrations, loadModels, loadProviders } from "../src/lib/load.ts";
-import { addDays, isSoon, today } from "../src/lib/format.ts";
+import { addDays, formatWhen, isSoon, officialReplacement, today } from "../src/lib/format.ts";
+import { llmsFull, llmsTxt } from "../src/lib/llms.ts";
+import { siteOrigin } from "../src/lib/site.ts";
 
-const site = process.env.SITE_URL || "https://sunsetdiff.onrender.com";
+const site = siteOrigin();
 const publicDir = path.join(process.cwd(), "public");
 const day = today();
 
@@ -93,45 +95,13 @@ async function main() {
     await writeJson(path.join(publicDir, "api/v1/lookup", `${encodeURIComponent(id)}.json`), body);
   }
 
-  const lines = models.map((model) => {
-    const source = model.sources[0];
-    return [
-      model.id,
-      model.provider,
-      model.status,
-      model.shutdown_date ?? "not published",
-      model.replacements[0]?.model_id ?? "not published",
-      source?.url ?? "",
-      source?.last_checked ?? "",
-    ].join("\t");
-  });
-  await writeFile(
-    path.join(publicDir, "llms-full.txt"),
-    ["# SunsetDiff models", "id, provider, status, shutdown date, official replacement, source, last checked", ...lines].join("\n") + "\n",
-  );
-  const providerLinks = providers
-    .map((provider) => `- [${provider.name}](${site}/providers/${provider.id}/)`)
-    .join("\n");
-  await writeFile(
-    path.join(publicDir, "llms.txt"),
-    `# SunsetDiff
-
-> SunsetDiff tracks AI model retirements and the migration diff: shutdown date, official replacement, and published changes in price, context, and code.
-
-## API
-- [Index](${site}/api/v1/index.json)
-- [Upcoming shutdowns](${site}/api/v1/upcoming.json)
-- [JSON dataset](${site}/dataset/sunsetdiff.json)
-- [CSV dataset](${site}/dataset/sunsetdiff.csv)
-
-## Providers
-${providerLinks}
-
-## Method
-- [How we check](${site}/about/)
-- [Full model list](${site}/llms-full.txt)
-`,
-  );
+  const soonForLlms = models
+    .filter((model) => isSoon(model, day, 90))
+    .sort((a, b) => (a.shutdown_date ?? "").localeCompare(b.shutdown_date ?? ""))
+    .slice(0, 20);
+  await writeFile(path.join(publicDir, "llms-full.txt"), llmsFull(site, models));
+  await writeFile(path.join(publicDir, "llms.txt"), llmsTxt(site, providers, soonForLlms));
+  await writeOgImages(publicDir, models, providers);
   await writeFile(
     path.join(publicDir, "robots.txt"),
     `User-agent: *
@@ -226,6 +196,51 @@ function csv(value: unknown) {
 }
 
 function escapeXml(value: string) {
+  return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+async function writeOgImages(
+  dir: string,
+  models: Awaited<ReturnType<typeof loadModels>>,
+  providers: Awaited<ReturnType<typeof loadProviders>>,
+) {
+  await mkdir(path.join(dir, "og/providers"), { recursive: true });
+  await writeFile(path.join(dir, "og/sunsetdiff.svg"), ogSvg("SunsetDiff", "AI model shutdowns", "Price, context, and code diffs"));
+  for (const provider of providers) {
+    await writeFile(path.join(dir, "og/providers", `${provider.id}.svg`), ogSvg(provider.name, "Model shutdowns", "Official dates and replacements"));
+  }
+  for (const model of models) {
+    const replacement = officialReplacement(model);
+    await mkdir(path.join(dir, "og/models", model.provider), { recursive: true });
+    await writeFile(
+      path.join(dir, "og/models", model.provider, `${model.slug}.svg`),
+      ogSvg(
+        model.display_name,
+        `Shutdown: ${formatWhen(model)}`,
+        replacement ? `Replacement: ${replacement.model_id}` : "No published replacement",
+      ),
+    );
+  }
+}
+
+function ogSvg(title: string, line2: string, line3: string): string {
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#1c1917"/>
+  <rect width="18" height="630" fill="#c2410c"/>
+  <text x="72" y="150" fill="#fdba74" font-size="36" font-family="Georgia, serif">SunsetDiff</text>
+  <text x="72" y="280" fill="#fffaf5" font-size="54" font-family="Georgia, serif">${xml(clip(title, 42))}</text>
+  <text x="72" y="380" fill="#fffaf5" font-size="36" font-family="Georgia, serif">${xml(clip(line2, 64))}</text>
+  <text x="72" y="450" fill="#e7e5e4" font-size="32" font-family="Georgia, serif">${xml(clip(line3, 70))}</text>
+</svg>
+`;
+}
+
+function clip(value: string, max: number): string {
+  return value.length <= max ? value : `${value.slice(0, max - 1)}…`;
+}
+
+function xml(value: string): string {
   return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 

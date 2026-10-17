@@ -17,6 +17,12 @@
       "label": "Anthropic model deprecations",
       "last_checked": "2026-10-17",
       "excerpt": "claude-opus-4-6 | Active | N/A | Not sooner than February 5, 2027"
+    },
+    {
+      "url": "https://platform.claude.com/docs/en/models/opus-4-6/overview.md",
+      "label": "Anthropic model docs",
+      "last_checked": "2026-10-17",
+      "excerpt": "Model ID: claude-opus-4-6 | context window 1000000 | max output 128000 | input $5/MTok | output $25/MTok"
     }
   ],
   "specs": {
@@ -25,8 +31,8 @@
     "cached_input_price_per_mtok": 0.5,
     "batch_discount_pct": null,
     "currency": "USD",
-    "context_window_tokens": null,
-    "max_output_tokens": null,
+    "context_window_tokens": 1000000,
+    "max_output_tokens": 128000,
     "modalities_in": null,
     "modalities_out": null,
     "supports_tools": null,
@@ -50,9 +56,17 @@
       "cached_input_price_per_mtok": {
         "url": "https://platform.claude.com/docs/en/about-claude/pricing",
         "last_checked": "2026-10-17"
+      },
+      "context_window_tokens": {
+        "url": "https://platform.claude.com/docs/en/models/opus-4-6/overview.md",
+        "last_checked": "2026-10-17"
+      },
+      "max_output_tokens": {
+        "url": "https://platform.claude.com/docs/en/models/opus-4-6/overview.md",
+        "last_checked": "2026-10-17"
       }
     }
   },
   "first_seen": "2026-10-17T15:59:19.574Z",
-  "updated_at": "2026-10-17T15:59:19.574Z"
+  "updated_at": "2026-10-17T21:02:23.949Z"
 }

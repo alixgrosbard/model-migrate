@@ -10,22 +10,22 @@
     "slug": "gemini-3-1-flash-lite-image"
   },
   "price_diff": {
-    "input_pct_change": null,
-    "output_pct_change": null,
-    "example_monthly_cost_old": null,
-    "example_monthly_cost_new": null,
+    "input_pct_change": -16.7,
+    "output_pct_change": -40,
+    "example_monthly_cost_old": 8,
+    "example_monthly_cost_new": 5.5,
     "currency": "USD",
     "example_label": "Example monthly cost for 10M input tokens and 2M output tokens. Labeled example, not a bill."
   },
   "context_diff": {
-    "old_tokens": null,
-    "new_tokens": null,
-    "change_pct": null
+    "old_tokens": 32768,
+    "new_tokens": 65536,
+    "change_pct": 100
   },
   "max_output_diff": {
-    "old_tokens": null,
-    "new_tokens": null,
-    "change_pct": null
+    "old_tokens": 32768,
+    "new_tokens": 4096,
+    "change_pct": -87.5
   },
   "capability_changes": [],
   "api_changes": [],
@@ -54,7 +54,7 @@
     "Re-check price, context, and parameters on the provider pages linked here.",
     "Ship the change before the published shutdown date."
   ],
-  "confidence": "partial",
+  "confidence": "official",
   "last_checked": "2026-10-17",
   "sources": [
     {
@@ -64,10 +64,34 @@
       "excerpt": "gemini-2.5-flash-image | October 2, 2025 | March 15, 2027 | gemini-3.1-flash-lite-image"
     },
     {
+      "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/gemini/2-5-flash-image",
+      "label": "Vertex model docs",
+      "last_checked": "2026-10-17",
+      "excerpt": "Gemini 2.5 Flash Image | gemini-2.5-flash-image | context window 32768 | maximum output tokens 32768"
+    },
+    {
+      "url": "https://cloud.google.com/gemini-enterprise-agent-platform/generative-ai/pricing",
+      "label": "Vertex pricing",
+      "last_checked": "2026-10-17",
+      "excerpt": "Gemini 2.5 Flash Image Input (text, image)*** $0.3 per 1M tokens for the <= 200K column"
+    },
+    {
       "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/model-versions",
       "label": "Vertex AI model versions",
       "last_checked": "2026-10-17",
       "excerpt": "gemini-3.1-flash-lite-image | June 23, 2026 | June 28, 2027 or later"
+    },
+    {
+      "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/gemini/3-1-flash-lite-image",
+      "label": "Vertex model docs",
+      "last_checked": "2026-10-17",
+      "excerpt": "Gemini 3.1 Flash-Lite Image (Nano Banana 2 Lite) | gemini-3.1-flash-lite-image | context window 65536 | maximum output tokens 4096"
+    },
+    {
+      "url": "https://cloud.google.com/gemini-enterprise-agent-platform/generative-ai/pricing",
+      "label": "Vertex pricing",
+      "last_checked": "2026-10-17",
+      "excerpt": "Gemini 3.1 Flash-Lite Image (Nano Banana 2 Lite) Input (text, image, video) [3] $0.25 per 1M tokens for the <= 200K column"
     }
   ]
 }

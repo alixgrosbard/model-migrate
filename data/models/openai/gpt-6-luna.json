@@ -17,6 +17,12 @@
       "label": "Named as an official replacement",
       "last_checked": "2026-10-17",
       "excerpt": "Named as an official replacement for gpt-4o-2024-08-06. No shutdown date was published for this id on that page."
+    },
+    {
+      "url": "https://developers.openai.com/api/docs/models/gpt-6-luna.md",
+      "label": "OpenAI model docs",
+      "last_checked": "2026-10-17",
+      "excerpt": "Model ID: gpt-6-luna | context window 1050000 | max output 128000 | input $0.1 | output $0.5"
     }
   ],
   "specs": {
@@ -25,8 +31,8 @@
     "cached_input_price_per_mtok": 0.01,
     "batch_discount_pct": null,
     "currency": "USD",
-    "context_window_tokens": null,
-    "max_output_tokens": null,
+    "context_window_tokens": 1050000,
+    "max_output_tokens": 128000,
     "modalities_in": null,
     "modalities_out": null,
     "supports_tools": null,
@@ -50,9 +56,17 @@
       "cached_input_price_per_mtok": {
         "url": "https://developers.openai.com/api/docs/pricing",
         "last_checked": "2026-10-17"
+      },
+      "context_window_tokens": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-6-luna.md",
+        "last_checked": "2026-10-17"
+      },
+      "max_output_tokens": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-6-luna.md",
+        "last_checked": "2026-10-17"
       }
     }
   },
   "first_seen": "2026-10-17T15:59:19.574Z",
-  "updated_at": "2026-10-17T15:59:19.574Z"
+  "updated_at": "2026-10-17T21:02:23.949Z"
 }

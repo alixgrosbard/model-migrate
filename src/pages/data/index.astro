@@ -7,18 +7,26 @@ const modified = models.reduce((max, model) => (model.updated_at > max ? model.u
 const site = Astro.site?.href ?? "https://sunsetdiff.onrender.com/";
 ---
 <Base
-  title="Data, API, MCP, and the GitHub Action | SunsetDiff"
-  description="Machine-readable shutdown dates, a JSON API, an MCP server, and a GitHub Action."
+  title="SunsetDiff dataset (JSON and CSV, CC BY 4.0) | SunsetDiff"
+  description="Download the SunsetDiff model retirement dataset as JSON or CSV under CC BY 4.0. Publisher: SunsetDiff."
   crumbs={[{ name: "Home", path: "/" }, { name: "Data", path: "/data/" }]}
   extraGraph={datasetGraph(site, modified.slice(0, 10))}
 >
-  <h1>Use the data</h1>
-  <p>The dataset is <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. The code is MIT. Publisher: SunsetDiff.</p>
+  <h1>SunsetDiff dataset</h1>
+  <p>
+    Cite this dataset as SunsetDiff, “SunsetDiff model retirement dataset,”
+    <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>,
+    <a href="/dataset/sunsetdiff.json">{new URL("/dataset/sunsetdiff.json", site).href}</a>
+    and
+    <a href="/dataset/sunsetdiff.csv">{new URL("/dataset/sunsetdiff.csv", site).href}</a>.
+    Publisher: SunsetDiff. Each date and spec cites the official page it came from, with a last_checked date. Blank fields were not published there.
+  </p>
   <h2>Downloads</h2>
   <ul>
-    <li><a href="/dataset/sunsetdiff.json">sunsetdiff.json</a></li>
-    <li><a href="/dataset/sunsetdiff.csv">sunsetdiff.csv</a></li>
+    <li><a href="/dataset/sunsetdiff.json">sunsetdiff.json</a> — JSON download, CC BY 4.0</li>
+    <li><a href="/dataset/sunsetdiff.csv">sunsetdiff.csv</a> — CSV download, CC BY 4.0</li>
     <li><a href="/api/v1/schema.json">JSON Schema</a></li>
+    <li><a href="/llms.txt">llms.txt</a> and <a href="/llms-full.txt">llms-full.txt</a></li>
   </ul>
   <h2>JSON API</h2>
   <ul>

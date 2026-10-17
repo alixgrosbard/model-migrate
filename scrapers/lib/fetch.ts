@@ -18,6 +18,7 @@ export async function politeFetch(url: string): Promise<string> {
         headers: {
           "user-agent": USER_AGENT,
           accept: "text/html,application/xhtml+xml,text/markdown;q=0.9,*/*;q=0.8",
+          "accept-language": "en-US,en;q=0.9",
         },
         redirect: "follow",
       });

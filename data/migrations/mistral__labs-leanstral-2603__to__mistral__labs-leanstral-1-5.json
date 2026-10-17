@@ -18,9 +18,9 @@
     "example_label": "Example monthly cost for 10M input tokens and 2M output tokens. Labeled example, not a bill."
   },
   "context_diff": {
-    "old_tokens": null,
-    "new_tokens": null,
-    "change_pct": null
+    "old_tokens": 256000,
+    "new_tokens": 256000,
+    "change_pct": 0
   },
   "max_output_diff": {
     "old_tokens": null,
@@ -64,10 +64,22 @@
       "excerpt": "Leanstral | 26.03 | labs-leanstral-2603 | 5/22/2026 6/30/2026 | Leanstral 1.5"
     },
     {
+      "url": "https://docs.mistral.ai/models/leanstral-26-03",
+      "label": "Mistral model docs",
+      "last_checked": "2026-10-17",
+      "excerpt": "labs-leanstral-2603 | Context 256k"
+    },
+    {
       "url": "https://docs.mistral.ai/models",
       "label": "Mistral models",
       "last_checked": "2026-10-17",
       "excerpt": "Leanstral 1.5 | 1.5 | labs-leanstral-1-5 | 9/29/2026 9/30/2026"
+    },
+    {
+      "url": "https://docs.mistral.ai/models/leanstral-1-5",
+      "label": "Mistral model docs",
+      "last_checked": "2026-10-17",
+      "excerpt": "labs-leanstral-1-5 | Context 256k"
     }
   ]
 }

@@ -1,9 +1,10 @@
 ---
 import Base from "../../../layouts/Base.astro";
+import FaqList from "../../../components/FaqList.astro";
 import NewsletterForm from "../../../components/NewsletterForm.astro";
 import SponsorSlot from "../../../components/SponsorSlot.astro";
-import { loadChanges, loadModels, loadProviders } from "../../../lib/load.ts";
-import { answerSentence, formatWhen, money, tokens } from "../../../lib/format.ts";
+import { loadChanges, loadMigrations, loadModels, loadProviders } from "../../../lib/load.ts";
+import { answerSentence, clipMeta, formatWhen, modelFaqs, modelTitle, money, relatedModels, tokens } from "../../../lib/format.ts";
 import { modelGraph } from "../../../jsonld.ts";
 
 export async function getStaticPaths() {
@@ -15,30 +16,34 @@ const providers = await loadProviders();
 const model = models.find((item) => item.provider === Astro.params.provider && item.slug === Astro.params.slug);
 if (!model) throw new Error("Missing model");
 const provider = providers.find((item) => item.id === model.provider)!;
-const answer = answerSentence(model, provider);
+const migration = (await loadMigrations()).find((item) => item.from.provider === model.provider && item.from.slug === model.slug);
+const answer = answerSentence(model, provider, migration);
+const faqs = modelFaqs(model, provider, migration);
+const related = relatedModels(model, models);
 const changes = (await loadChanges()).filter((change) => change.provider === model.provider && change.model_id === model.id).slice(-20).reverse();
-const description = answer;
+const description = clipMeta(answer);
 const site = Astro.site?.href ?? "https://sunsetdiff.onrender.com/";
-const specRows = [
-  ["Input price / 1M", money(model.specs.input_price_per_mtok)],
-  ["Output price / 1M", money(model.specs.output_price_per_mtok)],
-  ["Cached input / 1M", money(model.specs.cached_input_price_per_mtok)],
-  ["Context window", tokens(model.specs.context_window_tokens)],
-  ["Max output", tokens(model.specs.max_output_tokens)],
-  ["Reasoning", model.specs.reasoning ?? "Not published"],
-  ["Vision", model.specs.supports_vision == null ? "Not published" : model.specs.supports_vision ? "Yes" : "No"],
-  ["Tools", model.specs.supports_tools == null ? "Not published" : model.specs.supports_tools ? "Yes" : "No"],
+const specRows: [string, string, string][] = [
+  ["Input price / 1M", money(model.specs.input_price_per_mtok), "input_price_per_mtok"],
+  ["Output price / 1M", money(model.specs.output_price_per_mtok), "output_price_per_mtok"],
+  ["Cached input / 1M", money(model.specs.cached_input_price_per_mtok), "cached_input_price_per_mtok"],
+  ["Context window", tokens(model.specs.context_window_tokens), "context_window_tokens"],
+  ["Max output", tokens(model.specs.max_output_tokens), "max_output_tokens"],
+  ["Reasoning", model.specs.reasoning ?? "Not published", "reasoning"],
+  ["Vision", model.specs.supports_vision == null ? "Not published" : model.specs.supports_vision ? "Yes" : "No", "supports_vision"],
+  ["Tools", model.specs.supports_tools == null ? "Not published" : model.specs.supports_tools ? "Yes" : "No", "supports_tools"],
 ];
 ---
 <Base
-  title={`${model.display_name} shutdown date and replacement | SunsetDiff`}
+  title={modelTitle(model)}
   description={description}
+  image={`/og/models/${model.provider}/${model.slug}.svg`}
   crumbs={[
     { name: "Home", path: "/" },
     { name: provider.name, path: `/providers/${provider.id}/` },
     { name: model.display_name, path: `/models/${model.provider}/${model.slug}/` },
   ]}
-  extraGraph={modelGraph(site, model, provider)}
+  extraGraph={modelGraph(site, model, provider, migration)}
 >
   <h1>When is {model.display_name} shut down?</h1>
   <p class="answer">{answer}</p>
@@ -64,14 +69,32 @@ const specRows = [
       ))}
     </ul>
   ) : <p>Not published.</p>}
-  <p><a href={`/replace/${model.provider}/${model.slug}/`}>See the replacement diff</a></p>
+  <p><a href={`/replace/${model.provider}/${model.slug}/`}>See the replacement diff</a> · <a href={`/providers/${provider.id}/`}>{provider.name} models</a></p>
   <h2>Specs</h2>
   <table>
     <caption>Published specs. Missing cells were not on the official pages we checked.</caption>
     <tbody>
-      {specRows.map(([label, value]) => <tr><th scope="row">{label}</th><td>{value}</td></tr>)}
+      {specRows.map(([label, value, field]) => {
+        const source = model.specs.specs_sources[field];
+        return (
+          <tr>
+            <th scope="row">{label}</th>
+            <td>
+              {value}
+              {source && value !== "Not published" ? <> · <a href={source.url}>source</a>, checked {source.last_checked}</> : null}
+            </td>
+          </tr>
+        );
+      })}
     </tbody>
   </table>
+  <h2>Related models</h2>
+  <ul>
+    {related.map((item) => (
+      <li><a href={`/models/${item.provider}/${item.slug}/`}>{item.display_name}</a> — {formatWhen(item)}</li>
+    ))}
+  </ul>
+  <FaqList items={faqs} />
   <h2>Sources</h2>
   <ul>
     {model.sources.map((source) => (

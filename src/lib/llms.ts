@@ -1,0 +1,71 @@
+import type { ModelRecord, Provider } from "../schema.ts";
+
+export function llmsTxt(site: string, providers: Provider[], soon: ModelRecord[]): string {
+  const origin = site.replace(/\/+$/, "");
+  const providerLinks = providers.map((provider) => `- [${provider.name}](${origin}/providers/${provider.id}/)`).join("\n");
+  const soonLinks = soon
+    .map((model) => {
+      const replacement = model.replacements[0]?.model_id ?? "not published";
+      return `- [${model.display_name}](${origin}/models/${model.provider}/${model.slug}/) shuts down ${model.shutdown_date}. Replacement: ${replacement}. [Diff](${origin}/replace/${model.provider}/${model.slug}/)`;
+    })
+    .join("\n");
+  return `# SunsetDiff
+
+> SunsetDiff tracks AI model retirements and the migration diff: shutdown date, official replacement, and published changes in price, context, and code. Publisher: SunsetDiff.
+
+## Key pages
+- [Home](${origin}/)
+- [Soonest shutdowns](${origin}/#soonest)
+- [Calendar](${origin}/calendar/)
+- [Changes](${origin}/changes/)
+- [Dataset](${origin}/data/)
+- [About](${origin}/about/)
+
+## Dataset
+The dataset is CC BY 4.0. Publisher: SunsetDiff. Blank spec fields were not on the official pages.
+- [Data page](${origin}/data/)
+- [JSON download](${origin}/dataset/sunsetdiff.json)
+- [CSV download](${origin}/dataset/sunsetdiff.csv)
+
+## Soonest shutdowns
+${soonLinks || "- None published."}
+
+## Providers
+${providerLinks}
+
+## API
+- [Index](${origin}/api/v1/index.json)
+- [Upcoming shutdowns](${origin}/api/v1/upcoming.json)
+- [Full model list](${origin}/llms-full.txt)
+- [How we check](${origin}/about/)
+`;
+}
+
+export function llmsFull(site: string, models: ModelRecord[]): string {
+  const origin = site.replace(/\/+$/, "");
+  const lines = models.map((model) => {
+    const source = model.sources[0];
+    return [
+      model.id,
+      model.provider,
+      model.status,
+      model.shutdown_date ?? "",
+      model.replacements[0]?.model_id ?? "",
+      model.specs.input_price_per_mtok ?? "",
+      model.specs.output_price_per_mtok ?? "",
+      model.specs.context_window_tokens ?? "",
+      model.specs.max_output_tokens ?? "",
+      source?.url ?? "",
+      source?.last_checked ?? "",
+    ].join("\t");
+  });
+  return [
+    "# SunsetDiff models",
+    `Dataset (CC BY 4.0): ${origin}/dataset/sunsetdiff.json`,
+    `CSV: ${origin}/dataset/sunsetdiff.csv`,
+    `Data page: ${origin}/data/`,
+    "Blank cells were not published on the official page. Columns: id, provider, status, shutdown date, official replacement, input price per 1M, output price per 1M, context tokens, max output tokens, source, last checked.",
+    ...lines,
+    "",
+  ].join("\n");
+}

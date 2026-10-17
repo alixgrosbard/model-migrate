@@ -85,7 +85,7 @@ export function parseGeminiPricing(html: string): Map<string, { input: number | 
   const lines = text.split("\n").map((line) => line.trim()).filter(Boolean);
   let current: string | null = null;
   let mode: "none" | "standard" | "other" = "none";
-  let expect: "input" | "output" | null = null;
+  let expect: "input" | "output" | "cached" | null = null;
   for (const line of lines) {
     if (isModelId(line) && (line.startsWith("gemini-") || line.startsWith("text-embedding") || line.startsWith("imagen") || line.startsWith("veo-"))) {
       current = line;
@@ -112,12 +112,17 @@ export function parseGeminiPricing(html: string): Map<string, { input: number | 
       expect = "output";
       continue;
     }
+    if (/^Context caching price/i.test(line)) {
+      expect = "cached";
+      continue;
+    }
     if (expect && line.startsWith("$")) {
       const amount = line.replace(/,/g, "").match(/\$([0-9]+(?:\.[0-9]+)?)/);
       if (amount) {
         const row = map.get(current)!;
         if (expect === "input" && row.input == null) row.input = Number(amount[1]);
         if (expect === "output" && row.output == null) row.output = Number(amount[1]);
+        if (expect === "cached" && row.cached == null) row.cached = Number(amount[1]);
       }
       expect = null;
     }

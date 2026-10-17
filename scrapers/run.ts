@@ -17,6 +17,7 @@ import { MODELS_URL as MISTRAL_URL, parseMistral, PRICING_URL as MISTRAL_PRICING
 import { DEPRECATIONS_URL as OPENAI_URL, parseOpenAI, parseOpenAIPricing, PRICING_URL as OPENAI_PRICING } from "./openai.ts";
 import { buildMigration, migrationKey } from "./migrations.ts";
 import { sanityCheck } from "./sanity.ts";
+import { enrichSpecs } from "./enrich.ts";
 
 const root = process.cwd();
 const fromSnapshots = process.argv.includes("--from-snapshots");
@@ -106,6 +107,10 @@ async function scrapeAll(): Promise<Map<string, ScrapedModel[]>> {
   ]);
   addReplacementStubs(groups, checked);
   attachStubPrices(groups, openaiPricing, anthropicPricing, geminiPricing, checked);
+  if (!fromSnapshots) {
+    const flat = [...groups.values()].flat();
+    await enrichSpecs(flat, checked);
+  }
   return groups;
 }
 
@@ -184,7 +189,8 @@ function merge(
       const record = modelSchema.parse({
         ...item,
         slug,
-        specs: item.specs ?? emptySpecs(),
+        specs: old ? preserveSpecs(old.specs, item.specs ?? emptySpecs()) : (item.specs ?? emptySpecs()),
+        sources: old ? mergeSources(item.sources, old.sources) : item.sources,
         first_seen: old?.first_seen ?? now,
         updated_at: now,
       });
@@ -207,6 +213,30 @@ function merge(
   return { models, changes, changeCount: changes.length };
 }
 
+function preserveSpecs(old: ModelRecord["specs"], next: ModelRecord["specs"]): ModelRecord["specs"] {
+  const merged = { ...next, specs_sources: { ...next.specs_sources } };
+  const fields = [
+    "input_price_per_mtok",
+    "output_price_per_mtok",
+    "cached_input_price_per_mtok",
+    "context_window_tokens",
+    "max_output_tokens",
+  ] as const;
+  for (const field of fields) {
+    if (merged[field] == null && old[field] != null) {
+      merged[field] = old[field];
+      if (old.specs_sources[field]) merged.specs_sources[field] = old.specs_sources[field];
+    }
+  }
+  if (merged.currency == null && old.currency) merged.currency = old.currency;
+  return merged;
+}
+
+function mergeSources(next: ModelRecord["sources"], old: ModelRecord["sources"]): ModelRecord["sources"] {
+  const urls = new Set(next.map((source) => source.url));
+  return [...next, ...old.filter((source) => !urls.has(source.url))];
+}
+
 function stable(model: ModelRecord): string {
   const { updated_at, first_seen, ...rest } = model;
   return JSON.stringify(rest);
@@ -222,6 +252,7 @@ function pushChanges(changes: ChangeRecord[], old: ModelRecord, next: ModelRecor
     ["input_price_per_mtok", old.specs.input_price_per_mtok, next.specs.input_price_per_mtok],
     ["output_price_per_mtok", old.specs.output_price_per_mtok, next.specs.output_price_per_mtok],
     ["context_window_tokens", old.specs.context_window_tokens, next.specs.context_window_tokens],
+    ["max_output_tokens", old.specs.max_output_tokens, next.specs.max_output_tokens],
   ];
   for (const [field, before, after] of fields) {
     if (JSON.stringify(before) === JSON.stringify(after)) continue;

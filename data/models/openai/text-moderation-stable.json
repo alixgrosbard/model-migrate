@@ -24,6 +24,12 @@
       "label": "OpenAI deprecations",
       "last_checked": "2026-10-17",
       "excerpt": "2025-10-27 | text-moderation-stable | omni-moderation"
+    },
+    {
+      "url": "https://developers.openai.com/api/docs/models/text-moderation-stable.md",
+      "label": "OpenAI model docs",
+      "last_checked": "2026-10-17",
+      "excerpt": "Model ID: text-moderation-stable | max output 32768"
     }
   ],
   "specs": {
@@ -33,7 +39,7 @@
     "batch_discount_pct": null,
     "currency": null,
     "context_window_tokens": null,
-    "max_output_tokens": null,
+    "max_output_tokens": 32768,
     "modalities_in": null,
     "modalities_out": null,
     "supports_tools": null,
@@ -45,8 +51,13 @@
     "reasoning": null,
     "knowledge_cutoff": null,
     "endpoints": null,
-    "specs_sources": {}
+    "specs_sources": {
+      "max_output_tokens": {
+        "url": "https://developers.openai.com/api/docs/models/text-moderation-stable.md",
+        "last_checked": "2026-10-17"
+      }
+    }
   },
   "first_seen": "2026-10-17T15:59:19.574Z",
-  "updated_at": "2026-10-17T15:59:19.574Z"
+  "updated_at": "2026-10-17T21:02:23.949Z"
 }

@@ -10,22 +10,22 @@
     "slug": "gpt-audio-1-5"
   },
   "price_diff": {
-    "input_pct_change": null,
-    "output_pct_change": null,
-    "example_monthly_cost_old": null,
-    "example_monthly_cost_new": null,
+    "input_pct_change": 0,
+    "output_pct_change": 0,
+    "example_monthly_cost_old": 45,
+    "example_monthly_cost_new": 45,
     "currency": "USD",
     "example_label": "Example monthly cost for 10M input tokens and 2M output tokens. Labeled example, not a bill."
   },
   "context_diff": {
-    "old_tokens": null,
-    "new_tokens": null,
-    "change_pct": null
+    "old_tokens": 128000,
+    "new_tokens": 128000,
+    "change_pct": 0
   },
   "max_output_diff": {
-    "old_tokens": null,
-    "new_tokens": null,
-    "change_pct": null
+    "old_tokens": 16384,
+    "new_tokens": 16384,
+    "change_pct": 0
   },
   "capability_changes": [],
   "api_changes": [],
@@ -54,7 +54,7 @@
     "Re-check price, context, and parameters on the provider pages linked here.",
     "Ship the change before the published shutdown date."
   ],
-  "confidence": "partial",
+  "confidence": "official",
   "last_checked": "2026-10-17",
   "sources": [
     {
@@ -64,10 +64,22 @@
       "excerpt": "Jan 20, 2027 | gpt-audio | gpt-audio-1.5"
     },
     {
+      "url": "https://developers.openai.com/api/docs/models/gpt-audio.md",
+      "label": "OpenAI model docs",
+      "last_checked": "2026-10-17",
+      "excerpt": "Model ID: gpt-audio | context window 128000 | max output 16384 | input $2.5 | output $10"
+    },
+    {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "Named as an official replacement",
       "last_checked": "2026-10-17",
       "excerpt": "Named as an official replacement for gpt-audio. No shutdown date was published for this id on that page."
+    },
+    {
+      "url": "https://developers.openai.com/api/docs/models/gpt-audio-1.5.md",
+      "label": "OpenAI model docs",
+      "last_checked": "2026-10-17",
+      "excerpt": "Model ID: gpt-audio-1.5 | context window 128000 | max output 16384 | input $2.5 | output $10"
     }
   ]
 }

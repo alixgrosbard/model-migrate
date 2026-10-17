@@ -1,5 +1,5 @@
 import type { MigrationRecord, ModelRecord, Provider } from "./schema.ts";
-import { answerSentence } from "./lib/format.ts";
+import { modelFaqs, replaceFaqs } from "./lib/format.ts";
 
 export function websiteGraph(site: string) {
   return [
@@ -36,11 +36,9 @@ export function breadcrumb(site: string, crumbs: { name: string; path: string }[
   };
 }
 
-export function modelGraph(site: string, model: ModelRecord, provider: Provider) {
+export function modelGraph(site: string, model: ModelRecord, provider: Provider, migration?: MigrationRecord | null) {
   const path = `/models/${model.provider}/${model.slug}/`;
   const url = new URL(path, site).href;
-  const answer = answerSentence(model, provider);
-  const replacement = model.replacements[0];
   const checked = model.sources[0]?.last_checked;
   return [
     {
@@ -56,35 +54,11 @@ export function modelGraph(site: string, model: ModelRecord, provider: Provider)
         provider: { "@type": "Organization", name: provider.name },
       },
     },
-    {
-      "@type": "FAQPage",
-      mainEntity: [
-        { "@type": "Question", name: `When is ${model.display_name} shut down?`, acceptedAnswer: { "@type": "Answer", text: answer } },
-        {
-          "@type": "Question",
-          name: `What replaces ${model.display_name}?`,
-          acceptedAnswer: {
-            "@type": "Answer",
-            text: replacement ? `The official replacement is ${replacement.model_id}.` : "No official replacement is published on that page.",
-          },
-        },
-        {
-          "@type": "Question",
-          name: `Is ${model.display_name} deprecated?`,
-          acceptedAnswer: {
-            "@type": "Answer",
-            text: `${model.display_name} status is ${model.status}.`,
-          },
-        },
-      ],
-    },
+    faqNode(modelFaqs(model, provider, migration)),
   ];
 }
 
 export function migrateGraph(site: string, model: ModelRecord, migration: MigrationRecord | undefined, provider: Provider) {
-  const replacement = migration?.to.model_id ?? model.replacements[0]?.model_id;
-  const cheaper = priceAnswer(migration, "cheaper");
-  const context = contextAnswer(migration);
   const steps = (migration?.migration_checklist ?? ["Read the official deprecation page."]).map((text, index) => ({
     "@type": "HowToStep",
     position: index + 1,
@@ -95,35 +69,23 @@ export function migrateGraph(site: string, model: ModelRecord, migration: Migrat
       "@type": "TechArticle",
       headline: `Replacement for ${model.display_name}: what changes when you switch`,
       dateModified: migration?.last_checked ?? model.sources[0]?.last_checked,
+      url: new URL(`/replace/${model.provider}/${model.slug}/`, site).href,
       citation: (migration?.sources ?? model.sources).map((source) => source.url),
     },
     { "@type": "HowTo", name: `Switch from ${model.id}`, step: steps },
-    {
-      "@type": "FAQPage",
-      mainEntity: [
-        {
-          "@type": "Question",
-          name: `What is the replacement for ${model.display_name}?`,
-          acceptedAnswer: {
-            "@type": "Answer",
-            text: replacement
-              ? `The official replacement for ${model.display_name} is ${replacement}.`
-              : `No official replacement is published for ${model.display_name}.`,
-          },
-        },
-        {
-          "@type": "Question",
-          name: replacement ? `Is ${replacement} cheaper than ${model.id}?` : `Is the replacement cheaper than ${model.id}?`,
-          acceptedAnswer: { "@type": "Answer", text: cheaper },
-        },
-        {
-          "@type": "Question",
-          name: replacement ? `Does ${replacement} have a bigger context window than ${model.id}?` : `Does the replacement have a bigger context window than ${model.id}?`,
-          acceptedAnswer: { "@type": "Answer", text: context },
-        },
-      ],
-    },
+    faqNode(replaceFaqs(model, provider, migration)),
   ];
+}
+
+function faqNode(items: { question: string; answer: string }[]) {
+  return {
+    "@type": "FAQPage",
+    mainEntity: items.map((item) => ({
+      "@type": "Question",
+      name: item.question,
+      acceptedAnswer: { "@type": "Answer", text: item.answer },
+    })),
+  };
 }
 
 export function datasetGraph(site: string, modified: string) {
@@ -143,25 +105,6 @@ export function datasetGraph(site: string, modified: string) {
       ],
     },
   ];
-}
-
-function priceAnswer(migration: MigrationRecord | undefined, _kind: string): string {
-  if (!migration) return "Price comparison is not published yet.";
-  const oldCost = migration.price_diff.example_monthly_cost_old;
-  const newCost = migration.price_diff.example_monthly_cost_new;
-  if (oldCost == null || newCost == null) return "A full price comparison is not published. One or both prices are missing from the official pages we checked.";
-  if (newCost < oldCost) return `Yes. The labeled example monthly cost is $${oldCost} for the old model and $${newCost} for the replacement.`;
-  if (newCost > oldCost) return `No. The labeled example monthly cost is $${oldCost} for the old model and $${newCost} for the replacement.`;
-  return `The labeled example monthly cost is the same: $${oldCost}.`;
-}
-
-function contextAnswer(migration: MigrationRecord | undefined): string {
-  const oldTokens = migration?.context_diff.old_tokens;
-  const newTokens = migration?.context_diff.new_tokens;
-  if (oldTokens == null || newTokens == null) return "Context window sizes are not both published on the official pages we checked.";
-  if (newTokens > oldTokens) return `Yes. The context window changes from ${oldTokens.toLocaleString("en-US")} to ${newTokens.toLocaleString("en-US")} tokens.`;
-  if (newTokens < oldTokens) return `No. The context window changes from ${oldTokens.toLocaleString("en-US")} to ${newTokens.toLocaleString("en-US")} tokens.`;
-  return `The context window stays ${oldTokens.toLocaleString("en-US")} tokens.`;
 }
 
 export function graph(nodes: unknown[]) {

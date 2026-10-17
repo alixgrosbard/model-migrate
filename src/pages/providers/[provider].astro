@@ -17,12 +17,27 @@ const groups: ModelRecord["status"][] = ["deprecated", "legacy", "retired", "act
 const description = `${provider.name} model shutdown dates, grouped by status.`;
 ---
 <Base
-  title={`${provider.name} model shutdowns | SunsetDiff`}
-  description={description}
+  title={`${provider.name} model shutdowns and replacements | SunsetDiff`}
+  description={`Shutdown dates and official replacements for ${provider.name} models, with links to each migration diff.`}
+  image={`/og/providers/${provider.id}.svg`}
   crumbs={[{ name: "Home", path: "/" }, { name: provider.name, path: `/providers/${provider.id}/` }]}
 >
   <h1>{provider.name}</h1>
-  <p>Official source: <a href={provider.deprecations_url}>{provider.deprecations_url}</a></p>
+  <p>Official source: <a href={provider.deprecations_url}>{provider.deprecations_url}</a>. <a href="/#soonest">Soonest shutdowns on the homepage</a>.</p>
+  <h2>Soonest shutdowns</h2>
+  <ul>
+    {models
+      .filter((model) => model.shutdown_date && model.shutdown_date_kind !== "none" && model.shutdown_date_kind !== "not_before")
+      .sort((a, b) => (a.shutdown_date ?? "").localeCompare(b.shutdown_date ?? ""))
+      .slice(0, 8)
+      .map((model) => (
+        <li>
+          <a href={`/models/${model.provider}/${model.slug}/`}>{model.display_name}</a>
+          {" "}— {formatWhen(model)}
+          {model.replacements[0] ? <> · <a href={`/replace/${model.provider}/${model.slug}/`}>replacement diff</a></> : null}
+        </li>
+      ))}
+  </ul>
   <button type="button" id="sort-shutdown">Sort by shutdown date</button>
   {groups.map((status) => {
     const rows = models.filter((model) => model.status === status);
@@ -38,7 +53,7 @@ const description = `${provider.name} model shutdown dates, grouped by status.`;
               <tr data-shutdown={model.shutdown_date ?? "9999-99-99"}>
                 <td><a href={`/models/${model.provider}/${model.slug}/`}>{model.display_name}</a><br /><code>{model.id}</code></td>
                 <td>{formatWhen(model)}</td>
-                <td>{model.replacements[0]?.model_id ?? "Not published"}</td>
+                <td>{model.replacements[0] ? <a href={`/replace/${model.provider}/${model.slug}/`}>{model.replacements[0].model_id}</a> : "Not published"}</td>
               </tr>
             ))}
           </tbody>

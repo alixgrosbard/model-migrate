@@ -19,12 +19,12 @@
   },
   "context_diff": {
     "old_tokens": null,
-    "new_tokens": null,
+    "new_tokens": 1000000,
     "change_pct": null
   },
   "max_output_diff": {
     "old_tokens": null,
-    "new_tokens": null,
+    "new_tokens": 128000,
     "change_pct": null
   },
   "capability_changes": [],
@@ -68,6 +68,12 @@
       "label": "Anthropic model deprecations",
       "last_checked": "2026-10-17",
       "excerpt": "claude-opus-4-8 | Active | N/A | Not sooner than May 28, 2027"
+    },
+    {
+      "url": "https://platform.claude.com/docs/en/models/opus-4-8/overview.md",
+      "label": "Anthropic model docs",
+      "last_checked": "2026-10-17",
+      "excerpt": "Model ID: claude-opus-4-8 | context window 1000000 | max output 128000 | input $5/MTok | output $25/MTok"
     }
   ]
 }

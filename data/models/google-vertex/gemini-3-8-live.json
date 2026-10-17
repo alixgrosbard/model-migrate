@@ -17,6 +17,12 @@
       "label": "Vertex AI model versions",
       "last_checked": "2026-10-17",
       "excerpt": "gemini-3.8-live | September 24, 2026 | September 25, 2027 or later"
+    },
+    {
+      "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/gemini/3-8-live",
+      "label": "Vertex model docs",
+      "last_checked": "2026-10-17",
+      "excerpt": "Gemini 3.8 Live | gemini-3.8-live | maximum output tokens 64000"
     }
   ],
   "specs": {
@@ -26,7 +32,7 @@
     "batch_discount_pct": null,
     "currency": null,
     "context_window_tokens": null,
-    "max_output_tokens": null,
+    "max_output_tokens": 64000,
     "modalities_in": null,
     "modalities_out": null,
     "supports_tools": null,
@@ -38,8 +44,13 @@
     "reasoning": null,
     "knowledge_cutoff": null,
     "endpoints": null,
-    "specs_sources": {}
+    "specs_sources": {
+      "max_output_tokens": {
+        "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/gemini/3-8-live",
+        "last_checked": "2026-10-17"
+      }
+    }
   },
   "first_seen": "2026-10-17T15:59:19.574Z",
-  "updated_at": "2026-10-17T15:59:19.574Z"
+  "updated_at": "2026-10-17T21:02:23.949Z"
 }

@@ -30,6 +30,12 @@
       "label": "Gemini API deprecations",
       "last_checked": "2026-10-17",
       "excerpt": "gemini-2.5-flash-preview-tts | May 20, 2025 | November 17, 2026 | gemini-3.8-flash-tts or gemini-3.8-flash-lite-tts"
+    },
+    {
+      "url": "https://ai.google.dev/gemini-api/docs/models/gemini-2.5-flash-preview-tts",
+      "label": "Gemini model docs",
+      "last_checked": "2026-10-17",
+      "excerpt": "gemini-2.5-flash-preview-tts input token limit 8192 | max output tokens 16384"
     }
   ],
   "specs": {
@@ -38,8 +44,8 @@
     "cached_input_price_per_mtok": null,
     "batch_discount_pct": null,
     "currency": "USD",
-    "context_window_tokens": null,
-    "max_output_tokens": null,
+    "context_window_tokens": 8192,
+    "max_output_tokens": 16384,
     "modalities_in": null,
     "modalities_out": null,
     "supports_tools": null,
@@ -59,9 +65,17 @@
       "output_price_per_mtok": {
         "url": "https://ai.google.dev/gemini-api/docs/pricing",
         "last_checked": "2026-10-17"
+      },
+      "context_window_tokens": {
+        "url": "https://ai.google.dev/gemini-api/docs/models/gemini-2.5-flash-preview-tts",
+        "last_checked": "2026-10-17"
+      },
+      "max_output_tokens": {
+        "url": "https://ai.google.dev/gemini-api/docs/models/gemini-2.5-flash-preview-tts",
+        "last_checked": "2026-10-17"
       }
     }
   },
   "first_seen": "2026-10-17T15:59:19.574Z",
-  "updated_at": "2026-10-17T15:59:19.574Z"
+  "updated_at": "2026-10-17T21:02:23.949Z"
 }

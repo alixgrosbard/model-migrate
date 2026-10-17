@@ -1,8 +1,9 @@
 import { defineConfig } from "astro/config";
 import sitemap from "@astrojs/sitemap";
 import { lastmodForUrl } from "./src/lib/lastmod.ts";
+import { siteOrigin } from "./src/lib/site.ts";
 
-const site = process.env.SITE_URL || "https://sunsetdiff.onrender.com";
+const site = siteOrigin();
 
 export default defineConfig({
   site,

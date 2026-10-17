@@ -19,12 +19,12 @@
   },
   "context_diff": {
     "old_tokens": null,
-    "new_tokens": null,
+    "new_tokens": 131072,
     "change_pct": null
   },
   "max_output_diff": {
     "old_tokens": null,
-    "new_tokens": null,
+    "new_tokens": 32768,
     "change_pct": null
   },
   "capability_changes": [],
@@ -68,6 +68,12 @@
       "label": "Gemini API deprecations",
       "last_checked": "2026-10-17",
       "excerpt": "gemini-nano-banana-2.1 | October 6, 2026 | No shutdown date announced"
+    },
+    {
+      "url": "https://ai.google.dev/gemini-api/docs/models/gemini-nano-banana-2.1",
+      "label": "Gemini model docs",
+      "last_checked": "2026-10-17",
+      "excerpt": "gemini-nano-banana-2.1 input token limit 131072 | max output tokens 32768"
     }
   ]
 }

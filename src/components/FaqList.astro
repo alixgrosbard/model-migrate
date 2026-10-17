@@ -1,0 +1,14 @@
+---
+import type { FaqItem } from "../lib/format.ts";
+interface Props { items: FaqItem[]; }
+const { items } = Astro.props;
+---
+<section>
+  <h2>Questions</h2>
+  {items.map((item) => (
+    <article class="faq">
+      <h3>{item.question}</h3>
+      <p>{item.answer}</p>
+    </article>
+  ))}
+</section>

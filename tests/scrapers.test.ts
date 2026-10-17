@@ -9,6 +9,14 @@ import { parseOpenAI } from "../scrapers/openai.ts";
 import { parseVertex } from "../scrapers/google-vertex.ts";
 import { sanityCheck } from "../scrapers/sanity.ts";
 import { parseDate } from "../scrapers/lib/dates.ts";
+import {
+  parseAnthropicModelDoc,
+  parseGeminiModelDocs,
+  parseMistralModelDoc,
+  parseOpenAIModelDoc,
+  parseVertexModelDoc,
+  parseVertexPricing,
+} from "../scrapers/docs.ts";
 
 const checked = "2026-10-17";
 const read = (file: string) => readFileSync(file, "utf8");
@@ -62,6 +70,61 @@ describe("sanity gate", () => {
   it("does not accept a drop of more than 30 percent", () => {
     expect(sanityCheck("openai", 60, 100).ok).toBe(false);
     expect(sanityCheck("openai", 70, 100).ok).toBe(true);
+  });
+});
+
+describe("official model docs", () => {
+  it("reads OpenAI price, context, and max output from the model page", () => {
+    const spec = parseOpenAIModelDoc(read("snapshots/openai/model-gpt-4o-2026-10-17.md"));
+    expect(spec?.ids).toEqual(["gpt-4o"]);
+    expect(spec?.context).toBe(128000);
+    expect(spec?.maxOutput).toBe(16384);
+    expect(spec?.input).toBe(2.5);
+    expect(spec?.output).toBe(10);
+    expect(spec?.cached).toBe(1.25);
+    expect(spec?.limitIds).toContain("gpt-4o-2024-08-06");
+  });
+
+  it("reads Anthropic specs from the model overview", () => {
+    const spec = parseAnthropicModelDoc(read("snapshots/anthropic/model-sonnet-5-5-2026-10-17.md"));
+    expect(spec?.ids).toContain("claude-sonnet-5-5");
+    expect(spec?.context).toBe(1_000_000);
+    expect(spec?.maxOutput).toBe(128_000);
+    expect(spec?.input).toBe(2);
+    expect(spec?.output).toBe(10);
+    expect(spec?.cached).toBe(0.1);
+  });
+
+  it("reads Gemini token limits from the model table", () => {
+    const specs = parseGeminiModelDocs(read("snapshots/google-gemini-api/model-gemini-2-5-flash-2026-10-17.html"));
+    expect(specs[0]?.ids).toEqual(["gemini-2.5-flash"]);
+    expect(specs[0]?.context).toBe(1_048_576);
+    expect(specs[0]?.maxOutput).toBe(65_536);
+  });
+
+  it("reads Vertex token limits and the standard price tier", () => {
+    const doc = parseVertexModelDoc(read("snapshots/google-vertex/model-gemini-2-5-pro-2026-10-17.html"));
+    expect(doc?.id).toBe("gemini-2.5-pro");
+    expect(doc?.title).toBe("Gemini 2.5 Pro");
+    expect(doc?.context).toBe(1_048_576);
+    expect(doc?.maxOutput).toBe(65_536);
+    const prices = parseVertexPricing(read("snapshots/google-vertex/pricing-sample-2026-10-17.html"));
+    expect(prices.get("gemini 2.5 pro")?.input).toBe(1.25);
+    expect(prices.get("gemini 2.5 pro")?.output).toBe(10);
+    expect(prices.get("gemini 2.5 pro")?.cached).toBe(0.125);
+  });
+
+  it("reads a labeled Mistral context window and does not invent a price", () => {
+    const doc = parseMistralModelDoc(read("snapshots/mistral/model-card-snippet-2026-10-17.html"));
+    expect(doc?.id).toBe("mistral-medium-3-5");
+    expect(doc?.context).toBe(256_000);
+  });
+
+  it("reads context when the Context label is the span text", () => {
+    const html = `<button title="Click to copy: mistral-medium-2508">mistral-medium-2508</button><span class="uppercase">Context</span><div class="text-lg font-bold font-mono text-primary-soft">128k</div><span class="text-primary-soft">$1.5</span>`;
+    const doc = parseMistralModelDoc(html);
+    expect(doc?.id).toBe("mistral-medium-2508");
+    expect(doc?.context).toBe(128_000);
   });
 });
 

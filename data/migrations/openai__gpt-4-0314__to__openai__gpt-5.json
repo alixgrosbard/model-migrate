@@ -19,12 +19,12 @@
   },
   "context_diff": {
     "old_tokens": null,
-    "new_tokens": null,
+    "new_tokens": 400000,
     "change_pct": null
   },
   "max_output_diff": {
     "old_tokens": null,
-    "new_tokens": null,
+    "new_tokens": 128000,
     "change_pct": null
   },
   "capability_changes": [],
@@ -68,6 +68,12 @@
       "label": "Named as an official replacement",
       "last_checked": "2026-10-17",
       "excerpt": "Named as an official replacement for gpt-4-0314. No shutdown date was published for this id on that page."
+    },
+    {
+      "url": "https://developers.openai.com/api/docs/models/gpt-5.md",
+      "label": "OpenAI model docs",
+      "last_checked": "2026-10-17",
+      "excerpt": "Model ID: gpt-5 | context window 400000 | max output 128000 | input $1.25 | output $10"
     }
   ]
 }

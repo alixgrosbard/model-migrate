@@ -24,16 +24,22 @@
       "label": "OpenAI deprecations",
       "last_checked": "2026-10-17",
       "excerpt": "Apr 1, 2027 | gpt-5.3-codex | gpt-6-sol"
+    },
+    {
+      "url": "https://developers.openai.com/api/docs/models/gpt-5.3-codex.md",
+      "label": "OpenAI model docs",
+      "last_checked": "2026-10-17",
+      "excerpt": "Model ID: gpt-5.3-codex | context window 400000 | max output 128000 | input $1.75 | output $14"
     }
   ],
   "specs": {
-    "input_price_per_mtok": null,
-    "output_price_per_mtok": null,
-    "cached_input_price_per_mtok": null,
+    "input_price_per_mtok": 1.75,
+    "output_price_per_mtok": 14,
+    "cached_input_price_per_mtok": 0.175,
     "batch_discount_pct": null,
-    "currency": null,
-    "context_window_tokens": null,
-    "max_output_tokens": null,
+    "currency": "USD",
+    "context_window_tokens": 400000,
+    "max_output_tokens": 128000,
     "modalities_in": null,
     "modalities_out": null,
     "supports_tools": null,
@@ -45,8 +51,29 @@
     "reasoning": null,
     "knowledge_cutoff": null,
     "endpoints": null,
-    "specs_sources": {}
+    "specs_sources": {
+      "input_price_per_mtok": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-5.3-codex.md",
+        "last_checked": "2026-10-17"
+      },
+      "output_price_per_mtok": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-5.3-codex.md",
+        "last_checked": "2026-10-17"
+      },
+      "cached_input_price_per_mtok": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-5.3-codex.md",
+        "last_checked": "2026-10-17"
+      },
+      "context_window_tokens": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-5.3-codex.md",
+        "last_checked": "2026-10-17"
+      },
+      "max_output_tokens": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-5.3-codex.md",
+        "last_checked": "2026-10-17"
+      }
+    }
   },
   "first_seen": "2026-10-17T15:59:19.574Z",
-  "updated_at": "2026-10-17T15:59:19.574Z"
+  "updated_at": "2026-10-17T21:02:23.949Z"
 }

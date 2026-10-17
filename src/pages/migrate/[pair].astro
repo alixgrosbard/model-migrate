@@ -1,7 +1,9 @@
 ---
 import Base from "../../layouts/Base.astro";
+import FaqList from "../../components/FaqList.astro";
 import MigrationCard from "../../components/MigrationCard.astro";
 import { loadMigrations, loadModels, loadProviders } from "../../lib/load.ts";
+import { clipMeta, replaceFaqs, replacementAnswer } from "../../lib/format.ts";
 import { migrateGraph } from "../../jsonld.ts";
 
 export async function getStaticPaths() {
@@ -19,13 +21,15 @@ const from = models.find((model) => model.provider === migration.from.provider &
 const to = models.find((model) => model.provider === migration.to.provider && model.slug === migration.to.slug);
 if (!from || !to) throw new Error("Missing model for migration");
 const provider = providers.find((item) => item.id === from.provider)!;
-const answer = `The official replacement for ${from.display_name} is ${to.id}.`;
-const description = `${answer} Checked ${migration.last_checked}.`;
+const answer = replacementAnswer(from, provider, migration);
+const faqs = replaceFaqs(from, provider, migration);
+const description = clipMeta(answer);
 const site = Astro.site?.href ?? "https://sunsetdiff.onrender.com/";
 ---
 <Base
-  title={`${from.display_name} to ${to.display_name} migration diff | SunsetDiff`}
+  title={`${from.display_name} to ${to.display_name}: price, context, and code | SunsetDiff`}
   description={description}
+  image={`/og/models/${from.provider}/${from.slug}.svg`}
   crumbs={[
     { name: "Home", path: "/" },
     { name: from.display_name, path: `/models/${from.provider}/${from.slug}/` },
@@ -35,10 +39,7 @@ const site = Astro.site?.href ?? "https://sunsetdiff.onrender.com/";
 >
   <h1>Replacement for {from.display_name}: what changes when you switch</h1>
   <p class="answer">{answer}</p>
-  <p>This is the canonical diff. <a href={`/models/${from.provider}/${from.slug}/`}>Model page</a></p>
+  <p>This is the canonical diff. <a href={`/models/${from.provider}/${from.slug}/`}>Model page</a> · <a href={`/replace/${from.provider}/${from.slug}/`}>Replacement page</a> · <a href={`/providers/${from.provider}/`}>{provider.name}</a></p>
   <MigrationCard migration={migration} from={from} to={to} />
-  <h2>Price answers</h2>
-  <p>{migration.price_diff.example_monthly_cost_old == null || migration.price_diff.example_monthly_cost_new == null ? "A full price comparison is not published. One or both prices are missing from the official pages we checked." : migration.price_diff.example_monthly_cost_new < migration.price_diff.example_monthly_cost_old ? `Yes. The labeled example monthly cost is $${migration.price_diff.example_monthly_cost_old} for the old model and $${migration.price_diff.example_monthly_cost_new} for the replacement.` : migration.price_diff.example_monthly_cost_new > migration.price_diff.example_monthly_cost_old ? `No. The labeled example monthly cost is $${migration.price_diff.example_monthly_cost_old} for the old model and $${migration.price_diff.example_monthly_cost_new} for the replacement.` : `The labeled example monthly cost is the same: $${migration.price_diff.example_monthly_cost_old}.`}</p>
-  <h2>Context answer</h2>
-  <p>{migration.context_diff.old_tokens == null || migration.context_diff.new_tokens == null ? "Context window sizes are not both published on the official pages we checked." : migration.context_diff.new_tokens > migration.context_diff.old_tokens ? `Yes. The context window changes from ${migration.context_diff.old_tokens.toLocaleString("en-US")} to ${migration.context_diff.new_tokens.toLocaleString("en-US")} tokens.` : migration.context_diff.new_tokens < migration.context_diff.old_tokens ? `No. The context window changes from ${migration.context_diff.old_tokens.toLocaleString("en-US")} to ${migration.context_diff.new_tokens.toLocaleString("en-US")} tokens.` : `The context window stays ${migration.context_diff.old_tokens.toLocaleString("en-US")} tokens.`}</p>
+  <FaqList items={faqs} />
 </Base>

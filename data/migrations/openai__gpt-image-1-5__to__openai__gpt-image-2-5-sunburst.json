@@ -10,9 +10,9 @@
     "slug": "gpt-image-2-5-sunburst"
   },
   "price_diff": {
-    "input_pct_change": null,
+    "input_pct_change": 0,
     "output_pct_change": null,
-    "example_monthly_cost_old": null,
+    "example_monthly_cost_old": 70,
     "example_monthly_cost_new": null,
     "currency": "USD",
     "example_label": "Example monthly cost for 10M input tokens and 2M output tokens. Labeled example, not a bill."
@@ -64,10 +64,22 @@
       "excerpt": "Dec 1, 2026 | gpt-image-1.5 | gpt-image-2.5-sunburst or gpt-image-2.5-flare"
     },
     {
+      "url": "https://developers.openai.com/api/docs/models/gpt-image-1.5.md",
+      "label": "OpenAI model docs",
+      "last_checked": "2026-10-17",
+      "excerpt": "Model ID: gpt-image-1.5 | input $5 | output $10"
+    },
+    {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "Named as an official replacement",
       "last_checked": "2026-10-17",
       "excerpt": "Named as an official replacement for gpt-image-1-mini. No shutdown date was published for this id on that page."
+    },
+    {
+      "url": "https://developers.openai.com/api/docs/models/gpt-image-2.5-sunburst.md",
+      "label": "OpenAI model docs",
+      "last_checked": "2026-10-17",
+      "excerpt": "Model ID: gpt-image-2.5-sunburst | input $5"
     }
   ]
 }

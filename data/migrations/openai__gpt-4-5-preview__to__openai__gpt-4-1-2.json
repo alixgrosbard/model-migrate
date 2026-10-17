@@ -10,22 +10,22 @@
     "slug": "gpt-4-1-2"
   },
   "price_diff": {
-    "input_pct_change": null,
-    "output_pct_change": null,
-    "example_monthly_cost_old": null,
+    "input_pct_change": -97.3,
+    "output_pct_change": -94.7,
+    "example_monthly_cost_old": 1050,
     "example_monthly_cost_new": 36,
     "currency": "USD",
     "example_label": "Example monthly cost for 10M input tokens and 2M output tokens. Labeled example, not a bill."
   },
   "context_diff": {
-    "old_tokens": null,
-    "new_tokens": null,
-    "change_pct": null
+    "old_tokens": 128000,
+    "new_tokens": 1047576,
+    "change_pct": 718.4
   },
   "max_output_diff": {
-    "old_tokens": null,
-    "new_tokens": null,
-    "change_pct": null
+    "old_tokens": 16384,
+    "new_tokens": 32768,
+    "change_pct": 100
   },
   "capability_changes": [],
   "api_changes": [],
@@ -54,7 +54,7 @@
     "Re-check price, context, and parameters on the provider pages linked here.",
     "Ship the change before the published shutdown date."
   ],
-  "confidence": "partial",
+  "confidence": "official",
   "last_checked": "2026-10-17",
   "sources": [
     {
@@ -64,10 +64,22 @@
       "excerpt": "2025-07-14 | gpt-4.5-preview | gpt-4.1"
     },
     {
+      "url": "https://developers.openai.com/api/docs/models/gpt-4.5-preview.md",
+      "label": "OpenAI model docs",
+      "last_checked": "2026-10-17",
+      "excerpt": "Model ID: gpt-4.5-preview | context window 128000 | max output 16384 | input $75 | output $150"
+    },
+    {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "Named as an official replacement",
       "last_checked": "2026-10-17",
       "excerpt": "Named as an official replacement for gpt-4.5-preview. No shutdown date was published for this id on that page."
+    },
+    {
+      "url": "https://developers.openai.com/api/docs/models/gpt-4.1.md",
+      "label": "OpenAI model docs",
+      "last_checked": "2026-10-17",
+      "excerpt": "Model ID: gpt-4.1 | context window 1047576 | max output 32768 | input $2 | output $8"
     }
   ]
 }
