@@ -1,0 +1,58 @@
+---
+import Base from "../../layouts/Base.astro";
+import { loadModels, loadProviders, providerName } from "../../lib/load.ts";
+import { formatWhen } from "../../lib/format.ts";
+import type { ModelRecord } from "../../schema.ts";
+
+export async function getStaticPaths() {
+  const providers = await loadProviders();
+  return providers.map((provider) => ({ params: { provider: provider.id } }));
+}
+const { provider: providerId } = Astro.params;
+const providers = await loadProviders();
+const provider = providers.find((item) => item.id === providerId);
+if (!provider) throw new Error("Missing provider");
+const models = (await loadModels()).filter((model) => model.provider === provider.id);
+const groups: ModelRecord["status"][] = ["deprecated", "legacy", "retired", "active"];
+const description = `${provider.name} model shutdown dates, grouped by status.`;
+---
+<Base
+  title={`${provider.name} model shutdowns | SunsetDiff`}
+  description={description}
+  crumbs={[{ name: "Home", path: "/" }, { name: provider.name, path: `/providers/${provider.id}/` }]}
+>
+  <h1>{provider.name}</h1>
+  <p>Official source: <a href={provider.deprecations_url}>{provider.deprecations_url}</a></p>
+  <button type="button" id="sort-shutdown">Sort by shutdown date</button>
+  {groups.map((status) => {
+    const rows = models.filter((model) => model.status === status);
+    if (!rows.length) return null;
+    return (
+      <section>
+        <h2>{status}</h2>
+        <table data-sortable>
+          <caption>{providerName(providers, provider.id)} {status} models</caption>
+          <thead><tr><th>Model</th><th>Shutdown</th><th>Replacement</th></tr></thead>
+          <tbody>
+            {rows.map((model) => (
+              <tr data-shutdown={model.shutdown_date ?? "9999-99-99"}>
+                <td><a href={`/models/${model.provider}/${model.slug}/`}>{model.display_name}</a><br /><code>{model.id}</code></td>
+                <td>{formatWhen(model)}</td>
+                <td>{model.replacements[0]?.model_id ?? "Not published"}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+    );
+  })}
+  <script>
+    document.querySelector("#sort-shutdown")?.addEventListener("click", () => {
+      document.querySelectorAll("[data-sortable] tbody").forEach((body) => {
+        const rows = [...body.querySelectorAll("tr")];
+        rows.sort((a, b) => (a.getAttribute("data-shutdown") ?? "").localeCompare(b.getAttribute("data-shutdown") ?? ""));
+        rows.forEach((row) => body.append(row));
+      });
+    });
+  </script>
+</Base>

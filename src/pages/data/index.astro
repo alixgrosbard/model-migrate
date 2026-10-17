@@ -1,0 +1,49 @@
+---
+import Base from "../../layouts/Base.astro";
+import { datasetGraph } from "../../jsonld.ts";
+import { loadModels } from "../../lib/load.ts";
+const models = await loadModels();
+const modified = models.reduce((max, model) => (model.updated_at > max ? model.updated_at : max), "");
+const site = Astro.site?.href ?? "https://sunsetdiff.onrender.com/";
+---
+<Base
+  title="Data, API, MCP, and the GitHub Action | SunsetDiff"
+  description="Machine-readable shutdown dates, a JSON API, an MCP server, and a GitHub Action."
+  crumbs={[{ name: "Home", path: "/" }, { name: "Data", path: "/data/" }]}
+  extraGraph={datasetGraph(site, modified.slice(0, 10))}
+>
+  <h1>Use the data</h1>
+  <p>The dataset is <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. The code is MIT. Publisher: SunsetDiff.</p>
+  <h2>Downloads</h2>
+  <ul>
+    <li><a href="/dataset/sunsetdiff.json">sunsetdiff.json</a></li>
+    <li><a href="/dataset/sunsetdiff.csv">sunsetdiff.csv</a></li>
+    <li><a href="/api/v1/schema.json">JSON Schema</a></li>
+  </ul>
+  <h2>JSON API</h2>
+  <ul>
+    <li><a href="/api/v1/index.json">/api/v1/index.json</a></li>
+    <li><a href="/api/v1/providers.json">/api/v1/providers.json</a></li>
+    <li><a href="/api/v1/models.json">/api/v1/models.json</a></li>
+    <li><a href="/api/v1/upcoming.json">/api/v1/upcoming.json</a> — next 90 days</li>
+    <li><a href="/api/v1/changes.json">/api/v1/changes.json</a></li>
+    <li><code>/api/v1/models/&lt;provider&gt;/&lt;slug&gt;.json</code></li>
+    <li><code>/api/v1/lookup/&lt;model-id&gt;.json</code></li>
+    <li><code>/api/v1/migrations/&lt;from&gt;__to__&lt;to&gt;.json</code></li>
+  </ul>
+  <h2>MCP server</h2>
+  <p>The Node service exposes a read-only MCP endpoint at <code>/mcp</code>. Tools: <code>check_model</code>, <code>upcoming_shutdowns</code>, <code>migration_diff</code>, <code>scan_text</code>.</p>
+  <pre><code>npx github:&lt;owner&gt;/model-migrate mcp</code></pre>
+  <h2>GitHub Action</h2>
+  <pre><code>- uses: &lt;owner&gt;/model-migrate/action@main
+  with:
+    warn-days: "60"
+    fail-days: "14"</code></pre>
+  <p>It scans files for known model ids and writes warnings. If the API is down, it uses a bundled snapshot. Marketplace publishing is a later manual step.</p>
+  <h2>Other machine files</h2>
+  <ul>
+    <li><a href="/llms.txt">llms.txt</a> and <a href="/llms-full.txt">llms-full.txt</a></li>
+    <li><a href="/calendar.ics">calendar.ics</a></li>
+    <li><a href="/changes.xml">changes.xml</a></li>
+  </ul>
+</Base>

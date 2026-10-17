@@ -1,0 +1,64 @@
+---
+import Base from "../layouts/Base.astro";
+import SearchBox from "../components/SearchBox.astro";
+import NewsletterForm from "../components/NewsletterForm.astro";
+import SponsorSlot from "../components/SponsorSlot.astro";
+import { loadModels, loadProviders, providerName } from "../lib/load.ts";
+import { formatWhen, isSoon, today } from "../lib/format.ts";
+
+const providers = await loadProviders();
+const models = await loadModels();
+const day = today();
+const soon = models
+  .filter((model) => isSoon(model, day, 30))
+  .sort((a, b) => (a.shutdown_date ?? "").localeCompare(b.shutdown_date ?? ""));
+const recent = models
+  .filter((model) => model.announced_date && model.announced_date <= day)
+  .sort((a, b) => (b.announced_date ?? "").localeCompare(a.announced_date ?? ""))
+  .slice(0, 12);
+const description = "When an AI model shuts down, what replaces it, and what changes in price, context, and code.";
+---
+<Base title="SunsetDiff — AI model shutdowns and migration diffs" description={description} crumbs={[{ name: "Home", path: "/" }]}>
+  <h1>When a model shuts down, see what actually changes.</h1>
+  <p>{description}</p>
+  <SearchBox />
+  <h2>Shutting down in the next 30 days</h2>
+  <table>
+    <caption>Models with a published shutdown date in the next 30 days. Floors that say "not sooner than" are not included.</caption>
+    <thead>
+      <tr><th>Model</th><th>Provider</th><th>Shutdown</th><th>Replacement</th></tr>
+    </thead>
+    <tbody>
+      {soon.length ? soon.map((model) => (
+        <tr>
+          <td><a href={`/models/${model.provider}/${model.slug}/`}>{model.display_name}</a></td>
+          <td>{providerName(providers, model.provider)}</td>
+          <td>{formatWhen(model)}</td>
+          <td>{model.replacements[0] ? <a href={`/replace/${model.provider}/${model.slug}/`}>{model.replacements[0].model_id}</a> : "Not published"}</td>
+        </tr>
+      )) : <tr><td colspan="4">No exact shutdown dates fall in the next 30 days.</td></tr>}
+    </tbody>
+  </table>
+  <h2>Recently announced</h2>
+  <table>
+    <caption>Newest announced deprecations</caption>
+    <thead><tr><th>Announced</th><th>Model</th><th>Shutdown</th></tr></thead>
+    <tbody>
+      {recent.map((model) => (
+        <tr>
+          <td>{model.announced_date}</td>
+          <td><a href={`/models/${model.provider}/${model.slug}/`}>{model.display_name}</a></td>
+          <td>{formatWhen(model)}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+  <h2>Providers</h2>
+  <ul>
+    {providers.map((provider) => (
+      <li><a href={`/providers/${provider.id}/`}>{provider.name}</a> — <a href={provider.deprecations_url}>official page</a></li>
+    ))}
+  </ul>
+  <SponsorSlot />
+  <NewsletterForm providers={providers} sourcePage="/" />
+</Base>

@@ -1,0 +1,73 @@
+{
+  "from": {
+    "provider": "google-vertex",
+    "model_id": "gemini-2.0-flash-lite",
+    "slug": "gemini-2-0-flash-lite"
+  },
+  "to": {
+    "provider": "google-vertex",
+    "model_id": "gemini-3.1-flash-lite",
+    "slug": "gemini-3-1-flash-lite"
+  },
+  "price_diff": {
+    "input_pct_change": null,
+    "output_pct_change": null,
+    "example_monthly_cost_old": null,
+    "example_monthly_cost_new": null,
+    "currency": "USD",
+    "example_label": "Example monthly cost for 10M input tokens and 2M output tokens. Labeled example, not a bill."
+  },
+  "context_diff": {
+    "old_tokens": null,
+    "new_tokens": null,
+    "change_pct": null
+  },
+  "max_output_diff": {
+    "old_tokens": null,
+    "new_tokens": null,
+    "change_pct": null
+  },
+  "capability_changes": [],
+  "api_changes": [],
+  "code_change": {
+    "language": "python",
+    "before": "from google import genai\nclient = genai.Client()\nresponse = client.models.generate_content(\n    model=\"gemini-2.0-flash-lite\",\n    contents=\"Hello\",\n)\n",
+    "after": "from google import genai\nclient = genai.Client()\nresponse = client.models.generate_content(\n    model=\"gemini-3.1-flash-lite\",\n    contents=\"Hello\",\n)\n",
+    "snippets": {
+      "python": {
+        "before": "from google import genai\nclient = genai.Client()\nresponse = client.models.generate_content(\n    model=\"gemini-2.0-flash-lite\",\n    contents=\"Hello\",\n)\n",
+        "after": "from google import genai\nclient = genai.Client()\nresponse = client.models.generate_content(\n    model=\"gemini-3.1-flash-lite\",\n    contents=\"Hello\",\n)\n"
+      },
+      "typescript": {
+        "before": "import { GoogleGenAI } from \"@google/genai\";\nconst ai = new GoogleGenAI({});\nconst response = await ai.models.generateContent({\n  model: \"gemini-2.0-flash-lite\",\n  contents: \"Hello\",\n});\n",
+        "after": "import { GoogleGenAI } from \"@google/genai\";\nconst ai = new GoogleGenAI({});\nconst response = await ai.models.generateContent({\n  model: \"gemini-3.1-flash-lite\",\n  contents: \"Hello\",\n});\n"
+      },
+      "curl": {
+        "before": "curl \"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent\" \\\n  -H \"x-goog-api-key: $GEMINI_API_KEY\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"contents\":[{\"parts\":[{\"text\":\"Hello\"}]}]}'\n",
+        "after": "curl \"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent\" \\\n  -H \"x-goog-api-key: $GEMINI_API_KEY\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"contents\":[{\"parts\":[{\"text\":\"Hello\"}]}]}'\n"
+      }
+    }
+  },
+  "migration_checklist": [
+    "Read the shutdown date for gemini-2.0-flash-lite on the linked official page.",
+    "Point your requests at gemini-3.1-flash-lite.",
+    "Re-check price, context, and parameters on the provider pages linked here.",
+    "Ship the change before the published shutdown date."
+  ],
+  "confidence": "partial",
+  "last_checked": "2026-10-17",
+  "sources": [
+    {
+      "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/model-versions",
+      "label": "Vertex AI model versions",
+      "last_checked": "2026-10-17",
+      "excerpt": "gemini-2.0-flash-lite | February 25, 2025 | June 1, 2026 | gemini-3.1-flash-lite"
+    },
+    {
+      "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/model-versions",
+      "label": "Vertex AI model versions",
+      "last_checked": "2026-10-17",
+      "excerpt": "gemini-3.1-flash-lite | May 7, 2026 | May 7, 2027 or later"
+    }
+  ]
+}

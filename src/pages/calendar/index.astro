@@ -1,0 +1,37 @@
+---
+import Base from "../../layouts/Base.astro";
+import { loadModels, loadProviders, providerName } from "../../lib/load.ts";
+import { formatWhen } from "../../lib/format.ts";
+
+const providers = await loadProviders();
+const models = (await loadModels()).filter((model) => model.shutdown_date && model.shutdown_date_kind !== "none");
+const months = new Map<string, typeof models>();
+for (const model of models) {
+  const month = model.shutdown_date!.slice(0, 7);
+  months.set(month, [...(months.get(month) ?? []), model]);
+}
+const ordered = [...months.keys()].sort();
+---
+<Base title="Shutdown calendar | SunsetDiff" description="Upcoming and past AI model shutdowns by month." crumbs={[{ name: "Home", path: "/" }, { name: "Calendar", path: "/calendar/" }]}>
+  <h1>Shutdown calendar</h1>
+  <p>Download <a href="/calendar.ics">all shutdowns (.ics)</a> or one provider:</p>
+  <ul>{providers.map((provider) => <li><a href={`/calendar/${provider.id}.ics`}>{provider.name}</a></li>)}</ul>
+  {ordered.map((month) => (
+    <section>
+      <h2>{month}</h2>
+      <table>
+        <caption>Shutdowns in {month}</caption>
+        <thead><tr><th>Date</th><th>Model</th><th>Provider</th></tr></thead>
+        <tbody>
+          {months.get(month)!.sort((a, b) => (a.shutdown_date ?? "").localeCompare(b.shutdown_date ?? "")).map((model) => (
+            <tr>
+              <td>{formatWhen(model)}</td>
+              <td><a href={`/models/${model.provider}/${model.slug}/`}>{model.display_name}</a></td>
+              <td>{providerName(providers, model.provider)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </section>
+  ))}
+</Base>

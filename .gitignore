@@ -1,0 +1,17 @@
+node_modules/
+/dist/
+.astro/
+public/api/
+public/dataset/
+public/llms.txt
+public/llms-full.txt
+public/robots.txt
+public/calendar.ics
+public/calendar/
+public/changes.xml
+public/search-index.json
+subscribers.csv
+*.log
+.env
+.env.*
+.DS_Store

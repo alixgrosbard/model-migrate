@@ -1,0 +1,66 @@
+---
+import type { Provider } from "../schema.ts";
+interface Props { providers: Provider[]; sourcePage: string; }
+const { providers, sourcePage } = Astro.props;
+const service = import.meta.env.PUBLIC_SERVICE_URL ?? "";
+---
+<form id="subscribe" data-service={service} data-source={sourcePage}>
+  <h2>Shutdown notes</h2>
+  <label>Email <input type="email" name="email" autocomplete="email" required /></label>
+  <fieldset>
+    <legend>Providers (optional)</legend>
+    <div class="checks">
+      {providers.map((provider) => (
+        <label><input type="checkbox" name="providers" value={provider.id} /> {provider.name}</label>
+      ))}
+    </div>
+  </fieldset>
+  <label class="hp">Company <input name="company" tabindex="-1" autocomplete="off" /></label>
+  <button type="submit">Join the list</button>
+  <p id="subscribe-status" class="note" aria-live="polite">
+    {service
+      ? "We store your email, the providers you pick, the page you used, and a hash of your IP. We do not send email yet."
+      : "Signups open soon. This form does not send your email anywhere yet."}
+  </p>
+</form>
+<script>
+  const form = document.querySelector<HTMLFormElement>("#subscribe");
+  form?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const status = document.querySelector("#subscribe-status");
+    const serviceUrl = form.dataset.service ?? "";
+    if (!serviceUrl) {
+      if (status) status.textContent = "Signups open soon. This form does not send your email anywhere yet.";
+      return;
+    }
+    const data = new FormData(form);
+    const body = {
+      email: String(data.get("email") ?? ""),
+      providers: data.getAll("providers"),
+      company: String(data.get("company") ?? ""),
+      source_page: form.dataset.source ?? "/",
+    };
+    const send = async () => {
+      const response = await fetch(new URL("/api/subscribe", serviceUrl), {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      if (!response.ok) throw new Error(String(response.status));
+      return response.json();
+    };
+    if (status) status.textContent = "Saving...";
+    try {
+      const result = await send();
+      if (status) status.textContent = result.message ?? "You're on the list. We'll start sending updates soon.";
+    } catch {
+      if (status) status.textContent = "Saving...";
+      try {
+        const result = await send();
+        if (status) status.textContent = result.message ?? "You're on the list. We'll start sending updates soon.";
+      } catch {
+        if (status) status.textContent = "The signup service is waking up or unavailable. Nothing was sent. Try again in a minute.";
+      }
+    }
+  });
+</script>

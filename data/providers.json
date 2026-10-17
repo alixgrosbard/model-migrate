@@ -1,0 +1,51 @@
+[
+  {
+    "id": "openai",
+    "name": "OpenAI",
+    "deprecations_url": "https://developers.openai.com/api/docs/deprecations",
+    "pricing_url": "https://developers.openai.com/api/docs/pricing",
+    "models_url": "https://developers.openai.com/api/docs/models"
+  },
+  {
+    "id": "anthropic",
+    "name": "Anthropic",
+    "deprecations_url": "https://platform.claude.com/docs/en/about-claude/model-deprecations",
+    "pricing_url": "https://platform.claude.com/docs/en/about-claude/pricing",
+    "models_url": "https://platform.claude.com/docs/en/about-claude/models/overview"
+  },
+  {
+    "id": "google-gemini-api",
+    "name": "Google Gemini API",
+    "deprecations_url": "https://ai.google.dev/gemini-api/docs/deprecations",
+    "pricing_url": "https://ai.google.dev/gemini-api/docs/pricing",
+    "models_url": "https://ai.google.dev/gemini-api/docs/models"
+  },
+  {
+    "id": "google-vertex",
+    "name": "Google Vertex AI",
+    "deprecations_url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/model-versions",
+    "pricing_url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/model-versions",
+    "models_url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/model-versions"
+  },
+  {
+    "id": "aws-bedrock",
+    "name": "AWS Bedrock",
+    "deprecations_url": "https://docs.aws.amazon.com/bedrock/latest/userguide/model-lifecycle.html",
+    "pricing_url": "https://aws.amazon.com/bedrock/pricing/",
+    "models_url": "https://docs.aws.amazon.com/bedrock/latest/userguide/model-lifecycle-legacy.html"
+  },
+  {
+    "id": "azure-openai",
+    "name": "Azure OpenAI",
+    "deprecations_url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirements",
+    "pricing_url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule",
+    "models_url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule"
+  },
+  {
+    "id": "mistral",
+    "name": "Mistral",
+    "deprecations_url": "https://docs.mistral.ai/models",
+    "pricing_url": "https://docs.mistral.ai/models/pricing",
+    "models_url": "https://docs.mistral.ai/models"
+  }
+]

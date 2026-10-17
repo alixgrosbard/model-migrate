@@ -1,0 +1,45 @@
+{
+  "id": "open-mistral-nemo-2407",
+  "slug": "open-mistral-nemo-2407",
+  "provider": "mistral",
+  "display_name": "Mistral Nemo 12B (24.07)",
+  "family": null,
+  "status": "retired",
+  "announced_date": null,
+  "deprecation_date": "2026-05-22",
+  "shutdown_date": "2026-07-31",
+  "shutdown_date_kind": "exact",
+  "region_or_platform_notes": "Replacement named on the models page: Ministral 3 8B.",
+  "replacements": [],
+  "sources": [
+    {
+      "url": "https://docs.mistral.ai/models",
+      "label": "Mistral models",
+      "last_checked": "2026-10-17",
+      "excerpt": "Mistral Nemo 12B | 24.07 | open-mistral-nemo-2407 | 5/22/2026 7/31/2026 | Ministral 3 8B"
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": null,
+    "output_price_per_mtok": null,
+    "cached_input_price_per_mtok": null,
+    "batch_discount_pct": null,
+    "currency": null,
+    "context_window_tokens": null,
+    "max_output_tokens": null,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {}
+  },
+  "first_seen": "2026-10-17T15:59:19.574Z",
+  "updated_at": "2026-10-17T15:59:19.574Z"
+}

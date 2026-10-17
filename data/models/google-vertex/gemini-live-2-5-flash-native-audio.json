@@ -1,0 +1,45 @@
+{
+  "id": "gemini-live-2.5-flash-native-audio",
+  "slug": "gemini-live-2-5-flash-native-audio",
+  "provider": "google-vertex",
+  "display_name": "gemini-live-2.5-flash-native-audio",
+  "family": null,
+  "status": "deprecated",
+  "announced_date": null,
+  "deprecation_date": null,
+  "shutdown_date": "2026-12-13",
+  "shutdown_date_kind": "exact",
+  "region_or_platform_notes": "Release date on the Vertex model versions page: 2025-12-12.",
+  "replacements": [],
+  "sources": [
+    {
+      "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/model-versions",
+      "label": "Vertex AI model versions",
+      "last_checked": "2026-10-17",
+      "excerpt": "gemini-live-2.5-flash-native-audio | December 12, 2025 | December 13, 2026"
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": null,
+    "output_price_per_mtok": null,
+    "cached_input_price_per_mtok": null,
+    "batch_discount_pct": null,
+    "currency": null,
+    "context_window_tokens": null,
+    "max_output_tokens": null,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {}
+  },
+  "first_seen": "2026-10-17T15:59:19.574Z",
+  "updated_at": "2026-10-17T15:59:19.574Z"
+}

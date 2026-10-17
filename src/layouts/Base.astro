@@ -1,0 +1,51 @@
+---
+import "../styles/global.css";
+import { breadcrumb, graph, websiteGraph } from "../jsonld.ts";
+
+interface Crumb { name: string; path: string; }
+interface Props {
+  title: string;
+  description: string;
+  crumbs: Crumb[];
+  extraGraph?: unknown[];
+}
+const { title, description, crumbs, extraGraph = [] } = Astro.props;
+const site = Astro.site?.href ?? "https://sunsetdiff.onrender.com/";
+const canonical = new URL(Astro.url.pathname, site).href;
+const jsonld = graph([...websiteGraph(site), breadcrumb(site, crumbs), ...extraGraph]);
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:type" content="website" />
+    <script type="application/ld+json" set:html={JSON.stringify(jsonld)} />
+  </head>
+  <body>
+    <a class="skip" href="#content">Skip to content</a>
+    <header>
+      <a class="brand" href="/">SunsetDiff</a>
+      <nav aria-label="Main">
+        <a href="/calendar/">Calendar</a>
+        <a href="/changes/">Changes</a>
+        <a href="/data/">Data</a>
+        <a href="/about/">About</a>
+        <a href="/sponsor/">Sponsor</a>
+      </nav>
+    </header>
+    <main id="content">
+      <slot />
+    </main>
+    <footer>
+      <p>Publisher: SunsetDiff. Dates come from official provider pages. Data is <a href="/DATA_LICENSE.txt">CC BY 4.0</a>. Code is <a href="/LICENSE.txt">MIT</a>.</p>
+    </footer>
+  </body>
+</html>

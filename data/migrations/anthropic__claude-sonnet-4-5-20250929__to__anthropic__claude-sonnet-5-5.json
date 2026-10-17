@@ -1,0 +1,79 @@
+{
+  "from": {
+    "provider": "anthropic",
+    "model_id": "claude-sonnet-4-5-20250929",
+    "slug": "claude-sonnet-4-5-20250929"
+  },
+  "to": {
+    "provider": "anthropic",
+    "model_id": "claude-sonnet-5-5",
+    "slug": "claude-sonnet-5-5"
+  },
+  "price_diff": {
+    "input_pct_change": -33.3,
+    "output_pct_change": -33.3,
+    "example_monthly_cost_old": 60,
+    "example_monthly_cost_new": 40,
+    "currency": "USD",
+    "example_label": "Example monthly cost for 10M input tokens and 2M output tokens. Labeled example, not a bill."
+  },
+  "context_diff": {
+    "old_tokens": null,
+    "new_tokens": 1000000,
+    "change_pct": null
+  },
+  "max_output_diff": {
+    "old_tokens": null,
+    "new_tokens": 128000,
+    "change_pct": null
+  },
+  "capability_changes": [],
+  "api_changes": [],
+  "code_change": {
+    "language": "python",
+    "before": "import anthropic\nclient = anthropic.Anthropic()\nmessage = client.messages.create(\n    model=\"claude-sonnet-4-5-20250929\",\n    max_tokens=1024,\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n)\n",
+    "after": "import anthropic\nclient = anthropic.Anthropic()\nmessage = client.messages.create(\n    model=\"claude-sonnet-5-5\",\n    max_tokens=1024,\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n)\n",
+    "snippets": {
+      "python": {
+        "before": "import anthropic\nclient = anthropic.Anthropic()\nmessage = client.messages.create(\n    model=\"claude-sonnet-4-5-20250929\",\n    max_tokens=1024,\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n)\n",
+        "after": "import anthropic\nclient = anthropic.Anthropic()\nmessage = client.messages.create(\n    model=\"claude-sonnet-5-5\",\n    max_tokens=1024,\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n)\n"
+      },
+      "typescript": {
+        "before": "import Anthropic from \"@anthropic-ai/sdk\";\nconst client = new Anthropic();\nconst message = await client.messages.create({\n  model: \"claude-sonnet-4-5-20250929\",\n  max_tokens: 1024,\n  messages: [{ role: \"user\", content: \"Hello\" }],\n});\n",
+        "after": "import Anthropic from \"@anthropic-ai/sdk\";\nconst client = new Anthropic();\nconst message = await client.messages.create({\n  model: \"claude-sonnet-5-5\",\n  max_tokens: 1024,\n  messages: [{ role: \"user\", content: \"Hello\" }],\n});\n"
+      },
+      "curl": {
+        "before": "curl https://api.anthropic.com/v1/messages \\\n  -H \"x-api-key: $ANTHROPIC_API_KEY\" \\\n  -H \"anthropic-version: 2023-06-01\" \\\n  -H \"content-type: application/json\" \\\n  -d '{\"model\":\"claude-sonnet-4-5-20250929\",\"max_tokens\":1024,\"messages\":[{\"role\":\"user\",\"content\":\"Hello\"}]}'\n",
+        "after": "curl https://api.anthropic.com/v1/messages \\\n  -H \"x-api-key: $ANTHROPIC_API_KEY\" \\\n  -H \"anthropic-version: 2023-06-01\" \\\n  -H \"content-type: application/json\" \\\n  -d '{\"model\":\"claude-sonnet-5-5\",\"max_tokens\":1024,\"messages\":[{\"role\":\"user\",\"content\":\"Hello\"}]}'\n"
+      }
+    }
+  },
+  "migration_checklist": [
+    "Read the shutdown date for claude-sonnet-4-5-20250929 on the linked official page.",
+    "Point your requests at claude-sonnet-5-5.",
+    "Re-check price, context, and parameters on the provider pages linked here.",
+    "Ship the change before the published shutdown date."
+  ],
+  "confidence": "partial",
+  "last_checked": "2026-10-17",
+  "sources": [
+    {
+      "url": "https://platform.claude.com/docs/en/about-claude/model-deprecations",
+      "label": "Anthropic model deprecations",
+      "last_checked": "2026-10-17",
+      "excerpt": "claude-sonnet-4-5-20250929 | Deprecated | September 30, 2026 | November 30, 2026"
+    },
+    {
+      "url": "https://platform.claude.com/docs/en/about-claude/model-deprecations",
+      "label": "Anthropic model deprecations",
+      "last_checked": "2026-10-17",
+      "excerpt": "claude-sonnet-5-5 | Active | N/A | Not sooner than September 28, 2027"
+    },
+    {
+      "url": "https://platform.claude.com/docs/en/about-claude/models/overview",
+      "label": "Anthropic models overview",
+      "last_checked": "2026-10-17",
+      "excerpt": "claude-sonnet-5-5 | Context window 1M tokens | Max output 128K tokens | Text and image input, text output, vision, and tool use."
+    }
+  ]
+}

@@ -1,0 +1,65 @@
+{
+  "id": "codestral-2501",
+  "slug": "codestral-2501",
+  "provider": "mistral",
+  "display_name": "Codestral (25.01)",
+  "family": null,
+  "status": "retired",
+  "announced_date": null,
+  "deprecation_date": "2025-11-06",
+  "shutdown_date": "2025-11-30",
+  "shutdown_date_kind": "exact",
+  "region_or_platform_notes": "Replacement named on the models page: Codestral.",
+  "replacements": [
+    {
+      "model_id": "codestral-2405",
+      "provider": "mistral",
+      "kind": "official",
+      "source_url": "https://docs.mistral.ai/models"
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://docs.mistral.ai/models",
+      "label": "Mistral models",
+      "last_checked": "2026-10-17",
+      "excerpt": "Codestral | 25.01 | codestral-2501 | 11/6/2025 11/30/2025 | Codestral"
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": 0.3,
+    "output_price_per_mtok": 0.9,
+    "cached_input_price_per_mtok": 0.03,
+    "batch_discount_pct": null,
+    "currency": "USD",
+    "context_window_tokens": null,
+    "max_output_tokens": null,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {
+      "input_price_per_mtok": {
+        "url": "https://docs.mistral.ai/models/pricing",
+        "last_checked": "2026-10-17"
+      },
+      "output_price_per_mtok": {
+        "url": "https://docs.mistral.ai/models/pricing",
+        "last_checked": "2026-10-17"
+      },
+      "cached_input_price_per_mtok": {
+        "url": "https://docs.mistral.ai/models/pricing",
+        "last_checked": "2026-10-17"
+      }
+    }
+  },
+  "first_seen": "2026-10-17T15:59:19.574Z",
+  "updated_at": "2026-10-17T15:59:19.574Z"
+}

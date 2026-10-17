@@ -1,0 +1,54 @@
+{
+  "id": "gemini-3.5-live-translate-preview",
+  "slug": "gemini-3-5-live-translate-preview",
+  "provider": "google-gemini-api",
+  "display_name": "gemini-3.5-live-translate-preview",
+  "family": null,
+  "status": "active",
+  "announced_date": null,
+  "deprecation_date": null,
+  "shutdown_date": null,
+  "shutdown_date_kind": "none",
+  "region_or_platform_notes": "Release date on the deprecations page: 2026-06-01.",
+  "replacements": [],
+  "sources": [
+    {
+      "url": "https://ai.google.dev/gemini-api/docs/deprecations",
+      "label": "Gemini API deprecations",
+      "last_checked": "2026-10-17",
+      "excerpt": "gemini-3.5-live-translate-preview | June 2026 | No shutdown date announced"
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": 3.5,
+    "output_price_per_mtok": 21,
+    "cached_input_price_per_mtok": null,
+    "batch_discount_pct": null,
+    "currency": "USD",
+    "context_window_tokens": null,
+    "max_output_tokens": null,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {
+      "input_price_per_mtok": {
+        "url": "https://ai.google.dev/gemini-api/docs/pricing",
+        "last_checked": "2026-10-17"
+      },
+      "output_price_per_mtok": {
+        "url": "https://ai.google.dev/gemini-api/docs/pricing",
+        "last_checked": "2026-10-17"
+      }
+    }
+  },
+  "first_seen": "2026-10-17T15:59:19.574Z",
+  "updated_at": "2026-10-17T15:59:19.574Z"
+}

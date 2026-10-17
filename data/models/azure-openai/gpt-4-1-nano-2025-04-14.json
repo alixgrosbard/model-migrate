@@ -1,0 +1,51 @@
+{
+  "id": "gpt-4.1-nano-2025-04-14",
+  "slug": "gpt-4-1-nano-2025-04-14",
+  "provider": "azure-openai",
+  "display_name": "gpt-4.1-nano 2025-04-14",
+  "family": "gpt-4.1-nano",
+  "status": "active",
+  "announced_date": null,
+  "deprecation_date": null,
+  "shutdown_date": "2027-10-14",
+  "shutdown_date_kind": "exact",
+  "region_or_platform_notes": "Training retirement: No earlier than 2027-04-141. Deployment retirement: 2027-10-14. Fine-tuned deployments: training retirement No earlier than 2027-04-141 (not_before); deployment retirement 2027-10-14.",
+  "replacements": [],
+  "sources": [
+    {
+      "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule",
+      "label": "Azure OpenAI retirement schedule",
+      "last_checked": "2026-10-17",
+      "excerpt": "gpt-4.1-nano | 2025-04-14 | No earlier than 2027-04-141 | 2027-10-14"
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirements",
+      "label": "Azure OpenAI model retirements",
+      "last_checked": "2026-10-17",
+      "excerpt": "gpt-4.1-nano | 2025-04-14 | No earlier than 2027-04-141 | 2027-10-14"
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": null,
+    "output_price_per_mtok": null,
+    "cached_input_price_per_mtok": null,
+    "batch_discount_pct": null,
+    "currency": null,
+    "context_window_tokens": null,
+    "max_output_tokens": null,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {}
+  },
+  "first_seen": "2026-10-17T15:59:19.574Z",
+  "updated_at": "2026-10-17T15:59:19.574Z"
+}

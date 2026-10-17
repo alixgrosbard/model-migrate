@@ -1,0 +1,45 @@
+{
+  "id": "meta.llama3-70b-instruct-v1:0",
+  "slug": "meta-llama3-70b-instruct-v1-0",
+  "provider": "aws-bedrock",
+  "display_name": "Llama 3 70B Instruct (meta.llama3-70b-instruct-v1:0)",
+  "family": "meta.llama3-70b-instruct",
+  "status": "legacy",
+  "announced_date": null,
+  "deprecation_date": "2026-09-30",
+  "shutdown_date": "2027-03-30",
+  "shutdown_date_kind": "exact",
+  "region_or_platform_notes": "Regions listed on the lifecycle page: ap-south-1, ca-central-1, eu-west-2, us-east-1, us-west-2.",
+  "replacements": [],
+  "sources": [
+    {
+      "url": "https://docs.aws.amazon.com/bedrock/latest/userguide/model-lifecycle-legacy.html",
+      "label": "Amazon Bedrock model lifecycle (legacy)",
+      "last_checked": "2026-10-17",
+      "excerpt": "Policy page https://docs.aws.amazon.com/bedrock/latest/userguide/model-lifecycle.html | Meta | Llama 3 70B Instruct | meta.llama3-70b-instruct-v1:0 | ap-south-1, ca-central-1, eu-west-2, us-east-1, us-west-2 | September 30, 2026 | March 30, 2027 | To be announced"
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": null,
+    "output_price_per_mtok": null,
+    "cached_input_price_per_mtok": null,
+    "batch_discount_pct": null,
+    "currency": null,
+    "context_window_tokens": null,
+    "max_output_tokens": null,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {}
+  },
+  "first_seen": "2026-10-17T15:59:19.574Z",
+  "updated_at": "2026-10-17T15:59:19.574Z"
+}

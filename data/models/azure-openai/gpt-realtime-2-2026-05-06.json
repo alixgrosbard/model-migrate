@@ -1,0 +1,52 @@
+{
+  "id": "gpt-realtime-2-2026-05-06",
+  "slug": "gpt-realtime-2-2026-05-06",
+  "provider": "azure-openai",
+  "display_name": "gpt-realtime-2 (2026-05-06)",
+  "family": "gpt-realtime-2",
+  "status": "active",
+  "announced_date": null,
+  "deprecation_date": null,
+  "shutdown_date": null,
+  "shutdown_date_kind": "none",
+  "region_or_platform_notes": "Lifecycle on the schedule: Preview.",
+  "replacements": [
+    {
+      "model_id": "gpt-realtime-2.1",
+      "provider": "azure-openai",
+      "kind": "official",
+      "source_url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule"
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule",
+      "label": "Azure OpenAI retirement schedule",
+      "last_checked": "2026-10-17",
+      "excerpt": "gpt-realtime-2 | 2026-05-06 | Preview | — | gpt-realtime-2.1"
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": null,
+    "output_price_per_mtok": null,
+    "cached_input_price_per_mtok": null,
+    "batch_discount_pct": null,
+    "currency": null,
+    "context_window_tokens": null,
+    "max_output_tokens": null,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {}
+  },
+  "first_seen": "2026-10-17T15:59:19.574Z",
+  "updated_at": "2026-10-17T15:59:19.574Z"
+}

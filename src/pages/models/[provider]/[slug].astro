@@ -1,0 +1,87 @@
+---
+import Base from "../../../layouts/Base.astro";
+import NewsletterForm from "../../../components/NewsletterForm.astro";
+import SponsorSlot from "../../../components/SponsorSlot.astro";
+import { loadChanges, loadModels, loadProviders } from "../../../lib/load.ts";
+import { answerSentence, formatWhen, money, tokens } from "../../../lib/format.ts";
+import { modelGraph } from "../../../jsonld.ts";
+
+export async function getStaticPaths() {
+  const models = await loadModels();
+  return models.map((model) => ({ params: { provider: model.provider, slug: model.slug } }));
+}
+const models = await loadModels();
+const providers = await loadProviders();
+const model = models.find((item) => item.provider === Astro.params.provider && item.slug === Astro.params.slug);
+if (!model) throw new Error("Missing model");
+const provider = providers.find((item) => item.id === model.provider)!;
+const answer = answerSentence(model, provider);
+const changes = (await loadChanges()).filter((change) => change.provider === model.provider && change.model_id === model.id).slice(-20).reverse();
+const description = answer;
+const site = Astro.site?.href ?? "https://sunsetdiff.onrender.com/";
+const specRows = [
+  ["Input price / 1M", money(model.specs.input_price_per_mtok)],
+  ["Output price / 1M", money(model.specs.output_price_per_mtok)],
+  ["Cached input / 1M", money(model.specs.cached_input_price_per_mtok)],
+  ["Context window", tokens(model.specs.context_window_tokens)],
+  ["Max output", tokens(model.specs.max_output_tokens)],
+  ["Reasoning", model.specs.reasoning ?? "Not published"],
+  ["Vision", model.specs.supports_vision == null ? "Not published" : model.specs.supports_vision ? "Yes" : "No"],
+  ["Tools", model.specs.supports_tools == null ? "Not published" : model.specs.supports_tools ? "Yes" : "No"],
+];
+---
+<Base
+  title={`${model.display_name} shutdown date and replacement | SunsetDiff`}
+  description={description}
+  crumbs={[
+    { name: "Home", path: "/" },
+    { name: provider.name, path: `/providers/${provider.id}/` },
+    { name: model.display_name, path: `/models/${model.provider}/${model.slug}/` },
+  ]}
+  extraGraph={modelGraph(site, model, provider)}
+>
+  <h1>When is {model.display_name} shut down?</h1>
+  <p class="answer">{answer}</p>
+  <p><span class="badge">{model.status}</span></p>
+  <table>
+    <caption>Dates</caption>
+    <tbody>
+      <tr><th scope="row">Announced</th><td>{model.announced_date ?? "Not published"}</td></tr>
+      <tr><th scope="row">Deprecated</th><td>{model.deprecation_date ?? "Not published"}</td></tr>
+      <tr><th scope="row">Shutdown</th><td>{formatWhen(model)}</td></tr>
+      <tr><th scope="row">Kind</th><td>{model.shutdown_date_kind}</td></tr>
+    </tbody>
+  </table>
+  {model.region_or_platform_notes && <p>{model.region_or_platform_notes}</p>}
+  <h2>Replacements</h2>
+  {model.replacements.length ? (
+    <ul>
+      {model.replacements.map((item) => (
+        <li>
+          <a href={`/migrate/${model.provider}__${model.slug}__to__${item.provider}__${models.find((row) => row.provider === item.provider && row.id === item.model_id)?.slug ?? item.model_id}/`}>{item.model_id}</a>
+          {" "}({item.kind}) — <a href={item.source_url}>source</a>
+        </li>
+      ))}
+    </ul>
+  ) : <p>Not published.</p>}
+  <p><a href={`/replace/${model.provider}/${model.slug}/`}>See the replacement diff</a></p>
+  <h2>Specs</h2>
+  <table>
+    <caption>Published specs. Missing cells were not on the official pages we checked.</caption>
+    <tbody>
+      {specRows.map(([label, value]) => <tr><th scope="row">{label}</th><td>{value}</td></tr>)}
+    </tbody>
+  </table>
+  <h2>Sources</h2>
+  <ul>
+    {model.sources.map((source) => (
+      <li><a href={source.url}>{source.label}</a> — checked {source.last_checked}. <q>{source.excerpt}</q></li>
+    ))}
+  </ul>
+  <h2>Change history</h2>
+  {changes.length ? (
+    <ul>{changes.map((change) => <li>{change.date}: {change.field} changed. <a href={change.source_url}>Source</a></li>)}</ul>
+  ) : <p>No logged changes for this model yet.</p>}
+  <SponsorSlot modelName={model.display_name} />
+  <NewsletterForm providers={providers} sourcePage={`/models/${model.provider}/${model.slug}/`} />
+</Base>
