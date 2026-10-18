@@ -1,0 +1,82 @@
+name: refresh
+# GitHub only runs schedule and workflow_dispatch from the default branch.
+# Render deploys this site from cursor/sunsetdiff-v1-3cab, so the job
+# checks out that branch and pushes data commits back to it.
+on:
+  schedule:
+    - cron: "17 */6 * * *"
+  workflow_dispatch:
+permissions:
+  contents: write
+  issues: write
+concurrency:
+  group: sunsetdiff-data-refresh
+  cancel-in-progress: false
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: cursor/sunsetdiff-v1-3cab
+          token: ${{ github.token }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+      - run: npm ci
+      - name: Scrape official pages
+        id: scrape
+        run: |
+          set -o pipefail
+          npm run scrape 2>&1 | tee "$RUNNER_TEMP/scrape.log"
+      - name: Test
+        id: test
+        run: |
+          set -o pipefail
+          npm test 2>&1 | tee "$RUNNER_TEMP/test.log"
+      - name: Commit data if it changed
+        id: commit
+        if: success()
+        run: |
+          set -o pipefail
+          npx tsx scripts/generate-static.ts 2>&1 | tee "$RUNNER_TEMP/generate.log"
+          git config user.name sunsetdiff-bot
+          git config user.email sunsetdiff-bot@users.noreply.github.com
+          git add data snapshots action/snapshot
+          if git diff --cached --quiet; then
+            echo "No data changes" | tee -a "$GITHUB_STEP_SUMMARY"
+          else
+            git commit -m "data: refresh $(date -u +%F)"
+            git push origin HEAD:cursor/sunsetdiff-v1-3cab
+            echo "Pushed data refresh to cursor/sunsetdiff-v1-3cab" | tee -a "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: Open or update scraper-broken issue
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SCRAPE_OUTCOME: ${{ steps.scrape.outcome }}
+          TEST_OUTCOME: ${{ steps.test.outcome }}
+          COMMIT_OUTCOME: ${{ steps.commit.outcome }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          {
+            echo "The SunsetDiff refresh failed. Data was not overwritten."
+            echo
+            echo "Run: ${RUN_URL}"
+            echo "Scrape: ${SCRAPE_OUTCOME}"
+            echo "Test: ${TEST_OUTCOME}"
+            echo "Commit: ${COMMIT_OUTCOME}"
+            echo
+            for log in scrape test generate; do
+              file="$RUNNER_TEMP/${log}.log"
+              if [ -f "$file" ]; then
+                echo "### ${log} log"
+                echo '```'
+                tail -n 80 "$file"
+                echo '```'
+                echo
+              fi
+            done
+          } > "$RUNNER_TEMP/scraper-error.md"
+          SCRAPER_ERROR="$(cat "$RUNNER_TEMP/scraper-error.md")" node scripts/open-scraper-issue.mjs
