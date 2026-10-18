@@ -51,6 +51,12 @@ jobs:
             git push origin HEAD:cursor/sunsetdiff-v1-3cab
             echo "Pushed data refresh to cursor/sunsetdiff-v1-3cab" | tee -a "$GITHUB_STEP_SUMMARY"
           fi
+      - name: Close scraper-broken issue after a good refresh
+        if: success()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SCRAPER_RECOVERED: "1"
+        run: node scripts/open-scraper-issue.mjs
       - name: Open or update scraper-broken issue
         if: failure()
         env:
