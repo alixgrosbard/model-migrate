@@ -21,6 +21,39 @@ const headers = {
   "x-github-api-version": "2022-11-28",
 };
 
+if (process.env.SCRAPER_RECOVERED === "1") {
+  const listed = await fetch(`https://api.github.com/repos/${repo}/issues?state=open&labels=scraper-broken`, { headers });
+  if (!listed.ok) {
+    console.error(await listed.text());
+    process.exit(1);
+  }
+  const issues = await listed.json();
+  const note = "The refresh passed. The sanity gate and tests succeeded, so this issue is closed.";
+  for (const issue of issues) {
+    const comment = await fetch(`https://api.github.com/repos/${repo}/issues/${issue.number}/comments`, {
+      method: "POST",
+      headers: { ...headers, "content-type": "application/json" },
+      body: JSON.stringify({ body: note }),
+    });
+    if (!comment.ok) {
+      console.error(await comment.text());
+      process.exit(1);
+    }
+    const closed = await fetch(`https://api.github.com/repos/${repo}/issues/${issue.number}`, {
+      method: "PATCH",
+      headers: { ...headers, "content-type": "application/json" },
+      body: JSON.stringify({ state: "closed", state_reason: "completed" }),
+    });
+    if (!closed.ok) {
+      console.error(await closed.text());
+      process.exit(1);
+    }
+    console.log(`Closed issue #${issue.number}`);
+  }
+  if (!issues.length) console.log("No open scraper-broken issue.");
+  process.exit(0);
+}
+
 const labeled = await fetch(`https://api.github.com/repos/${repo}/labels`, {
   method: "POST",
   headers: { ...headers, "content-type": "application/json" },
