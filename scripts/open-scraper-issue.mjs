@@ -1,5 +1,6 @@
 const title = "scraper-broken: refresh failed";
-const body = process.env.SCRAPER_ERROR || "The SunsetDiff refresh failed the sanity gate or tests. Data was not overwritten.";
+const rawBody = process.env.SCRAPER_ERROR || "The SunsetDiff refresh failed the sanity gate or tests. Data was not overwritten.";
+const body = rawBody.length > 60000 ? `${rawBody.slice(0, 60000)}\n\n(truncated)` : rawBody;
 
 if (!process.env.GH_TOKEN && !process.env.GITHUB_TOKEN) {
   console.log("No GitHub token. Issue was not opened.");
@@ -17,7 +18,21 @@ const headers = {
   authorization: `Bearer ${token}`,
   accept: "application/vnd.github+json",
   "user-agent": "sunsetdiff-bot",
+  "x-github-api-version": "2022-11-28",
 };
+
+const labeled = await fetch(`https://api.github.com/repos/${repo}/labels`, {
+  method: "POST",
+  headers: { ...headers, "content-type": "application/json" },
+  body: JSON.stringify({
+    name: "scraper-broken",
+    color: "b60205",
+    description: "SunsetDiff refresh failed the sanity gate or tests",
+  }),
+});
+if (!labeled.ok && labeled.status !== 422) {
+  console.error(await labeled.text());
+}
 
 const listed = await fetch(`https://api.github.com/repos/${repo}/issues?state=open&labels=scraper-broken`, { headers });
 if (!listed.ok) {
@@ -37,14 +52,23 @@ if (issues.length) {
   }
   console.log(`Updated issue #${issues[0].number}`);
 } else {
-  const created = await fetch(`https://api.github.com/repos/${repo}/issues`, {
+  let created = await fetch(`https://api.github.com/repos/${repo}/issues`, {
     method: "POST",
     headers: { ...headers, "content-type": "application/json" },
     body: JSON.stringify({ title, body, labels: ["scraper-broken"] }),
   });
   if (!created.ok) {
-    console.error(await created.text());
-    process.exit(1);
+    const text = await created.text();
+    created = await fetch(`https://api.github.com/repos/${repo}/issues`, {
+      method: "POST",
+      headers: { ...headers, "content-type": "application/json" },
+      body: JSON.stringify({ title, body }),
+    });
+    if (!created.ok) {
+      console.error(text);
+      console.error(await created.text());
+      process.exit(1);
+    }
   }
   console.log("Opened scraper-broken issue");
 }
