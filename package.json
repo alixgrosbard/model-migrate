@@ -21,7 +21,6 @@
     "generate:static": "tsx scripts/generate-static.ts",
     "build:service": "tsc -p service/tsconfig.json",
     "start:service": "node service/dist/index.js",
-    "export-subscribers": "tsx service/src/export-subscribers.ts",
     "build:action": "ncc build action/src/index.ts -o action/dist --target es2022"
   },
   "dependencies": {
@@ -31,7 +30,6 @@
     "astro": "^5.14.0",
     "cheerio": "^1.1.2",
     "hono": "^4.9.0",
-    "pg": "^8.16.0",
     "undici": "^7.16.0",
     "zod": "^3.25.0",
     "zod-to-json-schema": "^3.24.6"
@@ -39,7 +37,6 @@
   "devDependencies": {
     "@actions/core": "^1.11.1",
     "@types/node": "^22.18.0",
-    "@types/pg": "^8.15.0",
     "@vercel/ncc": "^0.38.3",
     "minimatch": "^10.0.3",
     "tsx": "^4.20.0",

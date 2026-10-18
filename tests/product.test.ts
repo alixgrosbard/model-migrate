@@ -102,7 +102,7 @@ describe("newsletter", () => {
     expect(rateLimited(hash, 3)).toBe(false);
     expect(rateLimited(hash, 4)).toBe(false);
     expect(rateLimited(hash, 5)).toBe(true);
-    expect(THANK_YOU).toBe("You're on the list. We'll start sending updates soon.");
+    expect(THANK_YOU).toBe("You're on the list.");
   });
 });
 

@@ -16,7 +16,7 @@ The build needs no environment variables. Output is the static folder `dist/`. A
 
 The site URL defaults to `https://sunsetdiff.com`. Set `SITE_URL` to another origin, with no path, to override it. Canonical links, the sitemap, `llms.txt`, and Open Graph image URLs use that value.
 
-If `PUBLIC_SERVICE_URL` is not set, the newsletter form stays on the page and says signups open soon. It does not post anywhere.
+If `PUBLIC_SERVICE_URL` is not set, the deprecation-alert form stays disabled. It does not post anywhere and it does not send email.
 
 ## Data
 
@@ -30,11 +30,9 @@ npm run scrape
 
 ## Newsletter
 
-The form stores an email in Postgres. It does not send email. There is no email package in this repo.
+The form adds an email as a Resend contact. It does not send email. There is no email-sending package in this repo.
 
-`npm run export-subscribers` writes a local CSV when `DATABASE_URL` is set. There is no public list of subscribers.
-
-Render's free Postgres expires 30 days after you create it, then it is deleted after a grace period. Swap `DATABASE_URL` to any other free Postgres before day 30. This repo does not sign you up for another database.
+The Node service needs `RESEND_API_KEY` and `RESEND_SEGMENT_ID`. If either is missing, `POST /api/subscribe` returns 503. Set both in the Render dashboard. They are not committed.
 
 ## Machine access
 
@@ -47,7 +45,7 @@ Render's free Postgres expires 30 days after you create it, then it is deleted a
 
 ## Hosting
 
-`render.yaml` describes a free static site, a free Node service, and a free Postgres database. Do not add a custom domain. Render cron jobs are paid, so the refresh stays on GitHub Actions.
+`render.yaml` describes a free static site and a free Node service. There is no database. Render cron jobs are paid, so the refresh stays on GitHub Actions.
 
 ## Licenses
 

@@ -30,7 +30,7 @@ export function cleanProviders(value) {
     const list = Array.isArray(value) ? value : [];
     return [...new Set(list.map(String))].filter((item) => providerIds.includes(item));
 }
-export const THANK_YOU = "You're on the list. We'll start sending updates soon.";
+export const THANK_YOU = "You're on the list.";
 export function resetRateLimits() {
     hits.clear();
 }

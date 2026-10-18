@@ -24,21 +24,15 @@ services:
     name: sunsetdiff-service
     runtime: node
     plan: free
-    branch: main
+    branch: cursor/sunsetdiff-v1-3cab
     autoDeploy: true
     buildCommand: npm ci && npm run build:service
     startCommand: node service/dist/index.js
     healthCheckPath: /health
     envVars:
-      - key: DATABASE_URL
-        fromDatabase:
-          name: sunsetdiff-db
-          property: connectionString
+      - key: RESEND_API_KEY
+        sync: false
+      - key: RESEND_SEGMENT_ID
+        sync: false
       - key: NODE_VERSION
         value: "22"
-
-databases:
-  - name: sunsetdiff-db
-    plan: free
-    databaseName: sunsetdiff
-    user: sunsetdiff

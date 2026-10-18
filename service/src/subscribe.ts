@@ -37,7 +37,7 @@ export function cleanProviders(value: unknown): string[] {
   return [...new Set(list.map(String))].filter((item) => (providerIds as readonly string[]).includes(item));
 }
 
-export const THANK_YOU = "You're on the list. We'll start sending updates soon.";
+export const THANK_YOU = "You're on the list.";
 
 export function resetRateLimits() {
   hits.clear();
