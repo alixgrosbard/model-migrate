@@ -14,10 +14,15 @@ export async function politeFetch(url: string): Promise<string> {
   let lastError: unknown;
   for (let attempt = 1; attempt <= 3; attempt++) {
     try {
+      const wantsMarkdown = /\.md(?:$|\?)/.test(url);
       const response = await undiciFetch(url, {
         headers: {
           "user-agent": USER_AGENT,
-          accept: "text/html,application/xhtml+xml,text/markdown;q=0.9,*/*;q=0.8",
+          // Docs sites serve markdown when the client says it accepts it.
+          // HTML pages are parsed as HTML, so only .md URLs ask for markdown.
+          accept: wantsMarkdown
+            ? "text/markdown, text/plain;q=0.9, text/html;q=0.5"
+            : "text/html, application/xhtml+xml",
           "accept-language": "en-US,en;q=0.9",
         },
         redirect: "follow",
