@@ -6,6 +6,7 @@ import SponsorSlot from "../../../components/SponsorSlot.astro";
 import { loadChanges, loadMigrations, loadModels, loadProviders } from "../../../lib/load.ts";
 import { answerSentence, clipMeta, formatWhen, modelFaqs, modelTitle, money, relatedModels, tokens } from "../../../lib/format.ts";
 import { modelGraph } from "../../../jsonld.ts";
+import { DEFAULT_SITE_URL } from "../../../lib/site.ts";
 
 export async function getStaticPaths() {
   const models = await loadModels();
@@ -22,7 +23,7 @@ const faqs = modelFaqs(model, provider, migration);
 const related = relatedModels(model, models);
 const changes = (await loadChanges()).filter((change) => change.provider === model.provider && change.model_id === model.id).slice(-20).reverse();
 const description = clipMeta(answer);
-const site = Astro.site?.href ?? "https://sunsetdiff.onrender.com/";
+const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
 const specRows: [string, string, string][] = [
   ["Input price / 1M", money(model.specs.input_price_per_mtok), "input_price_per_mtok"],
   ["Output price / 1M", money(model.specs.output_price_per_mtok), "output_price_per_mtok"],

@@ -7,6 +7,7 @@ import SponsorSlot from "../../../components/SponsorSlot.astro";
 import { loadMigrations, loadModels, loadProviders, migrationKey } from "../../../lib/load.ts";
 import { clipMeta, relatedModels, replaceFaqs, replacementAnswer } from "../../../lib/format.ts";
 import { migrateGraph } from "../../../jsonld.ts";
+import { DEFAULT_SITE_URL } from "../../../lib/site.ts";
 
 export async function getStaticPaths() {
   const models = await loadModels();
@@ -29,7 +30,7 @@ const answer = replacementAnswer(model, provider, migration);
 const faqs = replaceFaqs(model, provider, migration);
 const related = relatedModels(model, models);
 const description = clipMeta(answer);
-const site = Astro.site?.href ?? "https://sunsetdiff.onrender.com/";
+const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
 ---
 <Base
   title={`Replacement for ${model.display_name}: price, context, and code | SunsetDiff`}

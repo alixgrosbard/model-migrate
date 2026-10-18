@@ -57,7 +57,12 @@ describe("citation files", () => {
     expect(text).toContain("CC BY 4.0");
     expect(text).toContain("/#soonest");
     expect(text).toContain("/data/");
-    expect(siteOrigin()).toBe("https://sunsetdiff.onrender.com");
+    expect(siteOrigin()).toBe("https://sunsetdiff.com");
+  });
+
+  it("keeps the IndexNow key with no trailing newline", () => {
+    const key = readFileSync("public/1dca852797e5cb64a5ab78151e91938f.txt");
+    expect(key.equals(Buffer.from("1dca852797e5cb64a5ab78151e91938f"))).toBe(true);
   });
 });
 

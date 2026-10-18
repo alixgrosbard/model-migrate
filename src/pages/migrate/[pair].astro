@@ -5,6 +5,7 @@ import MigrationCard from "../../components/MigrationCard.astro";
 import { loadMigrations, loadModels, loadProviders } from "../../lib/load.ts";
 import { clipMeta, replaceFaqs, replacementAnswer } from "../../lib/format.ts";
 import { migrateGraph } from "../../jsonld.ts";
+import { DEFAULT_SITE_URL } from "../../lib/site.ts";
 
 export async function getStaticPaths() {
   const migrations = await loadMigrations();
@@ -24,7 +25,7 @@ const provider = providers.find((item) => item.id === from.provider)!;
 const answer = replacementAnswer(from, provider, migration);
 const faqs = replaceFaqs(from, provider, migration);
 const description = clipMeta(answer);
-const site = Astro.site?.href ?? "https://sunsetdiff.onrender.com/";
+const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
 ---
 <Base
   title={`${from.display_name} to ${to.display_name}: price, context, and code | SunsetDiff`}

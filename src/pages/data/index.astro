@@ -2,9 +2,10 @@
 import Base from "../../layouts/Base.astro";
 import { datasetGraph } from "../../jsonld.ts";
 import { loadModels } from "../../lib/load.ts";
+import { DEFAULT_SITE_URL } from "../../lib/site.ts";
 const models = await loadModels();
 const modified = models.reduce((max, model) => (model.updated_at > max ? model.updated_at : max), "");
-const site = Astro.site?.href ?? "https://sunsetdiff.onrender.com/";
+const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
 ---
 <Base
   title="SunsetDiff dataset (JSON and CSV, CC BY 4.0) | SunsetDiff"

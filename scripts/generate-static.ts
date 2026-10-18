@@ -1,4 +1,4 @@
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { zodToJsonSchema } from "zod-to-json-schema";
 import { migrationSchema, modelSchema, providerSchema } from "../src/schema.ts";
@@ -153,6 +153,10 @@ ${items}
   );
   await mkdir(path.join(process.cwd(), "action/snapshot"), { recursive: true });
   await writeJson(path.join(process.cwd(), "action/snapshot/models.json"), compact);
+  const indexNow = await readFile(path.join(publicDir, "1dca852797e5cb64a5ab78151e91938f.txt"));
+  if (!indexNow.equals(Buffer.from("1dca852797e5cb64a5ab78151e91938f"))) {
+    throw new Error("IndexNow key file is missing or was changed by the static generator");
+  }
   console.log(`Static API generated for ${models.length} models. Window ends ${addDays(day, 90)}.`);
 }
 

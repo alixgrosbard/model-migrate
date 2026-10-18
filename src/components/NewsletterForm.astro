@@ -3,25 +3,32 @@ import type { Provider } from "../schema.ts";
 interface Props { providers: Provider[]; sourcePage: string; }
 const { providers, sourcePage } = Astro.props;
 const service = import.meta.env.PUBLIC_SERVICE_URL ?? "";
+const open = service.length > 0;
 ---
-<form id="subscribe" data-service={service} data-source={sourcePage}>
-  <h2>Shutdown notes</h2>
-  <label>Email <input type="email" name="email" autocomplete="email" required /></label>
-  <fieldset>
-    <legend>Providers (optional)</legend>
-    <div class="checks">
-      {providers.map((provider) => (
-        <label><input type="checkbox" name="providers" value={provider.id} /> {provider.name}</label>
-      ))}
-    </div>
-  </fieldset>
-  <label class="hp">Company <input name="company" tabindex="-1" autocomplete="off" /></label>
-  <button type="submit">Join the list</button>
+<form id="subscribe" data-service={service} data-source={sourcePage} aria-labelledby="subscribe-title">
+  <h2 id="subscribe-title">Deprecation alerts</h2>
   <p id="subscribe-status" class="note" aria-live="polite">
-    {service
-      ? "We store your email, the providers you pick, the page you used, and a hash of your IP. We do not send email yet."
-      : "Signups open soon. This form does not send your email anywhere yet."}
+    {open
+      ? "We store your email for deprecation alerts. We do not send email."
+      : "Signup is off. This form is disabled. It does not store your address and it does not send email."}
   </p>
+  <fieldset disabled={!open} aria-describedby="subscribe-status">
+    <legend>Deprecation alert signup</legend>
+    <label for="subscribe-email">Email address</label>
+    <input id="subscribe-email" type="email" name="email" autocomplete="email" required disabled={!open} />
+    {open ? (
+      <fieldset>
+        <legend>Providers (optional)</legend>
+        <div class="checks">
+          {providers.map((provider) => (
+            <label><input type="checkbox" name="providers" value={provider.id} /> {provider.name}</label>
+          ))}
+        </div>
+      </fieldset>
+    ) : null}
+    <label class="hp">Company <input name="company" tabindex="-1" autocomplete="off" /></label>
+    <button type="submit" disabled={!open}>Get alerts</button>
+  </fieldset>
 </form>
 <script>
   const form = document.querySelector<HTMLFormElement>("#subscribe");
@@ -30,7 +37,7 @@ const service = import.meta.env.PUBLIC_SERVICE_URL ?? "";
     const status = document.querySelector("#subscribe-status");
     const serviceUrl = form.dataset.service ?? "";
     if (!serviceUrl) {
-      if (status) status.textContent = "Signups open soon. This form does not send your email anywhere yet.";
+      if (status) status.textContent = "Signup is off. This form is disabled. It does not store your address and it does not send email.";
       return;
     }
     const data = new FormData(form);
@@ -52,14 +59,13 @@ const service = import.meta.env.PUBLIC_SERVICE_URL ?? "";
     if (status) status.textContent = "Saving...";
     try {
       const result = await send();
-      if (status) status.textContent = result.message ?? "You're on the list. We'll start sending updates soon.";
+      if (status) status.textContent = result.message ?? "You're on the list. No email has been sent.";
     } catch {
-      if (status) status.textContent = "Saving...";
       try {
         const result = await send();
-        if (status) status.textContent = result.message ?? "You're on the list. We'll start sending updates soon.";
+        if (status) status.textContent = result.message ?? "You're on the list. No email has been sent.";
       } catch {
-        if (status) status.textContent = "The signup service is waking up or unavailable. Nothing was sent. Try again in a minute.";
+        if (status) status.textContent = "The signup service is unavailable. Nothing was stored and no email was sent.";
       }
     }
   });

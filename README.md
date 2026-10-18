@@ -14,7 +14,7 @@ npm run build
 
 The build needs no environment variables. Output is the static folder `dist/`. A Render free static site can serve it with build command `npm ci && npm run build` and publish path `dist/`.
 
-The site URL defaults to `https://sunsetdiff.onrender.com`. Set `SITE_URL` to another origin, with no path, when you attach a custom domain later. Canonical links, the sitemap, `llms.txt`, and Open Graph image URLs use that value.
+The site URL defaults to `https://sunsetdiff.com`. Set `SITE_URL` to another origin, with no path, to override it. Canonical links, the sitemap, `llms.txt`, and Open Graph image URLs use that value.
 
 If `PUBLIC_SERVICE_URL` is not set, the newsletter form stays on the page and says signups open soon. It does not post anywhere.
 
