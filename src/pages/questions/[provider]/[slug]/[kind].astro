@@ -1,0 +1,58 @@
+---
+import Base from "../../../../layouts/Base.astro";
+import FaqList from "../../../../components/FaqList.astro";
+import { loadMigrations, loadModels, loadProviders } from "../../../../lib/load.ts";
+import { clipMeta, today } from "../../../../lib/format.ts";
+import { deprecatedFaqs, publicName, questionPath, shutdownFaqs, topRetiringModels } from "../../../../lib/growth.ts";
+import { questionGraph } from "../../../../jsonld.ts";
+import { DEFAULT_SITE_URL } from "../../../../lib/site.ts";
+
+export async function getStaticPaths() {
+  const models = topRetiringModels(await loadModels(), today(), 40);
+  return models.flatMap((model) => [
+    { params: { provider: model.provider, slug: model.slug, kind: "deprecated" } },
+    { params: { provider: model.provider, slug: model.slug, kind: "shutdown-date" } },
+  ]);
+}
+
+const kind = Astro.params.kind === "shutdown-date" ? "shutdown-date" : Astro.params.kind === "deprecated" ? "deprecated" : null;
+if (!kind) throw new Error("Missing question");
+const models = await loadModels();
+const model = models.find((item) => item.provider === Astro.params.provider && item.slug === Astro.params.slug);
+if (!model) throw new Error("Missing model");
+const provider = (await loadProviders()).find((item) => item.id === model.provider);
+if (!provider) throw new Error("Missing provider");
+const migration = (await loadMigrations()).find((item) => item.from.provider === model.provider && item.from.slug === model.slug);
+const name = publicName(model);
+const faqs = kind === "deprecated" ? deprecatedFaqs(model, provider) : shutdownFaqs(model, provider, migration);
+const title = kind === "deprecated" ? `Is ${name} being deprecated?` : `${name} shutdown date`;
+const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
+const other = kind === "deprecated" ? "shutdown-date" : "deprecated";
+---
+<Base
+  title={`${title} | SunsetDiff`}
+  description={clipMeta(faqs[0]?.answer ?? title)}
+  crumbs={[
+    { name: "Home", path: "/" },
+    { name: "Questions", path: "/questions/" },
+    { name: title, path: questionPath(model, kind) },
+  ]}
+  extraGraph={questionGraph(site, model, provider, kind, migration)}
+>
+  <h1>{title}</h1>
+  <p class="answer">{faqs[0]?.answer}</p>
+  <p>
+    <a href={`/models/${model.provider}/${model.slug}/`}>Model page</a>
+    {" · "}
+    <a href={questionPath(model, other)}>{other === "deprecated" ? `Is ${name} being deprecated?` : `${name} shutdown date`}</a>
+    {" · "}
+    <a href={`/providers/${provider.id}/`}>{provider.name}</a>
+    {" · "}
+    <a href="/deadlines/">Deadlines</a>
+  </p>
+  <FaqList items={faqs} />
+  <h2>Sources</h2>
+  <ul>
+    {model.sources.map((source) => <li><a href={source.url}>{source.label}</a> — checked {source.last_checked}</li>)}
+  </ul>
+</Base>

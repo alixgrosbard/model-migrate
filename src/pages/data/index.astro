@@ -17,15 +17,21 @@ const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
   <p>
     Cite this dataset as SunsetDiff, “SunsetDiff model retirement dataset,”
     <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>,
-    <a href="/dataset/sunsetdiff.json">{new URL("/dataset/sunsetdiff.json", site).href}</a>
+    <a href="/dataset/sunsetdiff.json">{new URL("/dataset/sunsetdiff.json", site).href}</a>,
+    <a href="/dataset/sunsetdiff.csv">{new URL("/dataset/sunsetdiff.csv", site).href}</a>,
+    <a href="/data/models.json">{new URL("/data/models.json", site).href}</a>,
+    <a href="/data/deprecations.csv">{new URL("/data/deprecations.csv", site).href}</a>,
     and
-    <a href="/dataset/sunsetdiff.csv">{new URL("/dataset/sunsetdiff.csv", site).href}</a>.
+    <a href="/data/changelog.json">{new URL("/data/changelog.json", site).href}</a>.
     Publisher: SunsetDiff. Each date and spec cites the official page it came from, with a last_checked date. Blank fields were not published there.
   </p>
   <h2>Downloads</h2>
   <ul>
     <li><a href="/dataset/sunsetdiff.json">sunsetdiff.json</a> — JSON download, CC BY 4.0</li>
     <li><a href="/dataset/sunsetdiff.csv">sunsetdiff.csv</a> — CSV download, CC BY 4.0</li>
+    <li><a href="/data/models.json">models.json</a> — model records, CC BY 4.0</li>
+    <li><a href="/data/deprecations.csv">deprecations.csv</a> — retiring and deprecated rows, CC BY 4.0</li>
+    <li><a href="/data/changelog.json">changelog.json</a> — versioned change log, CC BY 4.0</li>
     <li><a href="/api/v1/schema.json">JSON Schema</a></li>
     <li><a href="/llms.txt">llms.txt</a> and <a href="/llms-full.txt">llms-full.txt</a></li>
   </ul>
@@ -53,6 +59,8 @@ const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
   <ul>
     <li><a href="/llms.txt">llms.txt</a> and <a href="/llms-full.txt">llms-full.txt</a></li>
     <li><a href="/calendar.ics">calendar.ics</a></li>
+    <li><a href="/deadlines.ics">deadlines.ics</a> — shutdowns in the next 365 days</li>
+    <li><a href="/feed.xml">feed.xml</a> — new deprecations</li>
     <li><a href="/changes.xml">changes.xml</a></li>
   </ul>
 </Base>

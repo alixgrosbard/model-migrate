@@ -5,6 +5,7 @@ import { migrationSchema, modelSchema, providerSchema } from "../src/schema.ts";
 import { loadChanges, loadMigrations, loadModels, loadProviders } from "../src/lib/load.ts";
 import { addDays, formatWhen, isSoon, officialReplacement, today } from "../src/lib/format.ts";
 import { llmsFull, llmsTxt } from "../src/lib/llms.ts";
+import { changelogDocument, deadlinesIcs, deprecationsCsv, deprecationsFeed, shutdownMonths, topRetiringModels } from "../src/lib/growth.ts";
 import { siteOrigin } from "../src/lib/site.ts";
 
 const site = siteOrigin();
@@ -54,6 +55,11 @@ async function main() {
       schema: "/api/v1/schema.json",
       dataset_json: "/dataset/sunsetdiff.json",
       dataset_csv: "/dataset/sunsetdiff.csv",
+      models_json: "/data/models.json",
+      deprecations_csv: "/data/deprecations.csv",
+      changelog_json: "/data/changelog.json",
+      deadlines_ics: "/deadlines.ics",
+      deprecations_feed: "/feed.xml",
     },
   });
   await writeJson(path.join(publicDir, "api/v1/providers.json"), providers);
@@ -99,8 +105,23 @@ async function main() {
     .filter((model) => isSoon(model, day, 90))
     .sort((a, b) => (a.shutdown_date ?? "").localeCompare(b.shutdown_date ?? ""))
     .slice(0, 20);
+  const questionModels = topRetiringModels(models, day, 40);
+  const months = shutdownMonths(models);
   await writeFile(path.join(publicDir, "llms-full.txt"), llmsFull(site, models));
-  await writeFile(path.join(publicDir, "llms.txt"), llmsTxt(site, providers, soonForLlms));
+  await writeFile(path.join(publicDir, "llms.txt"), llmsTxt(site, providers, soonForLlms, { months, questions: questionModels }));
+  const changelog = changelogDocument(changes);
+  await mkdir(path.join(publicDir, "data"), { recursive: true });
+  await writeJson(path.join(publicDir, "data/models.json"), {
+    name: "SunsetDiff model retirement dataset",
+    publisher: "SunsetDiff",
+    license: "https://creativecommons.org/licenses/by/4.0/",
+    version: changelog.version,
+    models,
+  });
+  await writeFile(path.join(publicDir, "data/deprecations.csv"), deprecationsCsv(models));
+  await writeJson(path.join(publicDir, "data/changelog.json"), changelog);
+  await writeFile(path.join(publicDir, "deadlines.ics"), deadlinesIcs(models, day, site));
+  await writeFile(path.join(publicDir, "feed.xml"), deprecationsFeed(changes, models, site));
   await writeOgImages(publicDir, models, providers);
   await writeFile(
     path.join(publicDir, "robots.txt"),

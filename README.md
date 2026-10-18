@@ -39,6 +39,8 @@ The Node service needs `RESEND_API_KEY` and `RESEND_SEGMENT_ID`. If either is mi
 - `/llms.txt` and `/llms-full.txt`
 - `/api/v1/index.json` and the rest of `/api/v1/`
 - `/dataset/sunsetdiff.json` and `/dataset/sunsetdiff.csv`
+- `/data/models.json`, `/data/deprecations.csv`, and `/data/changelog.json`
+- `/deadlines.ics` and `/feed.xml`
 - MCP tools on the Node service at `/mcp`: `check_model`, `upcoming_shutdowns`, `migration_diff`, `scan_text`
 - Local MCP: `npx github:<owner>/model-migrate mcp`
 - GitHub Action in `action/` (not published to the Marketplace)
@@ -46,6 +48,18 @@ The Node service needs `RESEND_API_KEY` and `RESEND_SEGMENT_ID`. If either is mi
 ## Hosting
 
 `render.yaml` describes a free static site and a free Node service. There is no database. Render cron jobs are paid, so the refresh stays on GitHub Actions.
+
+## Cite the dataset
+
+Publisher: SunsetDiff. License: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+
+The citable files are:
+
+- https://sunsetdiff.com/data/models.json
+- https://sunsetdiff.com/data/deprecations.csv
+- https://sunsetdiff.com/data/changelog.json
+
+`changelog.json` groups recorded changes by date. Its `version` is the latest change date. A blank field was not published on the official page. Do not treat a blank as zero. Each date in the dataset is copied from an official source recorded in the model file.
 
 ## Licenses
 

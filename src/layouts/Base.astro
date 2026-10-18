@@ -1,7 +1,8 @@
 ---
 import "../styles/global.css";
 import { breadcrumb, graph, websiteGraph } from "../jsonld.ts";
-import { loadProviders } from "../lib/load.ts";
+import { loadModels, loadProviders } from "../lib/load.ts";
+import { monthLabel, shutdownMonths } from "../lib/growth.ts";
 import { DEFAULT_SITE_URL } from "../lib/site.ts";
 
 interface Crumb { name: string; path: string; }
@@ -14,6 +15,7 @@ interface Props {
 }
 const { title, description, crumbs, extraGraph = [], image = "/og/sunsetdiff.svg" } = Astro.props;
 const providers = await loadProviders();
+const months = shutdownMonths(await loadModels());
 const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
 const canonical = new URL(Astro.url.pathname, site).href;
 const imageUrl = new URL(image, site).href;
@@ -27,6 +29,8 @@ const jsonld = graph([...websiteGraph(site), breadcrumb(site, crumbs), ...extraG
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
+    <link rel="alternate" type="application/rss+xml" title="SunsetDiff new deprecations" href="/feed.xml" />
+    <link rel="alternate" type="text/calendar" title="SunsetDiff deadlines" href="/deadlines.ics" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
@@ -48,16 +52,35 @@ const jsonld = graph([...websiteGraph(site), breadcrumb(site, crumbs), ...extraG
       <a class="brand" href="/">SunsetDiff</a>
       <nav aria-label="Main">
         <a href="/calendar/">Calendar</a>
+        <a href="/deadlines/">Deadlines</a>
+        <a href="/feed.xml">Feed</a>
+        <a href="/deadlines.ics">iCal</a>
+        <a href="/questions/">Questions</a>
+        <a href="/scan/">Scan</a>
         <a href="/changes/">Changes</a>
         <a href="/data/">Data</a>
         <a href="/about/">About</a>
         <a href="/sponsor/">Sponsor</a>
+      </nav>
+      <nav class="months" aria-label="Shutdown months">
+        {months.map((month) => <a href={`/deadlines/${month}/`}>{monthLabel(month)}</a>)}
       </nav>
     </header>
     <main id="content">
       <slot />
     </main>
     <footer>
+      <nav aria-label="Site">
+        <a href="/deadlines/">Deadlines</a>
+        <a href="/feed.xml">Feed</a>
+        <a href="/deadlines.ics">iCal</a>
+        <a href="/questions/">Questions</a>
+        <a href="/scan/">Scan</a>
+        <a href="/data/">Dataset</a>
+      </nav>
+      <nav class="months" aria-label="Shutdown months">
+        {months.map((month) => <a href={`/deadlines/${month}/`}>{monthLabel(month)}</a>)}
+      </nav>
       <nav aria-label="Providers">
         {providers.map((provider) => <a href={`/providers/${provider.id}/`}>{provider.name}</a>)}
       </nav>

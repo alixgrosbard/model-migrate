@@ -1,0 +1,36 @@
+---
+import Base from "../../layouts/Base.astro";
+import { loadModels } from "../../lib/load.ts";
+import { publicName, questionPath, topRetiringModels } from "../../lib/growth.ts";
+import { formatWhen, today } from "../../lib/format.ts";
+
+const models = topRetiringModels(await loadModels(), today(), 40);
+---
+<Base
+  title="Is this model being deprecated? | SunsetDiff"
+  description="Answers for retiring model ids that official deprecation pages name most often. Dates are copied from those pages."
+  crumbs={[{ name: "Home", path: "/" }, { name: "Questions", path: "/questions/" }]}
+>
+  <h1>Deprecation questions</h1>
+  <p>
+    These {models.length} models are the retiring ids named most often on the official pages we scraped, with a boost for a published shutdown in the next 365 days.
+    This is not a search-volume chart. If a date was not on the official page, the answer says it was not published.
+  </p>
+  <table>
+    <caption>Question pages for retiring models</caption>
+    <thead><tr><th>Model</th><th>Shutdown</th><th>Questions</th></tr></thead>
+    <tbody>
+      {models.map((model) => (
+        <tr>
+          <td><a href={`/models/${model.provider}/${model.slug}/`}>{publicName(model)}</a></td>
+          <td>{formatWhen(model)}</td>
+          <td>
+            <a href={questionPath(model, "deprecated")}>Is it being deprecated?</a>
+            {" · "}
+            <a href={questionPath(model, "shutdown-date")}>Shutdown date</a>
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</Base>

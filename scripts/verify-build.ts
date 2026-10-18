@@ -12,6 +12,14 @@ const required = [
   "changes.xml",
   "dataset/sunsetdiff.json",
   "dataset/sunsetdiff.csv",
+  "deadlines.ics",
+  "feed.xml",
+  "data/models.json",
+  "data/deprecations.csv",
+  "data/changelog.json",
+  "deadlines/index.html",
+  "questions/index.html",
+  "scan/index.html",
 ];
 
 const requiredTypes = ["WebSite", "Organization", "BreadcrumbList"];

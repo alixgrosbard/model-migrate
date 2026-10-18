@@ -1,12 +1,25 @@
 import type { ModelRecord, Provider } from "../schema.ts";
+import { publicName } from "./growth.ts";
 
-export function llmsTxt(site: string, providers: Provider[], soon: ModelRecord[]): string {
+export function llmsTxt(
+  site: string,
+  providers: Provider[],
+  soon: ModelRecord[],
+  extra: { months?: string[]; questions?: ModelRecord[] } = {},
+): string {
   const origin = site.replace(/\/+$/, "");
   const providerLinks = providers.map((provider) => `- [${provider.name}](${origin}/providers/${provider.id}/)`).join("\n");
   const soonLinks = soon
     .map((model) => {
       const replacement = model.replacements[0]?.model_id ?? "not published";
       return `- [${model.display_name}](${origin}/models/${model.provider}/${model.slug}/) shuts down ${model.shutdown_date}. Replacement: ${replacement}. [Diff](${origin}/replace/${model.provider}/${model.slug}/)`;
+    })
+    .join("\n");
+  const monthLinks = (extra.months ?? []).map((month) => `- [${month}](${origin}/deadlines/${month}/)`).join("\n");
+  const questionLinks = (extra.questions ?? [])
+    .map((model) => {
+      const name = publicName(model);
+      return `- [Is ${name} being deprecated?](${origin}/questions/${model.provider}/${model.slug}/deprecated/) and [${name} shutdown date](${origin}/questions/${model.provider}/${model.slug}/shutdown-date/)`;
     })
     .join("\n");
   return `# SunsetDiff
@@ -17,6 +30,11 @@ export function llmsTxt(site: string, providers: Provider[], soon: ModelRecord[]
 - [Home](${origin}/)
 - [Soonest shutdowns](${origin}/#soonest)
 - [Calendar](${origin}/calendar/)
+- [Deadlines](${origin}/deadlines/)
+- [Deadline calendar](${origin}/deadlines.ics)
+- [New deprecations](${origin}/feed.xml)
+- [Code scan](${origin}/scan/)
+- [Deprecation questions](${origin}/questions/)
 - [Changes](${origin}/changes/)
 - [Dataset](${origin}/data/)
 - [About](${origin}/about/)
@@ -26,6 +44,15 @@ The dataset is CC BY 4.0. Publisher: SunsetDiff. Blank spec fields were not on t
 - [Data page](${origin}/data/)
 - [JSON download](${origin}/dataset/sunsetdiff.json)
 - [CSV download](${origin}/dataset/sunsetdiff.csv)
+- [models.json](${origin}/data/models.json)
+- [deprecations.csv](${origin}/data/deprecations.csv)
+- [changelog.json](${origin}/data/changelog.json)
+
+## Shutdown months
+${monthLinks || "- None published."}
+
+## Deprecation questions
+${questionLinks || "- None published."}
 
 ## Soonest shutdowns
 ${soonLinks || "- None published."}
@@ -63,6 +90,14 @@ export function llmsFull(site: string, models: ModelRecord[]): string {
     "# SunsetDiff models",
     `Dataset (CC BY 4.0): ${origin}/dataset/sunsetdiff.json`,
     `CSV: ${origin}/dataset/sunsetdiff.csv`,
+    `models.json: ${origin}/data/models.json`,
+    `deprecations.csv: ${origin}/data/deprecations.csv`,
+    `changelog.json: ${origin}/data/changelog.json`,
+    `Deadlines: ${origin}/deadlines/`,
+    `iCal: ${origin}/deadlines.ics`,
+    `Deprecations feed: ${origin}/feed.xml`,
+    `Questions: ${origin}/questions/`,
+    `Code scan: ${origin}/scan/`,
     `Data page: ${origin}/data/`,
     "Blank cells were not published on the official page. Columns: id, provider, status, shutdown date, official replacement, input price per 1M, output price per 1M, context tokens, max output tokens, source, last checked.",
     ...lines,

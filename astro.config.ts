@@ -11,6 +11,13 @@ export default defineConfig({
   trailingSlash: "always",
   integrations: [
     sitemap({
+      customPages: [
+        `${site}/deadlines.ics`,
+        `${site}/feed.xml`,
+        `${site}/data/models.json`,
+        `${site}/data/deprecations.csv`,
+        `${site}/data/changelog.json`,
+      ],
       serialize(item) {
         const lastmod = lastmodForUrl(item.url);
         if (lastmod) item.lastmod = lastmod;

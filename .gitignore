@@ -9,6 +9,11 @@ public/robots.txt
 public/calendar.ics
 public/calendar/
 public/changes.xml
+public/deadlines.ics
+public/feed.xml
+public/data/models.json
+public/data/deprecations.csv
+public/data/changelog.json
 public/search-index.json
 public/og/
 subscribers.csv
