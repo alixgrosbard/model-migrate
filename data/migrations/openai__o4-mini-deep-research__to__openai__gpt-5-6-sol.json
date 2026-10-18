@@ -55,30 +55,30 @@
     "Ship the change before the published shutdown date."
   ],
   "confidence": "official",
-  "last_checked": "2026-10-17",
+  "last_checked": "2026-10-18",
   "sources": [
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "OpenAI deprecations",
-      "last_checked": "2026-10-17",
+      "last_checked": "2026-10-18",
       "excerpt": "July 23, 2026 | o4-mini-deep-research-2025-06-26 | o4-mini-deep-research | gpt-5.6-sol"
     },
     {
       "url": "https://developers.openai.com/api/docs/models/o4-mini-deep-research.md",
       "label": "OpenAI model docs",
-      "last_checked": "2026-10-17",
+      "last_checked": "2026-10-18",
       "excerpt": "Model ID: o4-mini-deep-research | context window 200000 | max output 100000 | input $2 | output $8"
     },
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "Named as an official replacement",
-      "last_checked": "2026-10-17",
+      "last_checked": "2026-10-18",
       "excerpt": "Named as an official replacement for gpt-5-2025-08-07. No shutdown date was published for this id on that page."
     },
     {
       "url": "https://developers.openai.com/api/docs/models/gpt-daybreak-blue-latest.md",
       "label": "OpenAI model docs",
-      "last_checked": "2026-10-17",
+      "last_checked": "2026-10-18",
       "excerpt": "Model ID: gpt-daybreak-blue-latest | context window 1050000 | max output 128000 | Default snapshot gpt-5.6-sol"
     }
   ]

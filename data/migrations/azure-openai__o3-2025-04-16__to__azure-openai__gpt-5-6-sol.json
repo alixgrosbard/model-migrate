@@ -55,18 +55,18 @@
     "Ship the change before the published shutdown date."
   ],
   "confidence": "partial",
-  "last_checked": "2026-10-17",
+  "last_checked": "2026-10-18",
   "sources": [
     {
       "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule",
       "label": "Azure OpenAI retirement schedule",
-      "last_checked": "2026-10-17",
+      "last_checked": "2026-10-18",
       "excerpt": "o3 | 2025-04-16 | Deprecated | 2026-11-19 | gpt-5.6-sol"
     },
     {
       "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule",
       "label": "Named as an official replacement",
-      "last_checked": "2026-10-17",
+      "last_checked": "2026-10-18",
       "excerpt": "Named as an official replacement for gpt-4o-2024-05-13. No shutdown date was published for this id on that page."
     }
   ]
