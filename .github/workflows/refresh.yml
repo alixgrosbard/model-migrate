@@ -6,6 +6,9 @@ on:
   schedule:
     - cron: "17 */6 * * *"
   workflow_dispatch:
+  # One-shot: this token cannot call workflow_dispatch. Removed after the run starts.
+  push:
+    branches: [main]
 permissions:
   contents: write
   issues: write
