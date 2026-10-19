@@ -2,7 +2,7 @@
   "id": "gpt-4.1-nano",
   "slug": "gpt-4-1-nano",
   "provider": "openai",
-  "display_name": "| (gpt-4.1-nano)",
+  "display_name": "gpt-4.1-nano",
   "family": null,
   "status": "deprecated",
   "announced_date": "2026-04-22",

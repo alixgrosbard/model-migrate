@@ -37,16 +37,18 @@ export function parseMistral(html: string, pricing = "", checked = todayISO()): 
         const alternativeName = $(cells[4]).text().replace(/\s+/g, " ").replace(/↗/g, "").trim();
         nameToId.set(name.toLowerCase(), id);
         const status = mistralStatus(retirement.date, retirement.kind, checked);
+        const hosted = name.startsWith("Z.ai") ? "Z.ai model on the Mistral API." : null;
+        const replacementNote = alternativeName ? `Replacement named on the models page: ${alternativeName}.` : null;
         models.push(
           baseModel({
             id,
             provider: "mistral",
-            displayName: version ? `${name} (${version})` : name,
+            displayName: version && !name.toLowerCase().includes(version.toLowerCase()) ? `${name} (${version})` : name,
             status,
             deprecated: deprecated.date,
             shutdown: retirement.date,
             kind: retirement.kind,
-            notes: alternativeName ? `Replacement named on the models page: ${alternativeName}.` : null,
+            notes: [hosted, replacementNote].filter(Boolean).join(" ") || null,
             sourceUrl: MODELS_URL,
             sourceLabel: "Mistral models",
             checked,

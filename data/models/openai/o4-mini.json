@@ -2,7 +2,7 @@
   "id": "o4-mini",
   "slug": "o4-mini",
   "provider": "openai",
-  "display_name": "| (o4-mini)",
+  "display_name": "o4-mini",
   "family": null,
   "status": "deprecated",
   "announced_date": "2026-04-22",

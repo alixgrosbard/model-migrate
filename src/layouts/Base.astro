@@ -12,8 +12,9 @@ interface Props {
   crumbs: Crumb[];
   extraGraph?: unknown[];
   image?: string;
+  robots?: string;
 }
-const { title, description, crumbs, extraGraph = [], image = "/og/sunsetdiff.svg" } = Astro.props;
+const { title, description, crumbs, extraGraph = [], image = "/og/sunsetdiff.svg", robots } = Astro.props;
 const providers = await loadProviders();
 const months = shutdownMonths(await loadModels());
 const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
@@ -28,6 +29,7 @@ const jsonld = graph([...websiteGraph(site), breadcrumb(site, crumbs), ...extraG
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
+    {robots ? <meta name="robots" content={robots} /> : null}
     <link rel="canonical" href={canonical} />
     <link rel="alternate" type="application/rss+xml" title="SunsetDiff new deprecations" href="/feed.xml" />
     <link rel="alternate" type="text/calendar" title="SunsetDiff deadlines" href="/deadlines.ics" />
@@ -61,7 +63,6 @@ const jsonld = graph([...websiteGraph(site), breadcrumb(site, crumbs), ...extraG
         <a href="/changes/">Changes</a>
         <a href="/data/">Data</a>
         <a href="/about/">About</a>
-        <a href="/pro/">Pro</a>
         <a href="/sponsor/">Sponsor</a>
       </nav>
       <nav class="months" aria-label="Shutdown months">
@@ -80,6 +81,7 @@ const jsonld = graph([...websiteGraph(site), breadcrumb(site, crumbs), ...extraG
         <a href="/questions/">Questions</a>
         <a href="/scan/">Scan</a>
         <a href="/data/">Dataset</a>
+        <a href="/pro/">Pro</a>
       </nav>
       <nav class="months" aria-label="Shutdown months">
         {months.map((month) => <a href={`/deadlines/${month}/`}>{monthLabel(month)}</a>)}
@@ -87,6 +89,7 @@ const jsonld = graph([...websiteGraph(site), breadcrumb(site, crumbs), ...extraG
       <nav aria-label="Providers">
         {providers.map((provider) => <a href={`/providers/${provider.id}/`}>{provider.name}</a>)}
       </nav>
+      <p>SunsetDiff is independent and not affiliated with any AI provider.</p>
       <p>Publisher: SunsetDiff. Dates come from official provider pages. Data is <a href="/DATA_LICENSE.txt">CC BY 4.0</a>. Code is <a href="/LICENSE.txt">MIT</a>. <a href="/data/">Dataset</a></p>
     </footer>
   </body>

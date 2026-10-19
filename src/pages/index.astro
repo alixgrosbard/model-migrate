@@ -5,7 +5,8 @@ import NewsletterForm from "../components/NewsletterForm.astro";
 import SponsorSlot from "../components/SponsorSlot.astro";
 import { loadModels, loadProviders, providerName } from "../lib/load.ts";
 import { formatWhen, isSoon, officialReplacement, today } from "../lib/format.ts";
-import { orderShutdownEvents, providerDisplayName, shutdownEventPath, shutdownEventTitle, shutdownEvents } from "../lib/shutdowns.ts";
+import { publicName } from "../lib/growth.ts";
+import { batchHeadline, eventCountLabel, orderShutdownEvents, providerDisplayName, shutdownEventPath, shutdownEvents } from "../lib/shutdowns.ts";
 
 const providers = await loadProviders();
 const models = await loadModels();
@@ -25,7 +26,7 @@ function replacementModel(model: (typeof models)[number]) {
   return models.find((item) => item.provider === replacement.provider && item.id === replacement.model_id) ?? null;
 }
 ---
-<Base title="SunsetDiff — AI model shutdowns and migration diffs" description={description} crumbs={[{ name: "Home", path: "/" }]}>
+<Base title="SunsetDiff: AI model shutdowns and migration diffs" description={description} crumbs={[{ name: "Home", path: "/" }]}>
   <h1>When a model shuts down, see what actually changes.</h1>
   <p>{description}</p>
   <SearchBox />
@@ -38,7 +39,10 @@ function replacementModel(model: (typeof models)[number]) {
     <tbody>
       {soon.length ? soon.map((model) => (
         <tr>
-          <td><a href={`/models/${model.provider}/${model.slug}/`}>{model.display_name}</a></td>
+          <td>
+            <a href={`/models/${model.provider}/${model.slug}/`}>{publicName(model)}</a>
+            {model.provider === "aws-bedrock" && model.region_or_platform_notes ? <><br />{model.region_or_platform_notes}</> : null}
+          </td>
           <td><a href={`/providers/${model.provider}/`}>{providerName(providers, model.provider)}</a></td>
           <td>{formatWhen(model)}</td>
           <td>
@@ -61,7 +65,7 @@ function replacementModel(model: (typeof models)[number]) {
   <ul>
     {batches.length ? batches.map((event) => {
       const name = providerDisplayName(providers, event.provider);
-      return <li><a href={shutdownEventPath(event)}>{shutdownEventTitle(name, event, day)}</a> ({event.models.length} models)</li>;
+      return <li><a href={shutdownEventPath(event)}>{batchHeadline(name, event, day)}</a> ({eventCountLabel(event)})</li>;
     }) : <li>No upcoming batch has three or more models on one exact date.</li>}
   </ul>
   <h2>Recently announced</h2>
@@ -72,7 +76,7 @@ function replacementModel(model: (typeof models)[number]) {
       {recent.map((model) => (
         <tr>
           <td>{model.announced_date}</td>
-          <td><a href={`/models/${model.provider}/${model.slug}/`}>{model.display_name}</a></td>
+          <td><a href={`/models/${model.provider}/${model.slug}/`}>{publicName(model)}</a></td>
           <td>{formatWhen(model)}</td>
         </tr>
       ))}
@@ -81,7 +85,7 @@ function replacementModel(model: (typeof models)[number]) {
   <h2>Providers</h2>
   <ul>
     {providers.map((provider) => (
-      <li><a href={`/providers/${provider.id}/`}>{provider.name}</a> — <a href={provider.deprecations_url}>official page</a></li>
+      <li><a href={`/providers/${provider.id}/`}>{provider.name}</a>: <a href={provider.deprecations_url}>official page</a></li>
     ))}
   </ul>
   <SponsorSlot />

@@ -1,6 +1,6 @@
 ---
 import type { MigrationRecord, ModelRecord } from "../schema.ts";
-import { money, pct, tokens } from "../lib/format.ts";
+import { money, pct, tokens, visibleName } from "../lib/format.ts";
 interface Props { migration: MigrationRecord; from: ModelRecord; to: ModelRecord; }
 const { migration, from, to } = Astro.props;
 const languages = ["python", "typescript", "curl"] as const;
@@ -10,7 +10,7 @@ function classFor(value: number | null) {
 }
 ---
 <article class="card" id={`diff-${to.slug}`}>
-  <h3>{from.display_name} to {to.display_name}</h3>
+  <h3>{visibleName(from)} to {visibleName(to)}</h3>
   <p>
     {migration.confidence === "official" ? (
       <span class="badge">All values from official sources</span>

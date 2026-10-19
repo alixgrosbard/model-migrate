@@ -6,7 +6,7 @@ import { shutdownEventGraph } from "../../jsonld.ts";
 import { loadMigrations, loadModels, loadProviders } from "../../lib/load.ts";
 import { publicName } from "../../lib/growth.ts";
 import type { ModelRecord } from "../../schema.ts";
-import { today } from "../../lib/format.ts";
+import { clipMeta, today } from "../../lib/format.ts";
 import { DEFAULT_SITE_URL } from "../../lib/site.ts";
 import {
   eventCitations,
@@ -15,12 +15,15 @@ import {
   isPastShutdown,
   providerDisplayName,
   replacementLinks,
+  batchExtras,
+  batchHeadline,
+  batchLead,
+  isModelIdBatch,
+  longDate,
   shutdownEventChecklist,
   shutdownEventDescription,
   shutdownEventFaqs,
-  shutdownEventLead,
   shutdownEventPath,
-  shutdownEventTitle,
   shutdownEvents,
 } from "../../lib/shutdowns.ts";
 
@@ -39,10 +42,24 @@ if (!provider) throw new Error("Missing provider");
 const day = today();
 const past = isPastShutdown(event.date, day);
 const name = providerDisplayName(providers, event.provider);
-const headline = shutdownEventTitle(name, event, day);
-const lead = shutdownEventLead(name, event, day);
-const description = shutdownEventDescription(name, event, day);
-const faqs = shutdownEventFaqs(name, event, day);
+const extras = batchExtras(event);
+const headline = batchHeadline(name, event, day);
+const lead = batchLead(name, event, day);
+const description = isModelIdBatch(event)
+  ? clipMeta(`${event.models.length} OpenAI model IDs (snapshots, aliases, and fine-tunes) are shutting down ${longDate(event.date)}. Requests start failing on that date.`)
+  : shutdownEventDescription(name, event, day);
+const genericFaqs = shutdownEventFaqs(name, event, day);
+const faqs = isModelIdBatch(event)
+  ? [
+      {
+        question: genericFaqs[0].question.replace("models", "model IDs"),
+        answer: genericFaqs[0].answer.replace("models", "model IDs"),
+      },
+      ...extras.faqs,
+      genericFaqs[1],
+      genericFaqs[2],
+    ]
+  : [...genericFaqs, ...extras.faqs];
 const checklist = shutdownEventChecklist(event, day);
 const path = shutdownEventPath(event);
 const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
@@ -71,6 +88,34 @@ function modelLabel(model: ModelRecord): string {
 >
   <h1>{headline}</h1>
   <p class="answer">{lead}</p>
+  {extras.note ? (
+    <p>
+      {extras.note}
+      {event.slug === "aws-bedrock-2026-11-13" ? (
+        <>
+          {" "}
+          <a href="/models/aws-bedrock/anthropic-claude-3-haiku-20240307-v1-0-2/">Claude 3 Haiku regions that already reached end of life</a>.
+        </>
+      ) : null}
+    </p>
+  ) : null}
+  {extras.groups ? (
+    <table>
+      <caption>{rows.length} model IDs grouped as snapshots, aliases, and fine-tunes. They are not {rows.length} separate models.</caption>
+      <thead>
+        <tr><th>Snapshot</th><th>Aliases</th><th>Fine-tunes</th></tr>
+      </thead>
+      <tbody>
+        {extras.groups.map((group) => (
+          <tr>
+            <td><code>{group.snapshot}</code></td>
+            <td>{group.aliases.length ? group.aliases.map((id) => <code>{id} </code>) : "None"}</td>
+            <td>{group.fineTunes.length ? group.fineTunes.map((id) => <code>{id} </code>) : "None"}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  ) : null}
   <p>
     {past ? "This date has passed. The rows below stay up because people still search after requests fail." : "This date is still ahead. The rows below use the published shutdown date only."}
     {" "}
@@ -82,11 +127,12 @@ function modelLabel(model: ModelRecord): string {
   </p>
   <table>
     <caption>
-      {rows.length} {name} models with shutdown date {event.date}. A replacement cell says "Not published" when the official page did not name one.
+      {rows.length} {name} {extras.groups ? "model IDs" : "models"} with shutdown date {event.date}. A replacement cell says "Not published" when the official page did not name one.
     </caption>
     <thead>
       <tr>
-        <th>Model</th>
+        <th>{extras.groups ? "Model ID" : "Model"}</th>
+        {extras.showRegions ? <th>Region</th> : null}
         <th>Status</th>
         <th>Replacement</th>
         <th>Migrate</th>
@@ -97,6 +143,7 @@ function modelLabel(model: ModelRecord): string {
       {rows.map((row) => (
         <tr>
           <td><a href={`/models/${row.model.provider}/${row.model.slug}/`}>{row.label}</a></td>
+          {extras.showRegions ? <td>{row.model.region_or_platform_notes ?? "Not listed"}</td> : null}
           <td>{row.model.status}</td>
           <td>
             {row.links.length ? row.links.map((link, index) => (

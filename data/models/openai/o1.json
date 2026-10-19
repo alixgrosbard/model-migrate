@@ -2,7 +2,7 @@
   "id": "o1",
   "slug": "o1",
   "provider": "openai",
-  "display_name": "| (o1)",
+  "display_name": "o1",
   "family": null,
   "status": "deprecated",
   "announced_date": "2026-04-22",

@@ -61,10 +61,18 @@ const note = alertNote(sending, open);
     try {
       const result = await send();
       if (status) status.textContent = result.message ?? saved;
+      const target = window as Window & { dataLayer?: { event: string }[] };
+      target.dataLayer = target.dataLayer ?? [];
+      target.dataLayer.push({ event: "signup" });
+      window.location.assign("/thanks/");
     } catch {
       try {
         const result = await send();
         if (status) status.textContent = result.message ?? saved;
+        const target = window as Window & { dataLayer?: { event: string }[] };
+        target.dataLayer = target.dataLayer ?? [];
+        target.dataLayer.push({ event: "signup" });
+        window.location.assign("/thanks/");
       } catch {
         if (status) status.textContent = "The signup service is unavailable. Nothing was stored and no email was sent.";
       }

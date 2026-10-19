@@ -12,7 +12,7 @@ export function llmsTxt(
   const soonLinks = soon
     .map((model) => {
       const replacement = model.replacements[0]?.model_id ?? "not published";
-      return `- [${model.display_name}](${origin}/models/${model.provider}/${model.slug}/) shuts down ${model.shutdown_date}. Replacement: ${replacement}. [Diff](${origin}/replace/${model.provider}/${model.slug}/)`;
+      return `- [${publicName(model)}](${origin}/models/${model.provider}/${model.slug}/) shuts down ${model.shutdown_date}. Replacement: ${replacement}. [Diff](${origin}/replace/${model.provider}/${model.slug}/)`;
     })
     .join("\n");
   const monthLinks = (extra.months ?? []).map((month) => `- [${month}](${origin}/deadlines/${month}/)`).join("\n");

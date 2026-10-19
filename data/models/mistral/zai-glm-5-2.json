@@ -2,14 +2,14 @@
   "id": "zai-glm-5-2",
   "slug": "zai-glm-5-2",
   "provider": "mistral",
-  "display_name": "Z.ai GLM 5.2 (5.2)",
+  "display_name": "Z.ai GLM 5.2",
   "family": null,
   "status": "deprecated",
   "announced_date": null,
   "deprecation_date": "2026-09-29",
   "shutdown_date": "2026-10-31",
   "shutdown_date_kind": "exact",
-  "region_or_platform_notes": "Replacement named on the models page: Z.ai GLM 5.3.",
+  "region_or_platform_notes": "Z.ai model on the Mistral API. Replacement named on the models page: Z.ai GLM 5.3.",
   "replacements": [],
   "sources": [
     {

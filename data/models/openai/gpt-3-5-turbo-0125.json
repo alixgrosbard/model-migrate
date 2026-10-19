@@ -2,7 +2,7 @@
   "id": "gpt-3.5-turbo-0125",
   "slug": "gpt-3-5-turbo-0125",
   "provider": "openai",
-  "display_name": "| (gpt-3.5-turbo-0125)",
+  "display_name": "gpt-3.5-turbo-0125",
   "family": null,
   "status": "deprecated",
   "announced_date": "2026-04-22",

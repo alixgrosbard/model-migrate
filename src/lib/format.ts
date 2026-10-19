@@ -5,6 +5,19 @@ export interface FaqItem {
   answer: string;
 }
 
+/** A display name that is only punctuation, such as "| (gpt-4)", falls back to the model id. */
+export function visibleName(model: { display_name: string; id: string }): string {
+  const name = model.display_name.trim();
+  if (/^[A-Za-z0-9]/.test(name)) return name;
+  return model.id;
+}
+
+export function isUpcomingShutdown(model: ModelRecord, day: string): boolean {
+  if (!model.shutdown_date || model.shutdown_date_kind === "none" || model.shutdown_date_kind === "not_before") return false;
+  if (model.shutdown_date_kind === "month_only") return model.shutdown_date.slice(0, 7) >= day.slice(0, 7);
+  return model.shutdown_date >= day;
+}
+
 export function formatWhen(model: ModelRecord): string {
   if (!model.shutdown_date || model.shutdown_date_kind === "none") return "Not published";
   if (model.shutdown_date_kind === "not_before") return `Not sooner than ${model.shutdown_date}`;
@@ -26,8 +39,9 @@ export function shutdownSentence(model: ModelRecord, provider: Provider): string
   } else {
     when = "does not have a published shutdown date";
   }
-  const name = model.display_name.includes(model.id) ? model.display_name : `${model.display_name} (${model.id})`;
-  return `${name} ${when} per ${provider.name}'s deprecation page (checked ${checked}).`;
+  const name = visibleName(model);
+  const labeled = name === model.id || name.includes(model.id) ? name : `${name} (${model.id})`;
+  return `${labeled} ${when} per ${provider.name}'s deprecation page (checked ${checked}).`;
 }
 
 export function replacementSentence(model: ModelRecord): string {
@@ -70,16 +84,16 @@ export function replacementAnswer(model: ModelRecord, provider: Provider, migrat
 
 export function modelFaqs(model: ModelRecord, provider: Provider, migration?: MigrationRecord | null): FaqItem[] {
   return [
-    { question: `When is ${model.display_name} shut down?`, answer: answerSentence(model, provider, migration) },
-    { question: `What replaces ${model.display_name}?`, answer: replacementSentence(model) },
-    { question: `Is ${model.display_name} deprecated?`, answer: `${model.display_name} status is ${model.status}.` },
+    { question: `When is ${visibleName(model)} shut down?`, answer: answerSentence(model, provider, migration) },
+    { question: `What replaces ${visibleName(model)}?`, answer: replacementSentence(model) },
+    { question: `Is ${visibleName(model)} deprecated?`, answer: `${visibleName(model)} status is ${model.status}.` },
   ];
 }
 
 export function replaceFaqs(model: ModelRecord, provider: Provider, migration?: MigrationRecord | null): FaqItem[] {
   const target = migration?.to.model_id ?? officialReplacement(model)?.model_id;
   return [
-    { question: `What is the replacement for ${model.display_name}?`, answer: replacementAnswer(model, provider, migration) },
+    { question: `What is the replacement for ${visibleName(model)}?`, answer: replacementAnswer(model, provider, migration) },
     {
       question: target ? `Is ${target} cheaper than ${model.id}?` : `Is the replacement cheaper than ${model.id}?`,
       answer: cheaperAnswer(migration),
@@ -112,8 +126,9 @@ export function contextAnswer(migration?: MigrationRecord | null): string {
 
 export function modelTitle(model: ModelRecord): string {
   const when = formatWhen(model);
-  if (when === "Not published") return `${model.display_name} shutdown status | SunsetDiff`;
-  return `${model.display_name} shuts down ${when} | SunsetDiff`;
+  const name = visibleName(model);
+  if (when === "Not published") return `${name} shutdown status | SunsetDiff`;
+  return `${name} shuts down ${when} | SunsetDiff`;
 }
 
 export function clipMeta(text: string, max = 160): string {

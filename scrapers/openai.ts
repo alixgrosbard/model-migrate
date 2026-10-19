@@ -66,12 +66,13 @@ export function parseOpenAI(html: string, pricing = "", checked = todayISO()): S
         }
         const labelNode = $(cells[modelIdx]).clone();
         labelNode.find("code").remove();
-        const label = labelNode.text().replace(/[(),]/g, " ").replace(/\s+/g, " ").trim();
+        const label = labelNode.text().replace(/[(),|]/g, " ").replace(/\s+/g, " ").trim();
+        const usable = /^[A-Za-z0-9]/.test(label) ? label : "";
         found.push(
           baseModel({
             id,
             provider: "openai",
-            displayName: label && label.toLowerCase() !== id.toLowerCase() ? `${label} (${id})` : id,
+            displayName: usable && usable.toLowerCase() !== id.toLowerCase() ? `${usable} (${id})` : id,
             status,
             announced,
             shutdown: shutdown.date,

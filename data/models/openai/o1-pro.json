@@ -2,7 +2,7 @@
   "id": "o1-pro",
   "slug": "o1-pro",
   "provider": "openai",
-  "display_name": "| (o1-pro)",
+  "display_name": "o1-pro",
   "family": null,
   "status": "deprecated",
   "announced_date": "2026-04-22",

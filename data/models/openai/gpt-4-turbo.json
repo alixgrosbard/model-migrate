@@ -2,7 +2,7 @@
   "id": "gpt-4-turbo",
   "slug": "gpt-4-turbo",
   "provider": "openai",
-  "display_name": "| (gpt-4-turbo)",
+  "display_name": "gpt-4-turbo",
   "family": null,
   "status": "deprecated",
   "announced_date": "2026-04-22",

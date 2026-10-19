@@ -2,7 +2,7 @@
   "id": "o3-mini",
   "slug": "o3-mini",
   "provider": "openai",
-  "display_name": "| (o3-mini)",
+  "display_name": "o3-mini",
   "family": null,
   "status": "deprecated",
   "announced_date": "2026-04-22",

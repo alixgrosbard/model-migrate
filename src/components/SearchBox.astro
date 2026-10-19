@@ -32,7 +32,7 @@ const { heading = "Search models" } = Astro.props;
         const item = document.createElement("li");
         const link = document.createElement("a");
         link.href = `/models/${hit.provider}/${hit.slug}/`;
-        link.textContent = `${hit.display_name} (${hit.provider}) — ${hit.status}`;
+        link.textContent = `${hit.display_name} (${hit.provider}): ${hit.status}`;
         item.append(link);
         list.append(item);
       }

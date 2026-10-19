@@ -1,0 +1,42 @@
+---
+import Base from "../../layouts/Base.astro";
+import NewsletterForm from "../../components/NewsletterForm.astro";
+import { loadProviders } from "../../lib/load.ts";
+
+const providers = await loadProviders();
+---
+<Base
+  title="Check model shutdown dates programmatically | SunsetDiff"
+  description="Read SunsetDiff JSON, CSV, or the JSON API to check an AI model shutdown date from the official provider pages."
+  crumbs={[
+    { name: "Home", path: "/" },
+    { name: "Data", path: "/data/" },
+    { name: "Check dates in code", path: "/guides/check-model-shutdown-dates-programmatically/" },
+  ]}
+>
+  <h1>Check model shutdown dates programmatically</h1>
+  <p class="answer">
+    SunsetDiff publishes the same dates as JSON and CSV under CC BY 4.0. Each date cites the official provider page and the day it was checked. Blank fields were not on that page.
+  </p>
+  <h2>Download</h2>
+  <pre><code>curl -fsSL https://sunsetdiff.com/dataset/sunsetdiff.json -o sunsetdiff.json
+curl -fsSL https://sunsetdiff.com/api/v1/upcoming.json</code></pre>
+  <p>
+    <a href="/dataset/sunsetdiff.json">sunsetdiff.json</a>,
+    <a href="/dataset/sunsetdiff.csv">sunsetdiff.csv</a>,
+    <a href="/api/v1/upcoming.json">upcoming.json</a> (next 90 days),
+    and <a href="/api/v1/lookup/gpt-4.json">/api/v1/lookup/&lt;model-id&gt;.json</a>.
+    The dataset is also listed at <a href="https://huggingface.co/datasets/sunsetdiff/ai-model-deprecations">Hugging Face</a>.
+  </p>
+  <h2>What to read</h2>
+  <ul>
+    <li><code>shutdown_date</code> and <code>shutdown_date_kind</code>. A kind of <code>not_before</code> is a floor, not a deadline.</li>
+    <li><code>region_or_platform_notes</code> on Amazon Bedrock rows. The date applies only in the regions listed there.</li>
+    <li><code>sources[0].url</code> before you migrate. That is the official page.</li>
+  </ul>
+  <h2>MCP</h2>
+  <p>The read-only MCP endpoint is <code>/mcp</code> on the API service. Tools: <code>check_model</code>, <code>upcoming_shutdowns</code>, <code>migration_diff</code>, <code>scan_text</code>.</p>
+  <pre><code>npx github:alixgrosbard/model-migrate mcp</code></pre>
+  <p><a href="/data/">Dataset page</a> · <a href="/scan/">Scan code</a> · <a href="/shutdowns/">Shutdown batches</a></p>
+  <NewsletterForm providers={providers} sourcePage="/guides/check-model-shutdown-dates-programmatically/" />
+</Base>

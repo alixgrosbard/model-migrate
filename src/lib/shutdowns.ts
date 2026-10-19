@@ -203,6 +203,148 @@ export function eventDatePublished(event: ShutdownEvent): string {
   return oldest;
 }
 
+export interface IdGroup {
+  snapshot: string;
+  aliases: string[];
+  fineTunes: string[];
+}
+
+export interface BatchExtras {
+  headline: string | null;
+  lead: string | null;
+  faqs: FaqItem[];
+  groups: IdGroup[] | null;
+  note: string | null;
+  showRegions: boolean;
+}
+
+const EMPTY_EXTRAS: BatchExtras = { headline: null, lead: null, faqs: [], groups: null, note: null, showRegions: false };
+
+/** The October 23 OpenAI page counts model IDs (snapshots, aliases, fine-tunes), not separate models. */
+export function isModelIdBatch(event: ShutdownEvent): boolean {
+  return event.provider === "openai" && event.date === "2026-10-23" && event.models.length >= 10;
+}
+
+export function eventCountLabel(event: ShutdownEvent): string {
+  if (isModelIdBatch(event)) return `${event.models.length} model IDs`;
+  return `${event.models.length} models`;
+}
+
+export function batchHeadline(providerName: string, event: ShutdownEvent, day: string): string {
+  return batchExtras(event).headline ?? shutdownEventTitle(providerName, event, day);
+}
+
+export function batchLead(providerName: string, event: ShutdownEvent, day: string): string {
+  return batchExtras(event).lead ?? shutdownEventLead(providerName, event, day);
+}
+
+export function batchExtras(event: ShutdownEvent): BatchExtras {
+  if (isModelIdBatch(event)) {
+    const when = longDate(event.date);
+    return {
+      headline: `${event.models.length} OpenAI model IDs shutting down ${when}`,
+      lead: `OpenAI is shutting down ${event.models.length} model IDs on ${when}. That count is snapshots, aliases, and fine-tunes, not ${event.models.length} separate models. Requests to these model IDs start failing on that date.`,
+      faqs: [
+        {
+          question: `Is OpenAI shutting down ${event.models.length} separate models on ${when}?`,
+          answer: `No. The ${event.models.length} rows are model IDs: snapshots, aliases, and fine-tunes. Several IDs point at the same snapshot.`,
+        },
+      ],
+      groups: openAiIdGroups(event.models),
+      note: "Use the snapshot column when you migrate. An alias in the same row shuts down with that snapshot.",
+      showRegions: false,
+    };
+  }
+  if (event.provider === "aws-bedrock" && event.date === "2026-11-13") {
+    return {
+      headline: null,
+      lead: "Amazon Bedrock is shutting down the models in this table on November 13, 2026 only in the regions AWS lists for each row. Requests in those regions start failing on that date. A region that is not on the row keeps its own date.",
+      faqs: [
+        {
+          question: "Does November 13, 2026 apply in every AWS region?",
+          answer:
+            "No. The date applies only to the regions AWS lists for each model. Claude 3 Haiku already reached end of life on September 10, 2026 in us-east-1, us-west-2, and the other regions on that earlier row, including most EU regions on that row. November 13, 2026 for Claude 3 Haiku applies in ap-northeast-2, ap-south-1, ap-southeast-1, eu-central-2, sa-east-1, and ca-central-1.",
+        },
+      ],
+      groups: null,
+      note: "Claude 3 Haiku already reached end of life on September 10, 2026 in us-east-1, us-west-2, and the other regions on the earlier row (including most EU regions on that row, plus us-gov-east-1 and us-gov-west-1). November 13, 2026 applies only where AWS lists it: ap-northeast-2, ap-south-1, ap-southeast-1, eu-central-2, sa-east-1, and ca-central-1. Legacy dates differ by region and are in the Region column.",
+      showRegions: true,
+    };
+  }
+  if (event.provider === "google-vertex" && event.date === "2026-10-20") {
+    return {
+      headline: null,
+      lead: null,
+      faqs: [
+        {
+          question: "Are the October 20, 2026 Vertex dates verified?",
+          answer:
+            "Yes. Google's Gemini Enterprise Agent Platform model versions page lists October 20, 2026 as the retirement date for gemini-2.5-flash, gemini-2.5-flash-lite, and gemini-2.5-pro. SunsetDiff checked that page on October 19, 2026. The same page also lists Gemma 4 as a replacement for gemini-2.5-flash-lite.",
+        },
+      ],
+      groups: null,
+      note: "Verified on Google's model versions page on October 19, 2026: https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/model-versions. That page lists retirement on October 20, 2026 for gemini-2.5-pro, gemini-2.5-flash, and gemini-2.5-flash-lite.",
+      showRegions: false,
+    };
+  }
+  if (event.slug === "openai-2026-12-01") {
+    return {
+      ...EMPTY_EXTRAS,
+      note: "This page is the GPT Image model IDs OpenAI is removing on December 1, 2026. gpt-image-1 is on the October 23, 2026 page.",
+    };
+  }
+  if (event.slug === "openai-2026-12-11") {
+    return {
+      ...EMPTY_EXTRAS,
+      note: "This page is the GPT-5 and o3 snapshots OpenAI is removing on December 11, 2026.",
+    };
+  }
+  if (event.slug === "openai-2027-01-14") {
+    return {
+      ...EMPTY_EXTRAS,
+      note: "This page is the GPT-4o and GPT-4.1 snapshots OpenAI is removing on January 14, 2027. Earlier GPT-4o and GPT-4.1 snapshots are on the October 23, 2026 page.",
+    };
+  }
+  if (event.provider === "aws-bedrock") return { ...EMPTY_EXTRAS, showRegions: true };
+  return EMPTY_EXTRAS;
+}
+
+const OPENAI_OCT23_GROUPS: IdGroup[] = [
+  { snapshot: "gpt-3.5-turbo-0125", aliases: ["gpt-3.5-turbo", "gpt-3.5-turbo-completions"], fineTunes: ["ft-gpt-3.5-turbo"] },
+  { snapshot: "gpt-4-0613", aliases: ["gpt-4", "gpt-4-0613-completions", "gpt-4-completions"], fineTunes: ["ft-gpt-4"] },
+  { snapshot: "gpt-4-1106-preview", aliases: [], fineTunes: [] },
+  { snapshot: "gpt-4-turbo-2024-04-09", aliases: ["gpt-4-turbo", "gpt-4-turbo-completions"], fineTunes: [] },
+  { snapshot: "gpt-4.1-nano-2025-04-14", aliases: ["gpt-4.1-nano"], fineTunes: ["ft-gpt-4.1-nano-2025-04-14"] },
+  { snapshot: "gpt-4o-2024-05-13", aliases: [], fineTunes: [] },
+  { snapshot: "o1-2024-12-17", aliases: ["o1"], fineTunes: [] },
+  { snapshot: "o1-pro-2025-03-19", aliases: ["o1-pro"], fineTunes: [] },
+  { snapshot: "o3-mini-2025-01-31", aliases: ["o3-mini"], fineTunes: [] },
+  { snapshot: "o4-mini-2025-04-16", aliases: ["o4-mini"], fineTunes: ["ft-o4-mini-2025-04-16"] },
+  { snapshot: "ft-babbage-002", aliases: [], fineTunes: [] },
+  { snapshot: "ft-davinci-002", aliases: [], fineTunes: [] },
+  { snapshot: "gpt-image-1", aliases: [], fineTunes: [] },
+];
+
+export function openAiIdGroups(models: ModelRecord[]): IdGroup[] {
+  const ids = new Set(models.map((model) => model.id));
+  const used = new Set<string>();
+  const groups: IdGroup[] = [];
+  for (const group of OPENAI_OCT23_GROUPS) {
+    const present = [group.snapshot, ...group.aliases, ...group.fineTunes].filter((id) => ids.has(id));
+    if (!present.length) continue;
+    for (const id of present) used.add(id);
+    groups.push({
+      snapshot: ids.has(group.snapshot) ? group.snapshot : present[0],
+      aliases: group.aliases.filter((id) => ids.has(id) && id !== (ids.has(group.snapshot) ? group.snapshot : present[0])),
+      fineTunes: group.fineTunes.filter((id) => ids.has(id)),
+    });
+  }
+  for (const id of [...ids].sort((a, b) => a.localeCompare(b))) {
+    if (!used.has(id)) groups.push({ snapshot: id, aliases: [], fineTunes: id.startsWith("ft-") ? [id] : [] });
+  }
+  return groups;
+}
+
 function replacementSummary(models: ModelRecord[]): string {
   const names = new Set<string>();
   let missing = 0;

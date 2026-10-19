@@ -1,17 +1,46 @@
 ---
 import Base from "../../layouts/Base.astro";
+import FaqList from "../../components/FaqList.astro";
 import { loadModels } from "../../lib/load.ts";
 import { publicName, questionPath, topRetiringModels } from "../../lib/growth.ts";
-import { formatWhen, today } from "../../lib/format.ts";
+import { formatWhen, today, type FaqItem } from "../../lib/format.ts";
 
 const models = topRetiringModels(await loadModels(), today(), 40);
+const faqs: FaqItem[] = [
+  {
+    question: "How many OpenAI models shut down on October 23, 2026?",
+    answer: "29 model IDs shut down that day: snapshots, aliases, and fine-tunes, not 29 separate models. See the October 23 batch.",
+  },
+  {
+    question: "Does Claude 3 Haiku on Bedrock shut down everywhere on November 13, 2026?",
+    answer: "No. It already reached end of life on September 10, 2026 in us-east-1, us-west-2, and most EU regions on that earlier row. November 13, 2026 applies only in the regions AWS lists, including eu-central-2, sa-east-1, and ca-central-1.",
+  },
+  {
+    question: "Where do the dates come from?",
+    answer: "Each date is copied from the provider page linked on the model row, with the day SunsetDiff last checked it.",
+  },
+];
 ---
 <Base
   title="Is this model being deprecated? | SunsetDiff"
   description="Answers for retiring model ids that official deprecation pages name most often. Dates are copied from those pages."
   crumbs={[{ name: "Home", path: "/" }, { name: "Questions", path: "/questions/" }]}
+  extraGraph={[{
+    "@type": "FAQPage",
+    mainEntity: faqs.map((item) => ({
+      "@type": "Question",
+      name: item.question,
+      acceptedAnswer: { "@type": "Answer", text: item.answer },
+    })),
+  }]}
 >
   <h1>Deprecation questions</h1>
+  <FaqList items={faqs} />
+  <p>
+    <a href="/shutdowns/openai-2026-10-23/">OpenAI model IDs shutting down October 23, 2026</a>
+    {" · "}
+    <a href="/shutdowns/aws-bedrock-2026-11-13/">Amazon Bedrock models shutting down November 13, 2026</a>
+  </p>
   <p>
     These {models.length} models are the retiring ids named most often on the official pages we scraped, with a boost for a published shutdown in the next 365 days.
     This is not a search-volume chart. If a date was not on the official page, the answer says it was not published.

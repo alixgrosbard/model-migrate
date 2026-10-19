@@ -5,8 +5,12 @@ import { lastmodForUrl } from "../src/lib/lastmod.ts";
 import { llmsFull, llmsTxt } from "../src/lib/llms.ts";
 import { loadModels, loadProviders } from "../src/lib/load.ts";
 import { modelSchema, type ModelRecord } from "../src/schema.ts";
+import { visibleName } from "../src/lib/format.ts";
 import {
+  batchExtras,
+  batchLead,
   isPastShutdown,
+  openAiIdGroups,
   orderShutdownEvents,
   publishedReplacementIds,
   replacementLinks,
@@ -87,6 +91,7 @@ describe("shutdown batches", () => {
     expect(pastFaqs[0].question).toBe("Which OpenAI models shut down on October 23, 2026?");
     expect(pastFaqs[2].answer).toContain("shut down on October 23, 2026");
     expect(futureFaqs.map((item) => `${item.question} ${item.answer}`).join(" ")).not.toContain("shut down on");
+    expect(visibleName({ display_name: "| (gpt-4)", id: "gpt-4" })).toBe("gpt-4");
     expect(shutdownEventDescription("OpenAI", event, day).length).toBeLessThanOrEqual(160);
     const ordered = orderShutdownEvents(
       shutdownEvents([
@@ -98,6 +103,36 @@ describe("shutdown batches", () => {
       day,
     );
     expect(ordered.map((item) => item.date)).toEqual(["2026-10-23", "2026-01-04"]);
+  });
+
+  it("describes the OpenAI October 23 batch as model IDs and keeps Bedrock regions", async () => {
+    const models = await loadModels();
+    const events = shutdownEvents(models);
+    const openai = events.find((event) => event.slug === "openai-2026-10-23");
+    const bedrock = events.find((event) => event.slug === "aws-bedrock-2026-11-13");
+    const vertex = events.find((event) => event.slug === "google-vertex-2026-10-20");
+    expect(openai).toBeTruthy();
+    expect(bedrock).toBeTruthy();
+    expect(vertex).toBeTruthy();
+    const openaiExtras = batchExtras(openai!);
+    const lead = batchLead("OpenAI", openai!, day);
+    expect(openaiExtras.headline).toContain("model IDs");
+    expect(lead).toContain("snapshots, aliases, and fine-tunes");
+    expect(lead).toContain("start failing");
+    expect(lead).not.toContain("shut down on");
+    const grouped = openAiIdGroups(openai!.models).flatMap((group) => [group.snapshot, ...group.aliases, ...group.fineTunes]);
+    expect(new Set(grouped)).toEqual(new Set(openai!.models.map((model) => model.id)));
+    const bedrockExtras = batchExtras(bedrock!);
+    expect(bedrockExtras.note).toContain("eu-central-2");
+    expect(bedrockExtras.note).toContain("sa-east-1");
+    expect(bedrockExtras.note).toContain("ca-central-1");
+    expect(bedrockExtras.note).toContain("September 10, 2026");
+    expect(bedrockExtras.note).not.toContain("shut down on");
+    expect(bedrockExtras.showRegions).toBe(true);
+    const vertexExtras = batchExtras(vertex!);
+    expect(vertexExtras.note).toContain("Verified");
+    expect(vertexExtras.note).toContain("October 20, 2026");
+    expect(`${vertexExtras.note} ${vertexExtras.faqs.map((item) => item.answer).join(" ")}`).not.toMatch(/[—–]/);
   });
 
   it("links a migrate page only when that migration was published", () => {

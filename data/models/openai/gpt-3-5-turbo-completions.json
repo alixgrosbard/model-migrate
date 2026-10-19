@@ -2,7 +2,7 @@
   "id": "gpt-3.5-turbo-completions",
   "slug": "gpt-3-5-turbo-completions",
   "provider": "openai",
-  "display_name": "| (gpt-3.5-turbo-completions)",
+  "display_name": "gpt-3.5-turbo-completions",
   "family": null,
   "status": "deprecated",
   "announced_date": "2026-04-22",

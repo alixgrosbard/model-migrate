@@ -29,6 +29,7 @@ describe("official snapshots", () => {
     expect(gpt?.shutdown_date).toBe("2027-01-14");
     expect(gpt?.replacements[0]?.model_id).toBe("gpt-6-luna");
     expect(gpt?.sources[0]?.last_checked).toBe(checked);
+    expect(models.find((model) => model.id === "gpt-4")?.display_name).toBe("gpt-4");
   });
 
   it("parses Anthropic status and not-sooner-than dates", () => {
@@ -54,6 +55,18 @@ describe("official snapshots", () => {
     const jamba = bedrock.find((model) => model.id === "ai21.jamba-1-5-large-v1:0");
     expect(jamba?.deprecation_date).toBe("2026-05-26");
     expect(jamba?.shutdown_date).toBe("2026-11-26");
+    const haiku = bedrock.filter((model) => model.id === "anthropic.claude-3-haiku-20240307-v1:0");
+    const haikuNov = haiku.find((model) => model.shutdown_date === "2026-11-13");
+    const haikuSep = haiku.find((model) => model.shutdown_date === "2026-09-10");
+    expect(haikuNov?.region_or_platform_notes).toContain("eu-central-2");
+    expect(haikuNov?.region_or_platform_notes).toContain("sa-east-1");
+    expect(haikuNov?.region_or_platform_notes).toContain("ca-central-1");
+    expect(haikuSep?.region_or_platform_notes).toContain("us-east-1");
+    expect(haikuSep?.region_or_platform_notes).toContain("us-west-2");
+    expect(haikuSep?.region_or_platform_notes).toContain("us-gov-east-1");
+    const sonnet3 = bedrock.find((model) => model.id === "anthropic.claude-3-sonnet-20240229-v1:0" && model.shutdown_date === "2026-11-13");
+    expect(sonnet3?.region_or_platform_notes).toContain("sa-east-1");
+    expect(sonnet3?.region_or_platform_notes).toContain("ca-central-1");
     const azure = parseAzure(read("snapshots/azure-openai/2026-10-17-schedule.html"), read("snapshots/azure-openai/2026-10-17.html"), checked);
     expect(azure.find((model) => model.id === "codex-mini-2025-05-16")?.shutdown_date).toBe("2026-11-15");
     const mistral = parseMistral(read("snapshots/mistral/2026-10-17.html"), read("snapshots/mistral/pricing-2026-10-17.html"), checked);

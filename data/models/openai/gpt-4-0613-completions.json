@@ -2,7 +2,7 @@
   "id": "gpt-4-0613-completions",
   "slug": "gpt-4-0613-completions",
   "provider": "openai",
-  "display_name": "| (gpt-4-0613-completions)",
+  "display_name": "gpt-4-0613-completions",
   "family": null,
   "status": "deprecated",
   "announced_date": "2026-04-22",

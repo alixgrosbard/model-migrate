@@ -9,8 +9,9 @@ import {
   longDate,
   orderShutdownEvents,
   providerDisplayName,
+  batchHeadline,
+  eventCountLabel,
   shutdownEventPath,
-  shutdownEventTitle,
   shutdownEvents,
 } from "../../lib/shutdowns.ts";
 
@@ -21,7 +22,7 @@ const upcoming = events.filter((event) => !isPastShutdown(event.date, day));
 const past = events.filter((event) => isPastShutdown(event.date, day));
 const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
 const listed = events.map((event) => ({
-  name: shutdownEventTitle(providerDisplayName(providers, event.provider), event, day),
+  name: batchHeadline(providerDisplayName(providers, event.provider), event, day),
   path: shutdownEventPath(event),
 }));
 ---
@@ -40,16 +41,16 @@ const listed = events.map((event) => ({
   <h2>Upcoming</h2>
   <table>
     <caption>{upcoming.length} upcoming shutdown batches.</caption>
-    <thead><tr><th>Date</th><th>Provider</th><th>Models</th><th>Page</th></tr></thead>
+    <thead><tr><th>Date</th><th>Provider</th><th>In the batch</th><th>Page</th></tr></thead>
     <tbody>
       {upcoming.length ? upcoming.map((event) => {
         const name = providerDisplayName(providers, event.provider);
-        const title = shutdownEventTitle(name, event, day);
+        const title = batchHeadline(name, event, day);
         return (
           <tr>
             <td>{longDate(event.date)}</td>
             <td><a href={`/providers/${event.provider}/`}>{name}</a></td>
-            <td>{event.models.length}</td>
+            <td>{eventCountLabel(event)}</td>
             <td><a href={shutdownEventPath(event)}>{title}</a></td>
           </tr>
         );
@@ -59,16 +60,16 @@ const listed = events.map((event) => ({
   <h2>Already shut down</h2>
   <table>
     <caption>{past.length} past shutdown batches. These pages stay up after the date.</caption>
-    <thead><tr><th>Date</th><th>Provider</th><th>Models</th><th>Page</th></tr></thead>
+    <thead><tr><th>Date</th><th>Provider</th><th>In the batch</th><th>Page</th></tr></thead>
     <tbody>
       {past.length ? past.map((event) => {
         const name = providerDisplayName(providers, event.provider);
-        const title = shutdownEventTitle(name, event, day);
+        const title = batchHeadline(name, event, day);
         return (
           <tr>
             <td>{longDate(event.date)}</td>
             <td><a href={`/providers/${event.provider}/`}>{name}</a></td>
-            <td>{event.models.length}</td>
+            <td>{eventCountLabel(event)}</td>
             <td><a href={shutdownEventPath(event)}>{title}</a></td>
           </tr>
         );

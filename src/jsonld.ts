@@ -44,13 +44,13 @@ export function modelGraph(site: string, model: ModelRecord, provider: Provider,
   return [
     {
       "@type": "TechArticle",
-      headline: `When is ${model.display_name} shut down?`,
+      headline: `When is ${publicName(model)} shut down?`,
       dateModified: checked,
       url,
       citation: model.sources.map((source) => source.url),
       about: {
         "@type": "SoftwareApplication",
-        name: model.display_name,
+        name: publicName(model),
         softwareVersion: model.id,
         provider: { "@type": "Organization", name: provider.name },
       },
@@ -68,7 +68,7 @@ export function migrateGraph(site: string, model: ModelRecord, migration: Migrat
   return [
     {
       "@type": "TechArticle",
-      headline: `Replacement for ${model.display_name}: what changes when you switch`,
+      headline: `Replacement for ${publicName(model)}: what changes when you switch`,
       dateModified: migration?.last_checked ?? model.sources[0]?.last_checked,
       url: new URL(`/replace/${model.provider}/${model.slug}/`, site).href,
       citation: (migration?.sources ?? model.sources).map((source) => source.url),

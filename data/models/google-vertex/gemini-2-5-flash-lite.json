@@ -9,7 +9,7 @@
   "deprecation_date": null,
   "shutdown_date": "2026-10-20",
   "shutdown_date_kind": "exact",
-  "region_or_platform_notes": "Release date on the Vertex model versions page: 2025-07-22.",
+  "region_or_platform_notes": "Release date on the Vertex model versions page: 2025-07-22. Retirement on 2026-10-20 was confirmed on Google's model versions page on 2026-10-19. The page also lists Gemma 4 as a replacement.",
   "replacements": [
     {
       "model_id": "gemini-3.8-flash",

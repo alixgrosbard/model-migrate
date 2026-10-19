@@ -28,20 +28,24 @@ const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
   </p>
   <h2>Downloads</h2>
   <ul>
-    <li><a href="/dataset/sunsetdiff.json">sunsetdiff.json</a> — JSON download, CC BY 4.0</li>
-    <li><a href="/dataset/sunsetdiff.csv">sunsetdiff.csv</a> — CSV download, CC BY 4.0</li>
-    <li><a href="/data/models.json">models.json</a> — model records, CC BY 4.0</li>
-    <li><a href="/data/deprecations.csv">deprecations.csv</a> — retiring and deprecated rows, CC BY 4.0</li>
-    <li><a href="/data/changelog.json">changelog.json</a> — versioned change log, CC BY 4.0</li>
+    <li><a href="/dataset/sunsetdiff.json">sunsetdiff.json</a>: JSON download, CC BY 4.0</li>
+    <li><a href="/dataset/sunsetdiff.csv">sunsetdiff.csv</a>: CSV download, CC BY 4.0</li>
+    <li><a href="/data/models.json">models.json</a>: model records, CC BY 4.0</li>
+    <li><a href="/data/deprecations.csv">deprecations.csv</a>: retiring and deprecated rows, CC BY 4.0</li>
+    <li><a href="/data/changelog.json">changelog.json</a>: versioned change log, CC BY 4.0</li>
     <li><a href="/api/v1/schema.json">JSON Schema</a></li>
     <li><a href="/llms.txt">llms.txt</a> and <a href="/llms-full.txt">llms-full.txt</a></li>
   </ul>
+  <h2>Fields</h2>
+  <p>Each model row has provider, id, slug, display name, status, announced date, deprecation date, shutdown date, shutdown date kind, replacement id, and the source URL with last_checked. Blank fields were not on the official page.</p>
+  <h2>Snapshot</h2>
+  <pre><code>curl -fsSL https://sunsetdiff.com/dataset/sunsetdiff.json -o sunsetdiff.json</code></pre>
   <h2>JSON API</h2>
   <ul>
     <li><a href="/api/v1/index.json">/api/v1/index.json</a></li>
     <li><a href="/api/v1/providers.json">/api/v1/providers.json</a></li>
     <li><a href="/api/v1/models.json">/api/v1/models.json</a></li>
-    <li><a href="/api/v1/upcoming.json">/api/v1/upcoming.json</a> — next 90 days</li>
+    <li><a href="/api/v1/upcoming.json">/api/v1/upcoming.json</a>: next 90 days</li>
     <li><a href="/api/v1/changes.json">/api/v1/changes.json</a></li>
     <li><code>/api/v1/models/&lt;provider&gt;/&lt;slug&gt;.json</code></li>
     <li><code>/api/v1/lookup/&lt;model-id&gt;.json</code></li>
@@ -60,8 +64,8 @@ const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
   <ul>
     <li><a href="/llms.txt">llms.txt</a> and <a href="/llms-full.txt">llms-full.txt</a></li>
     <li><a href="/calendar.ics">calendar.ics</a></li>
-    <li><a href="/deadlines.ics">deadlines.ics</a> — shutdowns in the next 365 days</li>
-    <li><a href="/feed.xml">feed.xml</a> — new deprecations</li>
+    <li><a href="/deadlines.ics">deadlines.ics</a>: shutdowns in the next 365 days</li>
+    <li><a href="/feed.xml">feed.xml</a>: new deprecations</li>
     <li><a href="/changes.xml">changes.xml</a></li>
   </ul>
 </Base>

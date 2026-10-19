@@ -1,7 +1,8 @@
 ---
 import Base from "../../layouts/Base.astro";
 import { loadModels, loadProviders, providerName } from "../../lib/load.ts";
-import { formatWhen } from "../../lib/format.ts";
+import { formatWhen, isUpcomingShutdown, today } from "../../lib/format.ts";
+import { publicName } from "../../lib/growth.ts";
 import type { ModelRecord } from "../../schema.ts";
 
 export async function getStaticPaths() {
@@ -12,7 +13,12 @@ const { provider: providerId } = Astro.params;
 const providers = await loadProviders();
 const provider = providers.find((item) => item.id === providerId);
 if (!provider) throw new Error("Missing provider");
+const day = today();
 const models = (await loadModels()).filter((model) => model.provider === provider.id);
+const soonest = models
+  .filter((model) => isUpcomingShutdown(model, day))
+  .sort((a, b) => (a.shutdown_date ?? "").localeCompare(b.shutdown_date ?? ""))
+  .slice(0, 8);
 const groups: ModelRecord["status"][] = ["deprecated", "legacy", "retired", "active"];
 const description = `${provider.name} model shutdown dates, grouped by status.`;
 ---
@@ -26,17 +32,14 @@ const description = `${provider.name} model shutdown dates, grouped by status.`;
   <p>Official source: <a href={provider.deprecations_url}>{provider.deprecations_url}</a>. <a href="/#soonest">Soonest shutdowns on the homepage</a>.</p>
   <h2>Soonest shutdowns</h2>
   <ul>
-    {models
-      .filter((model) => model.shutdown_date && model.shutdown_date_kind !== "none" && model.shutdown_date_kind !== "not_before")
-      .sort((a, b) => (a.shutdown_date ?? "").localeCompare(b.shutdown_date ?? ""))
-      .slice(0, 8)
-      .map((model) => (
+    {soonest.length ? soonest.map((model) => (
         <li>
-          <a href={`/models/${model.provider}/${model.slug}/`}>{model.display_name}</a>
-          {" "}— {formatWhen(model)}
+          <a href={`/models/${model.provider}/${model.slug}/`}>{publicName(model)}</a>
+          {": "}{formatWhen(model)}
+          {model.provider === "aws-bedrock" && model.region_or_platform_notes ? <> ({model.region_or_platform_notes})</> : null}
           {model.replacements[0] ? <> · <a href={`/replace/${model.provider}/${model.slug}/`}>replacement diff</a></> : null}
         </li>
-      ))}
+      )) : <li>No upcoming shutdown dates are published.</li>}
   </ul>
   <button type="button" id="sort-shutdown">Sort by shutdown date</button>
   {groups.map((status) => {
@@ -51,7 +54,10 @@ const description = `${provider.name} model shutdown dates, grouped by status.`;
           <tbody>
             {rows.map((model) => (
               <tr data-shutdown={model.shutdown_date ?? "9999-99-99"}>
-                <td><a href={`/models/${model.provider}/${model.slug}/`}>{model.display_name}</a><br /><code>{model.id}</code></td>
+                <td>
+                  <a href={`/models/${model.provider}/${model.slug}/`}>{publicName(model)}</a><br /><code>{model.id}</code>
+                  {model.provider === "aws-bedrock" && model.region_or_platform_notes ? <><br />{model.region_or_platform_notes}</> : null}
+                </td>
                 <td>{formatWhen(model)}</td>
                 <td>{model.replacements[0] ? <a href={`/replace/${model.provider}/${model.slug}/`}>{model.replacements[0].model_id}</a> : "Not published"}</td>
               </tr>
