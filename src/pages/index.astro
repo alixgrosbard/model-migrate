@@ -5,6 +5,7 @@ import NewsletterForm from "../components/NewsletterForm.astro";
 import SponsorSlot from "../components/SponsorSlot.astro";
 import { loadModels, loadProviders, providerName } from "../lib/load.ts";
 import { formatWhen, isSoon, officialReplacement, today } from "../lib/format.ts";
+import { orderShutdownEvents, providerDisplayName, shutdownEventPath, shutdownEventTitle, shutdownEvents } from "../lib/shutdowns.ts";
 
 const providers = await loadProviders();
 const models = await loadModels();
@@ -17,6 +18,7 @@ const recent = models
   .sort((a, b) => (b.announced_date ?? "").localeCompare(a.announced_date ?? ""))
   .slice(0, 12);
 const description = "When an AI model shuts down, what replaces it, and what changes in price, context, and code.";
+const batches = orderShutdownEvents(shutdownEvents(models), day).filter((event) => event.date >= day).slice(0, 6);
 function replacementModel(model: (typeof models)[number]) {
   const replacement = officialReplacement(model);
   if (!replacement) return null;
@@ -51,6 +53,17 @@ function replacementModel(model: (typeof models)[number]) {
       )) : <tr><td colspan="4">No exact shutdown dates fall in the next 30 days.</td></tr>}
     </tbody>
   </table>
+  <h2 id="shutdowns">Shutdown batches</h2>
+  <p>
+    When one provider shuts down at least three models on the same day, that day has its own page.
+    <a href="/shutdowns/">All shutdown batches</a>.
+  </p>
+  <ul>
+    {batches.length ? batches.map((event) => {
+      const name = providerDisplayName(providers, event.provider);
+      return <li><a href={shutdownEventPath(event)}>{shutdownEventTitle(name, event, day)}</a> ({event.models.length} models)</li>;
+    }) : <li>No upcoming batch has three or more models on one exact date.</li>}
+  </ul>
   <h2>Recently announced</h2>
   <table>
     <caption>Newest announced deprecations</caption>

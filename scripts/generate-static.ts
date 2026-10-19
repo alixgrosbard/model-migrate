@@ -5,7 +5,16 @@ import { migrationSchema, modelSchema, providerSchema } from "../src/schema.ts";
 import { loadChanges, loadMigrations, loadModels, loadProviders } from "../src/lib/load.ts";
 import { addDays, formatWhen, isSoon, officialReplacement, today } from "../src/lib/format.ts";
 import { llmsFull, llmsTxt } from "../src/lib/llms.ts";
-import { changelogDocument, deadlinesIcs, deprecationsCsv, deprecationsFeed, shutdownMonths, topRetiringModels } from "../src/lib/growth.ts";
+import { changelogDocument, deadlinesIcs, deprecationsCsv, deprecationsFeed, shutdownMonths, topRetiringModels, type FeedEntry } from "../src/lib/growth.ts";
+import {
+  eventDateModified,
+  orderShutdownEvents,
+  providerDisplayName,
+  shutdownEventLead,
+  shutdownEventPath,
+  shutdownEventTitle,
+  shutdownEvents,
+} from "../src/lib/shutdowns.ts";
 import { siteOrigin } from "../src/lib/site.ts";
 
 const site = siteOrigin();
@@ -107,8 +116,13 @@ async function main() {
     .slice(0, 20);
   const questionModels = topRetiringModels(models, day, 40);
   const months = shutdownMonths(models);
+  const events = orderShutdownEvents(shutdownEvents(models), day);
+  const shutdownLinks = events.map((event) => ({
+    title: shutdownEventTitle(providerDisplayName(providers, event.provider), event, day),
+    path: shutdownEventPath(event),
+  }));
   await writeFile(path.join(publicDir, "llms-full.txt"), llmsFull(site, models));
-  await writeFile(path.join(publicDir, "llms.txt"), llmsTxt(site, providers, soonForLlms, { months, questions: questionModels }));
+  await writeFile(path.join(publicDir, "llms.txt"), llmsTxt(site, providers, soonForLlms, { months, questions: questionModels, shutdowns: shutdownLinks }));
   const changelog = changelogDocument(changes);
   await mkdir(path.join(publicDir, "data"), { recursive: true });
   await writeJson(path.join(publicDir, "data/models.json"), {
@@ -121,7 +135,18 @@ async function main() {
   await writeFile(path.join(publicDir, "data/deprecations.csv"), deprecationsCsv(models));
   await writeJson(path.join(publicDir, "data/changelog.json"), changelog);
   await writeFile(path.join(publicDir, "deadlines.ics"), deadlinesIcs(models, day, site));
-  await writeFile(path.join(publicDir, "feed.xml"), deprecationsFeed(changes, models, site));
+  const feedEvents: FeedEntry[] = events.map((event) => {
+    const name = providerDisplayName(providers, event.provider);
+    const pathName = shutdownEventPath(event);
+    return {
+      title: shutdownEventTitle(name, event, day),
+      link: `${site}${pathName}`,
+      guid: `${site}${pathName}`,
+      pubDate: eventDateModified(event),
+      description: shutdownEventLead(name, event, day),
+    };
+  });
+  await writeFile(path.join(publicDir, "feed.xml"), deprecationsFeed(changes, models, site, feedEvents));
   await writeOgImages(publicDir, models, providers);
   await writeFile(
     path.join(publicDir, "robots.txt"),

@@ -3,6 +3,7 @@ import path from "node:path";
 import type { ModelRecord } from "../schema.ts";
 import { today } from "./format.ts";
 import { modelsInMonth, questionPath, shutdownMonths, topRetiringModels } from "./growth.ts";
+import { shutdownEventPath, shutdownEvents } from "./shutdowns.ts";
 
 let cache: Map<string, string> | null = null;
 
@@ -44,6 +45,13 @@ function build(): Map<string, string> {
   for (const month of shutdownMonths(all)) {
     const newest = newestDate(modelsInMonth(all, month).map((model) => model.updated_at));
     if (newest) map.set(`/deadlines/${month}/`, newest);
+  }
+  const events = shutdownEvents(all);
+  const newestEvent = newestDate(events.flatMap((event) => event.models.map((model) => model.updated_at)));
+  if (newestEvent) map.set("/shutdowns/", newestEvent);
+  for (const event of events) {
+    const newest = newestDate(event.models.map((model) => model.updated_at));
+    if (newest) map.set(shutdownEventPath(event), newest);
   }
   for (const model of topRetiringModels(all, today(), 40)) {
     const day = dateOf(model.updated_at);
