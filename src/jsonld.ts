@@ -2,25 +2,30 @@ import type { MigrationRecord, ModelRecord, Provider } from "./schema.ts";
 import { modelFaqs, replaceFaqs, type FaqItem } from "./lib/format.ts";
 import { deprecatedFaqs, publicName, questionPath, shutdownFaqs } from "./lib/growth.ts";
 
+function siteRoot(site: string): string {
+  return site.replace(/\/+$/, "");
+}
+
 export function websiteGraph(site: string) {
+  const root = siteRoot(site);
   return [
     {
       "@type": "WebSite",
-      "@id": `${site}/#website`,
+      "@id": `${root}/#website`,
       name: "SunsetDiff",
-      url: site,
-      publisher: { "@id": `${site}/#org` },
+      url: root,
+      publisher: { "@id": `${root}/#org` },
       potentialAction: {
         "@type": "SearchAction",
-        target: `${site}/?q={search_term_string}`,
+        target: `${root}/?q={search_term_string}`,
         "query-input": "required name=search_term_string",
       },
     },
     {
       "@type": "Organization",
-      "@id": `${site}/#org`,
+      "@id": `${root}/#org`,
       name: "SunsetDiff",
-      url: site,
+      url: root,
     },
   ];
 }
@@ -84,9 +89,14 @@ function faqNode(items: { question: string; answer: string }[]) {
     mainEntity: items.map((item) => ({
       "@type": "Question",
       name: item.question,
-      acceptedAnswer: { "@type": "Answer", text: item.answer },
+      acceptedAnswer: { "@type": "Answer", text: plainFaq(item.answer) },
     })),
   };
+}
+
+/** Visible FAQ answers may use [label](/path) links. Schema text keeps the label and the path. */
+export function plainFaq(text: string): string {
+  return text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, "$1 ($2)");
 }
 
 export function datasetGraph(site: string, modified: string) {
@@ -144,9 +154,10 @@ export function shutdownEventGraph(
   modified: string,
   citations: string[],
   faqs: FaqItem[],
+  items: { name: string; path: string }[] = [],
 ) {
   const url = new URL(path, site).href;
-  return [
+  const nodes: Record<string, unknown>[] = [
     {
       "@type": "Article",
       headline,
@@ -162,6 +173,20 @@ export function shutdownEventGraph(
     },
     faqNode(faqs),
   ];
+  if (items.length) {
+    nodes.push({
+      "@type": "ItemList",
+      name: headline,
+      numberOfItems: items.length,
+      itemListElement: items.map((item, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        name: item.name,
+        url: new URL(item.path, site).href,
+      })),
+    });
+  }
+  return nodes;
 }
 
 export function shutdownIndexGraph(site: string, items: { name: string; path: string }[]) {
@@ -171,7 +196,7 @@ export function shutdownIndexGraph(site: string, items: { name: string; path: st
       "@type": "CollectionPage",
       name: "AI model shutdown batches",
       url,
-      isPartOf: { "@id": `${site.replace(/\/+$/, "")}/#website` },
+      isPartOf: { "@id": `${siteRoot(site)}/#website` },
     },
     {
       "@type": "ItemList",

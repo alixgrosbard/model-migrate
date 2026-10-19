@@ -216,9 +216,21 @@ export interface BatchExtras {
   groups: IdGroup[] | null;
   note: string | null;
   showRegions: boolean;
+  /** Brief answer block, early signup form, and last-checked line. */
+  answerFirst: boolean;
+  checkedUrl: string | null;
 }
 
-const EMPTY_EXTRAS: BatchExtras = { headline: null, lead: null, faqs: [], groups: null, note: null, showRegions: false };
+const EMPTY_EXTRAS: BatchExtras = {
+  headline: null,
+  lead: null,
+  faqs: [],
+  groups: null,
+  note: null,
+  showRegions: false,
+  answerFirst: false,
+  checkedUrl: null,
+};
 
 /** The October 23 OpenAI page counts model IDs (snapshots, aliases, fine-tunes), not separate models. */
 export function isModelIdBatch(event: ShutdownEvent): boolean {
@@ -235,13 +247,26 @@ export function batchHeadline(providerName: string, event: ShutdownEvent, day: s
 }
 
 export function batchDescription(providerName: string, event: ShutdownEvent, day: string): string {
+  if (event.provider === "aws-bedrock" && event.date === "2026-11-13") {
+    const past = isPastShutdown(event.date, day);
+    return clipMeta(
+      past
+        ? "Claude 3 Haiku, Claude 3 Sonnet, Claude 3.5 Sonnet, Claude 3.5 Sonnet v2, and Claude 3.7 Sonnet shut down on Nov 13, 2026 in some Regions."
+        : "Claude 3 Haiku, Claude 3 Sonnet, Claude 3.5 Sonnet, Claude 3.5 Sonnet v2, Claude 3.7 Sonnet. Nov 13, 2026 end of life in some Regions: ap-south-1, ca-central-1.",
+    );
+  }
   const regional = bedrockHeadline(providerName, event, day);
   if (regional) {
     const failing = isPastShutdown(event.date, day) ? "Requests started failing on that date." : "Requests start failing on that date.";
     return clipMeta(`${regional}. ${failing}`);
   }
   if (isModelIdBatch(event)) {
-    return clipMeta(`${event.models.length} OpenAI model IDs (snapshots, aliases, and fine-tunes) are shutting down ${longDate(event.date)}. Requests start failing on that date.`);
+    const when = longDate(event.date);
+    return clipMeta(
+      isPastShutdown(event.date, day)
+        ? `${event.models.length} OpenAI model IDs, including gpt-4, gpt-3.5-turbo, and o1, shut down on ${when}. Replacements include gpt-5.6-sol.`
+        : `gpt-4, gpt-3.5-turbo, and o1 are ${event.models.length} OpenAI model IDs shutting down ${when}. Replacements include gpt-5.6-sol, gpt-5.6-terra, and gpt-5.6-luna.`,
+    );
   }
   return shutdownEventDescription(providerName, event, day);
 }
@@ -249,7 +274,7 @@ export function batchDescription(providerName: string, event: ShutdownEvent, day
 /** Bedrock dates on these pages are not worldwide. The headline says so. */
 function bedrockHeadline(providerName: string, event: ShutdownEvent, day: string): string | null {
   if (event.provider !== "aws-bedrock") return null;
-  if (event.date === "2026-11-13") return "Claude models retiring on Amazon Bedrock Nov 13, 2026 in some Regions";
+  if (event.date === "2026-11-13") return "Bedrock Claude 3, 3.5 and 3.7 End of Life: Nov 13, 2026 in some Regions";
   const when = longDate(event.date);
   if (isPastShutdown(event.date, day)) return `${providerName} models shut down on ${when} in some Regions`;
   return `${providerName} models shutting down ${when} in some Regions`;
@@ -265,40 +290,177 @@ export function limitBedrockAnswer(event: ShutdownEvent, answer: string): string
 }
 
 export function batchLead(providerName: string, event: ShutdownEvent, day: string): string {
+  if (isModelIdBatch(event)) return openAiShortAnswer(event, day);
+  if (event.provider === "aws-bedrock" && event.date === "2026-11-13") return bedrockShortAnswer(day);
   return batchExtras(event).lead ?? shutdownEventLead(providerName, event, day);
+}
+
+export function batchChecklist(event: ShutdownEvent, day: string): string[] {
+  const steps = shutdownEventChecklist(event, day);
+  if (event.provider === "aws-bedrock" && event.date === "2026-11-13" && !isPastShutdown(event.date, day)) {
+    steps[0] = "Find every request that still uses these model ids before November 13, 2026 in some Regions.";
+  }
+  return steps;
+}
+
+export function batchFaqs(providerName: string, event: ShutdownEvent, day: string): FaqItem[] {
+  const extras = batchExtras(event);
+  if (isModelIdBatch(event)) return openAiOct23Faqs(event, day);
+  if (event.provider === "aws-bedrock" && event.date === "2026-11-13") return bedrockNov13Faqs(day);
+  const generic = shutdownEventFaqs(providerName, event, day);
+  const items = [...generic, ...extras.faqs];
+  return items.map((item) => ({ ...item, answer: limitBedrockAnswer(event, item.answer) }));
+}
+
+export function replacementSuffix(modelId: string): string | null {
+  if (modelId === "o1-pro" || modelId === "o1-pro-2025-03-19") return "reasoning.mode: pro";
+  return null;
+}
+
+export function eventLastChecked(event: ShutdownEvent): string {
+  let newest = "";
+  for (const model of event.models) {
+    for (const source of model.sources) {
+      if (source.last_checked > newest) newest = source.last_checked;
+    }
+  }
+  return newest;
+}
+
+function openAiShortAnswer(event: ShutdownEvent, day: string): string {
+  const when = longDate(event.date);
+  const models = "gpt-3.5-turbo, gpt-4, gpt-4-turbo, gpt-4o-2024-05-13, gpt-4.1-nano, o1, o1-pro, o3-mini, o4-mini, gpt-image-1, and fine-tunes built on gpt-3.5-turbo, gpt-4, gpt-4.1-nano, o4-mini, babbage-002 and davinci-002";
+  const replacements = "OpenAI recommends gpt-5.6-sol, gpt-5.6-terra or gpt-5.6-luna for text models and gpt-image-2.5-sunburst or gpt-image-2.5-flare for gpt-image-1. Source: OpenAI deprecations page.";
+  if (isPastShutdown(event.date, day)) {
+    return `These ${event.models.length} OpenAI model IDs shut down on ${when}, according to its published deprecations page. These include ${models}. Requests to these IDs stopped on that date. ${replacements}`;
+  }
+  return `OpenAI shuts down ${event.models.length} legacy model IDs on ${when}, according to its published deprecations page. These include ${models}. After that date, requests to these IDs stop working. ${replacements}`;
+}
+
+function bedrockShortAnswer(day: string): string {
+  if (isPastShutdown("2026-11-13", day)) {
+    return "These Claude models shut down on November 13, 2026 in some Regions. Amazon Bedrock lists that end of life for Claude 3 Haiku, Claude 3 Sonnet, Claude 3.5 Sonnet, Claude 3.5 Sonnet v2 and Claude 3.7 Sonnet in specific AWS Regions such as ap-south-1, ap-southeast-1, ap-northeast-2, ca-central-1, sa-east-1, eu-west-2 and eu-central-2. In several other Regions, including us-east-1, Claude 3 Haiku already reached end of life on September 10, 2026. Requests failed after end of life. Check your Region in the table below or call GetFoundationModel and read modelLifecycle. Source: AWS Bedrock model lifecycle page.";
+  }
+  return "Amazon Bedrock lists November 13, 2026 as the end-of-life date for Claude 3 Haiku, Claude 3 Sonnet, Claude 3.5 Sonnet, Claude 3.5 Sonnet v2 and Claude 3.7 Sonnet, but only in specific AWS Regions such as ap-south-1, ap-southeast-1, ap-northeast-2, ca-central-1, sa-east-1, eu-west-2 and eu-central-2. In several other Regions, including us-east-1, Claude 3 Haiku already reached end of life on September 10, 2026. After end of life, requests fail. Check your Region in the table below or call GetFoundationModel and read modelLifecycle. Source: AWS Bedrock model lifecycle page.";
+}
+
+function openAiOct23Faqs(event: ShutdownEvent, day: string): FaqItem[] {
+  const when = longDate(event.date);
+  const past = isPastShutdown(event.date, day);
+  const which = past
+    ? `Which OpenAI model IDs shut down on ${when}?`
+    : `Which OpenAI model IDs are shutting down on ${when}?`;
+  const whichAnswer = past
+    ? `These ${event.models.length} OpenAI model IDs shut down on ${when}. The rows are snapshots, aliases, and fine-tunes, not ${event.models.length} separate models.`
+    : `OpenAI is shutting down ${event.models.length} model IDs on ${when}. The rows are snapshots, aliases, and fine-tunes, not ${event.models.length} separate models. Requests start failing on that date.`;
+  return [
+    { question: which, answer: whichAnswer },
+    {
+      question: past ? `Did OpenAI shut down ${event.models.length} separate models on ${when}?` : `Is OpenAI shutting down ${event.models.length} separate models on ${when}?`,
+      answer: `No. The ${event.models.length} rows are model IDs: snapshots, aliases, and fine-tunes. Several IDs point at the same snapshot.`,
+    },
+    {
+      question: "Does the alias gpt-4 stop working too?",
+      answer: past
+        ? "Yes. gpt-4 is an alias of the snapshot gpt-4-0613. Both IDs shut down on October 23, 2026."
+        : "Yes. gpt-4 is an alias of the snapshot gpt-4-0613. OpenAI lists both in this batch, so requests to either ID start failing on October 23, 2026.",
+    },
+    {
+      question: "Will my fine-tuned gpt-3.5-turbo stop working?",
+      answer:
+        "OpenAI says inference on a fine-tuned model is disabled when the base model is deprecated. ft-gpt-3.5-turbo is in this batch. See the [gpt-3.5-turbo shutdown date](/questions/openai/gpt-3-5-turbo/shutdown-date/).",
+    },
+    {
+      question: past ? `What replaced the model IDs that shut down on ${when}?` : `What replaces the model IDs shutting down on ${when}?`,
+      answer:
+        "OpenAI names gpt-5.6-sol, gpt-5.6-terra, or gpt-5.6-luna for the text IDs. For o1-pro and o1-pro-2025-03-19, OpenAI names gpt-5.6-sol with reasoning.mode: pro. For gpt-image-1, OpenAI names gpt-image-2.5-sunburst or gpt-image-2.5-flare. See the [gpt-image-1 shutdown date](/questions/openai/gpt-image-1/shutdown-date/).",
+    },
+    {
+      question: "What happens to API calls after the shutdown date?",
+      answer: past
+        ? 'OpenAI says: "At the time of the shut down, the model or endpoint will no longer be accessible." These model IDs shut down on October 23, 2026.'
+        : 'OpenAI says: "At the time of the shut down, the model or endpoint will no longer be accessible." Requests to these model IDs start failing on October 23, 2026.',
+    },
+    {
+      question: "How can I check which models my code uses?",
+      answer:
+        "GET /v1/models can return an optional shutdown_date for each model. The value is a YYYY-MM-DD date, or null when OpenAI has not set one. You can also [scan your code](/scan/) and read the [calendar](/calendar/).",
+    },
+  ];
+}
+
+function bedrockNov13Faqs(day: string): FaqItem[] {
+  const past = isPastShutdown("2026-11-13", day);
+  const which = past
+    ? "Which Claude models shut down on Bedrock on November 13, 2026?"
+    : "Which Claude models reach end of life on Bedrock on November 13, 2026?";
+  const whichAnswer = past
+    ? "In some AWS Regions only, Claude 3 Haiku, Claude 3 Sonnet, Claude 3.5 Sonnet, Claude 3.5 Sonnet v2, and Claude 3.7 Sonnet shut down on November 13, 2026."
+    : "In some AWS Regions only, Amazon Bedrock lists November 13, 2026 as the end of life for Claude 3 Haiku, Claude 3 Sonnet, Claude 3.5 Sonnet, Claude 3.5 Sonnet v2, and Claude 3.7 Sonnet.";
+  return [
+    { question: which, answer: whichAnswer },
+    {
+      question: "What replaces these Claude models on Bedrock?",
+      answer:
+        "AWS does not name a replacement on its lifecycle page. Links marked SunsetDiff suggestion are not an AWS recommendation. See the replace pages for each model ID, plus the Anthropic suggestions for [Claude 3 Haiku](/migrate/anthropic__claude-3-haiku-20240307__to__anthropic__claude-haiku-4-5-20251001/) and [Claude 3.7 Sonnet](/migrate/anthropic__claude-3-7-sonnet-20250219__to__anthropic__claude-sonnet-5-5/).",
+    },
+    {
+      question: past ? "On what date did requests to these models fail?" : "When do requests to these models start failing?",
+      answer: past
+        ? "In some AWS Regions only, these models shut down on November 13, 2026. Requests started failing on that date. A Region that is not listed on the row keeps its own date."
+        : "In some AWS Regions only, requests start failing on November 13, 2026. A Region that is not listed on the row keeps its own date.",
+    },
+    {
+      question: "Does November 13, 2026 apply in every AWS Region?",
+      answer:
+        "No. This date applies in some AWS Regions only. November 13, 2026 for Claude 3 Haiku applies in ap-northeast-2, ap-south-1, ap-southeast-1, eu-central-2, sa-east-1, and ca-central-1. Claude 3 Haiku already reached end of life on September 10, 2026 in ap-northeast-1, ap-southeast-2, eu-central-1, eu-west-1, eu-west-2, eu-west-3, us-east-1, us-east-2, us-west-2, us-gov-east-1, and us-gov-west-1.",
+    },
+    {
+      question: "Why did Claude 3 Haiku already stop working in us-east-1?",
+      answer:
+        "AWS lists an earlier end of life for Claude 3 Haiku in us-east-1. That date is September 10, 2026, and the same row also lists ap-northeast-1, ap-southeast-2, eu-central-1, eu-west-1, eu-west-2, eu-west-3, us-east-2, us-west-2, us-gov-east-1, and us-gov-west-1. See the [Claude 3 Haiku regions that already reached end of life](/models/aws-bedrock/anthropic-claude-3-haiku-20240307-v1-0-2/).",
+    },
+    {
+      question: "What is Bedrock public extended access and does it cost more?",
+      answer:
+        "Public extended access is the window AWS lists after Legacy on the lifecycle page. New customers cannot use a Legacy model. Existing customers may lose access after 15 days of inactivity. You cannot buy new Provisioned Throughput. AWS says extended access pricing is set by the provider. This page does not list a price.",
+    },
+    {
+      question: "What should I migrate to from Claude 3.5 Sonnet on Bedrock?",
+      answer:
+        "AWS does not name a replacement on its lifecycle page. A SunsetDiff suggestion is not an AWS recommendation. See the [Claude 3.5 Sonnet replace page](/replace/aws-bedrock/anthropic-claude-3-5-sonnet-20240620-v1-0/).",
+    },
+    {
+      question: "How do I check a model's lifecycle state in my region?",
+      answer:
+        "Call ListFoundationModels or GetFoundationModel in that Region and read modelLifecycle. The state can differ by Region. This date applies in some AWS Regions only.",
+    },
+  ];
 }
 
 export function batchExtras(event: ShutdownEvent): BatchExtras {
   if (isModelIdBatch(event)) {
-    const when = longDate(event.date);
     return {
-      headline: `${event.models.length} OpenAI model IDs shutting down ${when}`,
-      lead: `OpenAI is shutting down ${event.models.length} model IDs on ${when}. That count is snapshots, aliases, and fine-tunes, not ${event.models.length} separate models. Requests to these model IDs start failing on that date.`,
-      faqs: [
-        {
-          question: `Is OpenAI shutting down ${event.models.length} separate models on ${when}?`,
-          answer: `No. The ${event.models.length} rows are model IDs: snapshots, aliases, and fine-tunes. Several IDs point at the same snapshot.`,
-        },
-      ],
+      headline: `OpenAI Model Retirement October 23, 2026: ${event.models.length} Model IDs (gpt-4, gpt-3.5-turbo, o1)`,
+      lead: null,
+      faqs: [],
       groups: openAiIdGroups(event.models),
-      note: "Use the snapshot column when you migrate. An alias in the same row shuts down with that snapshot.",
+      note: "Use the snapshot column when you migrate. An alias in the same row uses that snapshot's date.",
       showRegions: false,
+      answerFirst: true,
+      checkedUrl: "https://developers.openai.com/api/docs/deprecations",
     };
   }
   if (event.provider === "aws-bedrock" && event.date === "2026-11-13") {
     return {
       headline: null,
-      lead: "Amazon Bedrock is shutting down the models in this table on November 13, 2026 only in the regions AWS lists for each row. Requests in those regions start failing on that date. A region that is not on the row keeps its own date.",
-      faqs: [
-        {
-          question: "Does November 13, 2026 apply in every AWS region?",
-          answer:
-            "No. The date applies only to the regions AWS lists for each model. Claude 3 Haiku already reached end of life on September 10, 2026 in us-east-1, us-west-2, and the other regions on that earlier row, including most EU regions on that row. November 13, 2026 for Claude 3 Haiku applies in ap-northeast-2, ap-south-1, ap-southeast-1, eu-central-2, sa-east-1, and ca-central-1.",
-        },
-      ],
+      lead: null,
+      faqs: [],
       groups: null,
-      note: "Claude 3 Haiku already reached end of life on September 10, 2026 in us-east-1, us-west-2, and the other regions on the earlier row (including most EU regions on that row, plus us-gov-east-1 and us-gov-west-1). November 13, 2026 applies only where AWS lists it: ap-northeast-2, ap-south-1, ap-southeast-1, eu-central-2, sa-east-1, and ca-central-1. Legacy dates differ by region and are in the Region column.",
+      note: "Claude 3 Haiku already reached end of life on September 10, 2026 in ap-northeast-1, ap-southeast-2, eu-central-1, eu-west-1, eu-west-2, eu-west-3, us-east-1, us-east-2, us-west-2, us-gov-east-1, and us-gov-west-1. November 13, 2026 applies in some AWS Regions only: ap-northeast-2, ap-south-1, ap-southeast-1, eu-central-2, sa-east-1, and ca-central-1 for Claude 3 Haiku. Legacy dates differ by Region and are in the Region column.",
       showRegions: true,
+      answerFirst: true,
+      checkedUrl: "https://docs.aws.amazon.com/bedrock/latest/userguide/model-lifecycle-legacy.html",
     };
   }
   if (event.provider === "google-vertex" && event.date === "2026-10-20") {
@@ -315,6 +477,8 @@ export function batchExtras(event: ShutdownEvent): BatchExtras {
       groups: null,
       note: "Verified on Google's model versions page on October 19, 2026: https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/model-versions. That page lists retirement on October 20, 2026 for gemini-2.5-pro, gemini-2.5-flash, and gemini-2.5-flash-lite.",
       showRegions: false,
+      answerFirst: false,
+      checkedUrl: null,
     };
   }
   if (event.slug === "openai-2026-12-01") {

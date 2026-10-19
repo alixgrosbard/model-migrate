@@ -1,26 +1,35 @@
 ---
 import type { Provider } from "../schema.ts";
 import { alertNote, alertsSending } from "../lib/public-copy.ts";
-interface Props { providers: Provider[]; sourcePage: string; }
-const { providers, sourcePage } = Astro.props;
+interface Props {
+  providers: Provider[];
+  sourcePage: string;
+  formId?: string;
+  note?: string;
+  checkedProvider?: string;
+}
+const { providers, sourcePage, formId = "subscribe", note: noteOverride, checkedProvider = "" } = Astro.props;
 const service = import.meta.env.PUBLIC_SERVICE_URL ?? "";
 const open = service.length > 0;
 const sending = alertsSending(import.meta.env.PUBLIC_ALERTS_SENDING);
-const note = alertNote(sending, open);
+const note = noteOverride ?? alertNote(sending, open);
+const titleId = `${formId}-title`;
+const statusId = `${formId}-status`;
+const emailId = `${formId}-email`;
 ---
-<form id="subscribe" data-service={service} data-source={sourcePage} data-sending={sending ? "true" : "false"} aria-labelledby="subscribe-title">
-  <h2 id="subscribe-title">Deprecation alerts</h2>
-  <p id="subscribe-status" class="note" aria-live="polite">{note}</p>
-  <fieldset disabled={!open} aria-describedby="subscribe-status">
+<form id={formId} data-subscribe data-service={service} data-source={sourcePage} data-sending={sending ? "true" : "false"} aria-labelledby={titleId}>
+  <h2 id={titleId}>Deprecation alerts</h2>
+  <p id={statusId} class="note" aria-live="polite">{note}</p>
+  <fieldset disabled={!open} aria-describedby={statusId}>
     <legend>Deprecation alert signup</legend>
-    <label for="subscribe-email">Email address</label>
-    <input id="subscribe-email" type="email" name="email" autocomplete="email" required disabled={!open} />
-    {open ? (
+    <label for={emailId}>Email address</label>
+    <input id={emailId} type="email" name="email" autocomplete="email" required disabled={!open} />
+    {open || checkedProvider ? (
       <fieldset>
         <legend>Providers (optional)</legend>
         <div class="checks">
           {providers.map((provider) => (
-            <label><input type="checkbox" name="providers" value={provider.id} /> {provider.name}</label>
+            <label><input type="checkbox" name="providers" value={provider.id} checked={provider.id === checkedProvider} disabled={!open} /> {provider.name}</label>
           ))}
         </div>
       </fieldset>
@@ -30,10 +39,12 @@ const note = alertNote(sending, open);
   </fieldset>
 </form>
 <script>
-  const form = document.querySelector<HTMLFormElement>("#subscribe");
-  form?.addEventListener("submit", async (event) => {
+  document.querySelectorAll<HTMLFormElement>("form[data-subscribe]").forEach((form) => {
+    if (form.dataset.bound === "true") return;
+    form.dataset.bound = "true";
+    form.addEventListener("submit", async (event) => {
     event.preventDefault();
-    const status = document.querySelector("#subscribe-status");
+    const status = form.querySelector<HTMLElement>("[aria-live]");
     const serviceUrl = form.dataset.service ?? "";
     const sending = form.dataset.sending === "true";
     const saved = sending ? "You're on the list." : "You're on the list. No email has been sent.";
@@ -77,5 +88,6 @@ const note = alertNote(sending, open);
         if (status) status.textContent = "The signup service is unavailable. Nothing was stored and no email was sent.";
       }
     }
+    });
   });
 </script>

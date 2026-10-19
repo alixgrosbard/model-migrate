@@ -38,6 +38,10 @@ async function main() {
   let checked = 0;
   for (const file of htmlFiles) {
     const html = await readFile(file, "utf8");
+    if (html.includes('http-equiv="refresh"')) {
+      checked++;
+      continue;
+    }
     if (htmlContainsOwnerPlaceholder(html)) throw new Error(`Built HTML contains <owner> in ${file}`);
     const blocks = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)];
     if (!blocks.length) throw new Error(`Missing JSON-LD in ${file}`);
@@ -121,7 +125,9 @@ async function main() {
 }
 
 async function sitemapText(dir: string): Promise<string> {
-  const names = (await readdir(dir)).filter((name) => name.startsWith("sitemap") && name.endsWith(".xml"));
+  const names = (await readdir(dir, { withFileTypes: true }))
+    .filter((entry) => entry.isFile() && entry.name.startsWith("sitemap") && entry.name.endsWith(".xml"))
+    .map((entry) => entry.name);
   if (!names.length) throw new Error("Sitemap files are missing");
   const parts: string[] = [];
   for (const name of names) parts.push(await readFile(path.join(dir, name), "utf8"));

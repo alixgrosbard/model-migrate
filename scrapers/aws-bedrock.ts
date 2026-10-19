@@ -143,7 +143,9 @@ function regionNotes(rows: BedrockRow[]): string | null {
   let regionPart: string | null = null;
   if (rows.length === 1) {
     const regions = rows[0].regions.trim();
-    regionPart = regions ? `Regions listed on the lifecycle page: ${regions}.` : null;
+    const legacy = parseDate(rows[0].legacyText).date;
+    const regionText = regions && legacy ? `${regions} (legacy ${legacy})` : regions;
+    regionPart = regionText ? `Regions listed on the lifecycle page: ${regionText}.` : null;
   } else {
     const parts = rows
       .map((row) => {

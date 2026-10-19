@@ -7,6 +7,10 @@ services:
     autoDeploy: true
     buildCommand: npm ci && npm run build
     staticPublishPath: dist
+    routes:
+      - type: redirect
+        source: /sitemap.xml
+        destination: /sitemap-index.xml
     headers:
       - path: /api/*
         name: Access-Control-Allow-Origin

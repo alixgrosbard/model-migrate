@@ -9,7 +9,7 @@
   "deprecation_date": "2026-10-10",
   "shutdown_date": "2026-11-13",
   "shutdown_date_kind": "exact",
-  "region_or_platform_notes": "Regions listed on the lifecycle page: ap-northeast-2, ap-south-1, ap-southeast-1.",
+  "region_or_platform_notes": "Regions listed on the lifecycle page: ap-northeast-2, ap-south-1, ap-southeast-1 (legacy 2026-10-10).",
   "replacements": [],
   "sources": [
     {

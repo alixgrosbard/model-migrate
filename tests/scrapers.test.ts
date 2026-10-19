@@ -85,6 +85,13 @@ describe("official snapshots", () => {
     const sonnet3 = bedrock.find((model) => model.id === "anthropic.claude-3-sonnet-20240229-v1:0" && model.shutdown_date === "2026-11-13");
     expect(sonnet3?.region_or_platform_notes).toContain("sa-east-1");
     expect(sonnet3?.region_or_platform_notes).toContain("ca-central-1");
+    for (const id of [
+      "anthropic.claude-3-5-sonnet-20240620-v1:0",
+      "anthropic.claude-3-5-sonnet-20241022-v2:0",
+      "anthropic.claude-3-7-sonnet-20250219-v1:0",
+    ]) {
+      expect(bedrock.find((model) => model.id === id)?.region_or_platform_notes).toContain("legacy 2026-10-10");
+    }
     expect(bedrock.some((model) => /\s/.test(model.id) || model.id.includes("("))).toBe(false);
     const deepseek = bedrock.filter((model) => model.id === "deepseek.v3-v1:0" || model.id === "deepseek.v3.1");
     expect(deepseek.map((model) => model.id).sort()).toEqual(["deepseek.v3-v1:0", "deepseek.v3.1"]);

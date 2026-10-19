@@ -9,6 +9,9 @@ export default defineConfig({
   site,
   output: "static",
   trailingSlash: "always",
+  redirects: {
+    "/sitemap.xml": "/sitemap-index.xml",
+  },
   integrations: [
     sitemap({
       customPages: [

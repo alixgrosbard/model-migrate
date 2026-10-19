@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { datasetGraph, shutdownEventGraph } from "../src/jsonld.ts";
+import { datasetGraph, shutdownEventGraph, websiteGraph } from "../src/jsonld.ts";
 import { deprecationsFeed } from "../src/lib/growth.ts";
 import { lastmodForUrl } from "../src/lib/lastmod.ts";
 import { llmsFull, llmsTxt } from "../src/lib/llms.ts";
@@ -7,11 +7,14 @@ import { loadModels, loadProviders } from "../src/lib/load.ts";
 import { modelSchema, type ModelRecord } from "../src/schema.ts";
 import { visibleName } from "../src/lib/format.ts";
 import {
+  batchChecklist,
   batchDescription,
   batchExtras,
+  batchFaqs,
   batchHeadline,
   batchLead,
   limitBedrockAnswer,
+  replacementSuffix,
   isPastShutdown,
   openAiIdGroups,
   orderShutdownEvents,
@@ -119,19 +122,53 @@ describe("shutdown batches", () => {
     expect(vertex).toBeTruthy();
     const openaiExtras = batchExtras(openai!);
     const lead = batchLead("OpenAI", openai!, day);
-    expect(openaiExtras.headline).toContain("model IDs");
-    expect(lead).toContain("snapshots, aliases, and fine-tunes");
-    expect(lead).toContain("start failing");
+    const openaiFaqs = batchFaqs("OpenAI", openai!, day);
+    expect(openaiExtras.headline).toBe("OpenAI Model Retirement October 23, 2026: 29 Model IDs (gpt-4, gpt-3.5-turbo, o1)");
+    expect(lead.startsWith("OpenAI shuts down 29 legacy model IDs on October 23, 2026")).toBe(true);
+    expect(lead).toContain("gpt-5.6-sol");
+    expect(lead).toContain("gpt-image-2.5-sunburst");
     expect(lead).not.toContain("shut down on");
+    expect(openaiFaqs).toHaveLength(7);
+    expect(openaiFaqs.map((item) => item.question)).toEqual(
+      expect.arrayContaining([
+        "Does the alias gpt-4 stop working too?",
+        "Will my fine-tuned gpt-3.5-turbo stop working?",
+        "How can I check which models my code uses?",
+      ]),
+    );
+    expect(openaiFaqs.map((item) => item.answer).join(" ")).toContain("reasoning.mode: pro");
+    expect(openaiFaqs.map((item) => item.answer).join(" ")).toContain("/questions/openai/gpt-3-5-turbo/shutdown-date/");
+    expect(openaiFaqs.map((item) => item.answer).join(" ")).toContain("/questions/openai/gpt-image-1/shutdown-date/");
+    expect(replacementSuffix("o1-pro")).toBe("reasoning.mode: pro");
+    expect(replacementSuffix("o1-pro-2025-03-19")).toBe("reasoning.mode: pro");
+    expect(batchDescription("OpenAI", openai!, day)).toContain("shutting down");
+    expect(batchDescription("OpenAI", openai!, day)).toContain("gpt-5.6-luna");
     const grouped = openAiIdGroups(openai!.models).flatMap((group) => [group.snapshot, ...group.aliases, ...group.fineTunes]);
     expect(new Set(grouped)).toEqual(new Set(openai!.models.map((model) => model.id)));
     const bedrockExtras = batchExtras(bedrock!);
     const bedrockTitle = batchHeadline("AWS Bedrock", bedrock!, day);
     const bedrockDescription = batchDescription("AWS Bedrock", bedrock!, day);
-    expect(bedrockTitle).toBe("Claude models retiring on Amazon Bedrock Nov 13, 2026 in some Regions");
+    expect(bedrockTitle).toBe("Bedrock Claude 3, 3.5 and 3.7 End of Life: Nov 13, 2026 in some Regions");
+    const bedrockFaqs = batchFaqs("AWS Bedrock", bedrock!, day);
+    expect(bedrockFaqs[0].answer.startsWith("In some AWS Regions only")).toBe(true);
+    expect(bedrockFaqs[1].answer).not.toContain("The table lists the replacement");
+    expect(bedrockFaqs[1].answer).toContain("AWS does not name a replacement");
+    expect(bedrockFaqs.map((item) => item.question)).toEqual(
+      expect.arrayContaining([
+        "Why did Claude 3 Haiku already stop working in us-east-1?",
+        "What is Bedrock public extended access and does it cost more?",
+        "What should I migrate to from Claude 3.5 Sonnet on Bedrock?",
+        "How do I check a model's lifecycle state in my region?",
+      ]),
+    );
+    expect(batchChecklist(bedrock!, day)[0]).toContain("in some Regions");
+    expect(batchLead("AWS Bedrock", bedrock!, day)).toContain("GetFoundationModel");
+    expect(batchDescription("AWS Bedrock", bedrock!, day)).toContain("Claude 3.7 Sonnet");
+    expect(batchDescription("AWS Bedrock", bedrock!, day)).toContain("ap-south-1");
     expect(bedrockDescription).toContain("in some Regions");
-    expect(bedrockDescription).toContain("start failing");
+    expect(bedrockDescription.length).toBeLessThanOrEqual(160);
     expect(bedrockDescription).not.toContain("shut down on");
+    expect(bedrockFaqs.map((item) => `${item.question} ${item.answer}`).join(" ")).toContain("start failing");
     const datedAnswers = shutdownEventFaqs("AWS Bedrock", bedrock!, day).map((item) => limitBedrockAnswer(bedrock!, item.answer));
     for (const answer of datedAnswers) {
       if (answer.includes("November 13, 2026")) expect(answer).toContain("some AWS Regions only");
@@ -229,6 +266,13 @@ describe("shutdown batches", () => {
     expect(downloads).toContain("text/csv https://sunsetdiff.com/dataset/sunsetdiff.csv");
     expect(lastmodForUrl(`https://sunsetdiff.com${path}`)).toMatch(/^\d{4}-\d{2}-\d{2}$/);
     expect(lastmodForUrl("https://sunsetdiff.com/shutdowns/")).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    const website = websiteGraph("https://sunsetdiff.com/");
+    expect(JSON.stringify(website)).not.toContain("sunsetdiff.com//");
+    expect((website[0] as { "@id": string })["@id"]).toBe("https://sunsetdiff.com/#website");
+    const listed = shutdownEventGraph("https://sunsetdiff.com/", title, "desc", path, "2026-10-01", "2026-10-18", ["https://example.com/source"], faqs, [
+      { name: "gpt-4", path: "/models/openai/gpt-4/" },
+    ]);
+    expect(listed.map((node) => node["@type"])).toEqual(["Article", "FAQPage", "ItemList"]);
   });
 });
 
