@@ -55,24 +55,24 @@
     "Ship the change before the published shutdown date."
   ],
   "confidence": "partial",
-  "last_checked": "2026-10-18",
+  "last_checked": "2026-10-19",
   "sources": [
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "OpenAI deprecations",
-      "last_checked": "2026-10-18",
+      "last_checked": "2026-10-19",
       "excerpt": "Jan 6, 2027 | gpt-4o-mini-tts-2025-03-20 | gpt-realtime-2.1-mini"
     },
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "Named as an official replacement",
-      "last_checked": "2026-10-18",
+      "last_checked": "2026-10-19",
       "excerpt": "Named as an official replacement for tts-1. No shutdown date was published for this id on that page."
     },
     {
       "url": "https://developers.openai.com/api/docs/models/gpt-realtime-2.1-mini.md",
       "label": "OpenAI model docs",
-      "last_checked": "2026-10-18",
+      "last_checked": "2026-10-19",
       "excerpt": "Model ID: gpt-realtime-2.1-mini | context window 128000 | max output 32000 | input $0.6 | output $2.4"
     }
   ]

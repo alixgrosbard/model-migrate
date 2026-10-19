@@ -9,7 +9,7 @@
   "deprecation_date": null,
   "shutdown_date": "2026-10-20",
   "shutdown_date_kind": "exact",
-  "region_or_platform_notes": "Release date on the Vertex model versions page: 2025-06-17. Retirement on 2026-10-20 was confirmed on Google's model versions page on 2026-10-19.",
+  "region_or_platform_notes": "Release date on the Vertex model versions page: 2025-06-17.",
   "replacements": [
     {
       "model_id": "gemini-3.8-flash",
@@ -34,19 +34,19 @@
     {
       "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/model-versions",
       "label": "Vertex AI model versions",
-      "last_checked": "2026-10-18",
+      "last_checked": "2026-10-19",
       "excerpt": "gemini-2.5-flash | June 17, 2025 | October 20, 2026 | gemini-3.8-flash or gemini-3.5-flash-lite or gemini-3.1-flash-lite"
     },
     {
       "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/gemini/2-5-flash",
       "label": "Vertex model docs",
-      "last_checked": "2026-10-18",
+      "last_checked": "2026-10-19",
       "excerpt": "Gemini 2.5 Flash | gemini-2.5-flash | context window 1048576 | maximum output tokens 65536"
     },
     {
       "url": "https://cloud.google.com/gemini-enterprise-agent-platform/generative-ai/pricing",
       "label": "Vertex pricing",
-      "last_checked": "2026-10-18",
+      "last_checked": "2026-10-19",
       "excerpt": "Gemini 2.5 Flash Input (text, image, video) $0.3 per 1M tokens for the <= 200K column"
     }
   ],
@@ -72,26 +72,26 @@
     "specs_sources": {
       "context_window_tokens": {
         "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/gemini/2-5-flash",
-        "last_checked": "2026-10-18"
+        "last_checked": "2026-10-19"
       },
       "max_output_tokens": {
         "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/gemini/2-5-flash",
-        "last_checked": "2026-10-18"
+        "last_checked": "2026-10-19"
       },
       "input_price_per_mtok": {
         "url": "https://cloud.google.com/gemini-enterprise-agent-platform/generative-ai/pricing",
-        "last_checked": "2026-10-18"
+        "last_checked": "2026-10-19"
       },
       "output_price_per_mtok": {
         "url": "https://cloud.google.com/gemini-enterprise-agent-platform/generative-ai/pricing",
-        "last_checked": "2026-10-18"
+        "last_checked": "2026-10-19"
       },
       "cached_input_price_per_mtok": {
         "url": "https://cloud.google.com/gemini-enterprise-agent-platform/generative-ai/pricing",
-        "last_checked": "2026-10-18"
+        "last_checked": "2026-10-19"
       }
     }
   },
   "first_seen": "2026-10-17T15:59:19.574Z",
-  "updated_at": "2026-10-18T12:22:38.509Z"
+  "updated_at": "2026-10-19T12:22:54.841Z"
 }

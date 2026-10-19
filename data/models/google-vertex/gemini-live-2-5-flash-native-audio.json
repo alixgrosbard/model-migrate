@@ -15,13 +15,13 @@
     {
       "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/model-versions",
       "label": "Vertex AI model versions",
-      "last_checked": "2026-10-18",
+      "last_checked": "2026-10-19",
       "excerpt": "gemini-live-2.5-flash-native-audio | December 12, 2025 | December 13, 2026"
     },
     {
       "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/gemini/2-5-flash-live-api",
       "label": "Vertex model docs",
-      "last_checked": "2026-10-18",
+      "last_checked": "2026-10-19",
       "excerpt": "Gemini 2.5 Flash with Gemini Live API | gemini-live-2.5-flash-native-audio | context window 128000 | maximum output tokens 64000"
     }
   ],
@@ -47,14 +47,14 @@
     "specs_sources": {
       "context_window_tokens": {
         "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/gemini/2-5-flash-live-api",
-        "last_checked": "2026-10-18"
+        "last_checked": "2026-10-19"
       },
       "max_output_tokens": {
         "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/gemini/2-5-flash-live-api",
-        "last_checked": "2026-10-18"
+        "last_checked": "2026-10-19"
       }
     }
   },
   "first_seen": "2026-10-17T15:59:19.574Z",
-  "updated_at": "2026-10-18T12:22:38.509Z"
+  "updated_at": "2026-10-19T12:22:54.841Z"
 }

@@ -15,13 +15,13 @@
     {
       "url": "https://docs.mistral.ai/models",
       "label": "Mistral models",
-      "last_checked": "2026-10-18",
+      "last_checked": "2026-10-19",
       "excerpt": "Pixtral Large | 24.11 | pixtral-large-2411 | 2/27/2026 5/31/2026 | Mistral Medium 3.5"
     },
     {
       "url": "https://docs.mistral.ai/models/pixtral-large-24-11",
       "label": "Mistral model docs",
-      "last_checked": "2026-10-18",
+      "last_checked": "2026-10-19",
       "excerpt": "pixtral-large-2411 | Context 128k"
     }
   ],
@@ -47,10 +47,10 @@
     "specs_sources": {
       "context_window_tokens": {
         "url": "https://docs.mistral.ai/models/pixtral-large-24-11",
-        "last_checked": "2026-10-18"
+        "last_checked": "2026-10-19"
       }
     }
   },
   "first_seen": "2026-10-17T15:59:19.574Z",
-  "updated_at": "2026-10-18T12:22:38.509Z"
+  "updated_at": "2026-10-19T12:22:54.841Z"
 }

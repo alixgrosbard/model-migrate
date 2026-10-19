@@ -9,7 +9,7 @@
   "deprecation_date": null,
   "shutdown_date": "2026-10-20",
   "shutdown_date_kind": "exact",
-  "region_or_platform_notes": "Release date on the Vertex model versions page: 2025-07-22. Retirement on 2026-10-20 was confirmed on Google's model versions page on 2026-10-19. The page also lists Gemma 4 as a replacement.",
+  "region_or_platform_notes": "Release date on the Vertex model versions page: 2025-07-22.",
   "replacements": [
     {
       "model_id": "gemini-3.8-flash",
@@ -28,13 +28,13 @@
     {
       "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/model-versions",
       "label": "Vertex AI model versions",
-      "last_checked": "2026-10-18",
+      "last_checked": "2026-10-19",
       "excerpt": "gemini-2.5-flash-lite | July 22, 2025 | October 20, 2026 | gemini-3.8-flash or gemini-3.1-flash-lite or Gemma 4"
     },
     {
       "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/gemini/2-5-flash-lite",
       "label": "Vertex model docs",
-      "last_checked": "2026-10-18",
+      "last_checked": "2026-10-19",
       "excerpt": "Gemini 2.5 Flash-Lite | gemini-2.5-flash-lite | context window 1048576 | maximum output tokens 65536"
     }
   ],
@@ -60,14 +60,14 @@
     "specs_sources": {
       "context_window_tokens": {
         "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/gemini/2-5-flash-lite",
-        "last_checked": "2026-10-18"
+        "last_checked": "2026-10-19"
       },
       "max_output_tokens": {
         "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/gemini/2-5-flash-lite",
-        "last_checked": "2026-10-18"
+        "last_checked": "2026-10-19"
       }
     }
   },
   "first_seen": "2026-10-17T15:59:19.574Z",
-  "updated_at": "2026-10-18T12:22:38.509Z"
+  "updated_at": "2026-10-19T12:22:54.841Z"
 }
