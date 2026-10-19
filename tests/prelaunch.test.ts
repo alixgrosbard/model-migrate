@@ -13,15 +13,16 @@ import {
 } from "../src/lib/public-copy.ts";
 
 describe("alert copy", () => {
-  it("keeps the current note unless PUBLIC_ALERTS_SENDING is on", () => {
-    expect(alertsSending(undefined)).toBe(false);
-    expect(alertsSending("")).toBe(false);
-    expect(alertsSending("false")).toBe(false);
+  it("sends the live alert note unless PUBLIC_ALERTS_SENDING is off", () => {
+    expect(alertsSending(undefined)).toBe(true);
+    expect(alertsSending("")).toBe(true);
     expect(alertsSending("true")).toBe(true);
+    expect(alertsSending("false")).toBe(false);
+    expect(alertsSending("0")).toBe(false);
     expect(alertNote(false, false)).toBe(CLOSED_NOTE);
     expect(alertNote(false, true)).toBe(STORED_NOTE);
     expect(alertNote(true, true)).toBe(SENDING_NOTE);
-    expect(alertNote(true, false)).toBe("We email you before models you care about shut down. Unsubscribe anytime.");
+    expect(alertNote(true, false)).toBe("We email you before models shut down. Unsubscribe anytime.");
   });
 });
 

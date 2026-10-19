@@ -5,6 +5,7 @@ import { cors } from "hono/cors";
 import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js";
 import { createMcpServer } from "./mcp.js";
 import { THANK_YOU, hashIp, rateLimited, validEmail } from "./subscribe.js";
+import { readUnsubscribeToken, sendWelcomeEmail, unsubscribeSecret } from "./welcome.js";
 
 const CONTACTS_URL = "https://api.resend.com/contacts";
 const GENERIC_FAILURE = "Signup could not be saved.";
@@ -49,7 +50,14 @@ app.post("/api/subscribe", async (c) => {
       },
       body: JSON.stringify({ email, unsubscribed: false, segments: [{ id: segment }] }),
     });
-    if (created.ok) return c.json({ message: THANK_YOU });
+    if (created.ok) {
+      try {
+        await sendWelcomeEmail({ email, apiKey: key, origin: new URL(c.req.url).origin });
+      } catch {
+        console.error("Welcome email status 0");
+      }
+      return c.json({ message: THANK_YOU });
+    }
     if (await contactAlreadyExists(created)) {
       const added = await fetch(`${CONTACTS_URL}/${encodeURIComponent(email)}/segments/${encodeURIComponent(segment)}`, {
         method: "POST",
@@ -76,12 +84,43 @@ async function contactAlreadyExists(response: Response): Promise<boolean> {
   return /already exists/i.test(text);
 }
 
+app.on(["GET", "POST"], "/unsubscribe", async (c) => {
+  const token = c.req.query("token") ?? "";
+  const secret = unsubscribeSecret();
+  const key = process.env.RESEND_API_KEY;
+  if (!secret || !key) return c.html(page("Unsubscribe is not configured yet."), 503);
+  const email = readUnsubscribeToken(token, secret);
+  if (!email) return c.html(page("This unsubscribe link is not valid."), 400);
+  try {
+    const updated = await fetch(`https://api.resend.com/contacts/${encodeURIComponent(email)}`, {
+      method: "PATCH",
+      headers: {
+        authorization: `Bearer ${key}`,
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({ unsubscribed: true }),
+    });
+    if (!updated.ok) {
+      console.error(`Unsubscribe status ${updated.status}`);
+      return c.html(page("Unsubscribe could not be saved."), 502);
+    }
+  } catch {
+    console.error("Unsubscribe status 0");
+    return c.html(page("Unsubscribe could not be saved."), 502);
+  }
+  return c.html(page("You are unsubscribed. SunsetDiff will not email this address."));
+});
+
 app.all("/mcp", async (c) => {
   const server = createMcpServer();
   const transport = new WebStandardStreamableHTTPServerTransport({ enableJsonResponse: true });
   await server.connect(transport);
   return transport.handleRequest(c.req.raw);
 });
+
+function page(message: string, extra = ""): string {
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Unsubscribe</title></head><body><p>${message}</p>${extra}</body></html>`;
+}
 
 const calledDirectly = process.argv[1] ? path.resolve(process.argv[1]).includes(`${path.sep}index.`) : false;
 if (calledDirectly) {

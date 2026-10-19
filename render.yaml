@@ -3,7 +3,7 @@ services:
     name: sunsetdiff-site
     runtime: static
     plan: free
-    branch: main
+    branch: cursor/sunsetdiff-v1-3cab
     autoDeploy: true
     buildCommand: npm ci && npm run build
     staticPublishPath: dist

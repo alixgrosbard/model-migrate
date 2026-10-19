@@ -18,7 +18,7 @@ The site URL defaults to `https://sunsetdiff.com`. Set `SITE_URL` to another ori
 
 If `PUBLIC_SERVICE_URL` is not set, the deprecation-alert form stays disabled. It does not post anywhere and it does not send email.
 
-`PUBLIC_ALERTS_SENDING` defaults to off. Leave it unset until alert email is actually sending. Set it to `true` to change the form note to “We email you before models you care about shut down. Unsubscribe anytime.”
+`PUBLIC_ALERTS_SENDING` defaults to on. The form note is “We email you before models shut down. Unsubscribe anytime.” Set it to `false` to restore the older note.
 
 `/pro/` describes SunsetDiff Pro at $19 a month. The listed items are planned. Set `PUBLIC_PRO_CHECKOUT_URL` to an http or https checkout link to show the subscribe button. When that variable is unset, the page says “Coming soon” and shows the alert signup.
 
@@ -34,7 +34,7 @@ npm run scrape
 
 ## Newsletter
 
-The form adds an email as a Resend contact. It does not send email. There is no email-sending package in this repo.
+The form adds an email as a Resend contact. A new contact gets one welcome email from `SunsetDiff <alerts@send.sunsetdiff.com>`. A duplicate signup does not get another welcome. The welcome lists the next shutdowns from the published dataset. Its footer links to a signed `/unsubscribe` page, which marks that contact unsubscribed in Resend. There is no email-sending package in this repo. The API calls Resend with `fetch`.
 
 The Node service needs `RESEND_API_KEY` and `RESEND_SEGMENT_ID`. If either is missing, `POST /api/subscribe` returns 503. Set both in the Render dashboard. They are not committed.
 
