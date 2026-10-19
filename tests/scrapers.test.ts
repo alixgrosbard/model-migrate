@@ -9,6 +9,7 @@ import { parseOpenAI } from "../scrapers/openai.ts";
 import { parseVertex } from "../scrapers/google-vertex.ts";
 import { sanityCheck } from "../scrapers/sanity.ts";
 import { parseDate } from "../scrapers/lib/dates.ts";
+import { isModelId, loadHtml } from "../scrapers/lib/html.ts";
 import {
   parseAnthropicModelDoc,
   parseGeminiModelDocs,
@@ -17,6 +18,36 @@ import {
   parseVertexModelDoc,
   parseVertexPricing,
 } from "../scrapers/docs.ts";
+
+function vertexReplacementIds(html: string, modelId: string): string[] {
+  const $ = loadHtml(html);
+  let ids: string[] = [];
+  $("table").each((_, table) => {
+    const header = $(table)
+      .find("tr")
+      .first()
+      .find("th, td")
+      .map((__, cell) => $(cell).text().toLowerCase())
+      .get();
+    const idIdx = header.findIndex((cell) => cell.includes("model id"));
+    const replaceIdx = header.findIndex((cell) => cell.includes("replacement") || cell.includes("upgrade"));
+    if (idIdx < 0 || replaceIdx < 0) return;
+    $(table)
+      .find("tr")
+      .slice(1)
+      .each((__, tr) => {
+        const cells = $(tr).find("th, td").toArray();
+        const id = $(cells[idIdx]).find("code").first().text().trim();
+        if (id !== modelId) return;
+        ids = $(cells[replaceIdx])
+          .find("code")
+          .map((___, node) => $(node).text().trim())
+          .get()
+          .filter(isModelId);
+      });
+  });
+  return ids;
+}
 
 const checked = "2026-10-17";
 const read = (file: string) => readFileSync(file, "utf8");
@@ -51,20 +82,16 @@ describe("official snapshots", () => {
     expect(gemini.find((model) => model.id === "gemini-2.0-flash")?.shutdown_date).toBe("2026-06-01");
     const vertex = parseVertex(read("snapshots/google-vertex/2026-10-17.html"), checked);
     expect(vertex.find((model) => model.id === "gemini-2.5-pro")?.shutdown_date).toBe("2026-10-20");
-    const vertexNow = parseVertex(read("snapshots/google-vertex/2026-10-19.html"), "2026-10-19");
-    expect(vertexNow.find((model) => model.id === "gemini-2.5-pro")?.replacements.map((item) => item.model_id)).toEqual([
-      "gemini-3.8-flash",
-      "gemini-3.5-flash",
-    ]);
-    expect(vertexNow.find((model) => model.id === "gemini-2.5-flash")?.replacements.map((item) => item.model_id)).toEqual([
-      "gemini-3.8-flash",
-      "gemini-3.5-flash-lite",
-      "gemini-3.1-flash-lite",
-    ]);
-    expect(vertexNow.find((model) => model.id === "gemini-2.5-flash-lite")?.replacements.map((item) => item.model_id)).toEqual([
-      "gemini-3.8-flash",
-      "gemini-3.1-flash-lite",
-    ]);
+    const vertexHtml = read("snapshots/google-vertex/2026-10-19.html");
+    const vertexNow = parseVertex(vertexHtml, "2026-10-19");
+    // The refresh scrape overwrites this dated snapshot before the tests run.
+    // The code tags are the official ids. A shorter Google list still matches,
+    // and a parser that drops one of those tags does not.
+    for (const id of ["gemini-2.5-pro", "gemini-2.5-flash", "gemini-2.5-flash-lite"]) {
+      const model = vertexNow.find((item) => item.id === id);
+      expect(model?.replacements.map((item) => item.model_id)).toEqual(vertexReplacementIds(vertexHtml, id));
+      expect(model?.replacements.every((item) => item.kind === "official" && item.provider === "google-vertex")).toBe(true);
+    }
     const geminiNow = parseGemini(read("snapshots/google-gemini-api/2026-10-19.html"), "", "2026-10-19");
     for (const id of ["veo-3.1-generate-preview", "veo-3.1-fast-generate-preview", "veo-3.1-lite-generate-preview"]) {
       expect(geminiNow.find((model) => model.id === id)?.replacements.map((item) => item.model_id)).toEqual(["gemini-omni-1.1-flash"]);
@@ -114,6 +141,36 @@ describe("official snapshots", () => {
     const medium = mistral.find((model) => model.id === "mistral-medium-2508");
     expect(medium?.deprecation_date).toBe("2026-05-22");
     expect(medium?.shutdown_date).toBe("2026-08-31");
+  });
+
+  it("keeps the last Vertex replacement id and skips a name that is not an id", () => {
+    const html = `
+      <h2>Latest available models</h2>
+      <table>
+        <tr><th>Model ID</th><th>Release date</th><th>Retirement date</th><th>Replacement model ID</th></tr>
+        <tr>
+          <td><code>gemini-2.5-flash</code></td>
+          <td>June 17, 2025</td>
+          <td>October 20, 2026</td>
+          <td><code>gemini-3.8-flash</code> or <code>gemini-3.5-flash-lite</code> or <code>gemini-3.1-flash-lite</code></td>
+        </tr>
+        <tr>
+          <td><code>gemini-2.5-flash-lite</code></td>
+          <td>July 22, 2025</td>
+          <td>October 20, 2026</td>
+          <td><code>gemini-3.8-flash</code> or <code>gemini-3.5-flash-lite</code> or Gemma 4</td>
+        </tr>
+      </table>`;
+    const models = parseVertex(html, "2026-10-19");
+    expect(models.find((model) => model.id === "gemini-2.5-flash")?.replacements.map((item) => item.model_id)).toEqual([
+      "gemini-3.8-flash",
+      "gemini-3.5-flash-lite",
+      "gemini-3.1-flash-lite",
+    ]);
+    expect(models.find((model) => model.id === "gemini-2.5-flash-lite")?.replacements.map((item) => item.model_id)).toEqual([
+      "gemini-3.8-flash",
+      "gemini-3.5-flash-lite",
+    ]);
   });
 });
 
