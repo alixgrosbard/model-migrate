@@ -10,13 +10,20 @@
   "shutdown_date": "2026-12-13",
   "shutdown_date_kind": "exact",
   "region_or_platform_notes": "Release date on the Vertex model versions page: 2025-12-12.",
-  "replacements": [],
+  "replacements": [
+    {
+      "model_id": "gemini-3.8-live",
+      "provider": "google-vertex",
+      "kind": "official",
+      "source_url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/model-versions"
+    }
+  ],
   "sources": [
     {
       "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/model-versions",
       "label": "Vertex AI model versions",
       "last_checked": "2026-10-19",
-      "excerpt": "gemini-live-2.5-flash-native-audio | December 12, 2025 | December 13, 2026"
+      "excerpt": "gemini-live-2.5-flash-native-audio | December 12, 2025 | December 13, 2026 | gemini-3.8-live"
     },
     {
       "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/gemini/2-5-flash-live-api",
@@ -56,5 +63,5 @@
     }
   },
   "first_seen": "2026-10-17T15:59:19.574Z",
-  "updated_at": "2026-10-19T12:22:54.841Z"
+  "updated_at": "2026-10-19T22:14:09.007Z"
 }

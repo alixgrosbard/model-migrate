@@ -9,7 +9,7 @@
   "deprecation_date": "2026-09-30",
   "shutdown_date": "2027-03-30",
   "shutdown_date_kind": "exact",
-  "region_or_platform_notes": "Regions listed on the lifecycle page: ap-northeast-1, ap-south-1, ap-southeast-2, sa-east-1, us-east-1, us-east-2, us-west-2. Platform listed on the lifecycle page: bedrock-runtime.",
+  "region_or_platform_notes": "Regions listed on the lifecycle page: ap-northeast-1, ap-south-1, ap-southeast-2, sa-east-1, us-east-1, us-east-2, us-west-2 (legacy 2026-09-30). Platform listed on the lifecycle page: bedrock-runtime.",
   "replacements": [],
   "sources": [
     {
@@ -41,5 +41,5 @@
     "specs_sources": {}
   },
   "first_seen": "2026-10-17T15:59:19.574Z",
-  "updated_at": "2026-10-19T13:23:36.806Z"
+  "updated_at": "2026-10-19T22:14:09.007Z"
 }

@@ -9,7 +9,7 @@
   "deprecation_date": "2026-01-07",
   "shutdown_date": "2026-07-07",
   "shutdown_date_kind": "exact",
-  "region_or_platform_notes": "Regions listed on the lifecycle page: us-east-1, us-east-2, us-west-2.",
+  "region_or_platform_notes": "Regions listed on the lifecycle page: us-east-1, us-east-2, us-west-2 (legacy 2026-01-07).",
   "replacements": [],
   "sources": [
     {
@@ -41,5 +41,5 @@
     "specs_sources": {}
   },
   "first_seen": "2026-10-18T12:22:38.509Z",
-  "updated_at": "2026-10-19T12:22:54.841Z"
+  "updated_at": "2026-10-19T22:14:09.007Z"
 }

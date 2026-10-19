@@ -22,12 +22,6 @@
       "provider": "google-vertex",
       "kind": "official",
       "source_url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/model-versions"
-    },
-    {
-      "model_id": "gemini-3.1-flash-lite",
-      "provider": "google-vertex",
-      "kind": "official",
-      "source_url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/model-versions"
     }
   ],
   "sources": [
@@ -35,7 +29,7 @@
       "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/model-versions",
       "label": "Vertex AI model versions",
       "last_checked": "2026-10-19",
-      "excerpt": "gemini-2.5-flash | June 17, 2025 | October 20, 2026 | gemini-3.8-flash or gemini-3.5-flash-lite or gemini-3.1-flash-lite"
+      "excerpt": "gemini-2.5-flash | June 17, 2025 | October 20, 2026 | gemini-3.8-flash or gemini-3.5-flash-lite"
     },
     {
       "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/gemini/2-5-flash",
@@ -93,5 +87,5 @@
     }
   },
   "first_seen": "2026-10-17T15:59:19.574Z",
-  "updated_at": "2026-10-19T12:22:54.841Z"
+  "updated_at": "2026-10-19T22:14:09.007Z"
 }
