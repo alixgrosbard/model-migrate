@@ -1,5 +1,5 @@
 import type { MigrationRecord, ModelRecord, Provider } from "./schema.ts";
-import { modelFaqs, replaceFaqs } from "./lib/format.ts";
+import { modelFaqs, replaceFaqs, type FaqItem } from "./lib/format.ts";
 import { deprecatedFaqs, publicName, questionPath, shutdownFaqs } from "./lib/growth.ts";
 
 export function websiteGraph(site: string) {
@@ -97,6 +97,7 @@ export function datasetGraph(site: string, modified: string) {
       description: "Shutdown dates, replacements, and migration diffs for AI models, cited to official provider pages.",
       url: new URL("/data/", site).href,
       license: "https://creativecommons.org/licenses/by/4.0/",
+      sameAs: "https://huggingface.co/datasets/sunsetdiff/ai-model-deprecations",
       creator: { "@type": "Organization", name: "SunsetDiff" },
       dateModified: modified,
       temporalCoverage: "2022/..",
@@ -129,6 +130,57 @@ export function questionGraph(site: string, model: ModelRecord, provider: Provid
         "@type": "Question",
         name: item.question,
         acceptedAnswer: { "@type": "Answer", text: item.answer },
+      })),
+    },
+  ];
+}
+
+export function shutdownEventGraph(
+  site: string,
+  headline: string,
+  description: string,
+  path: string,
+  published: string,
+  modified: string,
+  citations: string[],
+  faqs: FaqItem[],
+) {
+  const url = new URL(path, site).href;
+  return [
+    {
+      "@type": "Article",
+      headline,
+      description,
+      datePublished: published,
+      dateModified: modified,
+      url,
+      mainEntityOfPage: url,
+      inLanguage: "en",
+      author: { "@type": "Organization", name: "SunsetDiff" },
+      publisher: { "@type": "Organization", name: "SunsetDiff" },
+      citation: citations,
+    },
+    faqNode(faqs),
+  ];
+}
+
+export function shutdownIndexGraph(site: string, items: { name: string; path: string }[]) {
+  const url = new URL("/shutdowns/", site).href;
+  return [
+    {
+      "@type": "CollectionPage",
+      name: "AI model shutdown batches",
+      url,
+      isPartOf: { "@id": `${site.replace(/\/+$/, "")}/#website` },
+    },
+    {
+      "@type": "ItemList",
+      numberOfItems: items.length,
+      itemListElement: items.map((item, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        name: item.name,
+        url: new URL(item.path, site).href,
       })),
     },
   ];

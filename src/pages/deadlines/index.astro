@@ -3,11 +3,13 @@ import Base from "../../layouts/Base.astro";
 import { loadModels, loadProviders, providerName } from "../../lib/load.ts";
 import { today } from "../../lib/format.ts";
 import { deadlineWindow, formatWindowDate, monthLabel, publicName, shutdownMonths } from "../../lib/growth.ts";
+import { orderShutdownEvents, providerDisplayName, shutdownEventPath, shutdownEventTitle, shutdownEvents } from "../../lib/shutdowns.ts";
 
 const providers = await loadProviders();
 const models = await loadModels();
 const day = today();
 const months = shutdownMonths(models);
+const batches = orderShutdownEvents(shutdownEvents(models), day).filter((event) => event.date >= day);
 const windows = [
   { days: 30, label: "Next 30 days" },
   { days: 90, label: "Next 90 days" },
@@ -23,6 +25,7 @@ const windows = [
   <p>
     These lists use published shutdown dates only. A date marked "not sooner than" is a floor, so it is not counted as a deadline.
     Feeds: <a href="/deadlines.ics">iCal</a> and <a href="/feed.xml">new deprecations (RSS)</a>.
+    <a href="/shutdowns/">Shutdown batches</a> group three or more models that share a provider and an exact date.
     Month pages are listed below.
   </p>
   {windows.map((window) => (
@@ -43,6 +46,13 @@ const windows = [
       </table>
     </section>
   ))}
+  <h2>Upcoming batches</h2>
+  <ul>
+    {batches.length ? batches.map((event) => {
+      const name = providerDisplayName(providers, event.provider);
+      return <li><a href={shutdownEventPath(event)}>{shutdownEventTitle(name, event, day)}</a> ({event.models.length} models)</li>;
+    }) : <li>No upcoming batch has three or more models on one exact date. <a href="/shutdowns/">Past batches</a> stay listed.</li>}
+  </ul>
   <h2>By month</h2>
   <ul>
     {months.map((month) => <li><a href={`/deadlines/${month}/`}>{monthLabel(month)}</a></li>)}

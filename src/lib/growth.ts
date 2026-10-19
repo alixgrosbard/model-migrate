@@ -162,9 +162,24 @@ END:VCALENDAR
 `;
 }
 
-export function deprecationsFeed(changes: ChangeRecord[], models: ModelRecord[], site: string): string {
+export interface FeedEntry {
+  title: string;
+  link: string;
+  guid: string;
+  pubDate: string;
+  description: string;
+}
+
+export function deprecationsFeed(changes: ChangeRecord[], models: ModelRecord[], site: string, extras: FeedEntry[] = []): string {
   const origin = site.replace(/\/+$/, "");
   const byKey = new Map(models.map((model) => [`${model.provider}:${model.id}`, model]));
+  const extraItems = extras.map((entry) => `  <item>
+    <title>${xmlText(entry.title)}</title>
+    <link>${xmlText(entry.link)}</link>
+    <guid>${xmlText(entry.guid)}</guid>
+    <pubDate>${new Date(`${entry.pubDate}T00:00:00Z`).toUTCString()}</pubDate>
+    <description>${xmlText(entry.description)}</description>
+  </item>`);
   const items = deprecationChanges(changes).slice(0, 100).map((change) => {
     const model = byKey.get(`${change.provider}:${change.model_id}`);
     const link = model ? `${origin}/models/${model.provider}/${model.slug}/` : change.source_url;
@@ -185,7 +200,7 @@ export function deprecationsFeed(changes: ChangeRecord[], models: ModelRecord[],
   <link>${origin}/deadlines/</link>
   <description>Deprecation and shutdown changes recorded from official provider pages. Blank values were not published.</description>
   <atom:link href="${origin}/feed.xml" rel="self" type="application/rss+xml"/>
-${items.join("\n")}
+${[...extraItems, ...items].join("\n")}
 </channel>
 </rss>
 `;

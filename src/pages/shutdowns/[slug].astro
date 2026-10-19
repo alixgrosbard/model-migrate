@@ -1,0 +1,137 @@
+---
+import Base from "../../layouts/Base.astro";
+import FaqList from "../../components/FaqList.astro";
+import NewsletterForm from "../../components/NewsletterForm.astro";
+import { shutdownEventGraph } from "../../jsonld.ts";
+import { loadMigrations, loadModels, loadProviders } from "../../lib/load.ts";
+import { publicName } from "../../lib/growth.ts";
+import type { ModelRecord } from "../../schema.ts";
+import { today } from "../../lib/format.ts";
+import { DEFAULT_SITE_URL } from "../../lib/site.ts";
+import {
+  eventCitations,
+  eventDateModified,
+  eventDatePublished,
+  isPastShutdown,
+  providerDisplayName,
+  replacementLinks,
+  shutdownEventChecklist,
+  shutdownEventDescription,
+  shutdownEventFaqs,
+  shutdownEventLead,
+  shutdownEventPath,
+  shutdownEventTitle,
+  shutdownEvents,
+} from "../../lib/shutdowns.ts";
+
+export async function getStaticPaths() {
+  const events = shutdownEvents(await loadModels());
+  return events.map((event) => ({ params: { slug: event.slug } }));
+}
+
+const models = await loadModels();
+const providers = await loadProviders();
+const migrations = await loadMigrations();
+const event = shutdownEvents(models).find((item) => item.slug === Astro.params.slug);
+if (!event) throw new Error("Missing shutdown event");
+const provider = providers.find((item) => item.id === event.provider);
+if (!provider) throw new Error("Missing provider");
+const day = today();
+const past = isPastShutdown(event.date, day);
+const name = providerDisplayName(providers, event.provider);
+const headline = shutdownEventTitle(name, event, day);
+const lead = shutdownEventLead(name, event, day);
+const description = shutdownEventDescription(name, event, day);
+const faqs = shutdownEventFaqs(name, event, day);
+const checklist = shutdownEventChecklist(event, day);
+const path = shutdownEventPath(event);
+const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
+const rows = event.models.map((model) => ({
+  model,
+  label: modelLabel(model),
+  links: replacementLinks(model, models, migrations),
+}));
+
+function modelLabel(model: ModelRecord): string {
+  const name = publicName(model);
+  if (name === model.id || name.includes(`(${model.id})`)) return name;
+  return `${name} (${model.id})`;
+}
+---
+<Base
+  title={`${headline} | SunsetDiff`}
+  description={description}
+  image={`/og/providers/${event.provider}.svg`}
+  crumbs={[
+    { name: "Home", path: "/" },
+    { name: "Shutdowns", path: "/shutdowns/" },
+    { name: `${name} ${event.date}`, path },
+  ]}
+  extraGraph={shutdownEventGraph(site, headline, description, path, eventDatePublished(event), eventDateModified(event), eventCitations(event), faqs)}
+>
+  <h1>{headline}</h1>
+  <p class="answer">{lead}</p>
+  <p>
+    {past ? "This date has passed. The rows below stay up because people still search after requests fail." : "This date is still ahead. The rows below use the published shutdown date only."}
+    {" "}
+    <a href={provider.deprecations_url}>{name} deprecation page</a>
+    {" · "}
+    <a href={`/providers/${provider.id}/`}>{name} on SunsetDiff</a>
+    {" · "}
+    <a href={`/deadlines/${event.date.slice(0, 7)}/`}>Shutdowns in {event.date.slice(0, 7)}</a>
+  </p>
+  <table>
+    <caption>
+      {rows.length} {name} models with shutdown date {event.date}. A replacement cell says "Not published" when the official page did not name one.
+    </caption>
+    <thead>
+      <tr>
+        <th>Model</th>
+        <th>Status</th>
+        <th>Replacement</th>
+        <th>Migrate</th>
+        <th>Source</th>
+      </tr>
+    </thead>
+    <tbody>
+      {rows.map((row) => (
+        <tr>
+          <td><a href={`/models/${row.model.provider}/${row.model.slug}/`}>{row.label}</a></td>
+          <td>{row.model.status}</td>
+          <td>
+            {row.links.length ? row.links.map((link, index) => (
+              <>
+                {index > 0 ? ", " : ""}
+                {link.modelPath ? <a href={link.modelPath}>{link.id}</a> : link.id}
+              </>
+            )) : "Not published"}
+          </td>
+          <td>
+            {row.links.some((link) => link.migratePath) ? row.links.filter((link) => link.migratePath).map((link, index) => (
+              <>
+                {index > 0 ? ", " : ""}
+                <a href={link.migratePath!}>Migrate {link.id}</a>
+              </>
+            )) : "Not published"}
+          </td>
+          <td>
+            {row.model.sources.map((source, index) => (
+              <>
+                {index > 0 ? ", " : ""}
+                <a href={source.url}>{source.label}</a> (checked {source.last_checked})
+              </>
+            ))}
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+  <h2>Migration checklist</h2>
+  <ol>
+    {checklist.map((step) => <li>{step}</li>)}
+  </ol>
+  <p><a href="/scan/">Scan your code</a> for these model ids. Each migrate link opens the diff for that model.</p>
+  <NewsletterForm providers={providers} sourcePage={path} />
+  <p><a href="/pro/">SunsetDiff Pro</a> is where planned alerts for the models in your code are listed. The form on this page is the alert signup.</p>
+  <FaqList items={faqs} />
+</Base>

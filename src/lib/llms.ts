@@ -5,7 +5,7 @@ export function llmsTxt(
   site: string,
   providers: Provider[],
   soon: ModelRecord[],
-  extra: { months?: string[]; questions?: ModelRecord[] } = {},
+  extra: { months?: string[]; questions?: ModelRecord[]; shutdowns?: { title: string; path: string }[] } = {},
 ): string {
   const origin = site.replace(/\/+$/, "");
   const providerLinks = providers.map((provider) => `- [${provider.name}](${origin}/providers/${provider.id}/)`).join("\n");
@@ -16,6 +16,7 @@ export function llmsTxt(
     })
     .join("\n");
   const monthLinks = (extra.months ?? []).map((month) => `- [${month}](${origin}/deadlines/${month}/)`).join("\n");
+  const shutdownLinks = (extra.shutdowns ?? []).map((event) => `- [${event.title}](${origin}${event.path})`).join("\n");
   const questionLinks = (extra.questions ?? [])
     .map((model) => {
       const name = publicName(model);
@@ -31,6 +32,7 @@ export function llmsTxt(
 - [Soonest shutdowns](${origin}/#soonest)
 - [Calendar](${origin}/calendar/)
 - [Deadlines](${origin}/deadlines/)
+- [Shutdown batches](${origin}/shutdowns/)
 - [Deadline calendar](${origin}/deadlines.ics)
 - [New deprecations](${origin}/feed.xml)
 - [Code scan](${origin}/scan/)
@@ -47,6 +49,10 @@ The dataset is CC BY 4.0. Publisher: SunsetDiff. Blank spec fields were not on t
 - [models.json](${origin}/data/models.json)
 - [deprecations.csv](${origin}/data/deprecations.csv)
 - [changelog.json](${origin}/data/changelog.json)
+
+## Shutdown batches
+One page per provider and exact shutdown date when at least three models share that date.
+${shutdownLinks || "- None published."}
 
 ## Shutdown months
 ${monthLinks || "- None published."}
@@ -94,6 +100,7 @@ export function llmsFull(site: string, models: ModelRecord[]): string {
     `deprecations.csv: ${origin}/data/deprecations.csv`,
     `changelog.json: ${origin}/data/changelog.json`,
     `Deadlines: ${origin}/deadlines/`,
+    `Shutdown batches: ${origin}/shutdowns/`,
     `iCal: ${origin}/deadlines.ics`,
     `Deprecations feed: ${origin}/feed.xml`,
     `Questions: ${origin}/questions/`,
