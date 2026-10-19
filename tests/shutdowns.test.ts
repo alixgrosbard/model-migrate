@@ -7,8 +7,11 @@ import { loadModels, loadProviders } from "../src/lib/load.ts";
 import { modelSchema, type ModelRecord } from "../src/schema.ts";
 import { visibleName } from "../src/lib/format.ts";
 import {
+  batchDescription,
   batchExtras,
+  batchHeadline,
   batchLead,
+  limitBedrockAnswer,
   isPastShutdown,
   openAiIdGroups,
   orderShutdownEvents,
@@ -123,6 +126,24 @@ describe("shutdown batches", () => {
     const grouped = openAiIdGroups(openai!.models).flatMap((group) => [group.snapshot, ...group.aliases, ...group.fineTunes]);
     expect(new Set(grouped)).toEqual(new Set(openai!.models.map((model) => model.id)));
     const bedrockExtras = batchExtras(bedrock!);
+    const bedrockTitle = batchHeadline("AWS Bedrock", bedrock!, day);
+    const bedrockDescription = batchDescription("AWS Bedrock", bedrock!, day);
+    expect(bedrockTitle).toBe("Claude models retiring on Amazon Bedrock Nov 13, 2026 in some Regions");
+    expect(bedrockDescription).toContain("in some Regions");
+    expect(bedrockDescription).toContain("start failing");
+    expect(bedrockDescription).not.toContain("shut down on");
+    const datedAnswers = shutdownEventFaqs("AWS Bedrock", bedrock!, day).map((item) => limitBedrockAnswer(bedrock!, item.answer));
+    for (const answer of datedAnswers) {
+      if (answer.includes("November 13, 2026")) expect(answer).toContain("some AWS Regions only");
+    }
+    expect(datedAnswers.join(" ")).not.toContain("shut down on");
+    for (const event of events.filter((item) => item.provider === "aws-bedrock")) {
+      const title = batchHeadline("AWS Bedrock", event, day);
+      const description = batchDescription("AWS Bedrock", event, day);
+      expect(title).toContain("in some Regions");
+      expect(description).toContain("in some Regions");
+      expect(`${title} ${description}`).not.toMatch(/[—–]/);
+    }
     expect(bedrockExtras.note).toContain("eu-central-2");
     expect(bedrockExtras.note).toContain("sa-east-1");
     expect(bedrockExtras.note).toContain("ca-central-1");

@@ -231,7 +231,37 @@ export function eventCountLabel(event: ShutdownEvent): string {
 }
 
 export function batchHeadline(providerName: string, event: ShutdownEvent, day: string): string {
-  return batchExtras(event).headline ?? shutdownEventTitle(providerName, event, day);
+  return bedrockHeadline(providerName, event, day) ?? batchExtras(event).headline ?? shutdownEventTitle(providerName, event, day);
+}
+
+export function batchDescription(providerName: string, event: ShutdownEvent, day: string): string {
+  const regional = bedrockHeadline(providerName, event, day);
+  if (regional) {
+    const failing = isPastShutdown(event.date, day) ? "Requests started failing on that date." : "Requests start failing on that date.";
+    return clipMeta(`${regional}. ${failing}`);
+  }
+  if (isModelIdBatch(event)) {
+    return clipMeta(`${event.models.length} OpenAI model IDs (snapshots, aliases, and fine-tunes) are shutting down ${longDate(event.date)}. Requests start failing on that date.`);
+  }
+  return shutdownEventDescription(providerName, event, day);
+}
+
+/** Bedrock dates on these pages are not worldwide. The headline says so. */
+function bedrockHeadline(providerName: string, event: ShutdownEvent, day: string): string | null {
+  if (event.provider !== "aws-bedrock") return null;
+  if (event.date === "2026-11-13") return "Claude models retiring on Amazon Bedrock Nov 13, 2026 in some Regions";
+  const when = longDate(event.date);
+  if (isPastShutdown(event.date, day)) return `${providerName} models shut down on ${when} in some Regions`;
+  return `${providerName} models shutting down ${when} in some Regions`;
+}
+
+export function limitBedrockAnswer(event: ShutdownEvent, answer: string): string {
+  if (event.provider !== "aws-bedrock") return answer;
+  if (/some AWS Regions/i.test(answer)) return answer;
+  const when = longDate(event.date);
+  const mentionsDate = answer.includes(when) || answer.includes(event.date) || (event.date === "2026-11-13" && answer.includes("Nov 13, 2026"));
+  if (!mentionsDate) return answer;
+  return `${answer} This date applies in some AWS Regions only.`;
 }
 
 export function batchLead(providerName: string, event: ShutdownEvent, day: string): string {
