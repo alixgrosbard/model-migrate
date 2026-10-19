@@ -20,7 +20,7 @@ If `PUBLIC_SERVICE_URL` is not set, the deprecation-alert form stays disabled. I
 
 `PUBLIC_ALERTS_SENDING` defaults to on. The form note is “We email you before models shut down. Unsubscribe anytime.” Set it to `false` to restore the older note.
 
-`/pro/` describes SunsetDiff Pro at $19 a month. The listed items are planned. Set `PUBLIC_PRO_CHECKOUT_URL` to an http or https checkout link to show the subscribe button. When that variable is unset, the page says “Coming soon” and shows the alert signup.
+`/pro/` describes SunsetDiff Pro as free until launch, then $19 a month. The listed items are planned. Set `PUBLIC_PRO_CHECKOUT_URL` to an http or https checkout link to show the subscribe button. When that variable is unset, the page says “Free until launch” and shows the alert signup. Leave it unset until Pro features ship.
 
 ## Data
 

@@ -8,12 +8,12 @@ const providers = await loadProviders();
 const checkout = proCheckoutUrl(import.meta.env.PUBLIC_PRO_CHECKOUT_URL);
 ---
 <Base
-  title="SunsetDiff Pro, $19 a month | SunsetDiff"
-  description="SunsetDiff Pro is planned at $19 a month. Alerts for models in your code, earlier warnings, and API access are planned, not available yet."
+  title="SunsetDiff Pro, free until launch | SunsetDiff"
+  description="SunsetDiff Pro is free until launch. Alerts for models in your code, earlier warnings, and API access are planned, not available yet."
   crumbs={[{ name: "Home", path: "/" }, { name: "Pro", path: "/pro/" }]}
 >
   <h1>SunsetDiff Pro</h1>
-  <p class="answer">SunsetDiff Pro is planned at $19 a month. Nothing on this list is available yet.</p>
+  <p class="answer">SunsetDiff Pro is free until launch. Nothing on this list is available yet. After launch, Pro will cost $19 a month, and you will only be charged if you choose to subscribe.</p>
   <h2>Planned</h2>
   <ul>
     <li>Alerts only for the models in your code. Planned.</li>
@@ -24,7 +24,7 @@ const checkout = proCheckoutUrl(import.meta.env.PUBLIC_PRO_CHECKOUT_URL);
     <p><a class="button" href={checkout}>Subscribe for $19 a month</a></p>
   ) : (
     <>
-      <p><strong>Coming soon.</strong> There is no checkout link yet.</p>
+      <p><strong>Free until launch.</strong> No card needed. Sign up below to hear when Pro launches.</p>
       <NewsletterForm providers={providers} sourcePage="/pro/" />
     </>
   )}
