@@ -1,4 +1,4 @@
-import { readFile, readdir } from "node:fs/promises";
+import { readFile, readdir, stat } from "node:fs/promises";
 import path from "node:path";
 import { htmlContainsOwnerPlaceholder } from "../src/lib/public-copy.ts";
 import { loadModels } from "../src/lib/load.ts";
@@ -10,6 +10,7 @@ const required = [
   "llms.txt",
   "llms-full.txt",
   "sitemap-index.xml",
+  "sitemap.xml",
   "robots.txt",
   "api/v1/index.json",
   "calendar.ics",
@@ -79,6 +80,18 @@ async function main() {
   }
   const llms = await readFile(path.join(dist, "llms.txt"), "utf8");
   const feed = await readFile(path.join(dist, "feed.xml"), "utf8");
+  const sitemapFile = path.join(dist, "sitemap.xml");
+  const sitemapStat = await stat(sitemapFile);
+  if (!sitemapStat.isFile()) throw new Error("dist/sitemap.xml must be a file");
+  const sitemapAlias = await readFile(sitemapFile, "utf8");
+  const sitemapIndex = await readFile(path.join(dist, "sitemap-index.xml"), "utf8");
+  if (sitemapAlias !== sitemapIndex) throw new Error("dist/sitemap.xml must be a copy of sitemap-index.xml");
+  if (!sitemapAlias.includes("<sitemapindex") && !sitemapAlias.includes("<urlset")) {
+    throw new Error("dist/sitemap.xml is not sitemap XML");
+  }
+  if (sitemapAlias.includes("<html") || sitemapAlias.includes("http-equiv")) {
+    throw new Error("dist/sitemap.xml is an HTML redirect, not a sitemap");
+  }
   const sitemap = await sitemapText(dist);
   const events = shutdownEvents(await loadModels());
   const day = today();
