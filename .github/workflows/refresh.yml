@@ -4,7 +4,13 @@ name: refresh
 # checks out that branch and pushes data commits back to it.
 on:
   schedule:
-    - cron: "17 */6 * * *"
+    # GitHub often delays or drops a schedule, especially near the top of
+    # the hour. These two clocks sit three hours apart so a missed tick
+    # has a backup. The gate below leaves a scheduled run alone when a
+    # data commit is less than 5 hours old, so the scrape still happens
+    # about every 6 hours.
+    - cron: "17 0,6,12,18 * * *"
+    - cron: "47 3,9,15,21 * * *"
   workflow_dispatch:
 permissions:
   contents: write
@@ -13,12 +19,47 @@ concurrency:
   group: sunsetdiff-data-refresh
   cancel-in-progress: false
 jobs:
+  gate:
+    runs-on: ubuntu-latest
+    outputs:
+      skip: ${{ steps.cadence.outputs.skip }}
+    steps:
+      - name: Skip a scheduled run when the data is still fresh
+        id: cadence
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set +e
+          skip=false
+          if [ "${GITHUB_EVENT_NAME}" != "workflow_dispatch" ]; then
+            recent="$(gh api "repos/${GITHUB_REPOSITORY}/commits?sha=cursor/sunsetdiff-v1-3cab&per_page=100" --jq '[.[] | select(.commit.message | startswith("data: refresh"))][0].commit.committer.date' 2>"$RUNNER_TEMP/cadence.err")"
+            if [ -n "$recent" ] && [ "$recent" != "null" ]; then
+              recent_epoch="$(date -u -d "$recent" +%s 2>/dev/null)"
+              cutoff="$(date -u -d '5 hours ago' +%s)"
+              if [ -n "$recent_epoch" ] && [ "$recent_epoch" -gt "$cutoff" ]; then
+                skip=true
+                echo "Data commit at ${recent} is less than 5 hours old. Skipping the scrape." | tee -a "$GITHUB_STEP_SUMMARY"
+              else
+                echo "Newest data commit is ${recent}. Refreshing." | tee -a "$GITHUB_STEP_SUMMARY"
+              fi
+            else
+              echo "Could not find a recent data commit. Refreshing." | tee -a "$GITHUB_STEP_SUMMARY"
+            fi
+          else
+            echo "Manual run. Refreshing." | tee -a "$GITHUB_STEP_SUMMARY"
+          fi
+          echo "skip=${skip}" >> "$GITHUB_OUTPUT"
+          exit 0
+
   refresh:
+    needs: gate
+    if: ${{ !cancelled() && needs.gate.outputs.skip != 'true' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           ref: cursor/sunsetdiff-v1-3cab
+          fetch-depth: 0
           token: ${{ github.token }}
       - uses: actions/setup-node@v4
         with:
@@ -39,26 +80,140 @@ jobs:
         id: commit
         if: success()
         run: |
-          set -o pipefail
+          set -euo pipefail
+          branch="cursor/sunsetdiff-v1-3cab"
+          allowed='^(data/|snapshots/|action/snapshot/)'
+          summary="${GITHUB_STEP_SUMMARY}"
+          push_log="$RUNNER_TEMP/push.log"
+          : > "$push_log"
+
+          echo "generate" > "$RUNNER_TEMP/commit-failure-kind"
           npx tsx scripts/generate-static.ts 2>&1 | tee "$RUNNER_TEMP/generate.log"
+          echo "push" > "$RUNNER_TEMP/commit-failure-kind"
+
           git config user.name sunsetdiff-bot
           git config user.email sunsetdiff-bot@users.noreply.github.com
+
           git add data snapshots action/snapshot
           if git diff --cached --quiet; then
-            echo "No data changes" | tee -a "$GITHUB_STEP_SUMMARY"
-          else
-            git commit -m "data: refresh $(date -u +%F)"
-            git push origin HEAD:cursor/sunsetdiff-v1-3cab
-            echo "Pushed data refresh to cursor/sunsetdiff-v1-3cab" | tee -a "$GITHUB_STEP_SUMMARY"
+            echo "No data changes" | tee -a "$summary"
+            exit 0
           fi
-      - name: Close scraper-broken issue after a good refresh
+
+          message="data: refresh $(date -u +%F)"
+          git commit -m "$message"
+
+          bad="$(git diff --name-only HEAD~1 HEAD | grep -v -E "$allowed" || true)"
+          if [ -n "$bad" ]; then
+            echo "Data commit would change code files. Not pushing." | tee -a "$summary"
+            printf '%s\n' "$bad" | tee -a "$push_log"
+            exit 1
+          fi
+
+          for attempt in 1 2 3 4 5; do
+            echo "Push attempt ${attempt} of 5" | tee -a "$push_log"
+            if ! git fetch origin "$branch" 2>&1 | tee -a "$push_log"; then
+              echo "Fetch failed. Retrying." | tee -a "$push_log"
+              sleep $((attempt * 2))
+              continue
+            fi
+
+            if ! git rebase "origin/$branch" 2>&1 | tee -a "$push_log"; then
+              conflicts="$(git diff --name-only --diff-filter=U || true)"
+              outside="$(printf '%s\n' "$conflicts" | grep -v -E "$allowed" | sed '/^$/d' || true)"
+              if [ -n "$outside" ]; then
+                echo "Rebase would overwrite newer code. Leaving the branch untouched." | tee -a "$push_log"
+                printf '%s\n' "$outside" | tee -a "$push_log"
+                git rebase --abort || true
+                exit 1
+              fi
+              if [ -z "$conflicts" ]; then
+                echo "Rebase failed before a data conflict. Leaving the branch untouched." | tee -a "$push_log"
+                git rebase --abort || true
+                exit 1
+              fi
+              echo "Keeping newer edits where data files overlap." | tee -a "$push_log"
+              while IFS= read -r file; do
+                [ -z "$file" ] && continue
+                git checkout --ours -- "$file"
+                git add -- "$file"
+              done <<< "$conflicts"
+              if ! GIT_EDITOR=true git rebase --continue 2>&1 | tee -a "$push_log"; then
+                # The data edit was the same lines the newer commit already changed.
+                # Drop that replay so the newer edit stays, then stop if nothing remains.
+                if [ -z "$(git diff --name-only --diff-filter=U)" ]; then
+                  GIT_EDITOR=true git rebase --skip 2>&1 | tee -a "$push_log" || {
+                    git rebase --abort || true
+                    echo "Could not finish the rebase without dropping newer code." | tee -a "$push_log"
+                    exit 1
+                  }
+                else
+                  git rebase --abort || true
+                  echo "Could not finish the rebase without dropping newer code." | tee -a "$push_log"
+                  exit 1
+                fi
+              fi
+            fi
+
+            if git diff --quiet "origin/$branch" HEAD; then
+              echo "No data changes after rebasing onto the latest tip" | tee -a "$summary"
+              exit 0
+            fi
+
+            if [ "$(git log -1 --format=%s)" = "$message" ]; then
+              echo "generate" > "$RUNNER_TEMP/commit-failure-kind"
+              npx tsx scripts/generate-static.ts 2>&1 | tee -a "$RUNNER_TEMP/generate.log"
+              echo "push" > "$RUNNER_TEMP/commit-failure-kind"
+              git add action/snapshot
+              if ! git diff --cached --quiet; then
+                git commit --amend --no-edit 2>&1 | tee -a "$push_log"
+              fi
+            fi
+
+            if ! git merge-base --is-ancestor "origin/$branch" HEAD; then
+              echo "Refusing to push because the data commit is not based on the latest tip." | tee -a "$push_log"
+              exit 1
+            fi
+
+            bad="$(git diff --name-only "origin/$branch...HEAD" | grep -v -E "$allowed" || true)"
+            if [ -n "$bad" ]; then
+              echo "Refusing to push because the replay touches code files." | tee -a "$push_log"
+              printf '%s\n' "$bad" | tee -a "$push_log"
+              exit 1
+            fi
+
+            if git diff --quiet "origin/$branch" HEAD; then
+              echo "No data changes after rebasing onto the latest tip" | tee -a "$summary"
+              exit 0
+            fi
+
+            if git push origin "HEAD:$branch" 2>&1 | tee -a "$push_log"; then
+              echo "Pushed data refresh to ${branch}" | tee -a "$summary"
+              exit 0
+            fi
+
+            echo "Push rejected. Fetching the latest tip and retrying." | tee -a "$push_log"
+            sleep $((attempt * 2))
+          done
+
+          echo "Could not push the data commit after 5 attempts." | tee -a "$summary"
+          exit 1
+      - name: Close failure issues after a good refresh
         if: success()
         env:
           GH_TOKEN: ${{ github.token }}
           SCRAPER_RECOVERED: "1"
-        run: node scripts/open-scraper-issue.mjs
-      - name: Open or update scraper-broken issue
-        if: failure()
+        run: |
+          set -euo pipefail
+          node scripts/open-scraper-issue.mjs
+          numbers="$(gh issue list --state open --label refresh-push-failed --limit 20 --json number --jq '.[].number')"
+          for number in $numbers; do
+            gh issue comment "$number" --body "The refresh passed and the data commit was pushed. This issue is closed."
+            gh issue close "$number" --reason completed
+            echo "Closed issue #${number}"
+          done
+      - name: Open or update the failure issue
+        if: failure() && (steps.scrape.outcome == 'failure' || steps.test.outcome == 'failure' || steps.commit.outcome == 'failure')
         env:
           GH_TOKEN: ${{ github.token }}
           SCRAPE_OUTCOME: ${{ steps.scrape.outcome }}
@@ -66,15 +221,36 @@ jobs:
           COMMIT_OUTCOME: ${{ steps.commit.outcome }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
+          set -euo pipefail
+          kind="$(cat "$RUNNER_TEMP/commit-failure-kind" 2>/dev/null || true)"
+          if [ "$SCRAPE_OUTCOME" = "failure" ] || [ "$TEST_OUTCOME" = "failure" ] || [ "$kind" = "generate" ]; then
+            label="scraper-broken"
+            title="scraper-broken: refresh failed"
+            color="b60205"
+            description="SunsetDiff refresh failed while scraping, testing, or building data"
+            summary="The SunsetDiff refresh failed while scraping, testing, or building data. This is a scraper, test, or data-build failure. Data was not overwritten."
+            logs="scrape test generate"
+          elif [ "$COMMIT_OUTCOME" = "failure" ]; then
+            label="refresh-push-failed"
+            title="refresh-push-failed: data commit was not pushed"
+            color="FBCA04"
+            description="SunsetDiff data commit or push failed"
+            summary="The SunsetDiff refresh scraped and tested successfully, but the data commit could not be pushed. This is a commit failure, not a scraper failure. Data was not overwritten."
+            logs="push"
+          else
+            echo "No scraper or push failure to report."
+            exit 0
+          fi
+
           {
-            echo "The SunsetDiff refresh failed. Data was not overwritten."
+            echo "$summary"
             echo
             echo "Run: ${RUN_URL}"
             echo "Scrape: ${SCRAPE_OUTCOME}"
             echo "Test: ${TEST_OUTCOME}"
             echo "Commit: ${COMMIT_OUTCOME}"
             echo
-            for log in scrape test generate; do
+            for log in $logs; do
               file="$RUNNER_TEMP/${log}.log"
               if [ -f "$file" ]; then
                 echo "### ${log} log"
@@ -84,5 +260,15 @@ jobs:
                 echo
               fi
             done
-          } > "$RUNNER_TEMP/scraper-error.md"
-          SCRAPER_ERROR="$(cat "$RUNNER_TEMP/scraper-error.md")" node scripts/open-scraper-issue.mjs
+          } > "$RUNNER_TEMP/failure.md"
+
+          gh label create "$label" --color "$color" --description "$description" >/dev/null 2>&1 || true
+          number="$(gh issue list --state open --label "$label" --limit 1 --json number --jq '.[0].number // empty')"
+          if [ -n "$number" ]; then
+            gh issue comment "$number" --body-file "$RUNNER_TEMP/failure.md"
+            echo "Updated issue #${number}"
+          else
+            if ! gh issue create --title "$title" --label "$label" --body-file "$RUNNER_TEMP/failure.md"; then
+              gh issue create --title "$title" --body-file "$RUNNER_TEMP/failure.md"
+            fi
+          fi
