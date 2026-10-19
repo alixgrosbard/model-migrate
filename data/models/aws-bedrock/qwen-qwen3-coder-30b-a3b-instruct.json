@@ -1,0 +1,45 @@
+{
+  "id": "qwen.qwen3-coder-30b-a3b-instruct",
+  "slug": "qwen-qwen3-coder-30b-a3b-instruct",
+  "provider": "aws-bedrock",
+  "display_name": "Qwen3-Coder-30B-A3B-Instruct (qwen.qwen3-coder-30b-a3b-instruct)",
+  "family": null,
+  "status": "legacy",
+  "announced_date": null,
+  "deprecation_date": "2026-09-30",
+  "shutdown_date": "2027-03-30",
+  "shutdown_date_kind": "exact",
+  "region_or_platform_notes": "Regions listed on the lifecycle page: ap-northeast-1, ap-south-1, ap-southeast-2, ap-southeast-3, eu-central-1, eu-north-1, eu-south-1, eu-west-1, eu-west-2, sa-east-1, us-east-1, us-east-2, us-west-2. Platform listed on the lifecycle page: bedrock-mantle.",
+  "replacements": [],
+  "sources": [
+    {
+      "url": "https://docs.aws.amazon.com/bedrock/latest/userguide/model-lifecycle-legacy.html",
+      "label": "Amazon Bedrock model lifecycle (legacy)",
+      "last_checked": "2026-10-19",
+      "excerpt": "Policy page https://docs.aws.amazon.com/bedrock/latest/userguide/model-lifecycle.html | Qwen | Qwen3-Coder-30B-A3B-Instruct | qwen.qwen3-coder-30b-a3b-v1:0 (bedrock-runtime), qwen.qwen3-coder-30b-a3b-instruct (bedrock-mantle) | ap-northeast-1, ap-south-1, ap-southeast-2, ap-southeast-3, eu-central-…"
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": null,
+    "output_price_per_mtok": null,
+    "cached_input_price_per_mtok": null,
+    "batch_discount_pct": null,
+    "currency": null,
+    "context_window_tokens": null,
+    "max_output_tokens": null,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {}
+  },
+  "first_seen": "2026-10-17T15:59:19.574Z",
+  "updated_at": "2026-10-19T13:23:36.806Z"
+}

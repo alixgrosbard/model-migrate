@@ -12,13 +12,32 @@ export async function scrape(checked = todayISO()): Promise<ScrapedModel[]> {
   return parseBedrock(legacy, checked);
 }
 
+interface BedrockId {
+  id: string;
+  platform: string | null;
+}
+
 interface BedrockRow {
   name: string;
   id: string;
+  platform: string | null;
   regions: string;
   legacyText: string;
   eolText: string;
   cells: string[];
+}
+
+export function splitBedrockIds(cell: string): BedrockId[] {
+  return cell
+    .split(",")
+    .map((piece) => piece.trim())
+    .filter(Boolean)
+    .map((piece) => {
+      const match = piece.match(/^(.*?)\s*\(([^)]+)\)\s*$/);
+      const id = (match ? match[1] : piece).trim();
+      return { id, platform: match ? match[2].trim() : null };
+    })
+    .filter((item) => isModelId(item.id));
 }
 
 export function parseBedrock(html: string, checked = todayISO()): ScrapedModel[] {
@@ -32,7 +51,7 @@ export function parseBedrock(html: string, checked = todayISO()): ScrapedModel[]
       if (title.includes("active")) section = "active";
       return;
     }
-    let carry: { name: string; id: string } | null = null;
+    let carry: { name: string; ids: BedrockId[] } | null = null;
     $(node)
       .find("tr")
       .each((__, tr) => {
@@ -45,21 +64,37 @@ export function parseBedrock(html: string, checked = todayISO()): ScrapedModel[]
           carry = null;
           return;
         }
-        let row: BedrockRow | null = null;
-        if (cells.length >= 7 && isModelId(cells[2])) {
-          carry = { name: cells[1], id: cells[2] };
-          row = { name: cells[1], id: cells[2], regions: cells[3] ?? "", legacyText: cells[4] ?? "", eolText: cells[5] ?? "", cells };
+        const rows: BedrockRow[] = [];
+        if (cells.length >= 7) {
+          const ids = splitBedrockIds(cells[2] ?? "");
+          if (ids.length) {
+            carry = { name: cells[1], ids };
+            for (const item of ids) {
+              rows.push({
+                name: cells[1],
+                id: item.id,
+                platform: item.platform,
+                regions: cells[3] ?? "",
+                legacyText: cells[4] ?? "",
+                eolText: cells[5] ?? "",
+                cells,
+              });
+            }
+          }
         } else if (carry && cells.length >= 4 && cells.length < 7) {
-          row = {
-            name: carry.name,
-            id: carry.id,
-            regions: cells[0] ?? "",
-            legacyText: cells[1] ?? "",
-            eolText: cells[2] ?? "",
-            cells: ["", carry.name, carry.id, ...cells],
-          };
+          for (const item of carry.ids) {
+            rows.push({
+              name: carry.name,
+              id: item.id,
+              platform: item.platform,
+              regions: cells[0] ?? "",
+              legacyText: cells[1] ?? "",
+              eolText: cells[2] ?? "",
+              cells: ["", carry.name, item.id, ...cells],
+            });
+          }
         }
-        if (row) raw.push({ section, row });
+        for (const row of rows) raw.push({ section, row });
       });
   });
 
@@ -105,20 +140,24 @@ export function parseBedrock(html: string, checked = todayISO()): ScrapedModel[]
 }
 
 function regionNotes(rows: BedrockRow[]): string | null {
+  let regionPart: string | null = null;
   if (rows.length === 1) {
     const regions = rows[0].regions.trim();
-    return regions ? `Regions listed on the lifecycle page: ${regions}.` : null;
+    regionPart = regions ? `Regions listed on the lifecycle page: ${regions}.` : null;
+  } else {
+    const parts = rows
+      .map((row) => {
+        const regions = row.regions.trim();
+        if (!regions) return "";
+        const legacy = parseDate(row.legacyText).date;
+        return legacy ? `${regions} (legacy ${legacy})` : regions;
+      })
+      .filter(Boolean);
+    regionPart = parts.length ? `Regions listed on the lifecycle page: ${parts.join("; ")}.` : null;
   }
-  const parts = rows
-    .map((row) => {
-      const regions = row.regions.trim();
-      if (!regions) return "";
-      const legacy = parseDate(row.legacyText).date;
-      return legacy ? `${regions} (legacy ${legacy})` : regions;
-    })
-    .filter(Boolean);
-  if (!parts.length) return null;
-  return `Regions listed on the lifecycle page: ${parts.join("; ")}.`;
+  const platforms = [...new Set(rows.map((row) => row.platform).filter((value): value is string => Boolean(value)))];
+  const platformPart = platforms.length ? `Platform listed on the lifecycle page: ${platforms.join(", ")}.` : null;
+  return [regionPart, platformPart].filter(Boolean).join(" ") || null;
 }
 
 function bedrockStatus(section: "active" | "legacy", legacy: string | null, eol: string | null, today: string): ScrapedModel["status"] {

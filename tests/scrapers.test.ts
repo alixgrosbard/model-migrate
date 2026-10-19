@@ -51,6 +51,24 @@ describe("official snapshots", () => {
     expect(gemini.find((model) => model.id === "gemini-2.0-flash")?.shutdown_date).toBe("2026-06-01");
     const vertex = parseVertex(read("snapshots/google-vertex/2026-10-17.html"), checked);
     expect(vertex.find((model) => model.id === "gemini-2.5-pro")?.shutdown_date).toBe("2026-10-20");
+    const vertexNow = parseVertex(read("snapshots/google-vertex/2026-10-19.html"), "2026-10-19");
+    expect(vertexNow.find((model) => model.id === "gemini-2.5-pro")?.replacements.map((item) => item.model_id)).toEqual([
+      "gemini-3.8-flash",
+      "gemini-3.5-flash",
+    ]);
+    expect(vertexNow.find((model) => model.id === "gemini-2.5-flash")?.replacements.map((item) => item.model_id)).toEqual([
+      "gemini-3.8-flash",
+      "gemini-3.5-flash-lite",
+      "gemini-3.1-flash-lite",
+    ]);
+    expect(vertexNow.find((model) => model.id === "gemini-2.5-flash-lite")?.replacements.map((item) => item.model_id)).toEqual([
+      "gemini-3.8-flash",
+      "gemini-3.1-flash-lite",
+    ]);
+    const geminiNow = parseGemini(read("snapshots/google-gemini-api/2026-10-19.html"), "", "2026-10-19");
+    for (const id of ["veo-3.1-generate-preview", "veo-3.1-fast-generate-preview", "veo-3.1-lite-generate-preview"]) {
+      expect(geminiNow.find((model) => model.id === id)?.replacements.map((item) => item.model_id)).toEqual(["gemini-omni-1.1-flash"]);
+    }
     const bedrock = parseBedrock(read("snapshots/aws-bedrock/2026-10-17-legacy.html"), checked);
     const jamba = bedrock.find((model) => model.id === "ai21.jamba-1-5-large-v1:0");
     expect(jamba?.deprecation_date).toBe("2026-05-26");
@@ -67,6 +85,22 @@ describe("official snapshots", () => {
     const sonnet3 = bedrock.find((model) => model.id === "anthropic.claude-3-sonnet-20240229-v1:0" && model.shutdown_date === "2026-11-13");
     expect(sonnet3?.region_or_platform_notes).toContain("sa-east-1");
     expect(sonnet3?.region_or_platform_notes).toContain("ca-central-1");
+    expect(bedrock.some((model) => /\s/.test(model.id) || model.id.includes("("))).toBe(false);
+    const deepseek = bedrock.filter((model) => model.id === "deepseek.v3-v1:0" || model.id === "deepseek.v3.1");
+    expect(deepseek.map((model) => model.id).sort()).toEqual(["deepseek.v3-v1:0", "deepseek.v3.1"]);
+    expect(deepseek.every((model) => model.shutdown_date === "2027-03-30" && model.deprecation_date === "2026-09-30")).toBe(true);
+    expect(deepseek.find((model) => model.id === "deepseek.v3-v1:0")?.region_or_platform_notes).toContain("bedrock-runtime");
+    expect(deepseek.find((model) => model.id === "deepseek.v3.1")?.region_or_platform_notes).toContain("bedrock-mantle");
+    expect(bedrock.map((model) => model.id)).toEqual(
+      expect.arrayContaining([
+        "moonshot.kimi-k2-thinking",
+        "moonshotai.kimi-k2-thinking",
+        "qwen.qwen3-coder-30b-a3b-v1:0",
+        "qwen.qwen3-coder-30b-a3b-instruct",
+        "qwen.qwen3-coder-480b-a35b-v1:0",
+        "qwen.qwen3-coder-480b-a35b-instruct",
+      ]),
+    );
     const azure = parseAzure(read("snapshots/azure-openai/2026-10-17-schedule.html"), read("snapshots/azure-openai/2026-10-17.html"), checked);
     expect(azure.find((model) => model.id === "codex-mini-2025-05-16")?.shutdown_date).toBe("2026-11-15");
     const mistral = parseMistral(read("snapshots/mistral/2026-10-17.html"), read("snapshots/mistral/pricing-2026-10-17.html"), checked);
