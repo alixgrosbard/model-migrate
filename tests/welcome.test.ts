@@ -41,7 +41,8 @@ describe("welcome list", () => {
     expect(content.text).toContain("https://sunsetdiff.com/deadlines/");
     expect(content.text).toContain("https://sunsetdiff.com/calendar/");
     expect(content.text).toContain("https://sunsetdiff.com/deadlines.ics");
-    expect(content.text).toContain("Coming soon: Pro alerts tuned to just the models you use.");
+    expect(content.text).toContain("Coming at launch: Pro alerts tuned to just the models you use. You won't be charged until Pro launches. After that it's $19 a month, and you can cancel anytime.");
+    expect(content.html).toContain("You won't be charged until Pro launches.");
     expect(content.text).toContain("Thanks, SunsetDiff");
     expect(content.html).toContain("https://sunsetdiff.com/models/openai/dup/");
     expect(`${content.subject}\n${content.text}\n${content.html}`).not.toMatch(/[\u2013\u2014]/);

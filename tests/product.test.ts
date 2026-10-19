@@ -57,6 +57,7 @@ describe("citation files", () => {
     expect(text).toContain("CC BY 4.0");
     expect(text).toContain("/#soonest");
     expect(text).toContain("/data/");
+    expect(text).toContain("/pro/) is free until launch, then $19 a month. You won't be charged until Pro launches.");
     expect(siteOrigin()).toBe("https://sunsetdiff.com");
   });
 

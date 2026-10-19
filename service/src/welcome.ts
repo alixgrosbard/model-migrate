@@ -111,7 +111,7 @@ export function welcomeContent(models: ShutdownModel[], day: string, unsubscribe
     "",
     `${more} ${SITE}/deadlines/`,
     `Calendar: ${SITE}/calendar/ and ${SITE}/deadlines.ics`,
-    "Coming soon: Pro alerts tuned to just the models you use.",
+    "Coming at launch: Pro alerts tuned to just the models you use. You won't be charged until Pro launches. After that it's $19 a month, and you can cancel anytime.",
     "",
     "Thanks, SunsetDiff",
     "",
@@ -130,7 +130,7 @@ export function welcomeContent(models: ShutdownModel[], day: string, unsubscribe
 ${items ? `<ol>${items}</ol>` : `<p>Published shutdowns are listed on the deadlines page.</p>`}
 <p><a href="${SITE}/deadlines/">${escapeHtml(more)}</a></p>
 <p>Calendar: <a href="${SITE}/calendar/">${SITE}/calendar/</a> and <a href="${SITE}/deadlines.ics">${SITE}/deadlines.ics</a></p>
-<p>Coming soon: Pro alerts tuned to just the models you use.</p>
+<p>Coming at launch: Pro alerts tuned to just the models you use. You won't be charged until Pro launches. After that it's $19 a month, and you can cancel anytime.</p>
 <p>Thanks, SunsetDiff</p>
 <p><a href="${escapeAttr(unsubscribeUrl)}">Unsubscribe</a></p>
 </div>

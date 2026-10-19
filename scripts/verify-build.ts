@@ -64,7 +64,27 @@ async function main() {
     }
     checked++;
   }
+  const pro = await readFile(path.join(dist, "pro/index.html"), "utf8");
+  const proText = visibleText(pro);
+  if (!proText.includes("You won't be charged until Pro launches")) throw new Error("Pro page is missing the free-until-launch line");
+  if (!proText.includes("we'll email you before your first charge")) throw new Error("Pro page is missing the email-before-charge line");
+  if (!proText.includes("After that it's $19 a month")) throw new Error("Pro page is missing the price after launch");
+  if (!proText.includes("you can cancel anytime")) throw new Error("Pro page is missing cancel anytime");
+  if (!proText.includes("Coming at launch")) throw new Error("Pro page is missing Coming at launch");
+  if (!proText.includes("Available now")) throw new Error("Pro page is missing Available now");
+  if (!pro.includes("You won't be charged until Pro launches")) throw new Error("Pro page JSON-LD is missing the free-until-launch line");
+  if (!pro.includes('"FAQPage"')) throw new Error("Pro page JSON-LD is missing FAQPage");
+  if (proText.includes("Nothing on this list is available yet")) throw new Error("Pro page still says nothing is available");
+  if (proText.includes("Subscribe for $19")) throw new Error("Pro page still implies an immediate charge");
+  if (pro.includes("—") || pro.includes("–")) throw new Error("Em dash on /pro/");
+  if (pro.includes('class="button"') && !proText.includes("Start free early access")) {
+    throw new Error("Pro checkout button must say Start free early access");
+  }
+  if (!pro.includes('class="button"') && !proText.includes("does not charge you")) {
+    throw new Error("Pro page without a checkout link must say it does not charge you");
+  }
   const home = await readFile(path.join(dist, "index.html"), "utf8");
+  if (!visibleText(home).includes("You won't be charged until Pro launches")) throw new Error("Footer is missing the free-until-launch line");
   for (const type of requiredTypes) {
     if (!home.includes(`"${type}"`) && !home.includes(type)) throw new Error(`Home JSON-LD missing ${type}`);
   }
@@ -98,6 +118,7 @@ async function main() {
   if (!events.length) throw new Error("No shutdown event pages were generated");
   if (!sitemap.includes("/shutdowns/")) throw new Error("Sitemap is missing /shutdowns/");
   if (!llms.includes("/shutdowns/")) throw new Error("llms.txt is missing /shutdowns/");
+  if (!llms.includes("You won't be charged until Pro launches")) throw new Error("llms.txt is missing the Pro billing line");
   for (const event of events) {
     const rel = shutdownEventPath(event);
     const file = path.join(dist, rel.slice(1), "index.html");
@@ -135,6 +156,16 @@ async function main() {
     if (deps[name]) throw new Error(`Disallowed package installed: ${name}`);
   }
   console.log(`Verified ${checked} HTML files and required static outputs.`);
+}
+
+function visibleText(html: string): string {
+  return html
+    .replace(/<script[\s\S]*?<\/script>/gi, " ")
+    .replace(/<style[\s\S]*?<\/style>/gi, " ")
+    .replace(/&#0*39;|&apos;/g, "'")
+    .replace(/&quot;/g, '"')
+    .replace(/&amp;/g, "&")
+    .replace(/<[^>]+>/g, " ");
 }
 
 async function sitemapText(dir: string): Promise<string> {

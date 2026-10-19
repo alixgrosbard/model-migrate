@@ -40,6 +40,7 @@ export function llmsTxt(
 - [Changes](${origin}/changes/)
 - [Dataset](${origin}/data/)
 - [About](${origin}/about/)
+- [Pro](${origin}/pro/) is free until launch, then $19 a month. You won't be charged until Pro launches.
 
 ## Dataset
 The dataset is CC BY 4.0. Publisher: SunsetDiff. Blank spec fields were not on the official pages.

@@ -4,6 +4,14 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   CLOSED_NOTE,
+  PRO_BILLING_QUESTION,
+  PRO_CTA,
+  PRO_DESCRIPTION,
+  PRO_EARLY_ACCESS,
+  PRO_FEATURES,
+  PRO_FOOTER,
+  PRO_NO_CHECKOUT,
+  PRO_TITLE,
   SENDING_NOTE,
   STORED_NOTE,
   alertNote,
@@ -32,6 +40,29 @@ describe("pro checkout", () => {
     expect(proCheckoutUrl("")).toBeNull();
     expect(proCheckoutUrl("javascript:alert(1)")).toBeNull();
     expect(proCheckoutUrl("https://example.com/checkout")).toBe("https://example.com/checkout");
+  });
+
+  it("says early access is free until launch, then $19 a month", () => {
+    expect(PRO_EARLY_ACCESS).toBe(
+      "Pro is in early access. Join free today. You won't be charged until Pro launches, and we'll email you before your first charge. After that it's $19 a month, and you can cancel anytime.",
+    );
+    expect(PRO_DESCRIPTION).toContain("You won't be charged until Pro launches");
+    expect(PRO_DESCRIPTION).toContain("$19 a month");
+    expect(PRO_FOOTER).toContain("You won't be charged until Pro launches");
+    expect(PRO_CTA).toBe("Start free early access");
+    expect(PRO_NO_CHECKOUT).toContain("does not charge you");
+    expect(PRO_TITLE).not.toMatch(/\$19/);
+    expect(PRO_BILLING_QUESTION).toContain("charged");
+    expect(PRO_FEATURES.filter((feature) => feature.status === "Coming at launch").map((feature) => feature.text)).toEqual([
+      "Alerts only for the models in your code.",
+      "Earlier warnings.",
+      "Pro API access.",
+    ]);
+    expect(PRO_FEATURES.find((feature) => feature.status === "Available now")?.text).toContain("Public JSON files");
+    const joined = [PRO_EARLY_ACCESS, PRO_DESCRIPTION, PRO_FOOTER, PRO_CTA, PRO_NO_CHECKOUT, PRO_TITLE].join("\n");
+    expect(joined).not.toMatch(/[\u2013\u2014]/);
+    expect(joined).not.toContain("Nothing on this list");
+    expect(joined).not.toContain("Subscribe for $19");
   });
 });
 

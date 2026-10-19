@@ -20,7 +20,7 @@ If `PUBLIC_SERVICE_URL` is not set, the deprecation-alert form stays disabled. I
 
 `PUBLIC_ALERTS_SENDING` defaults to on. The form note is “We email you before models shut down. Unsubscribe anytime.” Set it to `false` to restore the older note.
 
-`/pro/` describes SunsetDiff Pro at $19 a month. The listed items are planned. Set `PUBLIC_PRO_CHECKOUT_URL` to an http or https checkout link to show the subscribe button. When that variable is unset, the page says “Coming soon” and shows the alert signup.
+`/pro/` is SunsetDiff Pro early access. Join free today. You won't be charged until Pro launches, and we'll email you before your first charge. After that it's $19 a month, and you can cancel anytime. Features that are not built yet say "Coming at launch". The public JSON files and `/api/v1` say "Available now" and stay free. Set `PUBLIC_PRO_CHECKOUT_URL` to an http or https checkout link to show the "Start free early access" button. The live Stripe link includes a trial, so nobody is billed before launch. When that variable is unset, the page says there is no checkout link and shows the free alert signup.
 
 ## Data
 

@@ -3,6 +3,7 @@ import "../styles/global.css";
 import { breadcrumb, graph, websiteGraph } from "../jsonld.ts";
 import { loadModels, loadProviders } from "../lib/load.ts";
 import { monthLabel, shutdownMonths } from "../lib/growth.ts";
+import { PRO_FOOTER } from "../lib/public-copy.ts";
 import { DEFAULT_SITE_URL } from "../lib/site.ts";
 
 interface Crumb { name: string; path: string; }
@@ -90,6 +91,7 @@ const jsonld = graph([...websiteGraph(site), breadcrumb(site, crumbs), ...extraG
         {providers.map((provider) => <a href={`/providers/${provider.id}/`}>{provider.name}</a>)}
       </nav>
       <p>SunsetDiff is independent and not affiliated with any AI provider.</p>
+      <p>{PRO_FOOTER} <a href="/pro/">Pro details</a></p>
       <p>Publisher: SunsetDiff. Dates come from official provider pages. Data is <a href="/DATA_LICENSE.txt">CC BY 4.0</a>. Code is <a href="/LICENSE.txt">MIT</a>. <a href="/data/">Dataset</a></p>
     </footer>
   </body>

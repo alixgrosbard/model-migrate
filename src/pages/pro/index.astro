@@ -1,31 +1,49 @@
 ---
 import Base from "../../layouts/Base.astro";
+import FaqList from "../../components/FaqList.astro";
 import NewsletterForm from "../../components/NewsletterForm.astro";
 import { loadProviders } from "../../lib/load.ts";
-import { proCheckoutUrl } from "../../lib/public-copy.ts";
+import {
+  PRO_BILLING_QUESTION,
+  PRO_CTA,
+  PRO_DESCRIPTION,
+  PRO_EARLY_ACCESS,
+  PRO_FEATURES,
+  PRO_NO_CHECKOUT,
+  PRO_TITLE,
+  proCheckoutUrl,
+} from "../../lib/public-copy.ts";
 
 const providers = await loadProviders();
 const checkout = proCheckoutUrl(import.meta.env.PUBLIC_PRO_CHECKOUT_URL);
+const faqs = [{ question: PRO_BILLING_QUESTION, answer: PRO_EARLY_ACCESS }];
 ---
 <Base
-  title="SunsetDiff Pro, $19 a month | SunsetDiff"
-  description="SunsetDiff Pro is planned at $19 a month. Alerts for models in your code, earlier warnings, and API access are planned, not available yet."
+  title={PRO_TITLE}
+  description={PRO_DESCRIPTION}
   crumbs={[{ name: "Home", path: "/" }, { name: "Pro", path: "/pro/" }]}
+  extraGraph={[{
+    "@type": "FAQPage",
+    mainEntity: faqs.map((item) => ({
+      "@type": "Question",
+      name: item.question,
+      acceptedAnswer: { "@type": "Answer", text: item.answer },
+    })),
+  }]}
 >
   <h1>SunsetDiff Pro</h1>
-  <p class="answer">SunsetDiff Pro is planned at $19 a month. Nothing on this list is available yet.</p>
-  <h2>Planned</h2>
+  <p class="answer">{PRO_EARLY_ACCESS}</p>
+  <h2>Features</h2>
   <ul>
-    <li>Alerts only for the models in your code. Planned.</li>
-    <li>Earlier warnings. Planned.</li>
-    <li>API access. Planned. The public JSON files on this site stay free.</li>
+    {PRO_FEATURES.map((feature) => <li>{feature.text} {feature.status}.</li>)}
   </ul>
   {checkout ? (
-    <p><a class="button" href={checkout}>Subscribe for $19 a month</a></p>
+    <p><a class="button" href={checkout}>{PRO_CTA}</a></p>
   ) : (
     <>
-      <p><strong>Coming soon.</strong> There is no checkout link yet.</p>
+      <p><strong>{PRO_NO_CHECKOUT}</strong></p>
       <NewsletterForm providers={providers} sourcePage="/pro/" />
     </>
   )}
+  <FaqList items={faqs} />
 </Base>
