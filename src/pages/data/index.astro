@@ -48,9 +48,9 @@ const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
   </ul>
   <h2>MCP server</h2>
   <p>The Node service exposes a read-only MCP endpoint at <code>/mcp</code>. Tools: <code>check_model</code>, <code>upcoming_shutdowns</code>, <code>migration_diff</code>, <code>scan_text</code>.</p>
-  <pre><code>npx github:&lt;owner&gt;/model-migrate mcp</code></pre>
+  <pre><code>npx github:alixgrosbard/model-migrate mcp</code></pre>
   <h2>GitHub Action</h2>
-  <pre><code>- uses: &lt;owner&gt;/model-migrate/action@main
+  <pre><code>- uses: alixgrosbard/model-migrate/action@main
   with:
     warn-days: "60"
     fail-days: "14"</code></pre>

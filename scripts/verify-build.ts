@@ -1,5 +1,6 @@
 import { readFile, readdir } from "node:fs/promises";
 import path from "node:path";
+import { htmlContainsOwnerPlaceholder } from "../src/lib/public-copy.ts";
 
 const dist = path.join(process.cwd(), "dist");
 const required = [
@@ -20,6 +21,7 @@ const required = [
   "deadlines/index.html",
   "questions/index.html",
   "scan/index.html",
+  "pro/index.html",
 ];
 
 const requiredTypes = ["WebSite", "Organization", "BreadcrumbList"];
@@ -32,6 +34,7 @@ async function main() {
   let checked = 0;
   for (const file of htmlFiles) {
     const html = await readFile(file, "utf8");
+    if (htmlContainsOwnerPlaceholder(html)) throw new Error(`Built HTML contains <owner> in ${file}`);
     const blocks = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)];
     if (!blocks.length) throw new Error(`Missing JSON-LD in ${file}`);
     for (const block of blocks) {

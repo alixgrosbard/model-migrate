@@ -18,6 +18,10 @@ The site URL defaults to `https://sunsetdiff.com`. Set `SITE_URL` to another ori
 
 If `PUBLIC_SERVICE_URL` is not set, the deprecation-alert form stays disabled. It does not post anywhere and it does not send email.
 
+`PUBLIC_ALERTS_SENDING` defaults to off. Leave it unset until alert email is actually sending. Set it to `true` to change the form note to “We email you before models you care about shut down. Unsubscribe anytime.”
+
+`/pro/` describes SunsetDiff Pro at $19 a month. The listed items are planned. Set `PUBLIC_PRO_CHECKOUT_URL` to an http or https checkout link to show the subscribe button. When that variable is unset, the page says “Coming soon” and shows the alert signup.
+
 ## Data
 
 JSON files in `data/` are the source of truth. Scrapers read official public pages only. Every date and spec links to the page it came from, with a last_checked date. Missing values stay empty and the site says "Not published". A live scrape also reads official model docs for price, context window, and max output, and leaves a field empty when that page does not publish it.
@@ -42,7 +46,7 @@ The Node service needs `RESEND_API_KEY` and `RESEND_SEGMENT_ID`. If either is mi
 - `/data/models.json`, `/data/deprecations.csv`, and `/data/changelog.json`
 - `/deadlines.ics` and `/feed.xml`
 - MCP tools on the Node service at `/mcp`: `check_model`, `upcoming_shutdowns`, `migration_diff`, `scan_text`
-- Local MCP: `npx github:<owner>/model-migrate mcp`
+- Local MCP: `npx github:alixgrosbard/model-migrate mcp`
 - GitHub Action in `action/` (not published to the Marketplace)
 
 ## Hosting

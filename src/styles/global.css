@@ -75,6 +75,11 @@ button, .button {
   padding: 0.45rem 0.7rem;
   cursor: pointer;
 }
+a.button, a.button:visited {
+  display: inline-block;
+  text-decoration: none;
+  color: white;
+}
 button:disabled,
 input:disabled {
   opacity: 0.55;
