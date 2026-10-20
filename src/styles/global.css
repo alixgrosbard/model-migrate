@@ -107,6 +107,8 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fo
 footer { color: var(--muted); border-top: 1px solid var(--line); margin-top: 2rem; }
 footer nav { margin-bottom: 0.6rem; }
 footer nav a { margin-right: 0.7rem; }
+footer .listed { display: flex; flex-wrap: wrap; align-items: center; gap: 0.45rem 0.7rem; font-size: 0.85rem; }
+footer .listed img { display: block; max-width: 100%; height: auto; }
 .faq { margin: 0.8rem 0 1.2rem; }
 .faq h3 { font-size: 1.05rem; margin-bottom: 0.2rem; }
 @media (max-width: 640px) {
