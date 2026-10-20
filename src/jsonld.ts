@@ -1,6 +1,7 @@
 import type { MigrationRecord, ModelRecord, Provider } from "./schema.ts";
 import { modelFaqs, replaceFaqs, type FaqItem } from "./lib/format.ts";
 import { deprecatedFaqs, publicName, questionPath, shutdownFaqs } from "./lib/growth.ts";
+import { REQUEST_ERRORS_CHECKED, requestErrorPath, type RequestErrorPage } from "./lib/request-errors.ts";
 
 function siteRoot(site: string): string {
   return site.replace(/\/+$/, "");
@@ -300,6 +301,26 @@ export function apiDocsGraph(site: string, modified: string, faqs: FaqItem[]) {
     },
     ...datasetGraph(site, modified),
     faqNode(faqs),
+  ];
+}
+
+export function requestErrorGraph(site: string, page: RequestErrorPage) {
+  const path = requestErrorPath(page.slug);
+  const url = new URL(path, site).href;
+  return [
+    {
+      "@type": "TechArticle",
+      headline: page.h1,
+      description: `${page.errorText}. ${page.lead}`,
+      dateModified: REQUEST_ERRORS_CHECKED,
+      url,
+      mainEntityOfPage: url,
+      inLanguage: "en",
+      author: { "@type": "Organization", name: "SunsetDiff" },
+      publisher: { "@type": "Organization", name: "SunsetDiff" },
+      citation: page.citations,
+    },
+    faqNode(page.faqs),
   ];
 }
 

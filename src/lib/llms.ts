@@ -1,5 +1,6 @@
 import type { ModelRecord, Provider } from "../schema.ts";
 import { publicName } from "./growth.ts";
+import { REQUEST_ERRORS_CHECKED, requestErrorPath, requestErrors } from "./request-errors.ts";
 
 export function llmsTxt(
   site: string,
@@ -43,6 +44,10 @@ export function llmsTxt(
 - [Compare trackers](${origin}/alternatives/)
 - [About](${origin}/about/)
 - [Pro](${origin}/pro/) is free until launch, then $19 a month. You won't be charged until Pro launches.
+
+## Request errors
+Each page quotes a 400 error and the fix from the official provider page, checked ${REQUEST_ERRORS_CHECKED}.
+${requestErrors.map((page) => `- [${page.h1}](${origin}${requestErrorPath(page.slug)})`).join("\n")}
 
 ## Dataset
 The dataset is CC BY 4.0. Publisher: SunsetDiff. Blank spec fields were not on the official pages.
@@ -118,6 +123,7 @@ export function llmsFull(site: string, models: ModelRecord[]): string {
     `changelog.json: ${origin}/data/changelog.json`,
     `API docs: ${origin}/api/`,
     `Compare trackers: ${origin}/alternatives/`,
+    ...requestErrors.map((page) => `Request error: ${origin}${requestErrorPath(page.slug)}`),
     `Deadlines: ${origin}/deadlines/`,
     `Shutdown batches: ${origin}/shutdowns/`,
     `iCal: ${origin}/deadlines.ics`,

@@ -1,0 +1,88 @@
+import { describe, expect, it } from "vitest";
+import { readFile } from "node:fs/promises";
+import { migrationSchema } from "../src/schema.ts";
+import { llmsFull, llmsTxt } from "../src/lib/llms.ts";
+import { lastmodForUrl } from "../src/lib/lastmod.ts";
+import { requestErrorGraph } from "../src/jsonld.ts";
+import { REQUEST_ERRORS_CHECKED, requestErrorPath, requestErrors } from "../src/lib/request-errors.ts";
+
+const sonnetFile = "data/migrations/anthropic__claude-sonnet-4-5-20250929__to__anthropic__claude-sonnet-5-5.json";
+const lunaFiles = [
+  "data/migrations/openai__gpt-4o-mini-2024-07-18__to__openai__gpt-6-luna.json",
+  "data/migrations/openai__gpt-4o-2024-08-06__to__openai__gpt-6-luna.json",
+  "data/migrations/openai__gpt-4o-2024-11-20__to__openai__gpt-6-luna.json",
+];
+
+describe("migration request changes", () => {
+  it("fills Sonnet 4.5 to 5.5 from the migration guide", async () => {
+    const row = migrationSchema.parse(JSON.parse(await readFile(sonnetFile, "utf8")));
+    expect(row.api_changes.map((change) => change.kind)).toEqual([
+      "removed_param",
+      "removed_param",
+      "behavior_change",
+      "behavior_change",
+      "behavior_change",
+    ]);
+    const blob = row.api_changes.map((change) => change.detail).join(" ");
+    expect(blob).toContain("non-default temperature, top_p, or top_k");
+    expect(blob).toContain("budget_tokens");
+    expect(blob).toContain("between_tools");
+    expect(blob).toContain("user message");
+    expect(blob).toContain("tool_choice");
+    for (const change of row.api_changes) {
+      expect(change.source_url).toBe("https://platform.claude.com/docs/en/models/sonnet-5-5/migration-guide");
+    }
+    for (const language of ["python", "typescript", "curl"] as const) {
+      const snippet = row.code_change.snippets[language];
+      expect(snippet.before).toContain("claude-sonnet-4-5-20250929");
+      expect(snippet.before).toContain("temperature");
+      expect(snippet.after).toContain("claude-sonnet-5-5");
+      expect(snippet.after).not.toContain("temperature");
+      expect(snippet.after).not.toContain("budget_tokens");
+      expect(snippet.after).toContain("effort");
+    }
+    expect(row.code_change.after).toBe(row.code_change.snippets.python.after);
+  });
+
+  it("fills the GPT-4o to GPT-6 Luna guides from the model page", async () => {
+    for (const file of lunaFiles) {
+      const row = migrationSchema.parse(JSON.parse(await readFile(file, "utf8")));
+      expect(row.api_changes.map((change) => change.detail)).toEqual([
+        "Use the Responses API for function calling. Chat Completions supports function calling only with reasoning_effort set to none.",
+        "Fine-tuning (v1/fine-tuning) is not supported.",
+        "Prompts with more than 272K input tokens are priced at 2x input and cache rates and 1.5x output for the full request.",
+      ]);
+      for (const change of row.api_changes) {
+        expect(change.source_url).toBe("https://developers.openai.com/api/docs/models/gpt-6-luna");
+      }
+      for (const language of ["python", "typescript", "curl"] as const) {
+        const snippet = row.code_change.snippets[language];
+        expect(snippet.before).toContain(row.from.model_id);
+        expect(snippet.before).toContain("get_weather");
+        expect(snippet.before).not.toContain("reasoning_effort");
+        expect(snippet.after).toContain("gpt-6-luna");
+        expect(snippet.after).toContain("reasoning_effort");
+        expect(snippet.after).toContain("none");
+        expect(snippet.after).toContain("get_weather");
+      }
+    }
+  });
+});
+
+describe("request error pages", () => {
+  it("lists both pages in llms.txt, lastmod, and JSON-LD", () => {
+    const text = llmsTxt("https://sunsetdiff.com", [], []);
+    const full = llmsFull("https://sunsetdiff.com", []);
+    expect(requestErrors).toHaveLength(2);
+    for (const page of requestErrors) {
+      const path = requestErrorPath(page.slug);
+      expect(text).toContain(path);
+      expect(full).toContain(path);
+      expect(lastmodForUrl(`https://sunsetdiff.com${path}`)).toBe(REQUEST_ERRORS_CHECKED);
+      const graph = requestErrorGraph("https://sunsetdiff.com/", page);
+      expect(graph.map((node) => node["@type"])).toEqual(["TechArticle", "FAQPage"]);
+      expect(JSON.stringify(graph)).toContain(page.errorText);
+      expect(JSON.stringify(graph)).not.toMatch(/[—–]/);
+    }
+  });
+});

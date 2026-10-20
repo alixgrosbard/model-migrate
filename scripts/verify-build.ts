@@ -4,6 +4,7 @@ import { htmlContainsOwnerPlaceholder } from "../src/lib/public-copy.ts";
 import { loadModels } from "../src/lib/load.ts";
 import { today } from "../src/lib/format.ts";
 import { isPastShutdown, shutdownEventPath, shutdownEvents } from "../src/lib/shutdowns.ts";
+import { requestErrorPath, requestErrors } from "../src/lib/request-errors.ts";
 
 const dist = path.join(process.cwd(), "dist");
 const required = [
@@ -160,6 +161,43 @@ async function main() {
   if (apiPage.includes("—") || apiPage.includes("–")) throw new Error("Em dash on /api/");
   if (!sitemap.includes("/api/")) throw new Error("Sitemap is missing /api/");
   if (!llms.includes("You won't be charged until Pro launches")) throw new Error("llms.txt is missing the Pro billing line");
+  for (const page of requestErrors) {
+    const rel = requestErrorPath(page.slug);
+    const html = await readFile(path.join(dist, rel.slice(1), "index.html"), "utf8");
+    if (!sitemap.includes(rel)) throw new Error(`Sitemap is missing ${rel}`);
+    if (!llms.includes(rel)) throw new Error(`llms.txt is missing ${rel}`);
+    if (!html.includes(page.errorText)) throw new Error(`Error page is missing its error text: ${rel}`);
+    if (!html.includes('"TechArticle"') || !html.includes('"FAQPage"')) throw new Error(`JSON-LD missing TechArticle or FAQPage in ${rel}`);
+    if (!html.includes(page.ruleSourceUrl)) throw new Error(`Error page is missing its source: ${rel}`);
+    for (const guide of page.guides) {
+      if (!html.includes(guide.href)) throw new Error(`${rel} is missing switch guide ${guide.href}`);
+    }
+    for (const heading of ["Raw SDK", "LiteLLM", "Vercel AI SDK"]) {
+      if (!html.includes(heading)) throw new Error(`${rel} is missing the ${heading} fix`);
+    }
+    if (html.includes("—") || html.includes("–")) throw new Error(`Em dash on ${rel}`);
+  }
+  const sonnetGuide = await readFile(
+    path.join(dist, "migrate/anthropic__claude-sonnet-4-5-20250929__to__anthropic__claude-sonnet-5-5/index.html"),
+    "utf8",
+  );
+  if (sonnetGuide.includes("No parameter change is listed")) throw new Error("Sonnet 5.5 guide still says no parameter change");
+  if (!sonnetGuide.includes("output_config")) throw new Error("Sonnet 5.5 after code is missing output_config");
+  if (!sonnetGuide.includes("https://platform.claude.com/docs/en/models/sonnet-5-5/migration-guide")) {
+    throw new Error("Sonnet 5.5 guide is missing the migration guide source");
+  }
+  for (const pair of [
+    "openai__gpt-4o-mini-2024-07-18__to__openai__gpt-6-luna",
+    "openai__gpt-4o-2024-08-06__to__openai__gpt-6-luna",
+    "openai__gpt-4o-2024-11-20__to__openai__gpt-6-luna",
+  ]) {
+    const html = await readFile(path.join(dist, "migrate", pair, "index.html"), "utf8");
+    if (html.includes("No parameter change is listed")) throw new Error(`${pair} still says no parameter change`);
+    if (!html.includes("reasoning_effort")) throw new Error(`${pair} after code is missing reasoning_effort`);
+    if (!html.includes("https://developers.openai.com/api/docs/models/gpt-6-luna")) {
+      throw new Error(`${pair} is missing the GPT-6 Luna source`);
+    }
+  }
   for (const event of events) {
     const rel = shutdownEventPath(event);
     const file = path.join(dist, rel.slice(1), "index.html");

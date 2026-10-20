@@ -28,23 +28,39 @@
     "change_pct": 681.3
   },
   "capability_changes": [],
-  "api_changes": [],
+  "api_changes": [
+    {
+      "kind": "behavior_change",
+      "detail": "Use the Responses API for function calling. Chat Completions supports function calling only with reasoning_effort set to none.",
+      "source_url": "https://developers.openai.com/api/docs/models/gpt-6-luna"
+    },
+    {
+      "kind": "endpoint_change",
+      "detail": "Fine-tuning (v1/fine-tuning) is not supported.",
+      "source_url": "https://developers.openai.com/api/docs/models/gpt-6-luna"
+    },
+    {
+      "kind": "behavior_change",
+      "detail": "Prompts with more than 272K input tokens are priced at 2x input and cache rates and 1.5x output for the full request.",
+      "source_url": "https://developers.openai.com/api/docs/models/gpt-6-luna"
+    }
+  ],
   "code_change": {
     "language": "python",
-    "before": "from openai import OpenAI\nclient = OpenAI()\nresponse = client.chat.completions.create(\n    model=\"gpt-4o-mini-2024-07-18\",\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n)\n",
-    "after": "from openai import OpenAI\nclient = OpenAI()\nresponse = client.chat.completions.create(\n    model=\"gpt-6-luna\",\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n)\n",
+    "before": "from openai import OpenAI\nclient = OpenAI()\nresponse = client.chat.completions.create(\n    model=\"gpt-4o-mini-2024-07-18\",\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n    tools=[{\n        \"type\": \"function\",\n        \"function\": {\n            \"name\": \"get_weather\",\n            \"parameters\": {\"type\": \"object\", \"properties\": {\"city\": {\"type\": \"string\"}}, \"required\": [\"city\"]},\n        },\n    }],\n)\n",
+    "after": "from openai import OpenAI\nclient = OpenAI()\nresponse = client.chat.completions.create(\n    model=\"gpt-6-luna\",\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n    reasoning_effort=\"none\",\n    tools=[{\n        \"type\": \"function\",\n        \"function\": {\n            \"name\": \"get_weather\",\n            \"parameters\": {\"type\": \"object\", \"properties\": {\"city\": {\"type\": \"string\"}}, \"required\": [\"city\"]},\n        },\n    }],\n)\n",
     "snippets": {
       "python": {
-        "before": "from openai import OpenAI\nclient = OpenAI()\nresponse = client.chat.completions.create(\n    model=\"gpt-4o-mini-2024-07-18\",\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n)\n",
-        "after": "from openai import OpenAI\nclient = OpenAI()\nresponse = client.chat.completions.create(\n    model=\"gpt-6-luna\",\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n)\n"
+        "before": "from openai import OpenAI\nclient = OpenAI()\nresponse = client.chat.completions.create(\n    model=\"gpt-4o-mini-2024-07-18\",\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n    tools=[{\n        \"type\": \"function\",\n        \"function\": {\n            \"name\": \"get_weather\",\n            \"parameters\": {\"type\": \"object\", \"properties\": {\"city\": {\"type\": \"string\"}}, \"required\": [\"city\"]},\n        },\n    }],\n)\n",
+        "after": "from openai import OpenAI\nclient = OpenAI()\nresponse = client.chat.completions.create(\n    model=\"gpt-6-luna\",\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n    reasoning_effort=\"none\",\n    tools=[{\n        \"type\": \"function\",\n        \"function\": {\n            \"name\": \"get_weather\",\n            \"parameters\": {\"type\": \"object\", \"properties\": {\"city\": {\"type\": \"string\"}}, \"required\": [\"city\"]},\n        },\n    }],\n)\n"
       },
       "typescript": {
-        "before": "import OpenAI from \"openai\";\nconst client = new OpenAI();\nconst response = await client.chat.completions.create({\n  model: \"gpt-4o-mini-2024-07-18\",\n  messages: [{ role: \"user\", content: \"Hello\" }],\n});\n",
-        "after": "import OpenAI from \"openai\";\nconst client = new OpenAI();\nconst response = await client.chat.completions.create({\n  model: \"gpt-6-luna\",\n  messages: [{ role: \"user\", content: \"Hello\" }],\n});\n"
+        "before": "import OpenAI from \"openai\";\nconst client = new OpenAI();\nconst response = await client.chat.completions.create({\n  model: \"gpt-4o-mini-2024-07-18\",\n  messages: [{ role: \"user\", content: \"Hello\" }],\n  tools: [{\n    type: \"function\",\n    function: {\n      name: \"get_weather\",\n      parameters: { type: \"object\", properties: { city: { type: \"string\" } }, required: [\"city\"] },\n    },\n  }],\n});\n",
+        "after": "import OpenAI from \"openai\";\nconst client = new OpenAI();\nconst response = await client.chat.completions.create({\n  model: \"gpt-6-luna\",\n  messages: [{ role: \"user\", content: \"Hello\" }],\n  reasoning_effort: \"none\",\n  tools: [{\n    type: \"function\",\n    function: {\n      name: \"get_weather\",\n      parameters: { type: \"object\", properties: { city: { type: \"string\" } }, required: [\"city\"] },\n    },\n  }],\n});\n"
       },
       "curl": {
-        "before": "curl https://api.openai.com/v1/chat/completions \\\n  -H \"Authorization: Bearer $OPENAI_API_KEY\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"model\":\"gpt-4o-mini-2024-07-18\",\"messages\":[{\"role\":\"user\",\"content\":\"Hello\"}]}'\n",
-        "after": "curl https://api.openai.com/v1/chat/completions \\\n  -H \"Authorization: Bearer $OPENAI_API_KEY\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"model\":\"gpt-6-luna\",\"messages\":[{\"role\":\"user\",\"content\":\"Hello\"}]}'\n"
+        "before": "curl https://api.openai.com/v1/chat/completions \\\n  -H \"Authorization: Bearer $OPENAI_API_KEY\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"model\":\"gpt-4o-mini-2024-07-18\",\"messages\":[{\"role\":\"user\",\"content\":\"Hello\"}],\"tools\":[{\"type\":\"function\",\"function\":{\"name\":\"get_weather\",\"parameters\":{\"type\":\"object\",\"properties\":{\"city\":{\"type\":\"string\"}},\"required\":[\"city\"]}}}]}'\n",
+        "after": "curl https://api.openai.com/v1/chat/completions \\\n  -H \"Authorization: Bearer $OPENAI_API_KEY\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"model\":\"gpt-6-luna\",\"messages\":[{\"role\":\"user\",\"content\":\"Hello\"}],\"reasoning_effort\":\"none\",\"tools\":[{\"type\":\"function\",\"function\":{\"name\":\"get_weather\",\"parameters\":{\"type\":\"object\",\"properties\":{\"city\":{\"type\":\"string\"}},\"required\":[\"city\"]}}}]}'\n"
       }
     }
   },
@@ -80,6 +96,12 @@
       "label": "OpenAI model docs",
       "last_checked": "2026-10-20",
       "excerpt": "Model ID: gpt-6-luna | context window 1050000 | max output 128000 | input $0.1 | output $0.5"
+    },
+    {
+      "url": "https://developers.openai.com/api/docs/models/gpt-6-luna",
+      "label": "GPT-6 Luna model page",
+      "last_checked": "2026-10-20",
+      "excerpt": "Use the Responses API for built-in tools and function calling. Chat Completions supports function calling only with reasoning_effort set to none."
     }
   ]
 }
