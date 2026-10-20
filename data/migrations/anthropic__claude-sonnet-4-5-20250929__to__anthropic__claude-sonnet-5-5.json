@@ -28,23 +28,49 @@
     "change_pct": 100
   },
   "capability_changes": [],
-  "api_changes": [],
+  "api_changes": [
+    {
+      "kind": "removed_param",
+      "detail": "A non-default temperature, top_p, or top_k returns a 400 error on claude-sonnet-5-5. Remove those fields.",
+      "source_url": "https://platform.claude.com/docs/en/models/sonnet-5-5/migration-guide"
+    },
+    {
+      "kind": "removed_param",
+      "detail": "thinking.type.enabled with budget_tokens returns a 400 error. Remove the budget and set output_config.effort. There is no fixed mapping from a token budget to an effort level.",
+      "source_url": "https://platform.claude.com/docs/en/models/sonnet-5-5/migration-guide"
+    },
+    {
+      "kind": "behavior_change",
+      "detail": "thinking.type disabled returns a 400 error. To turn off up-front thinking, send thinking.type between_tools at low, medium, or high effort. between_tools returns a 400 error at xhigh or max effort.",
+      "source_url": "https://platform.claude.com/docs/en/models/sonnet-5-5/migration-guide"
+    },
+    {
+      "kind": "behavior_change",
+      "detail": "A prefilled assistant message at the end of the conversation returns a 400 error. The conversation must end with a user message.",
+      "source_url": "https://platform.claude.com/docs/en/models/sonnet-5-5/migration-guide"
+    },
+    {
+      "kind": "behavior_change",
+      "detail": "tool_choice type \"tool\" and type \"any\" return a 400 error, including on the token counting endpoint. Send tool_choice type \"auto\" and mark the tool strict.",
+      "source_url": "https://platform.claude.com/docs/en/models/sonnet-5-5/migration-guide"
+    }
+  ],
   "code_change": {
     "language": "python",
-    "before": "import anthropic\nclient = anthropic.Anthropic()\nmessage = client.messages.create(\n    model=\"claude-sonnet-4-5-20250929\",\n    max_tokens=1024,\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n)\n",
-    "after": "import anthropic\nclient = anthropic.Anthropic()\nmessage = client.messages.create(\n    model=\"claude-sonnet-5-5\",\n    max_tokens=1024,\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n)\n",
+    "before": "import anthropic\nclient = anthropic.Anthropic()\nmessage = client.messages.create(\n    model=\"claude-sonnet-4-5-20250929\",\n    max_tokens=16000,\n    temperature=0.2,\n    thinking={\"type\": \"enabled\", \"budget_tokens\": 10000},\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n)\n",
+    "after": "import anthropic\nclient = anthropic.Anthropic()\nmessage = client.messages.create(\n    model=\"claude-sonnet-5-5\",\n    max_tokens=16000,\n    thinking={\"type\": \"adaptive\"},\n    output_config={\"effort\": \"high\"},\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n)\n",
     "snippets": {
       "python": {
-        "before": "import anthropic\nclient = anthropic.Anthropic()\nmessage = client.messages.create(\n    model=\"claude-sonnet-4-5-20250929\",\n    max_tokens=1024,\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n)\n",
-        "after": "import anthropic\nclient = anthropic.Anthropic()\nmessage = client.messages.create(\n    model=\"claude-sonnet-5-5\",\n    max_tokens=1024,\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n)\n"
+        "before": "import anthropic\nclient = anthropic.Anthropic()\nmessage = client.messages.create(\n    model=\"claude-sonnet-4-5-20250929\",\n    max_tokens=16000,\n    temperature=0.2,\n    thinking={\"type\": \"enabled\", \"budget_tokens\": 10000},\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n)\n",
+        "after": "import anthropic\nclient = anthropic.Anthropic()\nmessage = client.messages.create(\n    model=\"claude-sonnet-5-5\",\n    max_tokens=16000,\n    thinking={\"type\": \"adaptive\"},\n    output_config={\"effort\": \"high\"},\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n)\n"
       },
       "typescript": {
-        "before": "import Anthropic from \"@anthropic-ai/sdk\";\nconst client = new Anthropic();\nconst message = await client.messages.create({\n  model: \"claude-sonnet-4-5-20250929\",\n  max_tokens: 1024,\n  messages: [{ role: \"user\", content: \"Hello\" }],\n});\n",
-        "after": "import Anthropic from \"@anthropic-ai/sdk\";\nconst client = new Anthropic();\nconst message = await client.messages.create({\n  model: \"claude-sonnet-5-5\",\n  max_tokens: 1024,\n  messages: [{ role: \"user\", content: \"Hello\" }],\n});\n"
+        "before": "import Anthropic from \"@anthropic-ai/sdk\";\nconst client = new Anthropic();\nconst message = await client.messages.create({\n  model: \"claude-sonnet-4-5-20250929\",\n  max_tokens: 16000,\n  temperature: 0.2,\n  thinking: { type: \"enabled\", budget_tokens: 10000 },\n  messages: [{ role: \"user\", content: \"Hello\" }],\n});\n",
+        "after": "import Anthropic from \"@anthropic-ai/sdk\";\nconst client = new Anthropic();\nconst message = await client.messages.create({\n  model: \"claude-sonnet-5-5\",\n  max_tokens: 16000,\n  thinking: { type: \"adaptive\" },\n  output_config: { effort: \"high\" },\n  messages: [{ role: \"user\", content: \"Hello\" }],\n});\n"
       },
       "curl": {
-        "before": "curl https://api.anthropic.com/v1/messages \\\n  -H \"x-api-key: $ANTHROPIC_API_KEY\" \\\n  -H \"anthropic-version: 2023-06-01\" \\\n  -H \"content-type: application/json\" \\\n  -d '{\"model\":\"claude-sonnet-4-5-20250929\",\"max_tokens\":1024,\"messages\":[{\"role\":\"user\",\"content\":\"Hello\"}]}'\n",
-        "after": "curl https://api.anthropic.com/v1/messages \\\n  -H \"x-api-key: $ANTHROPIC_API_KEY\" \\\n  -H \"anthropic-version: 2023-06-01\" \\\n  -H \"content-type: application/json\" \\\n  -d '{\"model\":\"claude-sonnet-5-5\",\"max_tokens\":1024,\"messages\":[{\"role\":\"user\",\"content\":\"Hello\"}]}'\n"
+        "before": "curl https://api.anthropic.com/v1/messages \\\n  -H \"x-api-key: $ANTHROPIC_API_KEY\" \\\n  -H \"anthropic-version: 2023-06-01\" \\\n  -H \"content-type: application/json\" \\\n  -d '{\"model\":\"claude-sonnet-4-5-20250929\",\"max_tokens\":16000,\"temperature\":0.2,\"thinking\":{\"type\":\"enabled\",\"budget_tokens\":10000},\"messages\":[{\"role\":\"user\",\"content\":\"Hello\"}]}'\n",
+        "after": "curl https://api.anthropic.com/v1/messages \\\n  -H \"x-api-key: $ANTHROPIC_API_KEY\" \\\n  -H \"anthropic-version: 2023-06-01\" \\\n  -H \"content-type: application/json\" \\\n  -d '{\"model\":\"claude-sonnet-5-5\",\"max_tokens\":16000,\"thinking\":{\"type\":\"adaptive\"},\"output_config\":{\"effort\":\"high\"},\"messages\":[{\"role\":\"user\",\"content\":\"Hello\"}]}'\n"
       }
     }
   },
@@ -80,6 +106,12 @@
       "label": "Anthropic models overview",
       "last_checked": "2026-10-20",
       "excerpt": "claude-sonnet-5-5 | Context window 1M tokens | Max output 128K tokens | Text and image input, text output, vision, and tool use."
+    },
+    {
+      "url": "https://platform.claude.com/docs/en/models/sonnet-5-5/migration-guide",
+      "label": "Claude Sonnet 5.5 migration guide",
+      "last_checked": "2026-10-20",
+      "excerpt": "On Claude Sonnet 5.5, a non-default value returns a 400 error. Remove them."
     }
   ]
 }

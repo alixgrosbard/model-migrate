@@ -3,6 +3,7 @@ import path from "node:path";
 import type { ModelRecord } from "../schema.ts";
 import { today } from "./format.ts";
 import { COMPARISON_CHECKED, comparisonPath, comparisons } from "./comparisons.ts";
+import { REQUEST_ERRORS_CHECKED, requestErrorPath, requestErrors } from "./request-errors.ts";
 import { modelsInMonth, questionPath, shutdownMonths, topRetiringModels } from "./growth.ts";
 import { shutdownEventPath, shutdownEvents } from "./shutdowns.ts";
 
@@ -36,6 +37,7 @@ function build(): Map<string, string> {
   }
   const newestModel = newestDate(all.map((model) => model.updated_at));
   map.set("/alternatives/", COMPARISON_CHECKED);
+  for (const page of requestErrors) map.set(requestErrorPath(page.slug), REQUEST_ERRORS_CHECKED);
   for (const comparison of comparisons) map.set(comparisonPath(comparison.slug), COMPARISON_CHECKED);
   if (newestModel) {
     map.set("/api/", newestModel);
