@@ -107,11 +107,15 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fo
 footer { color: var(--muted); border-top: 1px solid var(--line); margin-top: 2rem; }
 footer nav { margin-bottom: 0.6rem; }
 footer nav a { margin-right: 0.7rem; }
-footer .listed { display: flex; flex-wrap: wrap; align-items: center; gap: 0.45rem 0.7rem; font-size: 0.85rem; }
-footer .listed img { display: block; max-width: 100%; height: auto; }
+footer .listed { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem 0.5rem; font-size: 0.85rem; }
+footer .listed a { display: block; min-width: 0; max-width: 100%; line-height: 0; }
+footer .listed img { display: block; width: 182px; max-width: 100%; height: auto; }
 .faq { margin: 0.8rem 0 1.2rem; }
 .faq h3 { font-size: 1.05rem; margin-bottom: 0.2rem; }
 @media (max-width: 640px) {
   h1 { font-size: 1.45rem; }
   nav a { display: inline-block; margin: 0.2rem 0.6rem 0.2rem 0; }
+  footer .listed { gap: 0.35rem 0.4rem; }
+  footer .listed > span { flex-basis: 100%; }
+  footer .listed a { flex: 0 1 calc(50% - 0.2rem); max-width: calc(50% - 0.2rem); }
 }
