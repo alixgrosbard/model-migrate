@@ -1,6 +1,6 @@
 import type { ModelRecord, Provider } from "../schema.ts";
 import { publicName } from "./growth.ts";
-import { REQUEST_ERRORS_CHECKED, requestErrorPath, requestErrors } from "./request-errors.ts";
+import { REQUEST_ERRORS_CHECKED, REQUEST_ERRORS_INDEX, requestErrorPath, requestErrors } from "./request-errors.ts";
 
 export function llmsTxt(
   site: string,
@@ -34,6 +34,7 @@ export function llmsTxt(
 - [Calendar](${origin}/calendar/)
 - [Deadlines](${origin}/deadlines/)
 - [Shutdown batches](${origin}/shutdowns/)
+- [Request errors](${origin}${REQUEST_ERRORS_INDEX})
 - [Deadline calendar](${origin}/deadlines.ics)
 - [New deprecations](${origin}/feed.xml)
 - [Code scan](${origin}/scan/)
@@ -46,7 +47,7 @@ export function llmsTxt(
 - [Pro](${origin}/pro/) is free until launch, then $19 a month. You won't be charged until Pro launches.
 
 ## Request errors
-Each page quotes a 400 error and the fix from the official provider page, checked ${REQUEST_ERRORS_CHECKED}.
+[All request errors](${origin}${REQUEST_ERRORS_INDEX}). Each page names the failure, the model change, and the source checked ${REQUEST_ERRORS_CHECKED}. A code block is a quoted error only when the linked source prints that sentence.
 ${requestErrors.map((page) => `- [${page.h1}](${origin}${requestErrorPath(page.slug)})`).join("\n")}
 
 ## Dataset
@@ -123,6 +124,7 @@ export function llmsFull(site: string, models: ModelRecord[]): string {
     `changelog.json: ${origin}/data/changelog.json`,
     `API docs: ${origin}/api/`,
     `Compare trackers: ${origin}/alternatives/`,
+    `Request errors: ${origin}${REQUEST_ERRORS_INDEX}`,
     ...requestErrors.map((page) => `Request error: ${origin}${requestErrorPath(page.slug)}`),
     `Deadlines: ${origin}/deadlines/`,
     `Shutdown batches: ${origin}/shutdowns/`,

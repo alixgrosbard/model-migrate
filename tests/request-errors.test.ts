@@ -4,7 +4,9 @@ import { migrationSchema } from "../src/schema.ts";
 import { llmsFull, llmsTxt } from "../src/lib/llms.ts";
 import { lastmodForUrl } from "../src/lib/lastmod.ts";
 import { requestErrorGraph } from "../src/jsonld.ts";
-import { REQUEST_ERRORS_CHECKED, requestErrorPath, requestErrors } from "../src/lib/request-errors.ts";
+import { existsSync } from "node:fs";
+import nodePath from "node:path";
+import { REQUEST_ERRORS_CHECKED, REQUEST_ERRORS_INDEX, requestErrorPath, requestErrors } from "../src/lib/request-errors.ts";
 
 const sonnetFile = "data/migrations/anthropic__claude-sonnet-4-5-20250929__to__anthropic__claude-sonnet-5-5.json";
 const lunaFiles = [
@@ -73,7 +75,11 @@ describe("request error pages", () => {
   it("lists both pages in llms.txt, lastmod, and JSON-LD", () => {
     const text = llmsTxt("https://sunsetdiff.com", [], []);
     const full = llmsFull("https://sunsetdiff.com", []);
-    expect(requestErrors).toHaveLength(2);
+    expect(requestErrors.length).toBeGreaterThanOrEqual(8);
+    expect(requestErrors.length).toBeLessThanOrEqual(12);
+    expect(text).toContain(REQUEST_ERRORS_INDEX);
+    expect(full).toContain(REQUEST_ERRORS_INDEX);
+    expect(lastmodForUrl(`https://sunsetdiff.com${REQUEST_ERRORS_INDEX}`)).toBe(REQUEST_ERRORS_CHECKED);
     for (const page of requestErrors) {
       const path = requestErrorPath(page.slug);
       expect(text).toContain(path);
@@ -81,8 +87,25 @@ describe("request error pages", () => {
       expect(lastmodForUrl(`https://sunsetdiff.com${path}`)).toBe(REQUEST_ERRORS_CHECKED);
       const graph = requestErrorGraph("https://sunsetdiff.com/", page);
       expect(graph.map((node) => node["@type"])).toEqual(["TechArticle", "FAQPage"]);
-      expect(JSON.stringify(graph)).toContain(page.errorText);
+      const encoded = JSON.parse(JSON.stringify(graph)) as { headline?: string; description?: string }[];
+      expect(encoded[0]?.headline).toBe(page.h1);
+      expect(encoded[0]?.description).toContain(page.errorText);
       expect(JSON.stringify(graph)).not.toMatch(/[—–]/);
+      expect(JSON.stringify(page)).not.toMatch(/[—–]/);
+      expect(page.cause.length).toBeGreaterThan(10);
+      expect(page.models.length).toBeGreaterThan(0);
+      for (const model of page.models) {
+        const file = nodePath.join("data/models", model.provider, `${model.slug}.json`);
+        expect(existsSync(file), file).toBe(true);
+      }
+      for (const guide of page.guides) {
+        const file = nodePath.join("data/migrations", `${guide.href.split("/").filter(Boolean).at(-1)}.json`);
+        expect(existsSync(file), guide.href).toBe(true);
+      }
     }
+    const topP = requestErrors.find((page) => page.slug === "claude-sonnet-5-5-top-p-top-k");
+    expect(topP?.errorQuoted).toBe(false);
+    expect(topP?.errorText).not.toContain("top_p is deprecated for this model");
+    expect(requestErrors.filter((page) => page.errorQuoted).length).toBeGreaterThanOrEqual(8);
   });
 });
