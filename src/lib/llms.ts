@@ -1,5 +1,6 @@
 import type { ModelRecord, Provider } from "../schema.ts";
 import { publicName } from "./growth.ts";
+import { GUIDES_INDEX, guidePath, guides } from "./guides.ts";
 import { REQUEST_ERRORS_CHECKED, REQUEST_ERRORS_INDEX, requestErrorPath, requestErrors } from "./request-errors.ts";
 
 export function llmsTxt(
@@ -39,6 +40,7 @@ export function llmsTxt(
 - [New deprecations](${origin}/feed.xml)
 - [Code scan](${origin}/scan/)
 - [Deprecation questions](${origin}/questions/)
+- [Guides](${origin}${GUIDES_INDEX})
 - [Changes](${origin}/changes/)
 - [Dataset](${origin}/data/)
 - [Static API docs](${origin}/api/)
@@ -65,6 +67,10 @@ ${shutdownLinks || "- None published."}
 
 ## Shutdown months
 ${monthLinks || "- None published."}
+
+## Guides
+[All guides](${origin}${GUIDES_INDEX}). Each guide has a direct answer and links the official page for a provider fact.
+${guides.map((guide) => `- [${guide.h1}](${origin}${guidePath(guide.slug)})`).join("\n")}
 
 ## Deprecation questions
 ${questionLinks || "- None published."}
@@ -130,6 +136,8 @@ export function llmsFull(site: string, models: ModelRecord[]): string {
     `Shutdown batches: ${origin}/shutdowns/`,
     `iCal: ${origin}/deadlines.ics`,
     `Deprecations feed: ${origin}/feed.xml`,
+    `Guides: ${origin}${GUIDES_INDEX}`,
+    ...guides.map((guide) => `Guide: ${origin}${guidePath(guide.slug)}`),
     `Questions: ${origin}/questions/`,
     `Code scan: ${origin}/scan/`,
     `Data page: ${origin}/data/`,

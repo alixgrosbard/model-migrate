@@ -4,6 +4,7 @@ import { htmlContainsOwnerPlaceholder } from "../src/lib/public-copy.ts";
 import { loadModels } from "../src/lib/load.ts";
 import { today } from "../src/lib/format.ts";
 import { isPastShutdown, shutdownEventPath, shutdownEvents } from "../src/lib/shutdowns.ts";
+import { GUIDES_CHECKED, guidePath, guides } from "../src/lib/guides.ts";
 import { REQUEST_ERRORS_CHECKED, REQUEST_ERRORS_INDEX, requestErrorPath, requestErrors } from "../src/lib/request-errors.ts";
 
 const dist = path.join(process.cwd(), "dist");
@@ -176,6 +177,31 @@ async function main() {
   }
   const homeNav = await readFile(path.join(dist, "index.html"), "utf8");
   if (!homeNav.includes('href="/errors/"')) throw new Error("Navigation is missing /errors/");
+  if (!homeNav.includes('href="/guides/"')) throw new Error("Navigation is missing /guides/");
+  const guideHub = await readFile(path.join(dist, "guides/index.html"), "utf8");
+  if (!guideHub.includes('"CollectionPage"') || !guideHub.includes('"ItemList"') || !guideHub.includes('"BreadcrumbList"')) {
+    throw new Error("Guides hub JSON-LD is missing CollectionPage, ItemList, or BreadcrumbList");
+  }
+  if (!guideHub.includes(GUIDES_CHECKED)) throw new Error("Guides hub is missing the review date");
+  if (guideHub.includes("—") || guideHub.includes("–")) throw new Error("Em dash on /guides/");
+  for (const guide of guides) {
+    if (!guideHub.includes(guidePath(guide.slug))) throw new Error(`Guides hub is missing ${guide.slug}`);
+    const rel = guidePath(guide.slug);
+    const html = await readFile(path.join(dist, rel.slice(1), "index.html"), "utf8");
+    if (!sitemap.includes(rel)) throw new Error(`Sitemap is missing ${rel}`);
+    if (!llms.includes(rel)) throw new Error(`llms.txt is missing ${rel}`);
+    if (!llmsFull.includes(rel)) throw new Error(`llms-full.txt is missing ${rel}`);
+    if (!html.includes('"Article"') && !html.includes('"HowTo"')) throw new Error(`JSON-LD missing Article or HowTo in ${rel}`);
+    if (!html.includes('"BreadcrumbList"')) throw new Error(`JSON-LD missing BreadcrumbList in ${rel}`);
+    if (!html.includes(GUIDES_CHECKED)) throw new Error(`Guide is missing the review date: ${rel}`);
+    if (!html.includes("Last reviewed")) throw new Error(`Guide is missing the review line: ${rel}`);
+    for (const citation of guide.citations) {
+      if (!html.includes(citation)) throw new Error(`${rel} is missing citation ${citation}`);
+    }
+    if (html.includes("—") || html.includes("–")) throw new Error(`Em dash on ${rel}`);
+  }
+  if (!sitemap.includes("/guides/")) throw new Error("Sitemap is missing /guides/");
+  if (!llms.includes("/guides/")) throw new Error("llms.txt is missing /guides/");
   for (const page of requestErrors) {
     const rel = requestErrorPath(page.slug);
     const html = await readFile(path.join(dist, rel.slice(1), "index.html"), "utf8");

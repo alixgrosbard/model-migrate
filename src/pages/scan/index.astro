@@ -29,6 +29,7 @@ const pattern = retiringIdPattern(models);
   <h2>Id list</h2>
   <label for="scan-ids">One model id per line</label>
   <textarea id="scan-ids" readonly rows="12">{ids.join("\n")}</textarea>
+  <p>The wider search, including alias shapes and Azure deployment names, is <a href="/guides/find-model-ids-in-your-codebase/">How to find every model ID in your codebase</a>.</p>
   <h2>What a match means</h2>
   <p>A match means that id is in the dataset with a published shutdown date. Open the model page for the source link and the date. A line that does not match is not a promise that the model is still available.</p>
   <script>
