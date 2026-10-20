@@ -55,30 +55,30 @@
     "Ship the change before the published shutdown date."
   ],
   "confidence": "official",
-  "last_checked": "2026-10-19",
+  "last_checked": "2026-10-20",
   "sources": [
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "OpenAI deprecations",
-      "last_checked": "2026-10-19",
+      "last_checked": "2026-10-20",
       "excerpt": "July 23, 2026 | computer-use-preview-2025-03-11 | computer-use-preview | gpt-5.6-terra"
     },
     {
       "url": "https://developers.openai.com/api/docs/models/computer-use-preview.md",
       "label": "OpenAI model docs",
-      "last_checked": "2026-10-19",
+      "last_checked": "2026-10-20",
       "excerpt": "Model ID: computer-use-preview | context window 8192 | max output 1024 | input $3 | output $12"
     },
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "Named as an official replacement",
-      "last_checked": "2026-10-19",
+      "last_checked": "2026-10-20",
       "excerpt": "Named as an official replacement for gpt-5-mini-2025-08-07. No shutdown date was published for this id on that page."
     },
     {
       "url": "https://developers.openai.com/api/docs/models/gpt-5.6-terra.md",
       "label": "OpenAI model docs",
-      "last_checked": "2026-10-19",
+      "last_checked": "2026-10-20",
       "excerpt": "Model ID: gpt-5.6-terra | context window 1050000 | max output 128000 | input $2 | output $12"
     }
   ]

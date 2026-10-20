@@ -22,13 +22,13 @@
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "OpenAI deprecations",
-      "last_checked": "2026-10-19",
+      "last_checked": "2026-10-20",
       "excerpt": "July 23, 2026 | o3-deep-research-2025-06-26 | o3-deep-research | gpt-5.6-sol"
     },
     {
       "url": "https://developers.openai.com/api/docs/models/o3-deep-research.md",
       "label": "OpenAI model docs",
-      "last_checked": "2026-10-19",
+      "last_checked": "2026-10-20",
       "excerpt": "Model ID: o3-deep-research | context window 200000 | max output 100000 | input $10 | output $40 | Default snapshot o3-deep-research-2025-06-26"
     }
   ],
@@ -54,14 +54,14 @@
     "specs_sources": {
       "context_window_tokens": {
         "url": "https://developers.openai.com/api/docs/models/o3-deep-research.md",
-        "last_checked": "2026-10-19"
+        "last_checked": "2026-10-20"
       },
       "max_output_tokens": {
         "url": "https://developers.openai.com/api/docs/models/o3-deep-research.md",
-        "last_checked": "2026-10-19"
+        "last_checked": "2026-10-20"
       }
     }
   },
   "first_seen": "2026-10-17T15:59:19.574Z",
-  "updated_at": "2026-10-19T12:22:54.841Z"
+  "updated_at": "2026-10-20T04:53:39.533Z"
 }

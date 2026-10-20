@@ -15,13 +15,13 @@
     {
       "url": "https://docs.mistral.ai/models",
       "label": "Mistral models",
-      "last_checked": "2026-10-19",
+      "last_checked": "2026-10-20",
       "excerpt": "Mistral 7B | 0.2 | open-mistral-7b | 11/30/2024 3/30/2025 | Ministral 3 8B"
     },
     {
       "url": "https://docs.mistral.ai/models/mistral-7b-0-3",
       "label": "Mistral model docs",
-      "last_checked": "2026-10-19",
+      "last_checked": "2026-10-20",
       "excerpt": "open-mistral-7b | Context 32k"
     }
   ],
@@ -47,10 +47,10 @@
     "specs_sources": {
       "context_window_tokens": {
         "url": "https://docs.mistral.ai/models/mistral-7b-0-3",
-        "last_checked": "2026-10-19"
+        "last_checked": "2026-10-20"
       }
     }
   },
   "first_seen": "2026-10-17T15:59:19.574Z",
-  "updated_at": "2026-10-19T22:14:09.007Z"
+  "updated_at": "2026-10-20T04:53:39.533Z"
 }

@@ -28,13 +28,13 @@
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "OpenAI deprecations",
-      "last_checked": "2026-10-19",
+      "last_checked": "2026-10-20",
       "excerpt": "2026‑03‑26 | gpt-4-0125-preview (including gpt-4-turbo-preview and gpt-4-turbo-preview-completions, which point to this snapshot) | gpt-5 or gpt-4.1*"
     },
     {
       "url": "https://developers.openai.com/api/docs/models/gpt-4-turbo-preview.md",
       "label": "OpenAI model docs",
-      "last_checked": "2026-10-19",
+      "last_checked": "2026-10-20",
       "excerpt": "Model ID: gpt-4-turbo-preview | context window 128000 | max output 4096 | input $10 | output $30 | Default snapshot gpt-4-0125-preview"
     }
   ],
@@ -60,14 +60,14 @@
     "specs_sources": {
       "context_window_tokens": {
         "url": "https://developers.openai.com/api/docs/models/gpt-4-turbo-preview.md",
-        "last_checked": "2026-10-19"
+        "last_checked": "2026-10-20"
       },
       "max_output_tokens": {
         "url": "https://developers.openai.com/api/docs/models/gpt-4-turbo-preview.md",
-        "last_checked": "2026-10-19"
+        "last_checked": "2026-10-20"
       }
     }
   },
   "first_seen": "2026-10-17T15:59:19.574Z",
-  "updated_at": "2026-10-19T12:22:54.841Z"
+  "updated_at": "2026-10-20T04:53:39.533Z"
 }

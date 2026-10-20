@@ -22,13 +22,13 @@
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "OpenAI deprecations",
-      "last_checked": "2026-10-19",
+      "last_checked": "2026-10-20",
       "excerpt": "July 23, 2026 | computer-use-preview-2025-03-11 | computer-use-preview | gpt-5.6-terra"
     },
     {
       "url": "https://developers.openai.com/api/docs/models/computer-use-preview.md",
       "label": "OpenAI model docs",
-      "last_checked": "2026-10-19",
+      "last_checked": "2026-10-20",
       "excerpt": "Model ID: computer-use-preview | context window 8192 | max output 1024 | input $3 | output $12"
     }
   ],
@@ -54,22 +54,22 @@
     "specs_sources": {
       "input_price_per_mtok": {
         "url": "https://developers.openai.com/api/docs/models/computer-use-preview.md",
-        "last_checked": "2026-10-19"
+        "last_checked": "2026-10-20"
       },
       "output_price_per_mtok": {
         "url": "https://developers.openai.com/api/docs/models/computer-use-preview.md",
-        "last_checked": "2026-10-19"
+        "last_checked": "2026-10-20"
       },
       "context_window_tokens": {
         "url": "https://developers.openai.com/api/docs/models/computer-use-preview.md",
-        "last_checked": "2026-10-19"
+        "last_checked": "2026-10-20"
       },
       "max_output_tokens": {
         "url": "https://developers.openai.com/api/docs/models/computer-use-preview.md",
-        "last_checked": "2026-10-19"
+        "last_checked": "2026-10-20"
       }
     }
   },
   "first_seen": "2026-10-17T15:59:19.574Z",
-  "updated_at": "2026-10-19T12:22:54.841Z"
+  "updated_at": "2026-10-20T04:53:39.533Z"
 }

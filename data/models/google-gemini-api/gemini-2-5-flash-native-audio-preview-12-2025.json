@@ -22,13 +22,13 @@
     {
       "url": "https://ai.google.dev/gemini-api/docs/deprecations",
       "label": "Gemini API deprecations",
-      "last_checked": "2026-10-19",
+      "last_checked": "2026-10-20",
       "excerpt": "gemini-2.5-flash-native-audio-preview-12-2025 | December 12, 2025 | November 17, 2026 | gemini-3.8-live"
     },
     {
       "url": "https://ai.google.dev/gemini-api/docs/models/gemini-2.5-flash-native-audio-preview-12-2025",
       "label": "Gemini model docs",
-      "last_checked": "2026-10-19",
+      "last_checked": "2026-10-20",
       "excerpt": "gemini-2.5-flash-native-audio-preview-12-2025 input token limit 131072 | max output tokens 8192"
     }
   ],
@@ -54,14 +54,14 @@
     "specs_sources": {
       "context_window_tokens": {
         "url": "https://ai.google.dev/gemini-api/docs/models/gemini-2.5-flash-native-audio-preview-12-2025",
-        "last_checked": "2026-10-19"
+        "last_checked": "2026-10-20"
       },
       "max_output_tokens": {
         "url": "https://ai.google.dev/gemini-api/docs/models/gemini-2.5-flash-native-audio-preview-12-2025",
-        "last_checked": "2026-10-19"
+        "last_checked": "2026-10-20"
       }
     }
   },
   "first_seen": "2026-10-17T15:59:19.574Z",
-  "updated_at": "2026-10-19T12:22:54.841Z"
+  "updated_at": "2026-10-20T04:53:39.533Z"
 }

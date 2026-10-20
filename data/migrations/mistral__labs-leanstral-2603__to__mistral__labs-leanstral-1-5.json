@@ -55,30 +55,30 @@
     "Ship the change before the published shutdown date."
   ],
   "confidence": "partial",
-  "last_checked": "2026-10-19",
+  "last_checked": "2026-10-20",
   "sources": [
     {
       "url": "https://docs.mistral.ai/models",
       "label": "Mistral models",
-      "last_checked": "2026-10-19",
+      "last_checked": "2026-10-20",
       "excerpt": "Leanstral | 26.03 | labs-leanstral-2603 | 5/22/2026 6/30/2026 | Leanstral 1.5"
     },
     {
       "url": "https://docs.mistral.ai/models/leanstral-26-03",
       "label": "Mistral model docs",
-      "last_checked": "2026-10-19",
+      "last_checked": "2026-10-20",
       "excerpt": "labs-leanstral-2603 | Context 256k"
     },
     {
       "url": "https://docs.mistral.ai/models",
       "label": "Mistral models",
-      "last_checked": "2026-10-19",
+      "last_checked": "2026-10-20",
       "excerpt": "Leanstral 1.5 | 1.5 | labs-leanstral-1-5 | 9/29/2026 9/30/2026"
     },
     {
       "url": "https://docs.mistral.ai/models/leanstral-1-5",
       "label": "Mistral model docs",
-      "last_checked": "2026-10-19",
+      "last_checked": "2026-10-20",
       "excerpt": "labs-leanstral-1-5 | Context 256k"
     }
   ]

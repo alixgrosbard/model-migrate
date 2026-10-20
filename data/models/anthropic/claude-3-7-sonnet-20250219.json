@@ -22,7 +22,7 @@
     {
       "url": "https://platform.claude.com/docs/en/about-claude/model-deprecations",
       "label": "Anthropic model deprecations",
-      "last_checked": "2026-10-19",
+      "last_checked": "2026-10-20",
       "excerpt": "claude-3-7-sonnet-20250219 | Retired | October 28, 2025 | February 19, 2026"
     }
   ],
@@ -48,5 +48,5 @@
     "specs_sources": {}
   },
   "first_seen": "2026-10-17T15:59:19.574Z",
-  "updated_at": "2026-10-19T12:22:54.841Z"
+  "updated_at": "2026-10-20T04:53:39.533Z"
 }

@@ -9,14 +9,14 @@
   "deprecation_date": "2026-09-21",
   "shutdown_date": "2027-03-21",
   "shutdown_date_kind": "exact",
-  "region_or_platform_notes": "Regions listed on the lifecycle page: us-east-1, us-east-2, us-west-2 (legacy 2026-09-21).",
+  "region_or_platform_notes": "Regions listed on the lifecycle page: us-east-1, us-east-2, us-west-1, us-west-2 (legacy 2026-09-21).",
   "replacements": [],
   "sources": [
     {
       "url": "https://docs.aws.amazon.com/bedrock/latest/userguide/model-lifecycle-legacy.html",
       "label": "Amazon Bedrock model lifecycle (legacy)",
-      "last_checked": "2026-10-19",
-      "excerpt": "Policy page https://docs.aws.amazon.com/bedrock/latest/userguide/model-lifecycle.html | Writer | Palmyra X5 | writer.palmyra-x5-v1:0 | us-east-1, us-east-2, us-west-2 | September 21, 2026 | March 21, 2027 | To be announced"
+      "last_checked": "2026-10-20",
+      "excerpt": "Policy page https://docs.aws.amazon.com/bedrock/latest/userguide/model-lifecycle.html | Writer | Palmyra X5 | writer.palmyra-x5-v1:0 | us-east-1, us-east-2, us-west-1, us-west-2 | September 21, 2026 | March 21, 2027 | —"
     }
   ],
   "specs": {
@@ -41,5 +41,5 @@
     "specs_sources": {}
   },
   "first_seen": "2026-10-18T12:22:38.509Z",
-  "updated_at": "2026-10-19T22:14:09.007Z"
+  "updated_at": "2026-10-20T04:53:39.533Z"
 }

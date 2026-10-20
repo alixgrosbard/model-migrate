@@ -9,19 +9,19 @@
   "deprecation_date": null,
   "shutdown_date": null,
   "shutdown_date_kind": "none",
-  "region_or_platform_notes": null,
+  "region_or_platform_notes": "Release date on the deprecations page: 2026-07-30.",
   "replacements": [],
   "sources": [
     {
       "url": "https://ai.google.dev/gemini-api/docs/deprecations",
-      "label": "Named as an official replacement",
-      "last_checked": "2026-10-19",
-      "excerpt": "Named as an official replacement for gemini-robotics-er-1.6-preview. No shutdown date was published for this id on that page."
+      "label": "Gemini API deprecations",
+      "last_checked": "2026-10-20",
+      "excerpt": "gemini-robotics-er-2-preview | July 30, 2026 | No shutdown date announced"
     },
     {
       "url": "https://ai.google.dev/gemini-api/docs/models/gemini-robotics-er-2-preview",
       "label": "Gemini model docs",
-      "last_checked": "2026-10-19",
+      "last_checked": "2026-10-20",
       "excerpt": "gemini-robotics-er-2-preview input token limit 131072 | max output tokens 65536"
     },
     {
@@ -53,26 +53,26 @@
     "specs_sources": {
       "input_price_per_mtok": {
         "url": "https://ai.google.dev/gemini-api/docs/pricing",
-        "last_checked": "2026-10-19"
+        "last_checked": "2026-10-20"
       },
       "output_price_per_mtok": {
         "url": "https://ai.google.dev/gemini-api/docs/pricing",
-        "last_checked": "2026-10-19"
+        "last_checked": "2026-10-20"
       },
       "cached_input_price_per_mtok": {
         "url": "https://ai.google.dev/gemini-api/docs/pricing",
-        "last_checked": "2026-10-19"
+        "last_checked": "2026-10-20"
       },
       "context_window_tokens": {
         "url": "https://ai.google.dev/gemini-api/docs/models/gemini-robotics-er-2-preview",
-        "last_checked": "2026-10-19"
+        "last_checked": "2026-10-20"
       },
       "max_output_tokens": {
         "url": "https://ai.google.dev/gemini-api/docs/models/gemini-robotics-er-2-preview",
-        "last_checked": "2026-10-19"
+        "last_checked": "2026-10-20"
       }
     }
   },
   "first_seen": "2026-10-17T15:59:19.574Z",
-  "updated_at": "2026-10-19T12:22:54.841Z"
+  "updated_at": "2026-10-20T04:53:39.533Z"
 }
