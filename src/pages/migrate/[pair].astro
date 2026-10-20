@@ -6,6 +6,7 @@ import { loadMigrations, loadModels, loadProviders } from "../../lib/load.ts";
 import { clipMeta, replaceFaqs, replacementAnswer } from "../../lib/format.ts";
 import { migrateGraph } from "../../jsonld.ts";
 import { DEFAULT_SITE_URL } from "../../lib/site.ts";
+import { requestErrorPath, requestErrorsForMigration } from "../../lib/request-errors.ts";
 
 export async function getStaticPaths() {
   const migrations = await loadMigrations();
@@ -26,6 +27,7 @@ const answer = replacementAnswer(from, provider, migration);
 const faqs = replaceFaqs(from, provider, migration);
 const description = clipMeta(answer);
 const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
+const relatedErrors = requestErrorsForMigration(Astro.params.pair ?? "");
 ---
 <Base
   title={`${from.display_name} to ${to.display_name}: price, context, and code | SunsetDiff`}
@@ -41,6 +43,16 @@ const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
   <h1>Replacement for {from.display_name}: what changes when you switch</h1>
   <p class="answer">{answer}</p>
   <p>This is the canonical diff. <a href={`/models/${from.provider}/${from.slug}/`}>Model page</a> · <a href={`/replace/${from.provider}/${from.slug}/`}>Replacement page</a> · <a href={`/providers/${from.provider}/`}>{provider.name}</a></p>
+  {relatedErrors.length ? (
+    <>
+      <h2>Request errors</h2>
+      <ul>
+        {relatedErrors.map((item) => (
+          <li><a href={requestErrorPath(item.slug)}>{item.h1}</a></li>
+        ))}
+      </ul>
+    </>
+  ) : null}
   <MigrationCard migration={migration} from={from} to={to} />
   <FaqList items={faqs} />
 </Base>

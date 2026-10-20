@@ -8,6 +8,7 @@ import { publicName } from "../../lib/growth.ts";
 import type { ModelRecord } from "../../schema.ts";
 import { today } from "../../lib/format.ts";
 import { DEFAULT_SITE_URL } from "../../lib/site.ts";
+import { requestErrorPath, requestErrorsForShutdown } from "../../lib/request-errors.ts";
 import {
   eventCitations,
   eventDateModified,
@@ -53,6 +54,7 @@ const lastChecked = eventLastChecked(event);
 const alertPitch = "Get an email before your models shut down. Free.";
 const suggestBedrock = event.provider === "aws-bedrock" && event.date === "2026-11-13";
 const path = shutdownEventPath(event);
+const relatedErrors = requestErrorsForShutdown(event.provider, event.date);
 const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
 const rows = event.models.map((model) => ({
   model,
@@ -289,6 +291,21 @@ function bedrockSuggestions(model: ModelRecord): { href: string; label: string }
         Claude Opus 4.1 reaches end of life on January 8, 2027 in the Regions on its <a href="/models/aws-bedrock/anthropic-claude-opus-4-1-20250805-v1-0/">model page</a>.
         Claude Sonnet 4.5 reaches end of life on April 8, 2027 in the Regions on its <a href="/models/aws-bedrock/anthropic-claude-sonnet-4-5-20250929-v1-0/">model page</a>.
       </p>
+    </>
+  ) : null}
+  {relatedErrors.length ? (
+    <>
+      <h2>Request errors</h2>
+      <p>
+        {past
+          ? "Calls that still use these model ids fail. These pages record the error text SunsetDiff could verify."
+          : "Calls that still use these model ids fail once this date arrives. These pages record the error text SunsetDiff could verify."}
+      </p>
+      <ul>
+        {relatedErrors.map((item) => (
+          <li><a href={requestErrorPath(item.slug)}>{item.h1}</a></li>
+        ))}
+      </ul>
     </>
   ) : null}
   <h2>Migration checklist</h2>

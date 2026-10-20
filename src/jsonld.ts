@@ -1,7 +1,7 @@
 import type { MigrationRecord, ModelRecord, Provider } from "./schema.ts";
 import { modelFaqs, replaceFaqs, type FaqItem } from "./lib/format.ts";
 import { deprecatedFaqs, publicName, questionPath, shutdownFaqs } from "./lib/growth.ts";
-import { REQUEST_ERRORS_CHECKED, requestErrorPath, type RequestErrorPage } from "./lib/request-errors.ts";
+import { REQUEST_ERRORS_CHECKED, REQUEST_ERRORS_INDEX, requestErrorPath, type RequestErrorPage } from "./lib/request-errors.ts";
 
 function siteRoot(site: string): string {
   return site.replace(/\/+$/, "");
@@ -304,6 +304,38 @@ export function apiDocsGraph(site: string, modified: string, faqs: FaqItem[]) {
   ];
 }
 
+export function requestErrorsIndexGraph(
+  site: string,
+  items: { name: string; path: string }[],
+  faqs: FaqItem[],
+) {
+  const url = new URL(REQUEST_ERRORS_INDEX, site).href;
+  return [
+    {
+      "@type": "CollectionPage",
+      name: "Request errors",
+      description: "HTTP errors developers see after an AI model change, each linked to the official source that was checked.",
+      url,
+      dateModified: REQUEST_ERRORS_CHECKED,
+      inLanguage: "en",
+      isPartOf: { "@id": `${siteRoot(site)}/#website` },
+      publisher: { "@type": "Organization", name: "SunsetDiff" },
+    },
+    {
+      "@type": "ItemList",
+      name: "Request errors",
+      numberOfItems: items.length,
+      itemListElement: items.map((item, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        name: item.name,
+        url: new URL(item.path, site).href,
+      })),
+    },
+    faqNode(faqs),
+  ];
+}
+
 export function requestErrorGraph(site: string, page: RequestErrorPage) {
   const path = requestErrorPath(page.slug);
   const url = new URL(path, site).href;
@@ -311,7 +343,7 @@ export function requestErrorGraph(site: string, page: RequestErrorPage) {
     {
       "@type": "TechArticle",
       headline: page.h1,
-      description: `${page.errorText}. ${page.lead}`,
+      description: `${page.errorText.endsWith(".") ? page.errorText : `${page.errorText}.`} ${page.lead}`,
       dateModified: REQUEST_ERRORS_CHECKED,
       url,
       mainEntityOfPage: url,

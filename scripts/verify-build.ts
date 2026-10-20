@@ -4,7 +4,7 @@ import { htmlContainsOwnerPlaceholder } from "../src/lib/public-copy.ts";
 import { loadModels } from "../src/lib/load.ts";
 import { today } from "../src/lib/format.ts";
 import { isPastShutdown, shutdownEventPath, shutdownEvents } from "../src/lib/shutdowns.ts";
-import { requestErrorPath, requestErrors } from "../src/lib/request-errors.ts";
+import { REQUEST_ERRORS_CHECKED, REQUEST_ERRORS_INDEX, requestErrorPath, requestErrors } from "../src/lib/request-errors.ts";
 
 const dist = path.join(process.cwd(), "dist");
 const required = [
@@ -28,6 +28,7 @@ const required = [
   "scan/index.html",
   "pro/index.html",
   "shutdowns/index.html",
+  "errors/index.html",
   "alternatives/index.html",
   "api/index.html",
   "alternatives/modeldeprecations/index.html",
@@ -128,6 +129,8 @@ async function main() {
   const day = today();
   if (!events.length) throw new Error("No shutdown event pages were generated");
   if (!sitemap.includes("/shutdowns/")) throw new Error("Sitemap is missing /shutdowns/");
+  if (!sitemap.includes("/errors/")) throw new Error("Sitemap is missing /errors/");
+  if (!llms.includes("/errors/")) throw new Error("llms.txt is missing /errors/");
   if (!llms.includes("/shutdowns/")) throw new Error("llms.txt is missing /shutdowns/");
   if (!llms.includes("/alternatives/")) throw new Error("llms.txt is missing /alternatives/");
   if (!llms.includes("/api/")) throw new Error("llms.txt is missing /api/");
@@ -161,12 +164,24 @@ async function main() {
   if (apiPage.includes("—") || apiPage.includes("–")) throw new Error("Em dash on /api/");
   if (!sitemap.includes("/api/")) throw new Error("Sitemap is missing /api/");
   if (!llms.includes("You won't be charged until Pro launches")) throw new Error("llms.txt is missing the Pro billing line");
+  const errorHub = await readFile(path.join(dist, "errors/index.html"), "utf8");
+  if (!errorHub.includes('"CollectionPage"') || !errorHub.includes('"ItemList"') || !errorHub.includes('"FAQPage"')) {
+    throw new Error("Request error hub JSON-LD is missing CollectionPage, ItemList, or FAQPage");
+  }
+  if (!errorHub.includes(REQUEST_ERRORS_CHECKED)) throw new Error("Request error hub is missing the check date");
+  if (errorHub.includes("—") || errorHub.includes("–")) throw new Error("Em dash on /errors/");
+  for (const page of requestErrors) {
+    if (!errorHub.includes(requestErrorPath(page.slug))) throw new Error(`Request error hub is missing ${page.slug}`);
+    if (!htmlHas(errorHub, page.errorText)) throw new Error(`Request error hub is missing the error text for ${page.slug}`);
+  }
+  const homeNav = await readFile(path.join(dist, "index.html"), "utf8");
+  if (!homeNav.includes('href="/errors/"')) throw new Error("Navigation is missing /errors/");
   for (const page of requestErrors) {
     const rel = requestErrorPath(page.slug);
     const html = await readFile(path.join(dist, rel.slice(1), "index.html"), "utf8");
     if (!sitemap.includes(rel)) throw new Error(`Sitemap is missing ${rel}`);
     if (!llms.includes(rel)) throw new Error(`llms.txt is missing ${rel}`);
-    if (!html.includes(page.errorText)) throw new Error(`Error page is missing its error text: ${rel}`);
+    if (!htmlHas(html, page.errorText)) throw new Error(`Error page is missing its error text: ${rel}`);
     if (!html.includes('"TechArticle"') || !html.includes('"FAQPage"')) throw new Error(`JSON-LD missing TechArticle or FAQPage in ${rel}`);
     if (!html.includes(page.ruleSourceUrl)) throw new Error(`Error page is missing its source: ${rel}`);
     for (const guide of page.guides) {
@@ -235,6 +250,18 @@ async function main() {
     if (deps[name]) throw new Error(`Disallowed package installed: ${name}`);
   }
   console.log(`Verified ${checked} HTML files and required static outputs.`);
+}
+
+function htmlHas(html: string, text: string): boolean {
+  if (html.includes(text)) return true;
+  const escaped = text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+  if (html.includes(escaped)) return true;
+  return visibleText(html).includes(text);
 }
 
 function visibleText(html: string): string {

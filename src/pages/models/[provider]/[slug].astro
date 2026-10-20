@@ -8,6 +8,7 @@ import { answerSentence, clipMeta, formatWhen, modelFaqs, modelTitle, money, rel
 import { publicName } from "../../../lib/growth.ts";
 import { modelGraph } from "../../../jsonld.ts";
 import { DEFAULT_SITE_URL } from "../../../lib/site.ts";
+import { requestErrorPath, requestErrorsForModel } from "../../../lib/request-errors.ts";
 
 export async function getStaticPaths() {
   const models = await loadModels();
@@ -25,6 +26,7 @@ const related = relatedModels(model, models);
 const changes = (await loadChanges()).filter((change) => change.provider === model.provider && change.model_id === model.id).slice(-20).reverse();
 const description = clipMeta(answer);
 const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
+const relatedErrors = requestErrorsForModel(model.provider, model.id);
 const specRows: [string, string, string][] = [
   ["Input price / 1M", money(model.specs.input_price_per_mtok), "input_price_per_mtok"],
   ["Output price / 1M", money(model.specs.output_price_per_mtok), "output_price_per_mtok"],
@@ -73,6 +75,16 @@ const specRows: [string, string, string][] = [
     </ul>
   ) : <p>Not published.</p>}
   <p><a href={`/replace/${model.provider}/${model.slug}/`}>See the replacement diff</a> · <a href={`/providers/${provider.id}/`}>{provider.name} models</a></p>
+  {relatedErrors.length ? (
+    <>
+      <h2>Request errors</h2>
+      <ul>
+        {relatedErrors.map((item) => (
+          <li><a href={requestErrorPath(item.slug)}>{item.h1}</a>. {item.cause}</li>
+        ))}
+      </ul>
+    </>
+  ) : null}
   <h2>Specs</h2>
   <table>
     <caption>Published specs. Missing cells were not on the official pages we checked.</caption>
