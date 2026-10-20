@@ -1,6 +1,7 @@
 import type { MigrationRecord, ModelRecord, Provider } from "./schema.ts";
 import { modelFaqs, replaceFaqs, type FaqItem } from "./lib/format.ts";
 import { deprecatedFaqs, publicName, questionPath, shutdownFaqs } from "./lib/growth.ts";
+import { GUIDES_CHECKED, GUIDES_INDEX, guidePath, type GuidePage } from "./lib/guides.ts";
 import { REQUEST_ERRORS_CHECKED, REQUEST_ERRORS_INDEX, requestErrorPath, type RequestErrorPage } from "./lib/request-errors.ts";
 
 function siteRoot(site: string): string {
@@ -354,6 +355,68 @@ export function requestErrorGraph(site: string, page: RequestErrorPage) {
     },
     faqNode(page.faqs),
   ];
+}
+
+export function guidesIndexGraph(site: string, items: { name: string; path: string }[], faqs: FaqItem[]) {
+  const url = new URL(GUIDES_INDEX, site).href;
+  return [
+    {
+      "@type": "CollectionPage",
+      name: "Guides",
+      description: "Practical guides for AI model aliases, shutdown notices, and the day a model stops.",
+      url,
+      dateModified: GUIDES_CHECKED,
+      inLanguage: "en",
+      isPartOf: { "@id": `${siteRoot(site)}/#website` },
+      publisher: { "@type": "Organization", name: "SunsetDiff" },
+    },
+    {
+      "@type": "ItemList",
+      name: "Guides",
+      numberOfItems: items.length,
+      itemListElement: items.map((item, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        name: item.name,
+        url: new URL(item.path, site).href,
+      })),
+    },
+    faqNode(faqs),
+  ];
+}
+
+export function guideGraph(site: string, page: GuidePage) {
+  const url = new URL(guidePath(page.slug), site).href;
+  const nodes: Record<string, unknown>[] = [
+    {
+      "@type": "Article",
+      headline: page.h1,
+      description: page.description,
+      datePublished: GUIDES_CHECKED,
+      dateModified: GUIDES_CHECKED,
+      url,
+      mainEntityOfPage: url,
+      inLanguage: "en",
+      author: { "@type": "Organization", name: "SunsetDiff" },
+      publisher: { "@type": "Organization", name: "SunsetDiff" },
+      citation: page.citations,
+    },
+  ];
+  if (page.steps.length) {
+    nodes.push({
+      "@type": "HowTo",
+      name: page.h1,
+      description: plainFaq(page.answer),
+      step: page.steps.map((step, index) => ({
+        "@type": "HowToStep",
+        position: index + 1,
+        name: step.name,
+        text: step.text,
+      })),
+    });
+  }
+  if (page.faqs.length) nodes.push(faqNode(page.faqs));
+  return nodes;
 }
 
 export function graph(nodes: unknown[]) {
