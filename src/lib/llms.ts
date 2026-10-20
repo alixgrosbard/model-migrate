@@ -39,6 +39,8 @@ export function llmsTxt(
 - [Deprecation questions](${origin}/questions/)
 - [Changes](${origin}/changes/)
 - [Dataset](${origin}/data/)
+- [Static API docs](${origin}/api/)
+- [Compare trackers](${origin}/alternatives/)
 - [About](${origin}/about/)
 - [Pro](${origin}/pro/) is free until launch, then $19 a month. You won't be charged until Pro launches.
 
@@ -68,10 +70,24 @@ ${soonLinks || "- None published."}
 ${providerLinks}
 
 ## API
+- [Static API docs](${origin}/api/)
 - [Index](${origin}/api/v1/index.json)
 - [Upcoming shutdowns](${origin}/api/v1/upcoming.json)
+- [Full model records](${origin}/data/models.json)
 - [Full model list](${origin}/llms-full.txt)
 - [How we check](${origin}/about/)
+
+## Deprecation trackers
+SunsetDiff compared with other public trackers. Competitor facts are quoted from the pages linked on each comparison, with the day they were checked.
+- [Where to track AI model deprecations](${origin}/alternatives/)
+- [modeldeprecations.dev](${origin}/alternatives/modeldeprecations/)
+- [quora/model-deprecation-tracker](${origin}/alternatives/quora-model-deprecation-tracker/)
+- [endoflife.ai](${origin}/alternatives/endoflife-ai/)
+- [Developers Digest](${origin}/alternatives/developers-digest/)
+- [deprecations.info](${origin}/alternatives/deprecations-info/)
+- [LLMSunset](${origin}/alternatives/llmsunset/)
+- [Lastcall](${origin}/alternatives/lastcall/)
+- [ModelSunset](${origin}/alternatives/modelsunset/)
 `;
 }
 
@@ -100,6 +116,8 @@ export function llmsFull(site: string, models: ModelRecord[]): string {
     `models.json: ${origin}/data/models.json`,
     `deprecations.csv: ${origin}/data/deprecations.csv`,
     `changelog.json: ${origin}/data/changelog.json`,
+    `API docs: ${origin}/api/`,
+    `Compare trackers: ${origin}/alternatives/`,
     `Deadlines: ${origin}/deadlines/`,
     `Shutdown batches: ${origin}/shutdowns/`,
     `iCal: ${origin}/deadlines.ics`,

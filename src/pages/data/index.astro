@@ -51,6 +51,7 @@ const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
     <li><code>/api/v1/lookup/&lt;model-id&gt;.json</code></li>
     <li><code>/api/v1/migrations/&lt;from&gt;__to__&lt;to&gt;.json</code></li>
   </ul>
+  <p>Field names, the update cadence, the license, and copy-paste curl and fetch examples are on the <a href="/api/">API docs</a>.</p>
   <h2>MCP server</h2>
   <p>The Node service exposes a read-only MCP endpoint at <code>/mcp</code>. Tools: <code>check_model</code>, <code>upcoming_shutdowns</code>, <code>migration_diff</code>, <code>scan_text</code>.</p>
   <pre><code>npx github:alixgrosbard/model-migrate mcp</code></pre>
