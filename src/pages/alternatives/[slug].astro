@@ -1,0 +1,82 @@
+---
+import Base from "../../layouts/Base.astro";
+import FaqList from "../../components/FaqList.astro";
+import { comparisonGraph } from "../../jsonld.ts";
+import { COMPARISON_CHECKED, COMPARISON_CHECKED_LABEL, comparisonBySlug, comparisonPath, comparisons } from "../../lib/comparisons.ts";
+import { loadMigrations, loadModels, loadProviders } from "../../lib/load.ts";
+import { DEFAULT_SITE_URL } from "../../lib/site.ts";
+
+export function getStaticPaths() {
+  return comparisons.map((comparison) => ({ params: { slug: comparison.slug } }));
+}
+
+const comparison = comparisonBySlug(Astro.params.slug ?? "");
+if (!comparison) throw new Error(`Missing comparison ${Astro.params.slug}`);
+const providers = await loadProviders();
+const models = await loadModels();
+const migrations = await loadMigrations();
+const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
+const path = comparisonPath(comparison.slug);
+---
+<Base
+  title={`${comparison.title} | SunsetDiff`}
+  description={comparison.description}
+  crumbs={[
+    { name: "Home", path: "/" },
+    { name: "Compare", path: "/alternatives/" },
+    { name: comparison.name, path },
+  ]}
+  extraGraph={comparisonGraph(site, {
+    title: comparison.title,
+    description: comparison.description,
+    path,
+    modified: COMPARISON_CHECKED,
+    aboutName: comparison.name,
+    aboutUrl: comparison.siteUrl,
+    citations: comparison.sources.map((source) => source.url),
+    faqs: comparison.faqs,
+  })}
+>
+  <h1>{comparison.title}</h1>
+  <p class="answer">
+    Facts about {comparison.name} come from the public pages in the source list. Checked {COMPARISON_CHECKED_LABEL}.
+    Publisher: SunsetDiff.
+  </p>
+  <p>
+    This SunsetDiff build has {models.length} model records, {migrations.length} migration diffs, and {providers.length} providers:
+    {providers.map((provider, index) => (
+      <>
+        {index ? ", " : ""}
+        <a href={`/providers/${provider.id}/`}>{provider.name}</a>
+      </>
+    ))}.
+    <a href="/data/">Dataset</a>. <a href="/api/">API docs</a>. <a href="/alternatives/">All comparisons</a>.
+  </p>
+  {comparison.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
+  <h2>Side by side</h2>
+  <table>
+    <caption>What {comparison.name} published on {COMPARISON_CHECKED_LABEL}, and what SunsetDiff publishes in this build.</caption>
+    <thead>
+      <tr><th>Topic</th><th>{comparison.name}</th><th>SunsetDiff</th></tr>
+    </thead>
+    <tbody>
+      {comparison.rows.map((row) => (
+        <tr>
+          <th scope="row">{row.topic}</th>
+          <td>{row.theirs}</td>
+          <td>{row.sunsetdiff}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+  <h2>Sources checked {COMPARISON_CHECKED_LABEL}</h2>
+  <ul>
+    {comparison.sources.map((source) => (
+      <li>
+        <a href={source.url}>{source.label}</a>. Checked {source.checked}. {source.showed}
+      </li>
+    ))}
+  </ul>
+  <p><a href={comparison.siteUrl}>{comparison.name}</a></p>
+  <FaqList items={comparison.faqs} />
+</Base>

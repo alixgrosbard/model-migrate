@@ -211,6 +211,98 @@ export function shutdownIndexGraph(site: string, items: { name: string; path: st
   ];
 }
 
+export function faqPage(items: FaqItem[]) {
+  return faqNode(items);
+}
+
+export function comparisonGraph(
+  site: string,
+  page: {
+    title: string;
+    description: string;
+    path: string;
+    modified: string;
+    aboutName: string;
+    aboutUrl: string;
+    citations: string[];
+    faqs: FaqItem[];
+  },
+) {
+  const url = new URL(page.path, site).href;
+  return [
+    {
+      "@type": "WebPage",
+      name: page.title,
+      description: page.description,
+      url,
+      dateModified: page.modified,
+      inLanguage: "en",
+      isPartOf: { "@id": `${siteRoot(site)}/#website` },
+      publisher: { "@type": "Organization", name: "SunsetDiff" },
+      about: { "@type": "WebSite", name: page.aboutName, url: page.aboutUrl },
+      citation: page.citations,
+    },
+    faqNode(page.faqs),
+  ];
+}
+
+export function alternativesGraph(site: string, modified: string, items: { name: string; path: string }[], faqs: FaqItem[]) {
+  const url = new URL("/alternatives/", site).href;
+  return [
+    {
+      "@type": "CollectionPage",
+      name: "Where to track AI model deprecations",
+      description: "SunsetDiff compared with other public AI model deprecation trackers, from pages checked on the date shown.",
+      url,
+      dateModified: modified,
+      inLanguage: "en",
+      isPartOf: { "@id": `${siteRoot(site)}/#website` },
+      publisher: { "@type": "Organization", name: "SunsetDiff" },
+    },
+    {
+      "@type": "ItemList",
+      name: "AI model deprecation trackers",
+      numberOfItems: items.length,
+      itemListElement: items.map((item, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        name: item.name,
+        url: new URL(item.path, site).href,
+      })),
+    },
+    faqNode(faqs),
+  ];
+}
+
+export function apiDocsGraph(site: string, modified: string, faqs: FaqItem[]) {
+  const url = new URL("/api/", site).href;
+  const root = siteRoot(site);
+  return [
+    {
+      "@type": "WebPage",
+      "@id": `${url}#page`,
+      name: "SunsetDiff API",
+      url,
+      dateModified: modified,
+      inLanguage: "en",
+      isPartOf: { "@id": `${root}/#website` },
+      publisher: { "@type": "Organization", name: "SunsetDiff" },
+      mainEntity: { "@id": `${url}#api` },
+    },
+    {
+      "@type": "WebAPI",
+      "@id": `${url}#api`,
+      name: "SunsetDiff static API",
+      description: "Free static JSON, CSV, RSS, and iCalendar files of AI model shutdown dates and migration diffs. No API key.",
+      documentation: url,
+      url: root,
+      provider: { "@id": `${root}/#org` },
+    },
+    ...datasetGraph(site, modified),
+    faqNode(faqs),
+  ];
+}
+
 export function graph(nodes: unknown[]) {
   return { "@context": "https://schema.org", "@graph": nodes };
 }

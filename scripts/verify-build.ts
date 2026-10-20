@@ -27,6 +27,16 @@ const required = [
   "scan/index.html",
   "pro/index.html",
   "shutdowns/index.html",
+  "alternatives/index.html",
+  "api/index.html",
+  "alternatives/modeldeprecations/index.html",
+  "alternatives/quora-model-deprecation-tracker/index.html",
+  "alternatives/endoflife-ai/index.html",
+  "alternatives/developers-digest/index.html",
+  "alternatives/deprecations-info/index.html",
+  "alternatives/llmsunset/index.html",
+  "alternatives/lastcall/index.html",
+  "alternatives/modelsunset/index.html",
 ];
 
 const requiredTypes = ["WebSite", "Organization", "BreadcrumbList"];
@@ -118,6 +128,37 @@ async function main() {
   if (!events.length) throw new Error("No shutdown event pages were generated");
   if (!sitemap.includes("/shutdowns/")) throw new Error("Sitemap is missing /shutdowns/");
   if (!llms.includes("/shutdowns/")) throw new Error("llms.txt is missing /shutdowns/");
+  if (!llms.includes("/alternatives/")) throw new Error("llms.txt is missing /alternatives/");
+  if (!llms.includes("/api/")) throw new Error("llms.txt is missing /api/");
+  const llmsFull = await readFile(path.join(dist, "llms-full.txt"), "utf8");
+  if (!llmsFull.includes("/alternatives/")) throw new Error("llms-full.txt is missing /alternatives/");
+  if (!llmsFull.includes("/api/")) throw new Error("llms-full.txt is missing /api/");
+  const comparePages = [
+    "alternatives/index.html",
+    "alternatives/modeldeprecations/index.html",
+    "alternatives/quora-model-deprecation-tracker/index.html",
+    "alternatives/endoflife-ai/index.html",
+    "alternatives/developers-digest/index.html",
+    "alternatives/deprecations-info/index.html",
+    "alternatives/llmsunset/index.html",
+    "alternatives/lastcall/index.html",
+    "alternatives/modelsunset/index.html",
+  ];
+  for (const rel of comparePages) {
+    const html = await readFile(path.join(dist, rel), "utf8");
+    if (!html.includes('"FAQPage"') || (!html.includes('"WebPage"') && !html.includes('"CollectionPage"'))) {
+      throw new Error(`Comparison JSON-LD missing page or FAQ types in ${rel}`);
+    }
+    if (!html.includes("2026-10-20")) throw new Error(`Comparison page is missing the check date: ${rel}`);
+    if (html.includes("—") || html.includes("–")) throw new Error(`Em dash on ${rel}`);
+    if (!sitemap.includes(`/${rel.replace(/index\.html$/, "")}`)) throw new Error(`Sitemap is missing ${rel}`);
+  }
+  const apiPage = await readFile(path.join(dist, "api/index.html"), "utf8");
+  for (const token of ['"WebAPI"', '"FAQPage"', '"Dataset"', "/data/models.json", "/dataset/sunsetdiff.json", "/feed.xml", "/deadlines.ics"]) {
+    if (!apiPage.includes(token)) throw new Error(`API docs missing ${token}`);
+  }
+  if (apiPage.includes("—") || apiPage.includes("–")) throw new Error("Em dash on /api/");
+  if (!sitemap.includes("/api/")) throw new Error("Sitemap is missing /api/");
   if (!llms.includes("You won't be charged until Pro launches")) throw new Error("llms.txt is missing the Pro billing line");
   for (const event of events) {
     const rel = shutdownEventPath(event);
