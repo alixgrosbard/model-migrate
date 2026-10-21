@@ -15,6 +15,7 @@ import {
   shutdownEventTitle,
   shutdownEvents,
 } from "../src/lib/shutdowns.ts";
+import { writeBadgeFiles } from "../src/lib/badges.ts";
 import { siteOrigin } from "../src/lib/site.ts";
 
 const site = siteOrigin();
@@ -147,6 +148,7 @@ async function main() {
     };
   });
   await writeFile(path.join(publicDir, "feed.xml"), deprecationsFeed(changes, models, site, feedEvents));
+  const badgeCount = await writeBadgeFiles(publicDir, models, day);
   await writeOgImages(publicDir, models, providers);
   await writeFile(
     path.join(publicDir, "robots.txt"),
@@ -203,7 +205,7 @@ ${items}
   if (!indexNow.equals(Buffer.from("1dca852797e5cb64a5ab78151e91938f"))) {
     throw new Error("IndexNow key file is missing or was changed by the static generator");
   }
-  console.log(`Static API generated for ${models.length} models. Window ends ${addDays(day, 90)}.`);
+  console.log(`Static API generated for ${models.length} models. ${badgeCount} badges. Window ends ${addDays(day, 90)}.`);
 }
 
 function ics(models: Awaited<ReturnType<typeof loadModels>>, name: string) {

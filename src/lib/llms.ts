@@ -1,4 +1,5 @@
 import type { ModelRecord, Provider } from "../schema.ts";
+import { BADGES_DESCRIPTION, BADGES_NAV, BADGES_PATH } from "./badges.ts";
 import { publicName } from "./growth.ts";
 import { GUIDES_INDEX, guidePath, guides } from "./guides.ts";
 import { HUBS } from "./hubs.ts";
@@ -49,6 +50,7 @@ export function llmsTxt(
 - [Guides](${origin}${GUIDES_INDEX})
 - [Changes](${origin}/changes/)
 - [Dataset](${origin}/data/)
+- [Status badges](${origin}${BADGES_PATH}): ${BADGES_DESCRIPTION}
 - [Static API docs](${origin}/api/)
 - [Compare trackers](${origin}/alternatives/)
 - [About](${origin}/about/)
@@ -153,6 +155,7 @@ export function llmsFull(site: string, models: ModelRecord[]): string {
     `Questions: ${origin}/questions/`,
     `Code scan: ${origin}/scan/`,
     `Data page: ${origin}/data/`,
+    `${BADGES_NAV}: ${origin}${BADGES_PATH}`,
     "Blank cells were not published on the official page. Columns: id, provider, status, shutdown date, official replacement, input price per 1M, output price per 1M, context tokens, max output tokens, source, last checked.",
     ...lines,
     "",

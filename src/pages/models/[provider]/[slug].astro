@@ -1,5 +1,6 @@
 ---
 import Base from "../../../layouts/Base.astro";
+import BadgeSnippet from "../../../components/BadgeSnippet.astro";
 import FaqList from "../../../components/FaqList.astro";
 import NewsletterForm from "../../../components/NewsletterForm.astro";
 import SponsorSlot from "../../../components/SponsorSlot.astro";
@@ -54,6 +55,7 @@ const specRows: [string, string, string][] = [
   <h1>When is {publicName(model)} shut down?</h1>
   <p class="answer">{answer}</p>
   <p><span class="badge">{model.status}</span></p>
+  <BadgeSnippet model={model} origin={site.replace(/\/+$/, "")} />
   <table>
     <caption>Dates</caption>
     <tbody>
