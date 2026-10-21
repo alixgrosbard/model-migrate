@@ -55,18 +55,18 @@
     "Ship the change before the published shutdown date."
   ],
   "confidence": "partial",
-  "last_checked": "2026-10-20",
+  "last_checked": "2026-10-21",
   "sources": [
     {
       "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/model-versions",
       "label": "Vertex AI model versions",
-      "last_checked": "2026-10-20",
+      "last_checked": "2026-10-21",
       "excerpt": "gemini-2.0-flash-lite | February 25, 2025 | June 1, 2026 | gemini-3.5-flash-lite"
     },
     {
       "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/model-versions",
       "label": "Vertex AI model versions",
-      "last_checked": "2026-10-20",
+      "last_checked": "2026-10-21",
       "excerpt": "gemini-3.5-flash-lite | July 21, 2026 | July 21, 2027 or later"
     }
   ]

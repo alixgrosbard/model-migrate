@@ -60,13 +60,13 @@
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "OpenAI deprecations",
-      "last_checked": "2026-10-20",
+      "last_checked": "2026-10-21",
       "excerpt": "Feb 26, 2027 | whisper-1 | gpt-live-transcribe or gpt-transcribe"
     },
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "Named as an official replacement",
-      "last_checked": "2026-10-20",
+      "last_checked": "2026-10-21",
       "excerpt": "Named as an official replacement for whisper-1. No shutdown date was published for this id on that page."
     }
   ]

@@ -22,13 +22,13 @@
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "OpenAI deprecations",
-      "last_checked": "2026-10-20",
+      "last_checked": "2026-10-21",
       "excerpt": "2026-05-07 | gpt-4o-realtime-preview-2025-06-03 | gpt-realtime-1.5"
     },
     {
       "url": "https://developers.openai.com/api/docs/models/gpt-4o-realtime-preview.md",
       "label": "OpenAI model docs",
-      "last_checked": "2026-10-20",
+      "last_checked": "2026-10-21",
       "excerpt": "Model ID: gpt-4o-realtime-preview | context window 32000 | max output 4096 | input $5 | output $20 | Default snapshot gpt-4o-realtime-preview-2025-06-03"
     }
   ],
@@ -54,14 +54,14 @@
     "specs_sources": {
       "context_window_tokens": {
         "url": "https://developers.openai.com/api/docs/models/gpt-4o-realtime-preview.md",
-        "last_checked": "2026-10-20"
+        "last_checked": "2026-10-21"
       },
       "max_output_tokens": {
         "url": "https://developers.openai.com/api/docs/models/gpt-4o-realtime-preview.md",
-        "last_checked": "2026-10-20"
+        "last_checked": "2026-10-21"
       }
     }
   },
   "first_seen": "2026-10-17T15:59:19.574Z",
-  "updated_at": "2026-10-20T04:53:39.533Z"
+  "updated_at": "2026-10-21T12:30:12.996Z"
 }

@@ -15,7 +15,7 @@
     {
       "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/model-versions",
       "label": "Vertex AI model versions",
-      "last_checked": "2026-10-20",
+      "last_checked": "2026-10-21",
       "excerpt": "gemini-nano-banana-2.1 | October 6, 2026 | No retirement date announced"
     }
   ],
@@ -41,5 +41,5 @@
     "specs_sources": {}
   },
   "first_seen": "2026-10-17T15:59:19.574Z",
-  "updated_at": "2026-10-20T04:53:39.533Z"
+  "updated_at": "2026-10-21T12:30:12.996Z"
 }

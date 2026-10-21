@@ -55,24 +55,24 @@
     "Ship the change before the published shutdown date."
   ],
   "confidence": "partial",
-  "last_checked": "2026-10-20",
+  "last_checked": "2026-10-21",
   "sources": [
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "OpenAI deprecations",
-      "last_checked": "2026-10-20",
+      "last_checked": "2026-10-21",
       "excerpt": "2026‑03‑26 | gpt-4-0125-preview (including gpt-4-turbo-preview and gpt-4-turbo-preview-completions, which point to this snapshot) | gpt-5 or gpt-4.1*"
     },
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "Named as an official replacement",
-      "last_checked": "2026-10-20",
+      "last_checked": "2026-10-21",
       "excerpt": "Named as an official replacement for gpt-4-0314. No shutdown date was published for this id on that page."
     },
     {
       "url": "https://developers.openai.com/api/docs/models/gpt-5.md",
       "label": "OpenAI model docs",
-      "last_checked": "2026-10-20",
+      "last_checked": "2026-10-21",
       "excerpt": "Model ID: gpt-5 | context window 400000 | max output 128000 | input $1.25 | output $10"
     }
   ]

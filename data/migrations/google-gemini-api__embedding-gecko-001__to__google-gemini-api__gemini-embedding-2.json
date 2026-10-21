@@ -60,13 +60,13 @@
     {
       "url": "https://ai.google.dev/gemini-api/docs/deprecations",
       "label": "Gemini API deprecations",
-      "last_checked": "2026-10-20",
+      "last_checked": "2026-10-21",
       "excerpt": "embedding-gecko-001 | October 30, 2025 | gemini-embedding-2"
     },
     {
       "url": "https://ai.google.dev/gemini-api/docs/deprecations",
       "label": "Gemini API deprecations",
-      "last_checked": "2026-10-20",
+      "last_checked": "2026-10-21",
       "excerpt": "gemini-embedding-2 | April 22, 2026 | No shutdown date announced"
     }
   ]

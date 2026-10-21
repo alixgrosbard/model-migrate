@@ -22,7 +22,7 @@
     {
       "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/model-versions",
       "label": "Vertex AI model versions",
-      "last_checked": "2026-10-20",
+      "last_checked": "2026-10-21",
       "excerpt": "veo-3.0-fast-generate-001 | July 29, 2025 | June 30, 2026 | veo-3.1-fast-generate-001"
     }
   ],
@@ -48,5 +48,5 @@
     "specs_sources": {}
   },
   "first_seen": "2026-10-17T15:59:19.574Z",
-  "updated_at": "2026-10-20T04:53:39.533Z"
+  "updated_at": "2026-10-21T12:30:12.996Z"
 }

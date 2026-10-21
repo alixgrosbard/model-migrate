@@ -22,7 +22,7 @@
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "OpenAI deprecations",
-      "last_checked": "2026-10-20",
+      "last_checked": "2026-10-21",
       "excerpt": "2024-01-04 | code-search-ada-code-001 | $4.00 / 1M tokens | text-embedding-3-small"
     }
   ],
@@ -48,10 +48,10 @@
     "specs_sources": {
       "input_price_per_mtok": {
         "url": "https://developers.openai.com/api/docs/deprecations",
-        "last_checked": "2026-10-20"
+        "last_checked": "2026-10-21"
       }
     }
   },
   "first_seen": "2026-10-17T15:59:19.574Z",
-  "updated_at": "2026-10-20T04:53:39.533Z"
+  "updated_at": "2026-10-21T12:30:12.996Z"
 }

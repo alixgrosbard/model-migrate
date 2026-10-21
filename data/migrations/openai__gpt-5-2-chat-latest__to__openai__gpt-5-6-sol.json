@@ -11,9 +11,9 @@
   },
   "price_diff": {
     "input_pct_change": 128.6,
-    "output_pct_change": 42.9,
+    "output_pct_change": -64.3,
     "example_monthly_cost_old": 45.5,
-    "example_monthly_cost_new": 80,
+    "example_monthly_cost_new": 50,
     "currency": "USD",
     "example_label": "Example monthly cost for 10M input tokens and 2M output tokens. Labeled example, not a bill."
   },
@@ -55,30 +55,30 @@
     "Ship the change before the published shutdown date."
   ],
   "confidence": "official",
-  "last_checked": "2026-10-20",
+  "last_checked": "2026-10-21",
   "sources": [
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "OpenAI deprecations",
-      "last_checked": "2026-10-20",
+      "last_checked": "2026-10-21",
       "excerpt": "Aug 10, 2026 | gpt-5.2-chat-latest | gpt-5.6-sol"
     },
     {
       "url": "https://developers.openai.com/api/docs/models/gpt-5.2-chat-latest.md",
       "label": "OpenAI model docs",
-      "last_checked": "2026-10-20",
+      "last_checked": "2026-10-21",
       "excerpt": "Model ID: gpt-5.2-chat-latest | context window 128000 | max output 16384 | input $1.75 | output $14"
     },
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "Named as an official replacement",
-      "last_checked": "2026-10-20",
+      "last_checked": "2026-10-21",
       "excerpt": "Named as an official replacement for gpt-5-2025-08-07. No shutdown date was published for this id on that page."
     },
     {
       "url": "https://developers.openai.com/api/docs/models/gpt-daybreak-blue-latest.md",
       "label": "OpenAI model docs",
-      "last_checked": "2026-10-20",
+      "last_checked": "2026-10-21",
       "excerpt": "Model ID: gpt-daybreak-blue-latest | context window 1050000 | max output 128000 | Default snapshot gpt-5.6-sol"
     }
   ]

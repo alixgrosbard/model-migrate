@@ -22,13 +22,13 @@
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "OpenAI deprecations",
-      "last_checked": "2026-10-20",
+      "last_checked": "2026-10-21",
       "excerpt": "October 23, 2026 | gpt-4.1-nano | gpt-4.1-nano-2025-04-14 | gpt-5.6-luna"
     },
     {
       "url": "https://developers.openai.com/api/docs/models/gpt-4.1-nano.md",
       "label": "OpenAI model docs",
-      "last_checked": "2026-10-20",
+      "last_checked": "2026-10-21",
       "excerpt": "Model ID: gpt-4.1-nano | context window 1047576 | max output 32768 | input $0.1 | output $0.4"
     }
   ],
@@ -53,27 +53,27 @@
     "endpoints": null,
     "specs_sources": {
       "input_price_per_mtok": {
-        "url": "https://developers.openai.com/api/docs/pricing",
-        "last_checked": "2026-10-20"
+        "url": "https://developers.openai.com/api/docs/models/gpt-4.1-nano.md",
+        "last_checked": "2026-10-21"
       },
       "output_price_per_mtok": {
-        "url": "https://developers.openai.com/api/docs/pricing",
-        "last_checked": "2026-10-20"
+        "url": "https://developers.openai.com/api/docs/models/gpt-4.1-nano.md",
+        "last_checked": "2026-10-21"
       },
       "cached_input_price_per_mtok": {
-        "url": "https://developers.openai.com/api/docs/pricing",
-        "last_checked": "2026-10-20"
+        "url": "https://developers.openai.com/api/docs/models/gpt-4.1-nano.md",
+        "last_checked": "2026-10-21"
       },
       "context_window_tokens": {
         "url": "https://developers.openai.com/api/docs/models/gpt-4.1-nano.md",
-        "last_checked": "2026-10-20"
+        "last_checked": "2026-10-21"
       },
       "max_output_tokens": {
         "url": "https://developers.openai.com/api/docs/models/gpt-4.1-nano.md",
-        "last_checked": "2026-10-20"
+        "last_checked": "2026-10-21"
       }
     }
   },
   "first_seen": "2026-10-17T15:59:19.574Z",
-  "updated_at": "2026-10-20T04:53:39.533Z"
+  "updated_at": "2026-10-21T12:30:12.996Z"
 }

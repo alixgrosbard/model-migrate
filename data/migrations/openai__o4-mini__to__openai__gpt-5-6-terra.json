@@ -11,9 +11,9 @@
   },
   "price_diff": {
     "input_pct_change": 81.8,
-    "output_pct_change": 172.7,
+    "output_pct_change": -43.2,
     "example_monthly_cost_old": 19.8,
-    "example_monthly_cost_new": 44,
+    "example_monthly_cost_new": 25,
     "currency": "USD",
     "example_label": "Example monthly cost for 10M input tokens and 2M output tokens. Labeled example, not a bill."
   },
@@ -55,30 +55,30 @@
     "Ship the change before the published shutdown date."
   ],
   "confidence": "official",
-  "last_checked": "2026-10-20",
+  "last_checked": "2026-10-21",
   "sources": [
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "OpenAI deprecations",
-      "last_checked": "2026-10-20",
+      "last_checked": "2026-10-21",
       "excerpt": "October 23, 2026 | o4-mini-2025-04-16 | o4-mini | gpt-5.6-terra"
     },
     {
       "url": "https://developers.openai.com/api/docs/models/o4-mini.md",
       "label": "OpenAI model docs",
-      "last_checked": "2026-10-20",
+      "last_checked": "2026-10-21",
       "excerpt": "Model ID: o4-mini | context window 200000 | max output 100000 | input $1.1 | output $4.4"
     },
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "Named as an official replacement",
-      "last_checked": "2026-10-20",
+      "last_checked": "2026-10-21",
       "excerpt": "Named as an official replacement for gpt-5-mini-2025-08-07. No shutdown date was published for this id on that page."
     },
     {
       "url": "https://developers.openai.com/api/docs/models/gpt-5.6-terra.md",
       "label": "OpenAI model docs",
-      "last_checked": "2026-10-20",
+      "last_checked": "2026-10-21",
       "excerpt": "Model ID: gpt-5.6-terra | context window 1050000 | max output 128000 | input $2 | output $12"
     }
   ]

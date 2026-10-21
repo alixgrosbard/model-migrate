@@ -60,25 +60,25 @@
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "OpenAI deprecations",
-      "last_checked": "2026-10-20",
+      "last_checked": "2026-10-21",
       "excerpt": "Dec 1, 2026 | chatgpt-image-latest | gpt-image-2.5-sunburst or gpt-image-2.5-flare"
     },
     {
       "url": "https://developers.openai.com/api/docs/models/chatgpt-image-latest.md",
       "label": "OpenAI model docs",
-      "last_checked": "2026-10-20",
+      "last_checked": "2026-10-21",
       "excerpt": "Model ID: chatgpt-image-latest | input $5 | output $10"
     },
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "Named as an official replacement",
-      "last_checked": "2026-10-20",
+      "last_checked": "2026-10-21",
       "excerpt": "Named as an official replacement for gpt-image-1-mini. No shutdown date was published for this id on that page."
     },
     {
       "url": "https://developers.openai.com/api/docs/models/gpt-image-2.5-sunburst.md",
       "label": "OpenAI model docs",
-      "last_checked": "2026-10-20",
+      "last_checked": "2026-10-21",
       "excerpt": "Model ID: gpt-image-2.5-sunburst | input $5"
     }
   ]

@@ -11,9 +11,9 @@
   },
   "price_diff": {
     "input_pct_change": 60,
-    "output_pct_change": 0,
+    "output_pct_change": -75,
     "example_monthly_cost_old": 32.5,
-    "example_monthly_cost_new": 40,
+    "example_monthly_cost_new": 25,
     "currency": "USD",
     "example_label": "Example monthly cost for 10M input tokens and 2M output tokens. Labeled example, not a bill."
   },
@@ -55,30 +55,30 @@
     "Ship the change before the published shutdown date."
   ],
   "confidence": "official",
-  "last_checked": "2026-10-20",
+  "last_checked": "2026-10-21",
   "sources": [
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "OpenAI deprecations",
-      "last_checked": "2026-10-20",
+      "last_checked": "2026-10-21",
       "excerpt": "Apr 1, 2027 | gpt-5.1 | gpt-6-sol"
     },
     {
       "url": "https://developers.openai.com/api/docs/models/gpt-5.1.md",
       "label": "OpenAI model docs",
-      "last_checked": "2026-10-20",
+      "last_checked": "2026-10-21",
       "excerpt": "Model ID: gpt-5.1 | context window 400000 | max output 128000 | input $1.25 | output $10"
     },
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "Named as an official replacement",
-      "last_checked": "2026-10-20",
+      "last_checked": "2026-10-21",
       "excerpt": "Named as an official replacement for gpt-5.3-codex. No shutdown date was published for this id on that page."
     },
     {
       "url": "https://developers.openai.com/api/docs/models/gpt-6-sol.md",
       "label": "OpenAI model docs",
-      "last_checked": "2026-10-20",
+      "last_checked": "2026-10-21",
       "excerpt": "Model ID: gpt-6-sol | context window 1050000 | max output 128000 | input $2 | output $10"
     }
   ]
