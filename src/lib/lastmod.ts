@@ -4,7 +4,7 @@ import type { ModelRecord } from "../schema.ts";
 import { today } from "./format.ts";
 import { COMPARISON_CHECKED, comparisonPath, comparisons } from "./comparisons.ts";
 import { GUIDES_CHECKED, GUIDES_INDEX, guidePath, guides } from "./guides.ts";
-import { REQUEST_ERRORS_CHECKED, REQUEST_ERRORS_INDEX, requestErrorPath, requestErrors } from "./request-errors.ts";
+import { REQUEST_ERRORS_INDEX, requestErrorChecked, requestErrorPath, requestErrors, requestErrorsIndexChecked } from "./request-errors.ts";
 import { BADGES_PATH } from "./badges.ts";
 import { modelsInMonth, questionPath, shutdownMonths, topRetiringModels } from "./growth.ts";
 import { migrateHub, modelsHub, providersHub, replaceHub } from "./hubs.ts";
@@ -40,8 +40,8 @@ function build(): Map<string, string> {
   }
   const newestModel = newestDate(all.map((model) => model.updated_at));
   map.set("/alternatives/", COMPARISON_CHECKED);
-  map.set(REQUEST_ERRORS_INDEX, REQUEST_ERRORS_CHECKED);
-  for (const page of requestErrors) map.set(requestErrorPath(page.slug), REQUEST_ERRORS_CHECKED);
+  map.set(REQUEST_ERRORS_INDEX, requestErrorsIndexChecked());
+  for (const page of requestErrors) map.set(requestErrorPath(page.slug), requestErrorChecked(page));
   map.set(GUIDES_INDEX, GUIDES_CHECKED);
   for (const guide of guides) map.set(guidePath(guide.slug), GUIDES_CHECKED);
   for (const comparison of comparisons) map.set(comparisonPath(comparison.slug), COMPARISON_CHECKED);

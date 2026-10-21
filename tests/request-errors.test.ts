@@ -6,7 +6,7 @@ import { lastmodForUrl } from "../src/lib/lastmod.ts";
 import { requestErrorGraph } from "../src/jsonld.ts";
 import { existsSync } from "node:fs";
 import nodePath from "node:path";
-import { REQUEST_ERRORS_CHECKED, REQUEST_ERRORS_INDEX, requestErrorPath, requestErrors } from "../src/lib/request-errors.ts";
+import { REQUEST_ERRORS_CHECKED, REQUEST_ERRORS_INDEX, requestErrorChecked, requestErrorPath, requestErrors, requestErrorsIndexChecked } from "../src/lib/request-errors.ts";
 
 const sonnetFile = "data/migrations/anthropic__claude-sonnet-4-5-20250929__to__anthropic__claude-sonnet-5-5.json";
 const lunaFiles = [
@@ -79,12 +79,12 @@ describe("request error pages", () => {
     expect(requestErrors.length).toBeLessThanOrEqual(12);
     expect(text).toContain(REQUEST_ERRORS_INDEX);
     expect(full).toContain(REQUEST_ERRORS_INDEX);
-    expect(lastmodForUrl(`https://sunsetdiff.com${REQUEST_ERRORS_INDEX}`)).toBe(REQUEST_ERRORS_CHECKED);
+    expect(lastmodForUrl(`https://sunsetdiff.com${REQUEST_ERRORS_INDEX}`)).toBe(requestErrorsIndexChecked());
     for (const page of requestErrors) {
       const path = requestErrorPath(page.slug);
       expect(text).toContain(path);
       expect(full).toContain(path);
-      expect(lastmodForUrl(`https://sunsetdiff.com${path}`)).toBe(REQUEST_ERRORS_CHECKED);
+      expect(lastmodForUrl(`https://sunsetdiff.com${path}`)).toBe(requestErrorChecked(page));
       const graph = requestErrorGraph("https://sunsetdiff.com/", page);
       expect(graph.map((node) => node["@type"])).toEqual(["TechArticle", "FAQPage"]);
       const encoded = JSON.parse(JSON.stringify(graph)) as { headline?: string; description?: string }[];

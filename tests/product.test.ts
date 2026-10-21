@@ -16,7 +16,15 @@ describe("migrations and json-ld", () => {
   it("has at least 20 migration files with code snippets", async () => {
     const files = (await readdir("data/migrations")).filter((file) => file.endsWith(".json"));
     expect(files.length).toBeGreaterThanOrEqual(20);
-    const sample = JSON.parse(await readFile(path.join("data/migrations", files[0]), "utf8"));
+    const sample = JSON.parse(
+      await readFile(
+        path.join(
+          "data/migrations",
+          files.find((file) => file.startsWith("anthropic__")) ?? files[0],
+        ),
+        "utf8",
+      ),
+    );
     expect(sample.code_change.snippets.python.before).toContain("model");
     expect(sample.code_change.snippets.curl.after.length).toBeGreaterThan(10);
   });

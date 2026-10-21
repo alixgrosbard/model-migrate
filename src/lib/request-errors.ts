@@ -46,7 +46,7 @@ export const requestErrorHubFaqs: FaqItem[] = [
   {
     question: "Which shutdowns do these pages cover?",
     answer:
-      "The OpenAI page is for the October 23, 2026 batch. The Gemini API page is for the October 22, 2026 batch. The Claude pages are for claude-sonnet-5-5, which rejects request settings older Sonnet models accepted.",
+      "The OpenAI page is for the October 23, 2026 batch. The Gemini API pages cover the October 22, 2026 batch and the thinking budget 400 recorded for gemini-4-argon on Vertex. The Claude pages are for claude-sonnet-5-5, which rejects request settings older Sonnet models accepted.",
   },
 ];
 
@@ -105,6 +105,8 @@ export interface RequestErrorPage {
   shutdowns?: ErrorShutdownLink[];
   faqs: FaqItem[];
   citations: string[];
+  /** Day this page's sources were read, when it is not REQUEST_ERRORS_CHECKED. */
+  checked?: string;
 }
 
 export const requestErrors: RequestErrorPage[] = [
@@ -439,6 +441,17 @@ const result = await generateText({
 
 export function requestErrorPath(slug: string): string {
   return `/errors/${slug}/`;
+}
+
+export function requestErrorChecked(page: { checked?: string }): string {
+  return page.checked ?? REQUEST_ERRORS_CHECKED;
+}
+
+export function requestErrorsIndexChecked(): string {
+  return requestErrors.reduce((newest, page) => {
+    const day = requestErrorChecked(page);
+    return day > newest ? day : newest;
+  }, REQUEST_ERRORS_CHECKED);
 }
 
 export function requestErrorBySlug(slug: string | undefined): RequestErrorPage | undefined {

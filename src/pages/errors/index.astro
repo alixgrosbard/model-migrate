@@ -33,7 +33,8 @@ const items = requestErrorProviders.flatMap((provider) =>
   <p class="answer">
     These are the failures that show up after a model id change, or after a model id stops being accessible.
     Each row has the error text, the model change that causes it, and a link to the fix.
-    Sources were checked {checked}.
+    Sources on the earlier pages were checked {checked} ({REQUEST_ERRORS_CHECKED}).
+    The thinking budget page was checked October 21, 2026.
     What the provider says happens on the shutdown date is in <a href="/guides/what-happens-on-model-shutdown-day/">What happens on shutdown day</a>.
   </p>
   {requestErrorProviders.map((provider) => {

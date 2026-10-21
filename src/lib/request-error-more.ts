@@ -1102,4 +1102,115 @@ const { text } = await generateText({
     ],
     citations: [OPENAI_CHAT, ISSUE_MAX_TOKENS, LITELLM_INPUT, AI_SDK_GENERATE, AI_SDK_OPENAI],
   },
+  {
+    slug: "gemini-thinking-budget-not-supported-use-thinking-level",
+    provider: "google-gemini-api",
+    checked: "2026-10-21",
+    cause: "thinkingBudget sent to gemini-4-argon on Vertex.",
+    title: "Thinking budget is not supported for this model | SunsetDiff",
+    description:
+      "Vertex returns HTTP 400 when gemini-4-argon is sent thinkingBudget. Send thinkingLevel instead. Source: a public GitHub issue.",
+    h1: "Thinking budget is not supported for this model",
+    lead: "A Vertex request that sends thinkingBudget for gemini-4-argon comes back as HTTP 400. The recorded fix is thinkingLevel.",
+    errorQuoted: true,
+    errorText: "Thinking budget is not supported for this model. Use thinking level instead.",
+    quoteSourceLabel: "GitHub issue gravitee-io/issues#11964",
+    quoteSourceUrl: "https://github.com/gravitee-io/issues/issues/11964",
+    rule: "GitHub issue gravitee-io/issues#11964 records HTTP 400 from Vertex for gemini-4-argon when reasoning_effort is mapped to thinkingBudget, and when thinkingBudget is sent directly. The JSON message is the sentence above, then: See https://ai.google.dev/gemini-api/docs/thinking for details. A direct Vertex call with generationConfig.thinkingConfig.thinkingLevel set to LOW returned 200. The same issue says Google's own OpenAI-compatible endpoint accepted reasoning_effort for that model. Models that accepted reasoning_effort through that gateway were gemini-3.5-flash, gemini-3.6-flash, gemini-3.5-flash-lite, and gemini-3.8-flash. Issue can1357/oh-my-pi#16350 records the shorter sentence Google API error (400): Thinking budget is not supported for this model. for gemma-4-26b-a4b-it and gemma-4-31b-it. The maintainer comment says the catalog sent thinkingBudget, and that Gemma 4 docs describe thinking as on or off via thinkingLevel (high on, minimal off). Those two gemma ids are not in the SunsetDiff dataset, so they are not linked below. The thinking guide says you can control this behavior using the thinking_level parameter. Its sample uses gemini-3.8-flash. The guide's table lists low, medium, and high for gemini-4-argon. This page does not rewrite that sample's model id.",
+    ruleSourceLabel: "Gemini API thinking guide",
+    ruleSourceUrl: "https://ai.google.dev/gemini-api/docs/thinking",
+    modelsCaption:
+      "gemini-4-argon is in the SunsetDiff dataset. gemma-4-26b-a4b-it and gemma-4-31b-it are named in can1357/oh-my-pi#16350 and are not linked because SunsetDiff has no model record for them.",
+    models: [
+      {
+        id: "gemini-4-argon",
+        provider: "google-vertex",
+        slug: "gemini-4-argon",
+        note: "Issue gravitee-io/issues#11964 records HTTP 400 on Vertex when thinkingBudget is sent, including when a gateway maps reasoning_effort to thinkingBudget. thinkingLevel LOW returned 200 on a direct Vertex call.",
+      },
+    ],
+    fixes: [
+      {
+        heading: "Raw SDK",
+        text: [
+          "Send thinking_level instead of thinkingBudget. The sample below is copied from the thinking guide. It uses gemini-3.8-flash. The Vertex issue recorded thinkingConfig.thinkingLevel LOW returning 200 on gemini-4-argon. This page does not change the guide's model id.",
+        ],
+        samples: [
+          {
+            caption: "Python",
+            code: `from google import genai
+
+client = genai.Client()
+
+interaction = client.interactions.create(
+    model="gemini-3.8-flash",
+    input="Provide a list of 3 famous physicists and their key contributions",
+    generation_config={
+        "thinking_level": "low"
+    }
+)
+print(interaction.output_text)
+`,
+          },
+          {
+            caption: "curl",
+            code: `curl -X POST "https://generativelanguage.googleapis.com/v1beta/interactions" \\
+  -H "x-goog-api-key: $GEMINI_API_KEY" \\
+  -H 'Content-Type: application/json' \\
+  -d '{
+    "model": "gemini-3.8-flash",
+    "input": "Provide a list of 3 famous physicists and their key contributions",
+    "generation_config": {
+      "thinking_level": "low"
+    }
+  }'
+`,
+          },
+        ],
+        sourceLabel: "Gemini API thinking guide",
+        sourceUrl: "https://ai.google.dev/gemini-api/docs/thinking",
+      },
+      {
+        heading: "LiteLLM",
+        text: [
+          "This page does not show a LiteLLM call. The recorded gateway is Gravitee's LLM proxy, which mapped reasoning_effort to thinkingBudget and received this 400. The issue says to send thinkingLevel instead.",
+        ],
+        samples: [],
+        sourceLabel: "GitHub issue gravitee-io/issues#11964",
+        sourceUrl: "https://github.com/gravitee-io/issues/issues/11964",
+      },
+      {
+        heading: "Vercel AI SDK",
+        text: [
+          "The same issue says a native Gemini client (@ai-sdk/google 4.0.96) sent generationConfig.thinkingConfig.thinkingLevel, and the gateway rewrote it to thinkingBudget, which returned 400. Direct to Vertex, the same thinkingLevel body returned 200. This page does not add an AI SDK snippet beyond that report.",
+        ],
+        samples: [],
+        sourceLabel: "GitHub issue gravitee-io/issues#11964",
+        sourceUrl: "https://github.com/gravitee-io/issues/issues/11964",
+      },
+    ],
+    guides: [],
+    faqs: [
+      {
+        question: "Which models are named with this 400?",
+        answer:
+          "gravitee-io/issues#11964 records it for gemini-4-argon on Vertex. can1357/oh-my-pi#16350 records a shorter form of the sentence for gemma-4-26b-a4b-it and gemma-4-31b-it. Those gemma ids are not in the SunsetDiff dataset.",
+      },
+      {
+        question: "What should the request send instead of thinkingBudget?",
+        answer:
+          "thinkingLevel. The thinking guide calls the parameter thinking_level and links from the error message. The guide's sample is shown under Raw SDK and uses gemini-3.8-flash.",
+      },
+      {
+        question: "Do OpenAI-compatible gateways hit this error?",
+        answer:
+          "The Gravitee issue records a gateway that maps reasoning_effort to thinkingBudget. That mapping returned this 400 for gemini-4-argon. Google's own OpenAI-compatible endpoint accepted reasoning_effort for that model in the same report.",
+      },
+    ],
+    citations: [
+      "https://github.com/gravitee-io/issues/issues/11964",
+      "https://github.com/can1357/oh-my-pi/issues/16350",
+      "https://ai.google.dev/gemini-api/docs/thinking",
+    ],
+  },
 ];

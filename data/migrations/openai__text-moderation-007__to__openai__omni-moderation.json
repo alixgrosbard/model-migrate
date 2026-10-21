@@ -31,20 +31,20 @@
   "api_changes": [],
   "code_change": {
     "language": "python",
-    "before": "from openai import OpenAI\nclient = OpenAI()\nresponse = client.chat.completions.create(\n    model=\"text-moderation-007\",\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n)\n",
-    "after": "from openai import OpenAI\nclient = OpenAI()\nresponse = client.chat.completions.create(\n    model=\"omni-moderation\",\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n)\n",
+    "before": "from openai import OpenAI\nclient = OpenAI()\nresponse = client.moderations.create(\n    model=\"text-moderation-007\",\n    input=\"...text to classify goes here...\",\n)\n",
+    "after": "from openai import OpenAI\nclient = OpenAI()\nresponse = client.moderations.create(\n    model=\"omni-moderation\",\n    input=\"...text to classify goes here...\",\n)\n",
     "snippets": {
       "python": {
-        "before": "from openai import OpenAI\nclient = OpenAI()\nresponse = client.chat.completions.create(\n    model=\"text-moderation-007\",\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n)\n",
-        "after": "from openai import OpenAI\nclient = OpenAI()\nresponse = client.chat.completions.create(\n    model=\"omni-moderation\",\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n)\n"
+        "before": "from openai import OpenAI\nclient = OpenAI()\nresponse = client.moderations.create(\n    model=\"text-moderation-007\",\n    input=\"...text to classify goes here...\",\n)\n",
+        "after": "from openai import OpenAI\nclient = OpenAI()\nresponse = client.moderations.create(\n    model=\"omni-moderation\",\n    input=\"...text to classify goes here...\",\n)\n"
       },
       "typescript": {
-        "before": "import OpenAI from \"openai\";\nconst client = new OpenAI();\nconst response = await client.chat.completions.create({\n  model: \"text-moderation-007\",\n  messages: [{ role: \"user\", content: \"Hello\" }],\n});\n",
-        "after": "import OpenAI from \"openai\";\nconst client = new OpenAI();\nconst response = await client.chat.completions.create({\n  model: \"omni-moderation\",\n  messages: [{ role: \"user\", content: \"Hello\" }],\n});\n"
+        "before": "import OpenAI from \"openai\";\nconst openai = new OpenAI();\nconst moderation = await openai.moderations.create({\n  model: \"text-moderation-007\",\n  input: \"...text to classify goes here...\",\n});\n",
+        "after": "import OpenAI from \"openai\";\nconst openai = new OpenAI();\nconst moderation = await openai.moderations.create({\n  model: \"omni-moderation\",\n  input: \"...text to classify goes here...\",\n});\n"
       },
       "curl": {
-        "before": "curl https://api.openai.com/v1/chat/completions \\\n  -H \"Authorization: Bearer $OPENAI_API_KEY\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"model\":\"text-moderation-007\",\"messages\":[{\"role\":\"user\",\"content\":\"Hello\"}]}'\n",
-        "after": "curl https://api.openai.com/v1/chat/completions \\\n  -H \"Authorization: Bearer $OPENAI_API_KEY\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"model\":\"omni-moderation\",\"messages\":[{\"role\":\"user\",\"content\":\"Hello\"}]}'\n"
+        "before": "curl https://api.openai.com/v1/moderations \\\n  -X POST \\\n  -H \"Content-Type: application/json\" \\\n  -H \"Authorization: Bearer $OPENAI_API_KEY\" \\\n  -d '{\"model\":\"text-moderation-007\",\"input\":\"...text to classify goes here...\"}'\n",
+        "after": "curl https://api.openai.com/v1/moderations \\\n  -X POST \\\n  -H \"Content-Type: application/json\" \\\n  -H \"Authorization: Bearer $OPENAI_API_KEY\" \\\n  -d '{\"model\":\"omni-moderation\",\"input\":\"...text to classify goes here...\"}'\n"
       }
     }
   },
@@ -55,7 +55,7 @@
     "Ship the change before the published shutdown date."
   ],
   "confidence": "partial",
-  "last_checked": "2026-10-20",
+  "last_checked": "2026-10-21",
   "sources": [
     {
       "url": "https://developers.openai.com/api/docs/deprecations",

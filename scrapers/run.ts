@@ -15,7 +15,7 @@ import { DEPRECATIONS_URL as GEMINI_URL, parseGemini, parseGeminiPricing, PRICIN
 import { DEPRECATIONS_URL as VERTEX_URL, parseVertex } from "./google-vertex.ts";
 import { MODELS_URL as MISTRAL_URL, parseMistral, PRICING_URL as MISTRAL_PRICING } from "./mistral.ts";
 import { DEPRECATIONS_URL as OPENAI_URL, parseOpenAI, parseOpenAIPricing, PRICING_URL as OPENAI_PRICING } from "./openai.ts";
-import { buildMigration, migrationKey } from "./migrations.ts";
+import { buildMigration, migrationKey, officialMigrationTargets } from "./migrations.ts";
 import { sanityCheck } from "./sanity.ts";
 import { enrichSpecs } from "./enrich.ts";
 
@@ -309,13 +309,14 @@ async function writeMigrations(models: ModelRecord[], checkedOn: string) {
   const byKey = new Map(models.map((model) => [`${model.provider}:${model.id}`, model]));
   let count = 0;
   for (const model of models) {
-    const official = model.replacements.find((item) => item.kind === "official");
-    if (!official || !model.shutdown_date) continue;
-    const target = byKey.get(`${official.provider}:${official.model_id}`);
-    if (!target) continue;
-    const migration = buildMigration(model, target, checkedOn);
-    await writeFile(path.join(dir, `${migrationKey(model, target)}.json`), JSON.stringify(migration, null, 2) + "\n");
-    count++;
+    if (!model.shutdown_date) continue;
+    for (const official of officialMigrationTargets(model)) {
+      const target = byKey.get(`${official.provider}:${official.model_id}`);
+      if (!target) continue;
+      const migration = buildMigration(model, target, checkedOn);
+      await writeFile(path.join(dir, `${migrationKey(model, target)}.json`), JSON.stringify(migration, null, 2) + "\n");
+      count++;
+    }
   }
   console.log(`Migrations: ${count}`);
 }

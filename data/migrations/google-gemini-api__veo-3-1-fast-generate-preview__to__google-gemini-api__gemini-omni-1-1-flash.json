@@ -28,23 +28,29 @@
     "change_pct": null
   },
   "capability_changes": [],
-  "api_changes": [],
+  "api_changes": [
+    {
+      "kind": "endpoint_change",
+      "detail": "The Veo guide's samples call client.models.generate_videos and POST https://generativelanguage.googleapis.com/v1beta/models/{id}:predictLongRunning with a Veo model id. The same page says to migrate to gemini-omni-1.1-flash and says this feature is currently only available with the generateContent API. No generate_videos sample for gemini-omni-1.1-flash was found on that page, so this page does not show a model-id swap.",
+      "source_url": "https://ai.google.dev/gemini-api/docs/veo"
+    }
+  ],
   "code_change": {
     "language": "python",
-    "before": "from google import genai\nclient = genai.Client()\nresponse = client.models.generate_content(\n    model=\"veo-3.1-fast-generate-preview\",\n    contents=\"Hello\",\n)\n",
-    "after": "from google import genai\nclient = genai.Client()\nresponse = client.models.generate_content(\n    model=\"gemini-omni-1.1-flash\",\n    contents=\"Hello\",\n)\n",
+    "before": "",
+    "after": "",
     "snippets": {
       "python": {
-        "before": "from google import genai\nclient = genai.Client()\nresponse = client.models.generate_content(\n    model=\"veo-3.1-fast-generate-preview\",\n    contents=\"Hello\",\n)\n",
-        "after": "from google import genai\nclient = genai.Client()\nresponse = client.models.generate_content(\n    model=\"gemini-omni-1.1-flash\",\n    contents=\"Hello\",\n)\n"
+        "before": "",
+        "after": ""
       },
       "typescript": {
-        "before": "import { GoogleGenAI } from \"@google/genai\";\nconst ai = new GoogleGenAI({});\nconst response = await ai.models.generateContent({\n  model: \"veo-3.1-fast-generate-preview\",\n  contents: \"Hello\",\n});\n",
-        "after": "import { GoogleGenAI } from \"@google/genai\";\nconst ai = new GoogleGenAI({});\nconst response = await ai.models.generateContent({\n  model: \"gemini-omni-1.1-flash\",\n  contents: \"Hello\",\n});\n"
+        "before": "",
+        "after": ""
       },
       "curl": {
-        "before": "curl \"https://generativelanguage.googleapis.com/v1beta/models/veo-3.1-fast-generate-preview:generateContent\" \\\n  -H \"x-goog-api-key: $GEMINI_API_KEY\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"contents\":[{\"parts\":[{\"text\":\"Hello\"}]}]}'\n",
-        "after": "curl \"https://generativelanguage.googleapis.com/v1beta/models/gemini-omni-1.1-flash:generateContent\" \\\n  -H \"x-goog-api-key: $GEMINI_API_KEY\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"contents\":[{\"parts\":[{\"text\":\"Hello\"}]}]}'\n"
+        "before": "",
+        "after": ""
       }
     }
   },
@@ -55,7 +61,7 @@
     "Ship the change before the published shutdown date."
   ],
   "confidence": "partial",
-  "last_checked": "2026-10-20",
+  "last_checked": "2026-10-21",
   "sources": [
     {
       "url": "https://ai.google.dev/gemini-api/docs/deprecations",

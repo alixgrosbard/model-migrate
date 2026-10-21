@@ -1,6 +1,7 @@
 import { mkdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import type { ModelRecord } from "../schema.ts";
+import { GEMINI_25_ACCESS_CHECKED, GEMINI_25_ACCESS_SOURCE, gemini25Restricted } from "./access.ts";
 import type { FaqItem } from "./format.ts";
 
 export const BADGES_PATH = "/badges/";
@@ -21,7 +22,7 @@ export const badgeFaqs: FaqItem[] = [
   {
     question: "What do the badge colors mean?",
     answer:
-      "Red means the model is retired, or the published shutdown date is under 30 days away. A date that is already past is red too. Amber means the published shutdown date is under 90 days away. Green means a later date, or the model is active and no shutdown date is published. Gray means the date is only a not-sooner-than floor, or the status has no shutdown date.",
+      `Red means the model is retired, or the published shutdown date is under 30 days away. A date that is already past is red too. Amber means the published shutdown date is under 90 days away. Green means a later date, or the model is active and no shutdown date is published. For gemini-2.5-pro, gemini-2.5-flash, and gemini-2.5-flash-lite on the Gemini API, the green message says existing users only. Google's deprecations page limits those three ids to people who have used them before, and says they are not deprecated. Source: ${GEMINI_25_ACCESS_SOURCE}, checked ${GEMINI_25_ACCESS_CHECKED}. Gray means the date is only a not-sooner-than floor, or the status has no shutdown date.`,
   },
   {
     question: "Where does the badge date come from?",
@@ -97,6 +98,7 @@ export function badgeView(model: ModelRecord, day: string): BadgeView {
   if (model.shutdown_date && model.shutdown_date_kind === "not_before") {
     return paint(label, `not before ${model.shutdown_date}`, "gray");
   }
+  if (model.status === "active" && gemini25Restricted(model)) return paint(label, "existing users only", "green");
   if (model.status === "active") return paint(label, "active / no shutdown announced", "green");
   if (model.status === "legacy") return paint(label, "legacy / no shutdown announced", "gray");
   if (model.status === "deprecated") return paint(label, "deprecated / no shutdown announced", "gray");

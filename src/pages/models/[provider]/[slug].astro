@@ -5,6 +5,7 @@ import FaqList from "../../../components/FaqList.astro";
 import NewsletterForm from "../../../components/NewsletterForm.astro";
 import SponsorSlot from "../../../components/SponsorSlot.astro";
 import { loadChanges, loadMigrations, loadModels, loadProviders } from "../../../lib/load.ts";
+import { GEMINI_25_ACCESS_CHECKED, GEMINI_25_ACCESS_QUOTE, GEMINI_25_ACCESS_SOURCE, gemini25Restricted } from "../../../lib/access.ts";
 import { answerSentence, clipMeta, formatWhen, modelFaqs, modelTitle, money, relatedModels, tokens } from "../../../lib/format.ts";
 import { publicName } from "../../../lib/growth.ts";
 import { modelsHub } from "../../../lib/hubs.ts";
@@ -29,6 +30,7 @@ const changes = (await loadChanges()).filter((change) => change.provider === mod
 const description = clipMeta(answer);
 const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
 const relatedErrors = requestErrorsForModel(model.provider, model.id);
+const restrictedAccess = gemini25Restricted(model);
 const specRows: [string, string, string][] = [
   ["Input price / 1M", money(model.specs.input_price_per_mtok), "input_price_per_mtok"],
   ["Output price / 1M", money(model.specs.output_price_per_mtok), "output_price_per_mtok"],
@@ -54,7 +56,7 @@ const specRows: [string, string, string][] = [
 >
   <h1>When is {publicName(model)} shut down?</h1>
   <p class="answer">{answer}</p>
-  <p><span class="badge">{model.status}</span></p>
+  <p><span class="badge">{restrictedAccess ? "existing users only" : model.status}</span></p>
   <BadgeSnippet model={model} origin={site.replace(/\/+$/, "")} />
   <table>
     <caption>Dates</caption>
@@ -63,6 +65,19 @@ const specRows: [string, string, string][] = [
       <tr><th scope="row">Deprecated</th><td>{model.deprecation_date ?? "Not published"}</td></tr>
       <tr><th scope="row">Shutdown</th><td>{formatWhen(model)}</td></tr>
       <tr><th scope="row">Kind</th><td>{model.shutdown_date_kind}</td></tr>
+      {restrictedAccess ? (
+        <tr>
+          <th scope="row">Access</th>
+          <td>
+            <q>{GEMINI_25_ACCESS_QUOTE}</q>
+            {" "}<a href={GEMINI_25_ACCESS_SOURCE}>Source</a>, checked {GEMINI_25_ACCESS_CHECKED}.
+            {" "}The <a href="/errors/gemini-model-no-longer-available/">404 page</a> quotes a sentence recorded for gemini-2.0-flash.
+            {model.id === "gemini-2.5-flash" ? (
+              <> <a href="https://github.com/a2aproject/a2a-samples/issues/722">a2aproject/a2a-samples#722</a> reports that gemini-2.5-flash also returns 404 for new users, and it does not quote that model's response body.</>
+            ) : null}
+          </td>
+        </tr>
+      ) : null}
       {model.region_or_platform_notes ? <tr><th scope="row">Region</th><td>{model.region_or_platform_notes}</td></tr> : null}
     </tbody>
   </table>

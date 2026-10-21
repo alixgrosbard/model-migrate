@@ -28,23 +28,29 @@
     "change_pct": null
   },
   "capability_changes": [],
-  "api_changes": [],
+  "api_changes": [
+    {
+      "kind": "endpoint_change",
+      "detail": "The Vertex model versions page lists imagetext with replacement gemini-2.5-flash-image. The stored excerpt is a table row (shutdown September 24, 2025) and does not include a request sample, so this page does not show a model-id swap.",
+      "source_url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/model-versions"
+    }
+  ],
   "code_change": {
     "language": "python",
-    "before": "from google import genai\nclient = genai.Client()\nresponse = client.models.generate_content(\n    model=\"imagetext\",\n    contents=\"Hello\",\n)\n",
-    "after": "from google import genai\nclient = genai.Client()\nresponse = client.models.generate_content(\n    model=\"gemini-2.5-flash-image\",\n    contents=\"Hello\",\n)\n",
+    "before": "",
+    "after": "",
     "snippets": {
       "python": {
-        "before": "from google import genai\nclient = genai.Client()\nresponse = client.models.generate_content(\n    model=\"imagetext\",\n    contents=\"Hello\",\n)\n",
-        "after": "from google import genai\nclient = genai.Client()\nresponse = client.models.generate_content(\n    model=\"gemini-2.5-flash-image\",\n    contents=\"Hello\",\n)\n"
+        "before": "",
+        "after": ""
       },
       "typescript": {
-        "before": "import { GoogleGenAI } from \"@google/genai\";\nconst ai = new GoogleGenAI({});\nconst response = await ai.models.generateContent({\n  model: \"imagetext\",\n  contents: \"Hello\",\n});\n",
-        "after": "import { GoogleGenAI } from \"@google/genai\";\nconst ai = new GoogleGenAI({});\nconst response = await ai.models.generateContent({\n  model: \"gemini-2.5-flash-image\",\n  contents: \"Hello\",\n});\n"
+        "before": "",
+        "after": ""
       },
       "curl": {
-        "before": "curl \"https://generativelanguage.googleapis.com/v1beta/models/imagetext:generateContent\" \\\n  -H \"x-goog-api-key: $GEMINI_API_KEY\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"contents\":[{\"parts\":[{\"text\":\"Hello\"}]}]}'\n",
-        "after": "curl \"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent\" \\\n  -H \"x-goog-api-key: $GEMINI_API_KEY\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"contents\":[{\"parts\":[{\"text\":\"Hello\"}]}]}'\n"
+        "before": "",
+        "after": ""
       }
     }
   },
@@ -55,7 +61,7 @@
     "Ship the change before the published shutdown date."
   ],
   "confidence": "partial",
-  "last_checked": "2026-10-20",
+  "last_checked": "2026-10-21",
   "sources": [
     {
       "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/model-versions",

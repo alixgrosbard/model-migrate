@@ -6,7 +6,7 @@ import { excerpt } from "./lib/html.ts";
 import { politeFetch } from "./lib/fetch.ts";
 import { todayISO, nowISO } from "./lib/dates.ts";
 import { parseGeminiPricing, PRICING_URL as GEMINI_PRICING } from "./google-gemini-api.ts";
-import { buildMigration, migrationKey } from "./migrations.ts";
+import { buildMigration, migrationKey, officialMigrationTargets } from "./migrations.ts";
 import {
   normalizeName,
   parseAnthropicModelDoc,
@@ -347,13 +347,14 @@ async function writeMigrations(models: ModelRecord[], checkedOn: string) {
   const byKey = new Map(models.map((model) => [`${model.provider}:${model.id}`, model]));
   let count = 0;
   for (const model of models) {
-    const official = model.replacements.find((item) => item.kind === "official");
-    if (!official || !model.shutdown_date) continue;
-    const target = byKey.get(`${official.provider}:${official.model_id}`);
-    if (!target) continue;
-    const migration = buildMigration(model, target, checkedOn);
-    await writeFile(path.join(dir, `${migrationKey(model, target)}.json`), JSON.stringify(migration, null, 2) + "\n");
-    count += 1;
+    if (!model.shutdown_date) continue;
+    for (const official of officialMigrationTargets(model)) {
+      const target = byKey.get(`${official.provider}:${official.model_id}`);
+      if (!target) continue;
+      const migration = buildMigration(model, target, checkedOn);
+      await writeFile(path.join(dir, `${migrationKey(model, target)}.json`), JSON.stringify(migration, null, 2) + "\n");
+      count += 1;
+    }
   }
   console.log(`Migrations: ${count}`);
 }

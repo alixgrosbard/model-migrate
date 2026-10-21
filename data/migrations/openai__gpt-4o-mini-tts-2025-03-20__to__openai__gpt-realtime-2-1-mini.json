@@ -28,23 +28,34 @@
     "change_pct": null
   },
   "capability_changes": [],
-  "api_changes": [],
+  "api_changes": [
+    {
+      "kind": "endpoint_change",
+      "detail": "The October 1, 2026 text-to-speech entry says these models are removed on January 6, 2027. Migrate to gpt-realtime-2.1-mini. See the Realtime API guide to plan your migration.",
+      "source_url": "https://developers.openai.com/api/docs/deprecations"
+    },
+    {
+      "kind": "endpoint_change",
+      "detail": "The text-to-speech guide says this is a change of API workflow: gpt-realtime-2.1-mini is not a supported model for /v1/audio/speech. Existing integrations can use the Speech API (client.audio.speech.create, POST /v1/audio/speech) until shutdown. The Realtime API guide is https://developers.openai.com/api/docs/guides/realtime.",
+      "source_url": "https://developers.openai.com/api/docs/guides/text-to-speech"
+    }
+  ],
   "code_change": {
     "language": "python",
-    "before": "from openai import OpenAI\nclient = OpenAI()\nresponse = client.chat.completions.create(\n    model=\"gpt-4o-mini-tts-2025-03-20\",\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n)\n",
-    "after": "from openai import OpenAI\nclient = OpenAI()\nresponse = client.chat.completions.create(\n    model=\"gpt-realtime-2.1-mini\",\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n)\n",
+    "before": "",
+    "after": "",
     "snippets": {
       "python": {
-        "before": "from openai import OpenAI\nclient = OpenAI()\nresponse = client.chat.completions.create(\n    model=\"gpt-4o-mini-tts-2025-03-20\",\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n)\n",
-        "after": "from openai import OpenAI\nclient = OpenAI()\nresponse = client.chat.completions.create(\n    model=\"gpt-realtime-2.1-mini\",\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n)\n"
+        "before": "",
+        "after": ""
       },
       "typescript": {
-        "before": "import OpenAI from \"openai\";\nconst client = new OpenAI();\nconst response = await client.chat.completions.create({\n  model: \"gpt-4o-mini-tts-2025-03-20\",\n  messages: [{ role: \"user\", content: \"Hello\" }],\n});\n",
-        "after": "import OpenAI from \"openai\";\nconst client = new OpenAI();\nconst response = await client.chat.completions.create({\n  model: \"gpt-realtime-2.1-mini\",\n  messages: [{ role: \"user\", content: \"Hello\" }],\n});\n"
+        "before": "",
+        "after": ""
       },
       "curl": {
-        "before": "curl https://api.openai.com/v1/chat/completions \\\n  -H \"Authorization: Bearer $OPENAI_API_KEY\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"model\":\"gpt-4o-mini-tts-2025-03-20\",\"messages\":[{\"role\":\"user\",\"content\":\"Hello\"}]}'\n",
-        "after": "curl https://api.openai.com/v1/chat/completions \\\n  -H \"Authorization: Bearer $OPENAI_API_KEY\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"model\":\"gpt-realtime-2.1-mini\",\"messages\":[{\"role\":\"user\",\"content\":\"Hello\"}]}'\n"
+        "before": "",
+        "after": ""
       }
     }
   },
@@ -55,7 +66,7 @@
     "Ship the change before the published shutdown date."
   ],
   "confidence": "partial",
-  "last_checked": "2026-10-20",
+  "last_checked": "2026-10-21",
   "sources": [
     {
       "url": "https://developers.openai.com/api/docs/deprecations",

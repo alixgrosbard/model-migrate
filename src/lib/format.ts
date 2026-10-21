@@ -1,4 +1,5 @@
 import type { MigrationRecord, ModelRecord, Provider } from "../schema.ts";
+import { GEMINI_25_ACCESS_CHECKED, GEMINI_25_ACCESS_SOURCE, gemini25Restricted } from "./access.ts";
 
 export interface FaqItem {
   question: string;
@@ -44,7 +45,20 @@ export function shutdownSentence(model: ModelRecord, provider: Provider): string
   return `${labeled} ${when} per ${provider.name}'s deprecation page (checked ${checked}).`;
 }
 
+const TRANSCRIPTION_OR = new Set([
+  "whisper-1",
+  "gpt-4o-transcribe",
+  "gpt-4o-mini-transcribe",
+  "gpt-4o-transcribe-diarize",
+]);
+
 export function replacementSentence(model: ModelRecord): string {
+  if (model.provider === "openai" && TRANSCRIPTION_OR.has(model.id)) {
+    const ids = model.replacements.filter((item) => item.kind === "official").map((item) => item.model_id);
+    if (ids.includes("gpt-live-transcribe") && ids.includes("gpt-transcribe")) {
+      return "The official replacements are gpt-live-transcribe or gpt-transcribe.";
+    }
+  }
   const replacement = officialReplacement(model);
   return replacement
     ? `The official replacement is ${replacement.model_id}.`
@@ -86,7 +100,12 @@ export function modelFaqs(model: ModelRecord, provider: Provider, migration?: Mi
   return [
     { question: `When is ${visibleName(model)} shut down?`, answer: answerSentence(model, provider, migration) },
     { question: `What replaces ${visibleName(model)}?`, answer: replacementSentence(model) },
-    { question: `Is ${visibleName(model)} deprecated?`, answer: `${visibleName(model)} status is ${model.status}.` },
+    {
+      question: `Is ${visibleName(model)} deprecated?`,
+      answer: gemini25Restricted(model)
+        ? `${visibleName(model)} status is ${model.status}. Google's deprecations page says these models are not deprecated, and limits access to users who have actively used the 2.5 models in the past. Source: ${GEMINI_25_ACCESS_SOURCE}, checked ${GEMINI_25_ACCESS_CHECKED}.`
+        : `${visibleName(model)} status is ${model.status}.`,
+    },
   ];
 }
 
