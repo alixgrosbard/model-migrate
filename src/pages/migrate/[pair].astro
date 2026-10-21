@@ -7,6 +7,8 @@ import { clipMeta, replaceFaqs, replacementAnswer } from "../../lib/format.ts";
 import { migrateHub } from "../../lib/hubs.ts";
 import { migrateGraph } from "../../jsonld.ts";
 import { DEFAULT_SITE_URL } from "../../lib/site.ts";
+import BreakingRules from "../../components/BreakingRules.astro";
+import { breakingChangesForMigration } from "../../lib/breaking-changes.ts";
 import { requestErrorPath, requestErrorsForMigration } from "../../lib/request-errors.ts";
 
 export async function getStaticPaths() {
@@ -29,6 +31,7 @@ const faqs = replaceFaqs(from, provider, migration);
 const description = clipMeta(answer);
 const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
 const relatedErrors = requestErrorsForMigration(Astro.params.pair ?? "");
+const breakingRules = breakingChangesForMigration(Astro.params.pair ?? "");
 ---
 <Base
   title={`${from.display_name} to ${to.display_name}: price, context, and code | SunsetDiff`}
@@ -55,6 +58,7 @@ const relatedErrors = requestErrorsForMigration(Astro.params.pair ?? "");
       </ul>
     </>
   ) : null}
+  <BreakingRules rules={breakingRules} />
   <MigrationCard migration={migration} from={from} to={to} />
   <FaqList items={faqs} />
 </Base>

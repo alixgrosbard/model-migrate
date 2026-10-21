@@ -1,6 +1,7 @@
 ---
 import Base from "../../layouts/Base.astro";
 import { datasetGraph } from "../../jsonld.ts";
+import { breakingChangesDatasetGraph } from "../../lib/breaking-changes.ts";
 import { loadModels } from "../../lib/load.ts";
 import { DEFAULT_SITE_URL } from "../../lib/site.ts";
 const models = await loadModels();
@@ -11,7 +12,7 @@ const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
   title="SunsetDiff dataset (JSON and CSV, CC BY 4.0) | SunsetDiff"
   description="Download the SunsetDiff model retirement dataset as JSON or CSV under CC BY 4.0. Publisher: SunsetDiff."
   crumbs={[{ name: "Home", path: "/" }, { name: "Data", path: "/data/" }]}
-  extraGraph={datasetGraph(site, modified.slice(0, 10))}
+  extraGraph={[...datasetGraph(site, modified.slice(0, 10)), breakingChangesDatasetGraph(site)]}
 >
   <h1>SunsetDiff dataset</h1>
   <p>
@@ -21,8 +22,10 @@ const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
     <a href="/dataset/sunsetdiff.csv">{new URL("/dataset/sunsetdiff.csv", site).href}</a>,
     <a href="/data/models.json">{new URL("/data/models.json", site).href}</a>,
     <a href="/data/deprecations.csv">{new URL("/data/deprecations.csv", site).href}</a>,
+    <a href="/data/changelog.json">{new URL("/data/changelog.json", site).href}</a>,
+    <a href="/data/breaking-changes.json">{new URL("/data/breaking-changes.json", site).href}</a>,
     and
-    <a href="/data/changelog.json">{new URL("/data/changelog.json", site).href}</a>.
+    <a href="/data/breaking-changes.csv">{new URL("/data/breaking-changes.csv", site).href}</a>.
     Publisher: SunsetDiff. Each date and spec cites the official page it came from, with a last_checked date. Blank fields were not published there.
     The same dataset is listed at <a href="https://huggingface.co/datasets/sunsetdiff/ai-model-deprecations">Hugging Face</a>.
   </p>
@@ -33,6 +36,9 @@ const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
     <li><a href="/data/models.json">models.json</a>: model records, CC BY 4.0</li>
     <li><a href="/data/deprecations.csv">deprecations.csv</a>: retiring and deprecated rows, CC BY 4.0</li>
     <li><a href="/data/changelog.json">changelog.json</a>: versioned change log, CC BY 4.0</li>
+    <li><a href="/data/breaking-changes.json">breaking-changes.json</a>: request settings a replacement rejects, CC BY 4.0</li>
+    <li><a href="/data/breaking-changes.csv">breaking-changes.csv</a>: the same rules as CSV, CC BY 4.0</li>
+    <li><a href="/breaking-changes/">Breaking changes</a>: the human page for that file</li>
     <li><a href="/api/v1/schema.json">JSON Schema</a></li>
     <li><a href="/llms.txt">llms.txt</a> and <a href="/llms-full.txt">llms-full.txt</a></li>
   </ul>

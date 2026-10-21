@@ -20,6 +20,8 @@ export default defineConfig({
         `${site}/data/models.json`,
         `${site}/data/deprecations.csv`,
         `${site}/data/changelog.json`,
+        `${site}/data/breaking-changes.json`,
+        `${site}/data/breaking-changes.csv`,
       ],
       serialize(item) {
         const lastmod = lastmodForUrl(item.url);

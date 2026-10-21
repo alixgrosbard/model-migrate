@@ -1,0 +1,100 @@
+---
+import Base from "../../layouts/Base.astro";
+import FaqList from "../../components/FaqList.astro";
+import { breakingChangesIndexGraph } from "../../jsonld.ts";
+import {
+  BREAKING_CHANGE_PROVIDERS,
+  BREAKING_CHANGES_CSV,
+  BREAKING_CHANGES_JSON,
+  BREAKING_CHANGES_LICENSE,
+  BREAKING_CHANGES_PATH,
+  breakingChangeHubFaqs,
+  breakingChanges,
+  breakingChangesChecked,
+  breakingChangesForProvider,
+  rejectingModels,
+} from "../../lib/breaking-changes.ts";
+import { DEFAULT_SITE_URL } from "../../lib/site.ts";
+
+const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
+const checked = breakingChangesChecked();
+const checkedLabel = new Date(`${checked}T00:00:00Z`).toLocaleDateString("en-US", {
+  month: "long",
+  day: "numeric",
+  year: "numeric",
+  timeZone: "UTC",
+});
+const items = breakingChanges.map((rule) => ({ name: rule.old_setting, path: `${BREAKING_CHANGES_PATH}#${rule.id}` }));
+---
+<Base
+  title="Request breaking changes when you switch AI models | SunsetDiff"
+  description="Sourced rules for request settings and endpoints a replacement model rejects. Grouped by provider, with JSON and CSV."
+  crumbs={[{ name: "Home", path: "/" }, { name: "Breaking changes", path: BREAKING_CHANGES_PATH }]}
+  extraGraph={breakingChangesIndexGraph(site, items, breakingChangeHubFaqs)}
+>
+  <h1>Request breaking changes</h1>
+  <p class="answer">
+    These are the old request settings and endpoints that fail after you change the model id.
+    Each row names the models, what the source says happens, the fix, and the page it came from.
+    {breakingChanges.length} rules. The newest check date is {checkedLabel} ({checked}).
+    Machine-readable copies: <a href={BREAKING_CHANGES_JSON}>breaking-changes.json</a> and <a href={BREAKING_CHANGES_CSV}>breaking-changes.csv</a>.
+    License <a href={BREAKING_CHANGES_LICENSE}>CC BY 4.0</a>. Publisher: SunsetDiff.
+    Retired model ids are on <a href="/errors/">Request errors</a>.
+  </p>
+  {BREAKING_CHANGE_PROVIDERS.map((provider) => {
+    const rules = breakingChangesForProvider(provider.id);
+    if (!rules.length) return null;
+    return (
+      <section>
+        <h2>{provider.name}</h2>
+        <table>
+          <caption>{rules.length} {provider.name} {rules.length === 1 ? "rule" : "rules"}.</caption>
+          <thead>
+            <tr>
+              <th>Old setting</th>
+              <th>Affected models</th>
+              <th>What happens</th>
+              <th>Fix</th>
+              <th>Source</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rules.map((rule) => (
+              <tr id={rule.id}>
+                <td>{rule.old_setting}</td>
+                <td>
+                  {rule.model_family ? <p>{rule.model_family}</p> : null}
+                  <ul>
+                    {rejectingModels(rule).map((model) => (
+                      <li><a href={`/models/${model.provider}/${model.slug}/`}><code>{model.id}</code></a></li>
+                    ))}
+                  </ul>
+                </td>
+                <td>
+                  {rule.error_text ? <pre><code>{rule.error_text}</code></pre> : null}
+                  <p>{rule.what_happens}</p>
+                </td>
+                <td>{rule.fix}</td>
+                <td>
+                  <a href={rule.source_url}>{rule.source_label}</a>, checked {rule.checked}.
+                  {rule.quote_source_url && rule.quote_source_label ? (
+                    <p>Error sentence: <a href={rule.quote_source_url}>{rule.quote_source_label}</a>.</p>
+                  ) : null}
+                  {rule.error_page ? <p><a href={rule.error_page}>Error page</a></p> : null}
+                  {rule.migrations.length ? (
+                    <ul>
+                      {rule.migrations.map((migration) => (
+                        <li><a href={migration.href}>{migration.label}</a></li>
+                      ))}
+                    </ul>
+                  ) : null}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+    );
+  })}
+  <FaqList items={breakingChangeHubFaqs} />
+</Base>

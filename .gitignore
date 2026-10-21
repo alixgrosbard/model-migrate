@@ -14,6 +14,8 @@ public/feed.xml
 public/data/models.json
 public/data/deprecations.csv
 public/data/changelog.json
+public/data/breaking-changes.json
+public/data/breaking-changes.csv
 public/search-index.json
 public/og/
 public/badge/

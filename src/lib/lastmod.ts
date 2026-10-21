@@ -4,6 +4,7 @@ import type { ModelRecord } from "../schema.ts";
 import { today } from "./format.ts";
 import { COMPARISON_CHECKED, comparisonPath, comparisons } from "./comparisons.ts";
 import { GUIDES_CHECKED, GUIDES_INDEX, guidePath, guides } from "./guides.ts";
+import { BREAKING_CHANGES_CSV, BREAKING_CHANGES_JSON, BREAKING_CHANGES_PATH, breakingChangesChecked } from "./breaking-changes.ts";
 import { REQUEST_ERRORS_INDEX, requestErrorChecked, requestErrorPath, requestErrors, requestErrorsIndexChecked } from "./request-errors.ts";
 import { BADGES_PATH } from "./badges.ts";
 import { modelsInMonth, questionPath, shutdownMonths, topRetiringModels } from "./growth.ts";
@@ -40,6 +41,9 @@ function build(): Map<string, string> {
   }
   const newestModel = newestDate(all.map((model) => model.updated_at));
   map.set("/alternatives/", COMPARISON_CHECKED);
+  map.set(BREAKING_CHANGES_PATH, breakingChangesChecked());
+  map.set(BREAKING_CHANGES_JSON, breakingChangesChecked());
+  map.set(BREAKING_CHANGES_CSV, breakingChangesChecked());
   map.set(REQUEST_ERRORS_INDEX, requestErrorsIndexChecked());
   for (const page of requestErrors) map.set(requestErrorPath(page.slug), requestErrorChecked(page));
   map.set(GUIDES_INDEX, GUIDES_CHECKED);

@@ -3,6 +3,13 @@ import { BADGES_DESCRIPTION, BADGES_NAV, BADGES_PATH } from "./badges.ts";
 import { publicName } from "./growth.ts";
 import { GUIDES_INDEX, guidePath, guides } from "./guides.ts";
 import { HUBS } from "./hubs.ts";
+import {
+  BREAKING_CHANGES_CSV,
+  BREAKING_CHANGES_JSON,
+  BREAKING_CHANGES_PATH,
+  breakingChanges,
+  breakingChangesChecked,
+} from "./breaking-changes.ts";
 import { REQUEST_ERRORS_CHECKED, REQUEST_ERRORS_INDEX, requestErrorPath, requestErrors } from "./request-errors.ts";
 
 export function llmsTxt(
@@ -43,6 +50,7 @@ export function llmsTxt(
 - [Deadlines](${origin}/deadlines/)
 - [Shutdown batches](${origin}/shutdowns/)
 - [Request errors](${origin}${REQUEST_ERRORS_INDEX})
+- [Breaking changes](${origin}${BREAKING_CHANGES_PATH})
 - [Deadline calendar](${origin}/deadlines.ics)
 - [New deprecations](${origin}/feed.xml)
 - [Code scan](${origin}/scan/)
@@ -60,6 +68,12 @@ export function llmsTxt(
 [All request errors](${origin}${REQUEST_ERRORS_INDEX}). Each page names the failure, the model change, and the source. Check dates are on the pages (${REQUEST_ERRORS_CHECKED}, and 2026-10-21 for the thinking budget page). A code block is a quoted error only when the linked source prints that sentence.
 ${requestErrors.map((page) => `- [${page.h1}](${origin}${requestErrorPath(page.slug)})`).join("\n")}
 
+## Request breaking changes
+[All breaking changes](${origin}${BREAKING_CHANGES_PATH}). One rule per row: the old setting, the models, what the source says happens, the fix, and the source URL. error_text is quoted only when that page prints the sentence. Newest check date: ${breakingChangesChecked()}. License CC BY 4.0.
+- [breaking-changes.json](${origin}${BREAKING_CHANGES_JSON})
+- [breaking-changes.csv](${origin}${BREAKING_CHANGES_CSV})
+${breakingChanges.map((rule) => `- [${rule.old_setting}](${origin}${BREAKING_CHANGES_PATH}#${rule.id}) (${rule.provider})`).join("\n")}
+
 ## Dataset
 The dataset is CC BY 4.0. Publisher: SunsetDiff. Blank spec fields were not on the official pages.
 - [Data page](${origin}/data/)
@@ -68,6 +82,8 @@ The dataset is CC BY 4.0. Publisher: SunsetDiff. Blank spec fields were not on t
 - [models.json](${origin}/data/models.json)
 - [deprecations.csv](${origin}/data/deprecations.csv)
 - [changelog.json](${origin}/data/changelog.json)
+- [breaking-changes.json](${origin}${BREAKING_CHANGES_JSON})
+- [breaking-changes.csv](${origin}${BREAKING_CHANGES_CSV})
 
 ## Shutdown batches
 One page per provider and exact shutdown date when at least three models share that date.
@@ -141,6 +157,10 @@ export function llmsFull(site: string, models: ModelRecord[]): string {
     `models.json: ${origin}/data/models.json`,
     `deprecations.csv: ${origin}/data/deprecations.csv`,
     `changelog.json: ${origin}/data/changelog.json`,
+    `breaking-changes.json: ${origin}${BREAKING_CHANGES_JSON}`,
+    `breaking-changes.csv: ${origin}${BREAKING_CHANGES_CSV}`,
+    `Breaking changes: ${origin}${BREAKING_CHANGES_PATH}`,
+    ...breakingChanges.map((rule) => `Breaking change: ${origin}${BREAKING_CHANGES_PATH}#${rule.id}`),
     `API docs: ${origin}/api/`,
     `Compare trackers: ${origin}/alternatives/`,
     ...HUBS.map((hub) => `${hub.nav}: ${origin}${hub.path}`),

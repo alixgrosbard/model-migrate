@@ -8,6 +8,13 @@ import { HUBS } from "../src/lib/hubs.ts";
 import { today } from "../src/lib/format.ts";
 import { isPastShutdown, shutdownEventPath, shutdownEvents } from "../src/lib/shutdowns.ts";
 import { GUIDES_CHECKED, guidePath, guides } from "../src/lib/guides.ts";
+import {
+  BREAKING_CHANGES_CSV,
+  BREAKING_CHANGES_JSON,
+  BREAKING_CHANGES_PATH,
+  breakingChanges,
+  breakingChangesChecked,
+} from "../src/lib/breaking-changes.ts";
 import { REQUEST_ERRORS_CHECKED, REQUEST_ERRORS_INDEX, requestErrorPath, requestErrors } from "../src/lib/request-errors.ts";
 
 const dist = path.join(process.cwd(), "dist");
@@ -27,6 +34,9 @@ const required = [
   "data/models.json",
   "data/deprecations.csv",
   "data/changelog.json",
+  "data/breaking-changes.json",
+  "data/breaking-changes.csv",
+  "breaking-changes/index.html",
   "deadlines/index.html",
   "questions/index.html",
   "scan/index.html",
@@ -186,6 +196,48 @@ async function main() {
   }
   const homeNav = await readFile(path.join(dist, "index.html"), "utf8");
   if (!homeNav.includes('href="/errors/"')) throw new Error("Navigation is missing /errors/");
+  if (!homeNav.includes('href="/breaking-changes/"')) throw new Error("Navigation is missing /breaking-changes/");
+  const breakingHub = await readFile(path.join(dist, "breaking-changes/index.html"), "utf8");
+  for (const token of ['"CollectionPage"', '"ItemList"', '"FAQPage"', '"Dataset"', '"BreadcrumbList"', BREAKING_CHANGES_JSON]) {
+    if (!breakingHub.includes(token)) throw new Error(`Breaking changes hub is missing ${token}`);
+  }
+  if (!breakingHub.includes(breakingChangesChecked())) throw new Error("Breaking changes hub is missing the check date");
+  if (breakingHub.includes("—") || breakingHub.includes("–")) throw new Error("Em dash on /breaking-changes/");
+  for (const rule of breakingChanges) {
+    if (!breakingHub.includes(`id="${rule.id}"`)) throw new Error(`Breaking changes hub is missing ${rule.id}`);
+    if (rule.error_text && !htmlHas(breakingHub, rule.error_text)) throw new Error(`Breaking changes hub is missing the error text for ${rule.id}`);
+    if (!breakingHub.includes(rule.source_url)) throw new Error(`Breaking changes hub is missing the source for ${rule.id}`);
+  }
+  if (!sitemap.includes(BREAKING_CHANGES_PATH)) throw new Error("Sitemap is missing /breaking-changes/");
+  if (!sitemap.includes(BREAKING_CHANGES_JSON)) throw new Error("Sitemap is missing breaking-changes.json");
+  if (!sitemap.includes(BREAKING_CHANGES_CSV)) throw new Error("Sitemap is missing breaking-changes.csv");
+  if (!llms.includes(BREAKING_CHANGES_PATH) || !llms.includes(BREAKING_CHANGES_JSON)) {
+    throw new Error("llms.txt is missing the breaking changes list");
+  }
+  if (!llmsFull.includes(BREAKING_CHANGES_JSON)) throw new Error("llms-full.txt is missing breaking-changes.json");
+  const breakingJson = JSON.parse(await readFile(path.join(dist, "data/breaking-changes.json"), "utf8")) as { rules: { id: string }[]; license: string };
+  if (breakingJson.license !== "https://creativecommons.org/licenses/by/4.0/") throw new Error("breaking-changes.json license is wrong");
+  if (breakingJson.rules.length !== breakingChanges.length) throw new Error("breaking-changes.json rule count drifted");
+  const breakingCsv = await readFile(path.join(dist, "data/breaking-changes.csv"), "utf8");
+  if (!breakingCsv.startsWith("id,provider,")) throw new Error("breaking-changes.csv is missing its header");
+  const sonnetRules = await readFile(
+    path.join(dist, "migrate/anthropic__claude-sonnet-4-5-20250929__to__anthropic__claude-sonnet-5-5/index.html"),
+    "utf8",
+  );
+  if (!sonnetRules.includes("<h2>Request breaking changes</h2>")) {
+    throw new Error("Sonnet 5.5 switch guide is missing the breaking-changes section");
+  }
+  if (!sonnetRules.includes("temperature is deprecated for this model")) {
+    throw new Error("Sonnet 5.5 switch guide is missing the temperature breaking change");
+  }
+  const realtimeModel = await readFile(path.join(dist, "models/openai/gpt-realtime-2-1-mini/index.html"), "utf8");
+  if (!realtimeModel.includes("<h2>Request breaking changes</h2>")) {
+    throw new Error("gpt-realtime-2.1-mini model page is missing the breaking-changes section");
+  }
+  if (!realtimeModel.includes("/v1/audio/speech")) {
+    throw new Error("gpt-realtime-2.1-mini model page is missing the speech endpoint rule");
+  }
+  if (!apiPage.includes(BREAKING_CHANGES_JSON)) throw new Error("API docs are missing breaking-changes.json");
   if (!homeNav.includes('href="/guides/"')) throw new Error("Navigation is missing /guides/");
   const guideHub = await readFile(path.join(dist, "guides/index.html"), "utf8");
   if (!guideHub.includes('"CollectionPage"') || !guideHub.includes('"ItemList"') || !guideHub.includes('"BreadcrumbList"')) {
