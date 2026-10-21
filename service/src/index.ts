@@ -5,19 +5,58 @@ import { cors } from "hono/cors";
 import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js";
 import { createMcpServer } from "./mcp.js";
 import { THANK_YOU, hashIp, rateLimited, validEmail } from "./subscribe.js";
+import { postgresVisitStore } from "./visit-db.js";
+import {
+  SITE_ORIGIN,
+  bearerMatches,
+  cleanPath,
+  cleanReferrer,
+  cleanSource,
+  clientIp,
+  isCountableBrowser,
+  memoryVisitStore,
+  utcDay,
+  visitorHash,
+  type VisitStore,
+} from "./visits.js";
 import { readUnsubscribeToken, sendWelcomeEmail, unsubscribeSecret } from "./welcome.js";
 
 const CONTACTS_URL = "https://api.resend.com/contacts";
 const GENERIC_FAILURE = "Signup could not be saved.";
+const SUBSCRIBE_ORIGINS = [SITE_ORIGIN, "https://sunsetdiff.onrender.com"];
 
 export const app = new Hono();
 
+let visits: VisitStore = process.env.DATABASE_URL ? postgresVisitStore(process.env.DATABASE_URL) : memoryVisitStore();
+
+export function setVisitStore(store: VisitStore): void {
+  visits = store;
+}
+
 app.use(
-  "/api/*",
+  "/api/subscribe",
   cors({
-    origin: ["https://sunsetdiff.com", "https://sunsetdiff.onrender.com"],
+    origin: SUBSCRIBE_ORIGINS,
     allowMethods: ["POST", "OPTIONS"],
     allowHeaders: ["content-type"],
+  }),
+);
+
+app.use(
+  "/api/hit",
+  cors({
+    origin: SITE_ORIGIN,
+    allowMethods: ["POST", "OPTIONS"],
+    allowHeaders: ["content-type"],
+  }),
+);
+
+app.use(
+  "/api/stats",
+  cors({
+    origin: SITE_ORIGIN,
+    allowMethods: ["GET", "OPTIONS"],
+    allowHeaders: ["authorization", "content-type"],
   }),
 );
 
@@ -26,8 +65,52 @@ app.get("/health", (c) =>
     ok: true,
     resend: Boolean(process.env.RESEND_API_KEY && process.env.RESEND_SEGMENT_ID),
     service: "sunsetdiff",
+    visits: process.env.DATABASE_URL ? "postgres" : "memory",
   }),
 );
+
+app.post("/api/hit", async (c) => {
+  const origin = c.req.header("origin");
+  if (origin && origin !== SITE_ORIGIN) return c.json({ ok: false, counted: false }, 403);
+  if (!isCountableBrowser(c.req.header("user-agent"))) return c.json({ ok: true, counted: false });
+  const text = await c.req.text();
+  if (text.length > 2048) return c.json({ ok: false, counted: false }, 413);
+  let body: unknown;
+  try {
+    body = JSON.parse(text);
+  } catch {
+    return c.json({ ok: false, counted: false }, 400);
+  }
+  const record = body && typeof body === "object" ? (body as Record<string, unknown>) : {};
+  const page = cleanPath(record.path);
+  if (!page) return c.json({ ok: false, counted: false }, 400);
+  const userAgent = c.req.header("user-agent") ?? "";
+  try {
+    await visits.record({
+      day: utcDay(),
+      visitorHash: visitorHash(clientIp(c.req.header("x-forwarded-for")), userAgent),
+      path: page,
+      referrer: cleanReferrer(record.referrer),
+      source: cleanSource(record.utm_source),
+    });
+  } catch {
+    console.error("Visit storage failed");
+    return c.json({ ok: false, counted: false }, 503);
+  }
+  return c.json({ ok: true, counted: true });
+});
+
+app.get("/api/stats", async (c) => {
+  const token = process.env.STATS_TOKEN;
+  if (!token) return c.json({ message: "Stats are not configured." }, 503);
+  if (!bearerMatches(c.req.header("authorization"), token)) return c.json({ message: "Unauthorized." }, 401);
+  try {
+    return c.json(await visits.stats(utcDay()));
+  } catch {
+    console.error("Visit stats failed");
+    return c.json({ message: "Stats are unavailable." }, 503);
+  }
+});
 
 app.post("/api/subscribe", async (c) => {
   const body = (await c.req.json().catch(() => ({}))) as Record<string, unknown>;
@@ -124,6 +207,12 @@ function page(message: string, extra = ""): string {
 
 const calledDirectly = process.argv[1] ? path.resolve(process.argv[1]).includes(`${path.sep}index.`) : false;
 if (calledDirectly) {
+  if (!process.env.DATABASE_URL) {
+    console.error("DATABASE_URL is unset. Visit counts stay in memory and reset when the service restarts.");
+  }
+  if (!process.env.STATS_TOKEN) {
+    console.error("STATS_TOKEN is unset. GET /api/stats returns 503 until it is set.");
+  }
   const port = Number(process.env.PORT || 8787);
   serve({ fetch: app.fetch, port, hostname: "0.0.0.0" }, () => {
     console.log(`SunsetDiff service listening on 0.0.0.0:${port}`);

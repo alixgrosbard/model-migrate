@@ -57,5 +57,9 @@ services:
         sync: false
       - key: RESEND_SEGMENT_ID
         sync: false
+      - key: STATS_TOKEN
+        sync: false
+      - key: DATABASE_URL
+        sync: false
       - key: NODE_VERSION
         value: "22"

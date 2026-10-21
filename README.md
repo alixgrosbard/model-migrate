@@ -38,6 +38,16 @@ The form adds an email as a Resend contact. A new contact gets one welcome email
 
 The Node service needs `RESEND_API_KEY` and `RESEND_SEGMENT_ID`. If either is missing, `POST /api/subscribe` returns 503. Set both in the Render dashboard. They are not committed.
 
+## Visits
+
+Every HTML page sends one beacon to `POST /api/hit` on page load. The body is the path, the referrer hostname, and `utm_source` when it is a short label. The browser script uses `navigator.sendBeacon`, then `fetch` with `keepalive`. It does not set a cookie, use localStorage, or build a fingerprint.
+
+The service drops known crawler and monitor user agents, and any request without a browser user agent. A visitor is a daily hash of IP plus user agent. The salt stays in process memory and changes each UTC day. Raw IPs are not stored. Counts older than 30 days are deleted.
+
+`GET /api/stats` returns those 30 days, plus top pages, referrer hosts, and utm sources. Send `Authorization: Bearer $STATS_TOKEN`. If `STATS_TOKEN` is missing, the route returns 503. Set it on the Render service `sunsetdiff-api`. Do not commit it.
+
+Counts are stored in the free Render Postgres database `sunsetdiff-stats`. The service reads `DATABASE_URL` (the internal connection string). That free database expires 30 days after it was created. A persistent disk or paid database was not added.
+
 ## Machine access
 
 - `/llms.txt` and `/llms-full.txt`

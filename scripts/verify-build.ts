@@ -74,6 +74,17 @@ async function main() {
       checked++;
       continue;
     }
+    const beacon = html.match(/<script>\s*([\s\S]*?navigator\.sendBeacon[\s\S]*?)<\/script>/);
+    if (!beacon) throw new Error(`Visit beacon missing in ${file}`);
+    if (!beacon[1].includes('"/api/hit"') && !beacon[1].includes("new URL(\"/api/hit\"")) {
+      throw new Error(`Visit beacon endpoint missing in ${file}`);
+    }
+    if (!beacon[1].includes("keepalive: true") || !beacon[1].includes(".hostname")) {
+      throw new Error(`Visit beacon is missing the fetch fallback or referrer host in ${file}`);
+    }
+    if (beacon[1].includes("localStorage") || beacon[1].includes("document.cookie")) {
+      throw new Error(`Visit beacon stores an id in ${file}`);
+    }
     if (htmlContainsOwnerPlaceholder(html)) throw new Error(`Built HTML contains <owner> in ${file}`);
     const blocks = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)];
     if (!blocks.length) throw new Error(`Missing JSON-LD in ${file}`);
