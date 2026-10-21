@@ -179,6 +179,41 @@ function apiChanges(from: ModelRecord, to: ModelRecord): ApiChange[] {
   return specialized(from, to)?.apiChanges ?? [];
 }
 
+function changeKey(change: ApiChange): string {
+  return `${change.kind}\n${change.detail}\n${change.source_url}`;
+}
+
+/**
+ * A scrape rebuilds every migration from the model rows. Hand-written request
+ * notes (api changes, the code that shows them, and the guide citation) are
+ * not in that builder. Keep them. Fresh price, context, and dates still win.
+ * When the builder already has api changes, those stay, and any extra note
+ * from the previous file is added after them.
+ */
+export function mergeCuratedMigration(previous: MigrationRecord | undefined, fresh: MigrationRecord): MigrationRecord {
+  if (!previous) return fresh;
+  const freshKeys = new Set(fresh.api_changes.map(changeKey));
+  const extras = previous.api_changes.filter((change) => !freshKeys.has(changeKey(change)));
+  const api_changes = [...fresh.api_changes, ...extras];
+  const curatedOnly = fresh.api_changes.length === 0 && previous.api_changes.length > 0;
+  const code_change = curatedOnly ? previous.code_change : fresh.code_change;
+  let sources = fresh.sources;
+  if (curatedOnly) {
+    const seen = new Set(fresh.sources.map((source) => source.url));
+    sources = [...fresh.sources];
+    for (const source of previous.sources) {
+      if (seen.has(source.url)) continue;
+      seen.add(source.url);
+      sources.push(source);
+    }
+  }
+  const migration_checklist =
+    curatedOnly && JSON.stringify(previous.migration_checklist) !== JSON.stringify(fresh.migration_checklist)
+      ? previous.migration_checklist
+      : fresh.migration_checklist;
+  return { ...fresh, api_changes, code_change, sources, migration_checklist };
+}
+
 function defaultSnippets(from: ModelRecord, to: ModelRecord): SnippetSet {
   if (from.provider === "anthropic") return anthropic(from.id, to.id);
   if (from.provider === "google-gemini-api" || from.provider === "google-vertex") return gemini(from.id, to.id);

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { readFile } from "node:fs/promises";
-import { migrationSchema } from "../src/schema.ts";
+import { migrationSchema, modelSchema } from "../src/schema.ts";
+import { buildMigration, mergeCuratedMigration } from "../scrapers/migrations.ts";
 import { llmsFull, llmsTxt } from "../src/lib/llms.ts";
 import { lastmodForUrl } from "../src/lib/lastmod.ts";
 import { requestErrorGraph } from "../src/jsonld.ts";
@@ -44,6 +45,27 @@ describe("migration request changes", () => {
       expect(snippet.after).toContain("effort");
     }
     expect(row.code_change.after).toBe(row.code_change.snippets.python.after);
+  });
+
+  it("keeps the guide notes when a scrape rebuilds the row", async () => {
+    const stored = migrationSchema.parse(JSON.parse(await readFile(sonnetFile, "utf8")));
+    const from = modelSchema.parse(JSON.parse(await readFile(`data/models/anthropic/${stored.from.slug}.json`, "utf8")));
+    const to = modelSchema.parse(JSON.parse(await readFile(`data/models/anthropic/${stored.to.slug}.json`, "utf8")));
+    const fresh = buildMigration(from, to, "2026-10-21");
+    expect(fresh.api_changes).toEqual([]);
+    const merged = mergeCuratedMigration(stored, fresh);
+    expect(merged.api_changes.map((change) => change.kind)).toEqual(stored.api_changes.map((change) => change.kind));
+    expect(merged.code_change).toEqual(stored.code_change);
+    expect(merged.price_diff).toEqual(fresh.price_diff);
+    expect(merged.sources.map((source) => source.url)).toContain("https://platform.claude.com/docs/en/models/sonnet-5-5/migration-guide");
+    const luna = migrationSchema.parse(JSON.parse(await readFile(lunaFiles[1], "utf8")));
+    const lunaFrom = modelSchema.parse(JSON.parse(await readFile(`data/models/openai/${luna.from.slug}.json`, "utf8")));
+    const lunaTo = modelSchema.parse(JSON.parse(await readFile(`data/models/openai/${luna.to.slug}.json`, "utf8")));
+    const lunaFresh = buildMigration(lunaFrom, lunaTo, "2026-10-21");
+    expect(lunaFresh.api_changes).toEqual([]);
+    const lunaMerged = mergeCuratedMigration(luna, lunaFresh);
+    expect(lunaMerged.api_changes.map((change) => change.detail)).toEqual(luna.api_changes.map((change) => change.detail));
+    expect(lunaMerged.code_change.snippets.python.after).toContain("reasoning_effort");
   });
 
   it("fills the GPT-4o to GPT-6 Luna guides from the model page", async () => {

@@ -1,12 +1,12 @@
-import { readFile, readdir, writeFile, mkdir, rm } from "node:fs/promises";
+import { readFile, readdir, writeFile, mkdir } from "node:fs/promises";
 import path from "node:path";
 import type { ModelRecord, Specs } from "../src/schema.ts";
 import { modelSchema, changeSchema, type ChangeRecord } from "../src/schema.ts";
 import { excerpt } from "./lib/html.ts";
-import { politeFetch } from "./lib/fetch.ts";
+import { newestRollingName, politeFetch } from "./lib/fetch.ts";
 import { todayISO, nowISO } from "./lib/dates.ts";
 import { parseGeminiPricing, PRICING_URL as GEMINI_PRICING } from "./google-gemini-api.ts";
-import { buildMigration, migrationKey, officialMigrationTargets } from "./migrations.ts";
+import { writeMigrations } from "./write-migrations.ts";
 import {
   normalizeName,
   parseAnthropicModelDoc,
@@ -41,9 +41,26 @@ export async function enrichSpecs(models: SpecModel[], checked = todayISO()): Pr
   return filled;
 }
 
+async function readSavedPage(provider: string, suffix: string, fixtureFile: string): Promise<string | null> {
+  const dir = path.join(root, "snapshots", provider);
+  try {
+    const name = newestRollingName(await readdir(dir), suffix);
+    if (name) return await readFile(path.join(dir, name), "utf8");
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : error);
+  }
+  try {
+    return await readFile(path.join(root, "snapshots", "fixtures", provider, fixtureFile), "utf8");
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : error);
+    return null;
+  }
+}
+
 export async function applySavedGeminiPrices(models: SpecModel[], checked: string): Promise<number> {
   try {
-    const html = await readFile(path.join(root, "snapshots/google-gemini-api/pricing-2026-10-17.html"), "utf8");
+    const html = await readSavedPage("google-gemini-api", "-pricing", "pricing-2026-10-17.html");
+    if (!html) return 0;
     const prices = parseGeminiPricing(html);
     let filled = 0;
     for (const model of models) {
@@ -108,8 +125,8 @@ async function enrichGeminiDocs(models: SpecModel[], checked: string): Promise<n
 async function enrichVertex(models: SpecModel[], checked: string): Promise<number> {
   const urls = new Set<string>();
   try {
-    const html = await readFile(path.join(root, "snapshots/google-vertex/2026-10-17.html"), "utf8");
-    for (const match of html.matchAll(/href="(\/gemini-enterprise-agent-platform\/models\/gemini\/[^"#?]+)"/g)) {
+    const html = await readSavedPage("google-vertex", "", "2026-10-17.html");
+    if (html) for (const match of html.matchAll(/href="(\/gemini-enterprise-agent-platform\/models\/gemini\/[^"#?]+)"/g)) {
       urls.add(`https://docs.cloud.google.com${match[1]}?hl=en`);
     }
   } catch (error) {
@@ -149,13 +166,14 @@ async function enrichVertex(models: SpecModel[], checked: string): Promise<numbe
 
 async function enrichAnthropic(models: SpecModel[], checked: string): Promise<number> {
   const slugs = new Set<string>();
-  for (const file of ["snapshots/anthropic/2026-10-17.html", "snapshots/anthropic/pricing-2026-10-17.html", "snapshots/anthropic/models-2026-10-17.html"]) {
-    try {
-      const html = await readFile(path.join(root, file), "utf8");
-      for (const match of html.matchAll(/\/docs\/en\/models\/([a-z0-9-]+)\//g)) slugs.add(match[1]);
-    } catch {
-      // A missing local snapshot does not block the other files.
-    }
+  const pages = [
+    readSavedPage("anthropic", "", "2026-10-17.html"),
+    readSavedPage("anthropic", "-pricing", "pricing-2026-10-17.html"),
+    readSavedPage("anthropic", "-models", "models-2026-10-17.html"),
+  ];
+  for (const html of await Promise.all(pages)) {
+    if (!html) continue;
+    for (const match of html.matchAll(/\/docs\/en\/models\/([a-z0-9-]+)\//g)) slugs.add(match[1]);
   }
   for (const skip of ["overview", "migration-guide", "choosing-a-model", "model-ids-and-versions", "optimizing-for-cost-and-intelligence"]) {
     slugs.delete(skip);
@@ -167,9 +185,11 @@ async function enrichAnthropic(models: SpecModel[], checked: string): Promise<nu
 async function enrichMistral(models: SpecModel[], checked: string): Promise<number> {
   const urls = new Set<string>();
   try {
-    const html = await readFile(path.join(root, "snapshots/mistral/2026-10-17.html"), "utf8");
-    for (const match of html.matchAll(/href=\\"(\/models\/[a-z0-9-]+)\\"/g)) urls.add(`https://docs.mistral.ai${match[1]}`);
-    for (const match of html.matchAll(/href="(\/models\/[a-z0-9-]+)"/g)) urls.add(`https://docs.mistral.ai${match[1]}`);
+    const html = await readSavedPage("mistral", "", "2026-10-17.html");
+    if (html) {
+      for (const match of html.matchAll(/href=\\"(\/models\/[a-z0-9-]+)\\"/g)) urls.add(`https://docs.mistral.ai${match[1]}`);
+      for (const match of html.matchAll(/href="(\/models\/[a-z0-9-]+)"/g)) urls.add(`https://docs.mistral.ai${match[1]}`);
+    }
   } catch (error) {
     console.error(error instanceof Error ? error.message : error);
   }
@@ -338,25 +358,6 @@ async function writeModels(models: ModelRecord[]) {
     await mkdir(folder, { recursive: true });
     await writeFile(path.join(folder, `${model.slug}.json`), JSON.stringify(model, null, 2) + "\n");
   }
-}
-
-async function writeMigrations(models: ModelRecord[], checkedOn: string) {
-  const dir = path.join(root, "data/migrations");
-  await rm(dir, { recursive: true, force: true });
-  await mkdir(dir, { recursive: true });
-  const byKey = new Map(models.map((model) => [`${model.provider}:${model.id}`, model]));
-  let count = 0;
-  for (const model of models) {
-    if (!model.shutdown_date) continue;
-    for (const official of officialMigrationTargets(model)) {
-      const target = byKey.get(`${official.provider}:${official.model_id}`);
-      if (!target) continue;
-      const migration = buildMigration(model, target, checkedOn);
-      await writeFile(path.join(dir, `${migrationKey(model, target)}.json`), JSON.stringify(migration, null, 2) + "\n");
-      count += 1;
-    }
-  }
-  console.log(`Migrations: ${count}`);
 }
 
 const calledDirectly = process.argv[1] && path.resolve(process.argv[1]).includes(`${path.sep}enrich.ts`);

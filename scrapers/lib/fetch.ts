@@ -87,17 +87,37 @@ export function pathAllowed(robots: string, pathname: string): boolean {
   return decision;
 }
 
+/** A file saveSnapshot writes: 2026-10-21.html or 2026-10-21-pricing.html. */
+export function rollingSnapshotName(file: string): { stamp: string; suffix: string } | null {
+  const match = /^(\d{4}-\d{2}-\d{2})(-[a-z0-9]+)?\.html$/.exec(file);
+  if (!match) return null;
+  return { stamp: match[1], suffix: match[2] ?? "" };
+}
+
+/**
+ * Old dated scrape files past the keep window.
+ * Names that are not dated scrape files stay. Parser fixtures live in snapshots/fixtures.
+ */
+export function snapshotsToPrune(files: string[], keep = 10): string[] {
+  const rolling = files.filter((file) => rollingSnapshotName(file)).sort();
+  const extra = rolling.length - keep;
+  if (extra <= 0) return [];
+  return rolling.slice(0, extra);
+}
+
+export function newestRollingName(files: string[], suffix = ""): string | null {
+  const names = files.filter((file) => rollingSnapshotName(file)?.suffix === suffix).sort();
+  return names.at(-1) ?? null;
+}
+
 export async function saveSnapshot(provider: string, html: string, stamp: string, suffix = ""): Promise<void> {
   const dir = path.join("snapshots", provider);
   await mkdir(dir, { recursive: true });
   const name = `${stamp}${suffix}.html`;
   await writeFile(path.join(dir, name), html);
-  const files = (await readdir(dir))
-    .filter((file) => file.endsWith(".html"))
-    .sort();
-  const extra = files.length - 10;
-  for (let i = 0; i < extra; i++) {
-    await unlink(path.join(dir, files[i]));
+  const files = (await readdir(dir)).filter((file) => file.endsWith(".html"));
+  for (const file of snapshotsToPrune(files)) {
+    await unlink(path.join(dir, file));
   }
 }
 

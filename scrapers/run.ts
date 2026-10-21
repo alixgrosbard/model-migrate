@@ -15,7 +15,7 @@ import { DEPRECATIONS_URL as GEMINI_URL, parseGemini, parseGeminiPricing, PRICIN
 import { DEPRECATIONS_URL as VERTEX_URL, parseVertex } from "./google-vertex.ts";
 import { MODELS_URL as MISTRAL_URL, parseMistral, PRICING_URL as MISTRAL_PRICING } from "./mistral.ts";
 import { DEPRECATIONS_URL as OPENAI_URL, parseOpenAI, parseOpenAIPricing, PRICING_URL as OPENAI_PRICING } from "./openai.ts";
-import { buildMigration, migrationKey, officialMigrationTargets } from "./migrations.ts";
+import { writeMigrations } from "./write-migrations.ts";
 import { sanityCheck } from "./sanity.ts";
 import { enrichSpecs } from "./enrich.ts";
 
@@ -64,28 +64,28 @@ async function loadText(url: string, snapshot: string, provider: string, suffix 
 }
 
 async function scrapeAll(): Promise<Map<string, ScrapedModel[]>> {
-  const openaiHtml = await loadText(OPENAI_URL, "snapshots/openai/2026-10-17.html", "openai");
-  const openaiPricing = await loadText(OPENAI_PRICING, "snapshots/openai/pricing-2026-10-17.md", "openai");
-  const anthropicHtml = await loadText(ANTHROPIC_URL, "snapshots/anthropic/2026-10-17.html", "anthropic");
-  const anthropicPricing = await loadText(ANTHROPIC_PRICING, "snapshots/anthropic/pricing-2026-10-17.html", "anthropic");
+  const openaiHtml = await loadText(OPENAI_URL, "snapshots/fixtures/openai/2026-10-17.html", "openai");
+  const openaiPricing = await loadText(OPENAI_PRICING, "snapshots/fixtures/openai/pricing-2026-10-17.md", "openai");
+  const anthropicHtml = await loadText(ANTHROPIC_URL, "snapshots/fixtures/anthropic/2026-10-17.html", "anthropic");
+  const anthropicPricing = await loadText(ANTHROPIC_PRICING, "snapshots/fixtures/anthropic/pricing-2026-10-17.html", "anthropic", "-pricing");
   const anthropicModels = await loadText(
     "https://platform.claude.com/docs/en/about-claude/models/overview",
-    "snapshots/anthropic/models-2026-10-17.html",
+    "snapshots/fixtures/anthropic/models-2026-10-17.html",
     "anthropic",
     "-models",
   );
-  const geminiHtml = await loadText(GEMINI_URL, "snapshots/google-gemini-api/2026-10-17.html", "google-gemini-api");
-  const geminiPricing = await loadText(GEMINI_PRICING, "snapshots/google-gemini-api/pricing-2026-10-17.html", "google-gemini-api", "-pricing");
-  const vertexHtml = await loadText(VERTEX_URL, "snapshots/google-vertex/2026-10-17.html", "google-vertex");
-  const awsHtml = await loadText(AWS_LEGACY, "snapshots/aws-bedrock/2026-10-17-legacy.html", "aws-bedrock", "-legacy");
+  const geminiHtml = await loadText(GEMINI_URL, "snapshots/fixtures/google-gemini-api/2026-10-17.html", "google-gemini-api");
+  const geminiPricing = await loadText(GEMINI_PRICING, "snapshots/fixtures/google-gemini-api/pricing-2026-10-17.html", "google-gemini-api", "-pricing");
+  const vertexHtml = await loadText(VERTEX_URL, "snapshots/fixtures/google-vertex/2026-10-17.html", "google-vertex");
+  const awsHtml = await loadText(AWS_LEGACY, "snapshots/fixtures/aws-bedrock/2026-10-17-legacy.html", "aws-bedrock", "-legacy");
   if (!fromSnapshots) {
     const policy = await politeFetch(AWS_POLICY);
     await saveSnapshot("aws-bedrock", policy, checked);
   }
-  const azureSchedule = await loadText(AZURE_SCHEDULE, "snapshots/azure-openai/2026-10-17-schedule.html", "azure-openai", "-schedule");
-  const azurePolicy = await loadText(AZURE_POLICY, "snapshots/azure-openai/2026-10-17.html", "azure-openai");
-  const mistralHtml = await loadText(MISTRAL_URL, "snapshots/mistral/2026-10-17.html", "mistral");
-  const mistralPricing = await loadText(MISTRAL_PRICING, "snapshots/mistral/pricing-2026-10-17.html", "mistral", "-pricing");
+  const azureSchedule = await loadText(AZURE_SCHEDULE, "snapshots/fixtures/azure-openai/2026-10-17-schedule.html", "azure-openai", "-schedule");
+  const azurePolicy = await loadText(AZURE_POLICY, "snapshots/fixtures/azure-openai/2026-10-17.html", "azure-openai");
+  const mistralHtml = await loadText(MISTRAL_URL, "snapshots/fixtures/mistral/2026-10-17.html", "mistral");
+  const mistralPricing = await loadText(MISTRAL_PRICING, "snapshots/fixtures/mistral/pricing-2026-10-17.html", "mistral", "-pricing");
 
   const openai = parseOpenAI(openaiHtml, openaiPricing, checked);
   const anthropic = parseAnthropic(anthropicHtml, anthropicPricing, checked);
@@ -300,25 +300,6 @@ async function writeModels(models: ModelRecord[]) {
     await mkdir(folder, { recursive: true });
     await writeFile(path.join(folder, `${model.slug}.json`), JSON.stringify(model, null, 2) + "\n");
   }
-}
-
-async function writeMigrations(models: ModelRecord[], checkedOn: string) {
-  const dir = path.join(root, "data/migrations");
-  await rm(dir, { recursive: true, force: true });
-  await mkdir(dir, { recursive: true });
-  const byKey = new Map(models.map((model) => [`${model.provider}:${model.id}`, model]));
-  let count = 0;
-  for (const model of models) {
-    if (!model.shutdown_date) continue;
-    for (const official of officialMigrationTargets(model)) {
-      const target = byKey.get(`${official.provider}:${official.model_id}`);
-      if (!target) continue;
-      const migration = buildMigration(model, target, checkedOn);
-      await writeFile(path.join(dir, `${migrationKey(model, target)}.json`), JSON.stringify(migration, null, 2) + "\n");
-      count++;
-    }
-  }
-  console.log(`Migrations: ${count}`);
 }
 
 async function writeChanges(changes: ChangeRecord[]) {

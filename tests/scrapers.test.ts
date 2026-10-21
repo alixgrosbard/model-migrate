@@ -1,5 +1,6 @@
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
+import { newestRollingName, snapshotsToPrune } from "../scrapers/lib/fetch.ts";
 import { parseAnthropic } from "../scrapers/anthropic.ts";
 import { parseAzure } from "../scrapers/azure-openai.ts";
 import { parseBedrock } from "../scrapers/aws-bedrock.ts";
@@ -51,10 +52,18 @@ function vertexReplacementIds(html: string, modelId: string): string[] {
 
 const checked = "2026-10-17";
 const read = (file: string) => readFileSync(file, "utf8");
+const fixture = (provider: string, file: string) => `snapshots/fixtures/${provider}/${file}`;
+
+function newestSnapshot(provider: string, suffix = ""): string {
+  const dir = `snapshots/${provider}`;
+  const name = newestRollingName(readdirSync(dir), suffix);
+  if (!name) throw new Error(`No dated snapshot in ${dir}`);
+  return `${dir}/${name}`;
+}
 
 describe("official snapshots", () => {
   it("parses OpenAI shutdown tables", () => {
-    const models = parseOpenAI(read("snapshots/openai/2026-10-17.html"), read("snapshots/openai/pricing-2026-10-17.md"), checked);
+    const models = parseOpenAI(read(fixture("openai", "2026-10-17.html")), read(fixture("openai", "pricing-2026-10-17.md")), checked);
     expect(models.length).toBeGreaterThan(40);
     const gpt = models.find((model) => model.id === "gpt-4o-2024-08-06");
     expect(gpt?.shutdown_date).toBe("2027-01-14");
@@ -64,7 +73,7 @@ describe("official snapshots", () => {
   });
 
   it("parses Anthropic status and not-sooner-than dates", () => {
-    const models = parseAnthropic(read("snapshots/anthropic/2026-10-17.html"), read("snapshots/anthropic/pricing-2026-10-17.html"), checked);
+    const models = parseAnthropic(read(fixture("anthropic", "2026-10-17.html")), read(fixture("anthropic", "pricing-2026-10-17.html")), checked);
     expect(models.length).toBeGreaterThan(15);
     const sonnet = models.find((model) => model.id === "claude-sonnet-4-5-20250929");
     expect(sonnet?.status).toBe("deprecated");
@@ -78,25 +87,26 @@ describe("official snapshots", () => {
   });
 
   it("parses Gemini, Vertex, Bedrock, Azure, and Mistral", () => {
-    const gemini = parseGemini(read("snapshots/google-gemini-api/2026-10-17.html"), read("snapshots/google-gemini-api/pricing-2026-10-17.html"), checked);
+    const gemini = parseGemini(read(fixture("google-gemini-api", "2026-10-17.html")), read(fixture("google-gemini-api", "pricing-2026-10-17.html")), checked);
     expect(gemini.find((model) => model.id === "gemini-2.0-flash")?.shutdown_date).toBe("2026-06-01");
-    const vertex = parseVertex(read("snapshots/google-vertex/2026-10-17.html"), checked);
+    const vertex = parseVertex(read(fixture("google-vertex", "2026-10-17.html")), checked);
     expect(vertex.find((model) => model.id === "gemini-2.5-pro")?.shutdown_date).toBe("2026-10-20");
-    const vertexHtml = read("snapshots/google-vertex/2026-10-19.html");
-    const vertexNow = parseVertex(vertexHtml, "2026-10-19");
-    // The refresh scrape overwrites this dated snapshot before the tests run.
-    // The code tags are the official ids. A shorter Google list still matches,
-    // and a parser that drops one of those tags does not.
+    const vertexFile = newestSnapshot("google-vertex");
+    const vertexHtml = read(vertexFile);
+    const vertexNow = parseVertex(vertexHtml, vertexFile.match(/\d{4}-\d{2}-\d{2}/)?.[0] ?? checked);
+    // The refresh keeps the newest dated Vertex page and deletes older ones.
+    // This reads that newest page. The code tags are the official ids.
+    // A shorter Google list still matches, and a parser that drops one of those tags does not.
     for (const id of ["gemini-2.5-pro", "gemini-2.5-flash", "gemini-2.5-flash-lite"]) {
       const model = vertexNow.find((item) => item.id === id);
       expect(model?.replacements.map((item) => item.model_id)).toEqual(vertexReplacementIds(vertexHtml, id));
       expect(model?.replacements.every((item) => item.kind === "official" && item.provider === "google-vertex")).toBe(true);
     }
-    const geminiNow = parseGemini(read("snapshots/google-gemini-api/2026-10-19.html"), "", "2026-10-19");
+    const geminiNow = parseGemini(read(fixture("google-gemini-api", "2026-10-19.html")), "", "2026-10-19");
     for (const id of ["veo-3.1-generate-preview", "veo-3.1-fast-generate-preview", "veo-3.1-lite-generate-preview"]) {
       expect(geminiNow.find((model) => model.id === id)?.replacements.map((item) => item.model_id)).toEqual(["gemini-omni-1.1-flash"]);
     }
-    const bedrock = parseBedrock(read("snapshots/aws-bedrock/2026-10-17-legacy.html"), checked);
+    const bedrock = parseBedrock(read(fixture("aws-bedrock", "2026-10-17-legacy.html")), checked);
     const jamba = bedrock.find((model) => model.id === "ai21.jamba-1-5-large-v1:0");
     expect(jamba?.deprecation_date).toBe("2026-05-26");
     expect(jamba?.shutdown_date).toBe("2026-11-26");
@@ -135,9 +145,9 @@ describe("official snapshots", () => {
         "qwen.qwen3-coder-480b-a35b-instruct",
       ]),
     );
-    const azure = parseAzure(read("snapshots/azure-openai/2026-10-17-schedule.html"), read("snapshots/azure-openai/2026-10-17.html"), checked);
+    const azure = parseAzure(read(fixture("azure-openai", "2026-10-17-schedule.html")), read(fixture("azure-openai", "2026-10-17.html")), checked);
     expect(azure.find((model) => model.id === "codex-mini-2025-05-16")?.shutdown_date).toBe("2026-11-15");
-    const mistral = parseMistral(read("snapshots/mistral/2026-10-17.html"), read("snapshots/mistral/pricing-2026-10-17.html"), checked);
+    const mistral = parseMistral(read(fixture("mistral", "2026-10-17.html")), read(fixture("mistral", "pricing-2026-10-17.html")), checked);
     const medium = mistral.find((model) => model.id === "mistral-medium-2508");
     expect(medium?.deprecation_date).toBe("2026-05-22");
     expect(medium?.shutdown_date).toBe("2026-08-31");
@@ -186,7 +196,7 @@ describe("sanity gate", () => {
 
 describe("official model docs", () => {
   it("reads OpenAI price, context, and max output from the model page", () => {
-    const spec = parseOpenAIModelDoc(read("snapshots/openai/model-gpt-4o-2026-10-17.md"));
+    const spec = parseOpenAIModelDoc(read(fixture("openai", "model-gpt-4o-2026-10-17.md")));
     expect(spec?.ids).toEqual(["gpt-4o"]);
     expect(spec?.context).toBe(128000);
     expect(spec?.maxOutput).toBe(16384);
@@ -197,7 +207,7 @@ describe("official model docs", () => {
   });
 
   it("reads Anthropic specs from the model overview", () => {
-    const spec = parseAnthropicModelDoc(read("snapshots/anthropic/model-sonnet-5-5-2026-10-17.md"));
+    const spec = parseAnthropicModelDoc(read(fixture("anthropic", "model-sonnet-5-5-2026-10-17.md")));
     expect(spec?.ids).toContain("claude-sonnet-5-5");
     expect(spec?.context).toBe(1_000_000);
     expect(spec?.maxOutput).toBe(128_000);
@@ -207,26 +217,26 @@ describe("official model docs", () => {
   });
 
   it("reads Gemini token limits from the model table", () => {
-    const specs = parseGeminiModelDocs(read("snapshots/google-gemini-api/model-gemini-2-5-flash-2026-10-17.html"));
+    const specs = parseGeminiModelDocs(read(fixture("google-gemini-api", "model-gemini-2-5-flash-2026-10-17.html")));
     expect(specs[0]?.ids).toEqual(["gemini-2.5-flash"]);
     expect(specs[0]?.context).toBe(1_048_576);
     expect(specs[0]?.maxOutput).toBe(65_536);
   });
 
   it("reads Vertex token limits and the standard price tier", () => {
-    const doc = parseVertexModelDoc(read("snapshots/google-vertex/model-gemini-2-5-pro-2026-10-17.html"));
+    const doc = parseVertexModelDoc(read(fixture("google-vertex", "model-gemini-2-5-pro-2026-10-17.html")));
     expect(doc?.id).toBe("gemini-2.5-pro");
     expect(doc?.title).toBe("Gemini 2.5 Pro");
     expect(doc?.context).toBe(1_048_576);
     expect(doc?.maxOutput).toBe(65_536);
-    const prices = parseVertexPricing(read("snapshots/google-vertex/pricing-sample-2026-10-17.html"));
+    const prices = parseVertexPricing(read(fixture("google-vertex", "pricing-sample-2026-10-17.html")));
     expect(prices.get("gemini 2.5 pro")?.input).toBe(1.25);
     expect(prices.get("gemini 2.5 pro")?.output).toBe(10);
     expect(prices.get("gemini 2.5 pro")?.cached).toBe(0.125);
   });
 
   it("reads a labeled Mistral context window and does not invent a price", () => {
-    const doc = parseMistralModelDoc(read("snapshots/mistral/model-card-snippet-2026-10-17.html"));
+    const doc = parseMistralModelDoc(read(fixture("mistral", "model-card-snippet-2026-10-17.html")));
     expect(doc?.id).toBe("mistral-medium-3-5");
     expect(doc?.context).toBe(256_000);
   });
@@ -236,6 +246,25 @@ describe("official model docs", () => {
     const doc = parseMistralModelDoc(html);
     expect(doc?.id).toBe("mistral-medium-2508");
     expect(doc?.context).toBe(128_000);
+  });
+});
+
+describe("snapshot retention", () => {
+  it("deletes old dated scrape files and keeps fixture names", () => {
+    const files = [
+      "2026-10-17.html",
+      "2026-10-18-pricing.html",
+      "2026-10-18.html",
+      "2026-10-19.html",
+      "2026-10-20.html",
+      "model-card-snippet-2026-10-17.html",
+      "models-2026-10-17.html",
+      "pricing-2026-10-17.html",
+    ];
+    expect(snapshotsToPrune(files, 3)).toEqual(["2026-10-17.html", "2026-10-18-pricing.html"]);
+    expect(snapshotsToPrune(files, 3)).not.toContain("pricing-2026-10-17.html");
+    expect(newestRollingName(files, "-pricing")).toBe("2026-10-18-pricing.html");
+    expect(newestRollingName(files, "")).toBe("2026-10-20.html");
   });
 });
 
