@@ -4,6 +4,7 @@ import FaqList from "../../components/FaqList.astro";
 import MigrationCard from "../../components/MigrationCard.astro";
 import { loadMigrations, loadModels, loadProviders } from "../../lib/load.ts";
 import { clipMeta, replaceFaqs, replacementAnswer } from "../../lib/format.ts";
+import { migrateHub } from "../../lib/hubs.ts";
 import { migrateGraph } from "../../jsonld.ts";
 import { DEFAULT_SITE_URL } from "../../lib/site.ts";
 import { requestErrorPath, requestErrorsForMigration } from "../../lib/request-errors.ts";
@@ -35,6 +36,7 @@ const relatedErrors = requestErrorsForMigration(Astro.params.pair ?? "");
   image={`/og/models/${from.provider}/${from.slug}.svg`}
   crumbs={[
     { name: "Home", path: "/" },
+    { name: migrateHub.nav, path: migrateHub.path },
     { name: from.display_name, path: `/models/${from.provider}/${from.slug}/` },
     { name: "Migration", path: `/migrate/${Astro.params.pair}/` },
   ]}

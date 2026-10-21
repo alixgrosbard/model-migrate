@@ -3,6 +3,7 @@ import "../styles/global.css";
 import { breadcrumb, graph, websiteGraph } from "../jsonld.ts";
 import { loadModels, loadProviders } from "../lib/load.ts";
 import { monthLabel, shutdownMonths } from "../lib/growth.ts";
+import { HUBS } from "../lib/hubs.ts";
 import { PRO_FOOTER } from "../lib/public-copy.ts";
 import { DEFAULT_SITE_URL } from "../lib/site.ts";
 
@@ -54,6 +55,7 @@ const jsonld = graph([...websiteGraph(site), breadcrumb(site, crumbs), ...extraG
     <header>
       <a class="brand" href="/">SunsetDiff</a>
       <nav aria-label="Main">
+        {HUBS.map((hub) => <a href={hub.path}>{hub.nav}</a>)}
         <a href="/calendar/">Calendar</a>
         <a href="/deadlines/">Deadlines</a>
         <a href="/shutdowns/">Shutdowns</a>
@@ -75,10 +77,23 @@ const jsonld = graph([...websiteGraph(site), breadcrumb(site, crumbs), ...extraG
       </nav>
     </header>
     <main id="content">
+      {crumbs.length > 1 ? (
+        <nav class="crumbs" aria-label="Breadcrumb">
+          <ol>
+            {crumbs.map((crumb, index) => (
+              <li>
+                {index > 0 ? <span aria-hidden="true"> / </span> : null}
+                {index < crumbs.length - 1 ? <a href={crumb.path}>{crumb.name}</a> : <span aria-current="page">{crumb.name}</span>}
+              </li>
+            ))}
+          </ol>
+        </nav>
+      ) : null}
       <slot />
     </main>
     <footer>
       <nav aria-label="Site">
+        {HUBS.map((hub) => <a href={hub.path}>{hub.nav}</a>)}
         <a href="/deadlines/">Deadlines</a>
         <a href="/shutdowns/">Shutdowns</a>
         <a href="/errors/">Errors</a>

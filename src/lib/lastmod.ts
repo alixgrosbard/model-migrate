@@ -6,6 +6,7 @@ import { COMPARISON_CHECKED, comparisonPath, comparisons } from "./comparisons.t
 import { GUIDES_CHECKED, GUIDES_INDEX, guidePath, guides } from "./guides.ts";
 import { REQUEST_ERRORS_CHECKED, REQUEST_ERRORS_INDEX, requestErrorPath, requestErrors } from "./request-errors.ts";
 import { modelsInMonth, questionPath, shutdownMonths, topRetiringModels } from "./growth.ts";
+import { migrateHub, modelsHub, providersHub, replaceHub } from "./hubs.ts";
 import { shutdownEventPath, shutdownEvents } from "./shutdowns.ts";
 
 let cache: Map<string, string> | null = null;
@@ -44,6 +45,9 @@ function build(): Map<string, string> {
   for (const guide of guides) map.set(guidePath(guide.slug), GUIDES_CHECKED);
   for (const comparison of comparisons) map.set(comparisonPath(comparison.slug), COMPARISON_CHECKED);
   if (newestModel) {
+    map.set(modelsHub.path, newestModel);
+    map.set(replaceHub.path, newestModel);
+    map.set(providersHub.path, newestModel);
     map.set("/api/", newestModel);
     map.set("/deadlines/", newestModel);
     map.set("/deadlines.ics", newestModel);
@@ -75,14 +79,18 @@ function build(): Map<string, string> {
     map.set("/data/changelog.json", changeDay);
   }
   const migrations = path.join(root, "data/migrations");
+  let newestMigration = "";
   if (existsSync(migrations)) {
     for (const file of readdirSync(migrations)) {
       if (!file.endsWith(".json")) continue;
       const row = JSON.parse(readFileSync(path.join(migrations, file), "utf8")) as { last_checked?: string };
       const day = dateOf(row.last_checked);
-      if (day) map.set(`/migrate/${file.replace(/\.json$/, "")}/`, day);
+      if (!day) continue;
+      map.set(`/migrate/${file.replace(/\.json$/, "")}/`, day);
+      if (day > newestMigration) newestMigration = day;
     }
   }
+  if (newestMigration) map.set(migrateHub.path, newestMigration);
   return map;
 }
 

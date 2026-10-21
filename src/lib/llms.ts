@@ -1,6 +1,7 @@
 import type { ModelRecord, Provider } from "../schema.ts";
 import { publicName } from "./growth.ts";
 import { GUIDES_INDEX, guidePath, guides } from "./guides.ts";
+import { HUBS } from "./hubs.ts";
 import { REQUEST_ERRORS_CHECKED, REQUEST_ERRORS_INDEX, requestErrorPath, requestErrors } from "./request-errors.ts";
 
 export function llmsTxt(
@@ -25,12 +26,17 @@ export function llmsTxt(
       return `- [Is ${name} being deprecated?](${origin}/questions/${model.provider}/${model.slug}/deprecated/) and [${name} shutdown date](${origin}/questions/${model.provider}/${model.slug}/shutdown-date/)`;
     })
     .join("\n");
+  const hubLinks = HUBS.map((hub) => `- [${hub.nav}](${origin}${hub.path}): ${hub.description}`).join("\n");
   return `# SunsetDiff
 
 > SunsetDiff tracks AI model retirements and the migration diff: shutdown date, official replacement, and published changes in price, context, and code. Publisher: SunsetDiff.
 
 ## Key pages
 - [Home](${origin}/)
+- [Models](${origin}/models/)
+- [Replacements](${origin}/replace/)
+- [Migrations](${origin}/migrate/)
+- [Providers](${origin}/providers/)
 - [Soonest shutdowns](${origin}/#soonest)
 - [Calendar](${origin}/calendar/)
 - [Deadlines](${origin}/deadlines/)
@@ -78,7 +84,12 @@ ${questionLinks || "- None published."}
 ## Soonest shutdowns
 ${soonLinks || "- None published."}
 
+## Catalog
+Indexes of the model, replacement, migration, and provider pages. Each index is built from the same records as the child pages.
+${hubLinks}
+
 ## Providers
+[All providers](${origin}/providers/).
 ${providerLinks}
 
 ## API
@@ -130,6 +141,7 @@ export function llmsFull(site: string, models: ModelRecord[]): string {
     `changelog.json: ${origin}/data/changelog.json`,
     `API docs: ${origin}/api/`,
     `Compare trackers: ${origin}/alternatives/`,
+    ...HUBS.map((hub) => `${hub.nav}: ${origin}${hub.path}`),
     `Request errors: ${origin}${REQUEST_ERRORS_INDEX}`,
     ...requestErrors.map((page) => `Request error: ${origin}${requestErrorPath(page.slug)}`),
     `Deadlines: ${origin}/deadlines/`,
