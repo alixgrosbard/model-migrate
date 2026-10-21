@@ -6,6 +6,7 @@ import SponsorSlot from "../../../components/SponsorSlot.astro";
 import { loadChanges, loadMigrations, loadModels, loadProviders } from "../../../lib/load.ts";
 import { answerSentence, clipMeta, formatWhen, modelFaqs, modelTitle, money, relatedModels, tokens } from "../../../lib/format.ts";
 import { publicName } from "../../../lib/growth.ts";
+import { modelsHub } from "../../../lib/hubs.ts";
 import { modelGraph } from "../../../jsonld.ts";
 import { DEFAULT_SITE_URL } from "../../../lib/site.ts";
 import { requestErrorPath, requestErrorsForModel } from "../../../lib/request-errors.ts";
@@ -44,6 +45,7 @@ const specRows: [string, string, string][] = [
   image={`/og/models/${model.provider}/${model.slug}.svg`}
   crumbs={[
     { name: "Home", path: "/" },
+    { name: modelsHub.nav, path: modelsHub.path },
     { name: provider.name, path: `/providers/${provider.id}/` },
     { name: publicName(model), path: `/models/${model.provider}/${model.slug}/` },
   ]}

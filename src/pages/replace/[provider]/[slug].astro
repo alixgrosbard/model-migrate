@@ -6,6 +6,7 @@ import NewsletterForm from "../../../components/NewsletterForm.astro";
 import SponsorSlot from "../../../components/SponsorSlot.astro";
 import { loadMigrations, loadModels, loadProviders, migrationKey } from "../../../lib/load.ts";
 import { clipMeta, relatedModels, replaceFaqs, replacementAnswer, visibleName } from "../../../lib/format.ts";
+import { replaceHub } from "../../../lib/hubs.ts";
 import { migrateGraph } from "../../../jsonld.ts";
 import { DEFAULT_SITE_URL } from "../../../lib/site.ts";
 
@@ -38,6 +39,7 @@ const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
   image={`/og/models/${model.provider}/${model.slug}.svg`}
   crumbs={[
     { name: "Home", path: "/" },
+    { name: replaceHub.nav, path: replaceHub.path },
     { name: provider.name, path: `/providers/${provider.id}/` },
     { name: visibleName(model), path: `/replace/${model.provider}/${model.slug}/` },
   ]}

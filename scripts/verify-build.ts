@@ -1,7 +1,8 @@
 import { readFile, readdir, stat } from "node:fs/promises";
 import path from "node:path";
 import { htmlContainsOwnerPlaceholder } from "../src/lib/public-copy.ts";
-import { loadModels } from "../src/lib/load.ts";
+import { loadMigrations, loadModels, loadProviders } from "../src/lib/load.ts";
+import { HUBS } from "../src/lib/hubs.ts";
 import { today } from "../src/lib/format.ts";
 import { isPastShutdown, shutdownEventPath, shutdownEvents } from "../src/lib/shutdowns.ts";
 import { GUIDES_CHECKED, guidePath, guides } from "../src/lib/guides.ts";
@@ -30,6 +31,10 @@ const required = [
   "pro/index.html",
   "shutdowns/index.html",
   "errors/index.html",
+  "models/index.html",
+  "replace/index.html",
+  "migrate/index.html",
+  "providers/index.html",
   "alternatives/index.html",
   "api/index.html",
   "alternatives/modeldeprecations/index.html",
@@ -136,6 +141,7 @@ async function main() {
   if (!llms.includes("/alternatives/")) throw new Error("llms.txt is missing /alternatives/");
   if (!llms.includes("/api/")) throw new Error("llms.txt is missing /api/");
   const llmsFull = await readFile(path.join(dist, "llms-full.txt"), "utf8");
+  await checkHubs(sitemap, llms, llmsFull);
   if (!llmsFull.includes("/alternatives/")) throw new Error("llms-full.txt is missing /alternatives/");
   if (!llmsFull.includes("/api/")) throw new Error("llms-full.txt is missing /api/");
   const comparePages = [
@@ -276,6 +282,58 @@ async function main() {
     if (deps[name]) throw new Error(`Disallowed package installed: ${name}`);
   }
   console.log(`Verified ${checked} HTML files and required static outputs.`);
+}
+
+async function checkHubs(sitemap: string, llms: string, llmsFull: string) {
+  const [models, providers, migrations] = await Promise.all([loadModels(), loadProviders(), loadMigrations()]);
+  const expectedItems: Record<string, number> = {
+    "/models/": models.length,
+    "/replace/": models.length,
+    "/migrate/": migrations.length,
+    "/providers/": providers.length,
+  };
+  const home = await readFile(path.join(dist, "index.html"), "utf8");
+  for (const hub of HUBS) {
+    if (!home.includes(`href="${hub.path}"`)) throw new Error(`Navigation is missing ${hub.path}`);
+    if (!sitemap.includes(`${hub.path}</loc>`)) throw new Error(`Sitemap is missing ${hub.path}`);
+    const hubLink = new RegExp(`\\]\\([^)\\s]*${hub.path.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\)`);
+    if (!hubLink.test(llms)) throw new Error(`llms.txt is missing a hub link for ${hub.path}`);
+    if (!llmsFull.includes(`${hub.nav}: `) || !llmsFull.includes(hub.path)) throw new Error(`llms-full.txt is missing ${hub.path}`);
+    const html = await readFile(path.join(dist, hub.path.slice(1), "index.html"), "utf8");
+    if (!html.includes(`<title>${hub.title}</title>`)) throw new Error(`Title mismatch on ${hub.path}`);
+    if (!html.includes(`content="${hub.description}"`)) throw new Error(`Meta description mismatch on ${hub.path}`);
+    const canonical = html.match(/rel="canonical" href="([^"]+)"/);
+    if (!canonical?.[1].endsWith(hub.path)) throw new Error(`Canonical mismatch on ${hub.path}`);
+    if (!html.includes('"CollectionPage"') || !html.includes('"ItemList"') || !html.includes('"BreadcrumbList"')) {
+      throw new Error(`Hub JSON-LD missing CollectionPage, ItemList, or BreadcrumbList on ${hub.path}`);
+    }
+    if (html.includes("—") || html.includes("–")) throw new Error(`Em dash on ${hub.path}`);
+    const block = html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
+    if (!block) throw new Error(`Missing JSON-LD on ${hub.path}`);
+    const data = JSON.parse(block[1]) as { "@graph": { "@type": string; numberOfItems?: number; itemListElement?: unknown[] }[] };
+    const list = data["@graph"].find((node) => node["@type"] === "ItemList");
+    if (!list || list.numberOfItems !== expectedItems[hub.path] || list.itemListElement?.length !== expectedItems[hub.path]) {
+      throw new Error(`ItemList count mismatch on ${hub.path}`);
+    }
+  }
+  const sample = models[0];
+  const modelHtml = await readFile(path.join(dist, "models", sample.provider, sample.slug, "index.html"), "utf8");
+  if (!modelHtml.includes('"name":"Models"') || !modelHtml.includes('class="crumbs"')) {
+    throw new Error("Model page breadcrumb is missing the models hub");
+  }
+  const replaceHtml = await readFile(path.join(dist, "replace", sample.provider, sample.slug, "index.html"), "utf8");
+  if (!replaceHtml.includes('"name":"Replacements"')) throw new Error("Replacement page breadcrumb is missing the replace hub");
+  const providerHtml = await readFile(path.join(dist, "providers", sample.provider, "index.html"), "utf8");
+  if (!providerHtml.includes('"name":"Providers"')) throw new Error("Provider page breadcrumb is missing the providers hub");
+  const migration = migrations[0];
+  const pair = `${migration.from.provider}__${migration.from.slug}__to__${migration.to.provider}__${migration.to.slug}`;
+  const migrateHtml = await readFile(path.join(dist, "migrate", pair, "index.html"), "utf8");
+  if (!migrateHtml.includes('"name":"Migrations"')) throw new Error("Migration page breadcrumb is missing the migrate hub");
+  const modelsHub = await readFile(path.join(dist, "models/index.html"), "utf8");
+  if (!modelsHub.includes('id="hub-filter"') || !modelsHub.includes('id="hub-status"')) {
+    throw new Error("Models hub is missing the filter");
+  }
+  if (!modelsHub.includes(`/models/${sample.provider}/${sample.slug}/`)) throw new Error("Models hub is missing a model link");
 }
 
 function htmlHas(html: string, text: string): boolean {

@@ -1,0 +1,70 @@
+---
+import Base from "../../layouts/Base.astro";
+import HubFilter from "../../components/HubFilter.astro";
+import { collectionGraph } from "../../jsonld.ts";
+import { formatWhen } from "../../lib/format.ts";
+import { publicName } from "../../lib/growth.ts";
+import { filterText, modelPath, modelsForProvider, modelsHub, providersHub, replaceHub, replacePath, replacementLinkText } from "../../lib/hubs.ts";
+import { loadModels, loadProviders } from "../../lib/load.ts";
+import { DEFAULT_SITE_URL } from "../../lib/site.ts";
+
+const providers = await loadProviders();
+const models = await loadModels();
+const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
+const groups = providers
+  .map((provider) => ({ provider, models: modelsForProvider(models, provider.id) }))
+  .filter((group) => group.models.length);
+const items = groups.flatMap((group) =>
+  group.models.map((model) => ({ name: `${group.provider.name}: ${publicName(model)}`, path: modelPath(model) })),
+);
+---
+<Base
+  title={modelsHub.title}
+  description={modelsHub.description}
+  crumbs={[{ name: "Home", path: "/" }, { name: modelsHub.nav, path: modelsHub.path }]}
+  extraGraph={collectionGraph(site, { path: modelsHub.path, name: modelsHub.h1, description: modelsHub.description }, items)}
+>
+  <h1>{modelsHub.h1}</h1>
+  <p class="answer">
+    Every model record SunsetDiff tracks, grouped by provider.
+    The shutdown cell is the published date.
+    It can be an exact day, a month, a not-sooner-than floor, or not published.
+    The replacement link goes to that model's replacement page.
+    The filter hides rows in the browser and does not change the data.
+    <a href={providersHub.path}>{providersHub.nav}</a> · <a href={replaceHub.path}>{replaceHub.nav}</a>
+  </p>
+  <p>{models.length} model records.</p>
+  <HubFilter status />
+  <ul>
+    {groups.map((group) => (
+      <li><a href={`#${group.provider.id}`}>{group.provider.name}</a> ({group.models.length})</li>
+    ))}
+  </ul>
+  {groups.map((group) => (
+    <section id={group.provider.id} data-hub-section>
+      <h2><a href={`/providers/${group.provider.id}/`}>{group.provider.name}</a></h2>
+      <table>
+        <caption>{group.provider.name}: {group.models.length} models.</caption>
+        <thead>
+          <tr><th>Model</th><th>Status</th><th>Shutdown</th><th>Replacement</th></tr>
+        </thead>
+        <tbody>
+          {group.models.map((model) => (
+            <tr
+              data-status={model.status}
+              data-filter={filterText([model.id, publicName(model), model.status, group.provider.name, replacementLinkText(model)])}
+            >
+              <td>
+                <a href={modelPath(model)}>{publicName(model)}</a>
+                {publicName(model) !== model.id ? <><br /><code>{model.id}</code></> : null}
+              </td>
+              <td><span class="badge">{model.status}</span></td>
+              <td>{formatWhen(model)}</td>
+              <td><a href={replacePath(model)}>{replacementLinkText(model)}</a></td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </section>
+  ))}
+</Base>

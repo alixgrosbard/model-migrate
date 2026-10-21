@@ -191,6 +191,36 @@ export function shutdownEventGraph(
   return nodes;
 }
 
+export function collectionGraph(
+  site: string,
+  page: { path: string; name: string; description: string },
+  items: { name: string; path: string }[],
+) {
+  const url = new URL(page.path, site).href;
+  return [
+    {
+      "@type": "CollectionPage",
+      name: page.name,
+      description: page.description,
+      url,
+      inLanguage: "en",
+      isPartOf: { "@id": `${siteRoot(site)}/#website` },
+      publisher: { "@type": "Organization", name: "SunsetDiff" },
+    },
+    {
+      "@type": "ItemList",
+      name: page.name,
+      numberOfItems: items.length,
+      itemListElement: items.map((item, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        name: item.name,
+        url: new URL(item.path, site).href,
+      })),
+    },
+  ];
+}
+
 export function shutdownIndexGraph(site: string, items: { name: string; path: string }[]) {
   const url = new URL("/shutdowns/", site).href;
   return [

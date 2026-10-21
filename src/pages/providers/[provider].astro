@@ -3,6 +3,7 @@ import Base from "../../layouts/Base.astro";
 import { loadModels, loadProviders, providerName } from "../../lib/load.ts";
 import { formatWhen, isUpcomingShutdown, today } from "../../lib/format.ts";
 import { publicName } from "../../lib/growth.ts";
+import { providersHub } from "../../lib/hubs.ts";
 import type { ModelRecord } from "../../schema.ts";
 
 export async function getStaticPaths() {
@@ -26,7 +27,7 @@ const description = `${provider.name} model shutdown dates, grouped by status.`;
   title={`${provider.name} model shutdowns and replacements | SunsetDiff`}
   description={`Shutdown dates and official replacements for ${provider.name} models, with links to each migration diff.`}
   image={`/og/providers/${provider.id}.svg`}
-  crumbs={[{ name: "Home", path: "/" }, { name: provider.name, path: `/providers/${provider.id}/` }]}
+  crumbs={[{ name: "Home", path: "/" }, { name: providersHub.nav, path: providersHub.path }, { name: provider.name, path: `/providers/${provider.id}/` }]}
 >
   <h1>{provider.name}</h1>
   <p>Official source: <a href={provider.deprecations_url}>{provider.deprecations_url}</a>. <a href="/#soonest">Soonest shutdowns on the homepage</a>.</p>
