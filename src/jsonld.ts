@@ -1,4 +1,5 @@
 import type { MigrationRecord, ModelRecord, Provider } from "./schema.ts";
+import { BADGES_DESCRIPTION, BADGES_PATH } from "./lib/badges.ts";
 import { modelFaqs, replaceFaqs, type FaqItem } from "./lib/format.ts";
 import { deprecatedFaqs, publicName, questionPath, shutdownFaqs } from "./lib/growth.ts";
 import { GUIDES_CHECKED, GUIDES_INDEX, guidePath, type GuidePage } from "./lib/guides.ts";
@@ -384,6 +385,33 @@ export function requestErrorGraph(site: string, page: RequestErrorPage) {
       citation: page.citations,
     },
     faqNode(page.faqs),
+  ];
+}
+
+export function badgesGraph(site: string, items: { name: string; path: string }[], faqs: FaqItem[]) {
+  const url = new URL(BADGES_PATH, site).href;
+  return [
+    {
+      "@type": "CollectionPage",
+      name: "Status badges",
+      description: BADGES_DESCRIPTION,
+      url,
+      inLanguage: "en",
+      isPartOf: { "@id": `${siteRoot(site)}/#website` },
+      publisher: { "@type": "Organization", name: "SunsetDiff" },
+    },
+    {
+      "@type": "ItemList",
+      name: "Status badges",
+      numberOfItems: items.length,
+      itemListElement: items.map((item, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        name: item.name,
+        url: new URL(item.path, site).href,
+      })),
+    },
+    faqNode(faqs),
   ];
 }
 

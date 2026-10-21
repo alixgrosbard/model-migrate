@@ -16,6 +16,7 @@ public/data/deprecations.csv
 public/data/changelog.json
 public/search-index.json
 public/og/
+public/badge/
 subscribers.csv
 *.log
 .env

@@ -1,7 +1,9 @@
 import { readFile, readdir, stat } from "node:fs/promises";
 import path from "node:path";
+import { BADGES_DESCRIPTION, BADGES_TITLE, badgeSvgPath, badgeView } from "../src/lib/badges.ts";
 import { htmlContainsOwnerPlaceholder } from "../src/lib/public-copy.ts";
 import { loadMigrations, loadModels, loadProviders } from "../src/lib/load.ts";
+import { siteOrigin } from "../src/lib/site.ts";
 import { HUBS } from "../src/lib/hubs.ts";
 import { today } from "../src/lib/format.ts";
 import { isPastShutdown, shutdownEventPath, shutdownEvents } from "../src/lib/shutdowns.ts";
@@ -32,6 +34,7 @@ const required = [
   "shutdowns/index.html",
   "errors/index.html",
   "models/index.html",
+  "badges/index.html",
   "replace/index.html",
   "migrate/index.html",
   "providers/index.html",
@@ -281,7 +284,74 @@ async function main() {
   for (const name of banned) {
     if (deps[name]) throw new Error(`Disallowed package installed: ${name}`);
   }
+  await checkBadges(sitemap, llms, llmsFull);
   console.log(`Verified ${checked} HTML files and required static outputs.`);
+}
+
+async function checkBadges(sitemap: string, llms: string, llmsFull: string) {
+  const models = await loadModels();
+  const day = today();
+  if (!sitemap.includes("/badges/</loc>")) throw new Error("Sitemap is missing /badges/");
+  if (!llms.includes("/badges/")) throw new Error("llms.txt is missing /badges/");
+  if (!llmsFull.includes("/badges/")) throw new Error("llms-full.txt is missing /badges/");
+  const home = await readFile(path.join(dist, "index.html"), "utf8");
+  const footer = home.slice(home.lastIndexOf("<footer"));
+  if (!home.includes('href="/badges/"') || !footer.includes('href="/badges/"')) {
+    throw new Error("Navigation is missing /badges/");
+  }
+  const html = await readFile(path.join(dist, "badges/index.html"), "utf8");
+  if (!html.includes(`<title>${BADGES_TITLE}</title>`)) throw new Error("Badges title mismatch");
+  if (!html.includes(`content="${BADGES_DESCRIPTION}"`)) throw new Error("Badges description mismatch");
+  for (const type of ['"CollectionPage"', '"ItemList"', '"FAQPage"', '"BreadcrumbList"']) {
+    if (!html.includes(type)) throw new Error(`Badges JSON-LD is missing ${type}`);
+  }
+  if (html.includes("—") || html.includes("–")) throw new Error("Em dash on /badges/");
+  if (!html.includes("Copy Markdown") || !html.includes("Copy HTML")) throw new Error("Badges page is missing copy snippets");
+  const block = html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
+  if (!block) throw new Error("Missing JSON-LD on /badges/");
+  const data = JSON.parse(block[1]) as { "@graph": { "@type": string; numberOfItems?: number }[] };
+  const list = data["@graph"].find((node) => node["@type"] === "ItemList");
+  if (!list || list.numberOfItems !== models.length) throw new Error("Badges ItemList count mismatch");
+  const seen = new Set<string>();
+  for (const model of models) {
+    const svgRel = badgeSvgPath(model).slice(1);
+    if (seen.has(svgRel)) throw new Error(`Duplicate badge ${svgRel}`);
+    seen.add(svgRel);
+    const view = badgeView(model, day);
+    const svg = await readFile(path.join(dist, svgRel), "utf8");
+    const json = JSON.parse(await readFile(path.join(dist, svgRel.replace(/\.svg$/, ".json")), "utf8")) as {
+      schemaVersion: number;
+      label: string;
+      message: string;
+      color: string;
+      cacheSeconds: number;
+    };
+    if (!svg.startsWith("<svg ") || !svg.includes('xmlns="http://www.w3.org/2000/svg"') || !svg.includes("</svg>")) {
+      throw new Error(`Badge is not an SVG: ${svgRel}`);
+    }
+    if (!svg.includes(`fill="${view.fill}"`)) throw new Error(`Badge color mismatch: ${svgRel}`);
+    if (!svg.includes(`>${view.message}<`)) throw new Error(`Badge message missing: ${svgRel}`);
+    if (json.schemaVersion !== 1 || json.label !== model.id || json.message !== view.message || json.color !== view.shieldsColor) {
+      throw new Error(`Badge JSON mismatch: ${svgRel}`);
+    }
+    if (json.cacheSeconds < 300) throw new Error(`Badge JSON is not cache-friendly: ${svgRel}`);
+    if (view.message.includes("retires") && !model.shutdown_date) throw new Error(`Badge invented a date: ${svgRel}`);
+  }
+  if (seen.size !== models.length) throw new Error(`Expected ${models.length} badges, found ${seen.size}`);
+  const sample = models[0];
+  const modelHtml = await readFile(path.join(dist, "models", sample.provider, sample.slug, "index.html"), "utf8");
+  if (!modelHtml.includes("Add this badge to your README")) throw new Error("Model page is missing the badge snippet");
+  if (!modelHtml.includes(badgeSvgPath(sample))) throw new Error("Model page is missing the badge image");
+  if (!modelHtml.includes(`${siteOrigin()}${badgeSvgPath(sample)}`)) {
+    throw new Error("Model page snippet is missing the absolute badge URL");
+  }
+  if (!modelHtml.includes(`${siteOrigin()}/models/${sample.provider}/${sample.slug}/`)) {
+    throw new Error("Model page snippet does not link back to the model page");
+  }
+  const headers = await readFile(path.join(process.cwd(), "render.yaml"), "utf8");
+  if (!headers.includes("image/svg+xml")) throw new Error("render.yaml is missing the SVG content type");
+  if (!headers.includes("/badge/**/*.svg")) throw new Error("render.yaml is missing the badge SVG header path");
+  if (!headers.includes("max-age=3600")) throw new Error("render.yaml is missing badge cache headers");
 }
 
 async function checkHubs(sitemap: string, llms: string, llmsFull: string) {

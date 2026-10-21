@@ -5,6 +5,7 @@ import { today } from "./format.ts";
 import { COMPARISON_CHECKED, comparisonPath, comparisons } from "./comparisons.ts";
 import { GUIDES_CHECKED, GUIDES_INDEX, guidePath, guides } from "./guides.ts";
 import { REQUEST_ERRORS_CHECKED, REQUEST_ERRORS_INDEX, requestErrorPath, requestErrors } from "./request-errors.ts";
+import { BADGES_PATH } from "./badges.ts";
 import { modelsInMonth, questionPath, shutdownMonths, topRetiringModels } from "./growth.ts";
 import { migrateHub, modelsHub, providersHub, replaceHub } from "./hubs.ts";
 import { shutdownEventPath, shutdownEvents } from "./shutdowns.ts";
@@ -55,6 +56,7 @@ function build(): Map<string, string> {
     map.set("/questions/", newestModel);
     map.set("/data/models.json", newestModel);
     map.set("/data/deprecations.csv", newestModel);
+    map.set(BADGES_PATH, newestModel);
   }
   for (const month of shutdownMonths(all)) {
     const newest = newestDate(modelsInMonth(all, month).map((model) => model.updated_at));
