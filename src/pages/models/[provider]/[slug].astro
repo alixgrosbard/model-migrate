@@ -11,6 +11,8 @@ import { publicName } from "../../../lib/growth.ts";
 import { modelsHub } from "../../../lib/hubs.ts";
 import { modelGraph } from "../../../jsonld.ts";
 import { DEFAULT_SITE_URL } from "../../../lib/site.ts";
+import BreakingRules from "../../../components/BreakingRules.astro";
+import { breakingChangesForModel } from "../../../lib/breaking-changes.ts";
 import { requestErrorPath, requestErrorsForModel } from "../../../lib/request-errors.ts";
 
 export async function getStaticPaths() {
@@ -30,6 +32,7 @@ const changes = (await loadChanges()).filter((change) => change.provider === mod
 const description = clipMeta(answer);
 const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
 const relatedErrors = requestErrorsForModel(model.provider, model.id);
+const breakingRules = breakingChangesForModel(model.provider, model.id);
 const restrictedAccess = gemini25Restricted(model);
 const specRows: [string, string, string][] = [
   ["Input price / 1M", money(model.specs.input_price_per_mtok), "input_price_per_mtok"],
@@ -104,6 +107,7 @@ const specRows: [string, string, string][] = [
       </ul>
     </>
   ) : null}
+  <BreakingRules rules={breakingRules} />
   <h2>Specs</h2>
   <table>
     <caption>Published specs. Missing cells were not on the official pages we checked.</caption>

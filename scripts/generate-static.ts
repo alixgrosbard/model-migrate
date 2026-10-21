@@ -16,6 +16,7 @@ import {
   shutdownEvents,
 } from "../src/lib/shutdowns.ts";
 import { writeBadgeFiles } from "../src/lib/badges.ts";
+import { breakingChangesCsv, breakingChangesDocument } from "../src/lib/breaking-changes.ts";
 import { siteOrigin } from "../src/lib/site.ts";
 
 const site = siteOrigin();
@@ -68,6 +69,8 @@ async function main() {
       models_json: "/data/models.json",
       deprecations_csv: "/data/deprecations.csv",
       changelog_json: "/data/changelog.json",
+      breaking_changes_json: "/data/breaking-changes.json",
+      breaking_changes_csv: "/data/breaking-changes.csv",
       deadlines_ics: "/deadlines.ics",
       deprecations_feed: "/feed.xml",
     },
@@ -135,6 +138,8 @@ async function main() {
   });
   await writeFile(path.join(publicDir, "data/deprecations.csv"), deprecationsCsv(models));
   await writeJson(path.join(publicDir, "data/changelog.json"), changelog);
+  await writeJson(path.join(publicDir, "data/breaking-changes.json"), breakingChangesDocument());
+  await writeFile(path.join(publicDir, "data/breaking-changes.csv"), breakingChangesCsv());
   await writeFile(path.join(publicDir, "deadlines.ics"), deadlinesIcs(models, day, site));
   const feedEvents: FeedEntry[] = events.map((event) => {
     const name = providerDisplayName(providers, event.provider);

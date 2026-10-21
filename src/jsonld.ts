@@ -3,6 +3,7 @@ import { BADGES_DESCRIPTION, BADGES_PATH } from "./lib/badges.ts";
 import { modelFaqs, replaceFaqs, type FaqItem } from "./lib/format.ts";
 import { deprecatedFaqs, publicName, questionPath, shutdownFaqs } from "./lib/growth.ts";
 import { GUIDES_CHECKED, GUIDES_INDEX, guidePath, type GuidePage } from "./lib/guides.ts";
+import { BREAKING_CHANGES_PATH, breakingChangesChecked, breakingChangesDatasetGraph } from "./lib/breaking-changes.ts";
 import { REQUEST_ERRORS_INDEX, requestErrorChecked, requestErrorPath, requestErrorsIndexChecked, type RequestErrorPage } from "./lib/request-errors.ts";
 
 function siteRoot(site: string): string {
@@ -332,6 +333,43 @@ export function apiDocsGraph(site: string, modified: string, faqs: FaqItem[]) {
       provider: { "@id": `${root}/#org` },
     },
     ...datasetGraph(site, modified),
+    breakingChangesDatasetGraph(site),
+    faqNode(faqs),
+  ];
+}
+
+export function breakingChangesIndexGraph(
+  site: string,
+  items: { name: string; path: string }[],
+  faqs: FaqItem[],
+) {
+  const url = new URL(BREAKING_CHANGES_PATH, site).href;
+  return [
+    {
+      "@type": "CollectionPage",
+      name: "Request breaking changes",
+      description:
+        "Request settings and endpoints a replacement AI model rejects. Each rule cites an official page or a public issue.",
+      url,
+      dateModified: breakingChangesChecked(),
+      inLanguage: "en",
+      isPartOf: { "@id": `${siteRoot(site)}/#website` },
+      publisher: { "@type": "Organization", name: "SunsetDiff" },
+      mainEntity: { "@id": `${url}#list` },
+    },
+    {
+      "@type": "ItemList",
+      "@id": `${url}#list`,
+      name: "Request breaking changes",
+      numberOfItems: items.length,
+      itemListElement: items.map((item, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        name: item.name,
+        url: new URL(item.path, site).href,
+      })),
+    },
+    breakingChangesDatasetGraph(site),
     faqNode(faqs),
   ];
 }

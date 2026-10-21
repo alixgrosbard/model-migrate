@@ -1,3 +1,4 @@
+import { BREAKING_CHANGES_CSV_HEADERS } from "./breaking-changes.ts";
 import type { FaqItem } from "./format.ts";
 
 /** Static files the site build writes. Paths match scripts/generate-static.ts. */
@@ -180,6 +181,74 @@ export const ENDPOINTS: EndpointDoc[] = [
     ],
     notes: ["A version group is every change recorded on that calendar date."],
     body: "json",
+  },
+  {
+    path: "/data/breaking-changes.json",
+    title: "Request breaking changes",
+    format: "application/json",
+    summary:
+      "One rule per row for a request setting or endpoint a replacement model rejects. License CC BY 4.0. error_text is null when the cited page does not print a sentence.",
+    fields: [
+      { name: "name", detail: "Fixed string: SunsetDiff request breaking changes." },
+      { name: "publisher", detail: "Fixed string: SunsetDiff." },
+      { name: "license", detail: "https://creativecommons.org/licenses/by/4.0/" },
+      { name: "description", detail: "What the file contains." },
+      { name: "version", detail: "The newest rules[].checked date, YYYY-MM-DD." },
+      { name: "rules", detail: "One object per breaking change." },
+      { name: "rules[].id", detail: "Stable id. The hub links to /breaking-changes/#id." },
+      { name: "rules[].provider", detail: "Provider id. See /api/v1/providers.json." },
+      { name: "rules[].provider_name", detail: "Provider name shown on the site." },
+      { name: "rules[].model_family", detail: "Family label from the source, or null." },
+      { name: "rules[].models", detail: "Models this rule is shown for. Each item has id, provider, slug, and role." },
+      { name: "rules[].models[].role", detail: "rejects means this id fails the old setting. switch_from means a switch guide leaves this id for a model that fails it." },
+      { name: "rules[].old_setting", detail: "The request field, value, or endpoint the old call sent." },
+      { name: "rules[].what_happens", detail: "What the cited page says happens now." },
+      { name: "rules[].error_text", detail: "Exact sentence from source_url or quote_source_url. Null when neither page prints one." },
+      { name: "rules[].fix", detail: "The change the cited page tells you to make." },
+      { name: "rules[].source_url", detail: "Official page or public GitHub issue the row is taken from." },
+      { name: "rules[].source_label", detail: "Short name for that page." },
+      { name: "rules[].quote_source_url", detail: "Page that prints error_text, when it is not source_url. Null otherwise." },
+      { name: "rules[].quote_source_label", detail: "Short name for quote_source_url, or null." },
+      { name: "rules[].checked", detail: "Day the source was read, YYYY-MM-DD." },
+      { name: "rules[].error_page", detail: "SunsetDiff /errors/ path, or null when this rule has no error page." },
+      { name: "rules[].migrations", detail: "Switch guides this rule applies to. Each item has href and label." },
+      { name: "rules[].citations", detail: "Every URL read for the row, including source_url." },
+    ],
+    notes: [
+      "The human page is /breaking-changes/.",
+      "Retired model ids are on /errors/, not in this file.",
+      "Credit SunsetDiff and link the license when you copy this file.",
+    ],
+    body: "json",
+  },
+  {
+    path: "/data/breaking-changes.csv",
+    title: "Request breaking changes CSV",
+    format: "text/csv",
+    summary: "The same breaking-change rules as breaking-changes.json, one row each. License CC BY 4.0.",
+    fields: BREAKING_CHANGES_CSV_HEADERS.map((name) => ({
+      name,
+      detail:
+        name === "model_ids"
+          ? "Models that reject the old setting, as provider:id, separated by a semicolon."
+          : name === "switch_from_model_ids"
+            ? "Model ids you switch away from, as provider:id, separated by a semicolon. Empty when the rule has none."
+            : name === "error_text"
+              ? "Exact quoted sentence. Empty when the source does not print one."
+              : name === "quote_source_url"
+                ? "Page that prints error_text, when it is not source_url. Empty otherwise."
+                : name === "error_page"
+                  ? "SunsetDiff /errors/ path. Empty when this rule has no error page."
+                  : name === "migrations"
+                    ? "Switch guide paths, separated by a semicolon."
+                    : name === "citations"
+                      ? "Source URLs separated by spaces."
+                      : name === "model_family"
+                        ? "Family label from the source. Empty when the source names only specific ids and this row left the family blank."
+                        : "Same meaning as the matching field in /data/breaking-changes.json.",
+    })),
+    notes: ["Quoted CSV. An empty error_text cell means the source did not print a sentence."],
+    body: "text",
   },
   {
     path: "/dataset/sunsetdiff.json",
@@ -438,9 +507,14 @@ export const apiFaqs: FaqItem[] = [
       "A GitHub Action checks the official provider pages about every 6 hours. The next site build rewrites these files when the data changes. Each source has a last_checked date.",
   },
   {
+    question: "Where are the request fields that break on a model switch?",
+    answer:
+      "In [breaking-changes.json](/data/breaking-changes.json) and [breaking-changes.csv](/data/breaking-changes.csv). The human page is [Breaking changes](/breaking-changes/). error_text is empty when the cited page does not print a sentence. License CC BY 4.0.",
+  },
+  {
     question: "What license is the SunsetDiff dataset?",
     answer:
-      "CC BY 4.0. Credit SunsetDiff and link [the license](https://creativecommons.org/licenses/by/4.0/). That license covers the JSON and CSV files under /dataset and /api/v1, and the data files that feed them.",
+      "CC BY 4.0. Credit SunsetDiff and link [the license](https://creativecommons.org/licenses/by/4.0/). That license covers the JSON and CSV files under /dataset and /api/v1, and the data files that feed them. [breaking-changes.json](/data/breaking-changes.json) is the request-setting list.",
   },
 ];
 
