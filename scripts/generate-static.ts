@@ -21,7 +21,7 @@ import { scheduleIndexLinks } from "../src/lib/schedule.ts";
 import { siteOrigin } from "../src/lib/site.ts";
 import { openApiDocument } from "../src/lib/openapi.ts";
 import { statusLlmsEntries } from "../src/lib/status-hubs.ts";
-import { feedRedirectHtml, SHORTCUT_MARKER, shortcutFiles } from "../src/lib/shortcuts.ts";
+import { SHORTCUT_MARKER, shortcutFiles } from "../src/lib/shortcuts.ts";
 
 const site = siteOrigin();
 const publicDir = path.join(process.cwd(), "public");
@@ -164,8 +164,12 @@ async function main() {
       description: shutdownEventLead(name, event, day),
     };
   });
-  await writeFile(path.join(publicDir, "feed.xml"), deprecationsFeed(changes, models, site, feedEvents));
-  await writeFile(path.join(publicDir, "rss.xml"), feedRedirectHtml(site));
+  const feed = deprecationsFeed(changes, models, site, feedEvents);
+  await writeFile(path.join(publicDir, "feed.xml"), feed);
+  // /openai/ can be an HTML refresh because that path is a directory of HTML.
+  // Render serves a .xml file as application/xml, so a refresh page would not run.
+  // /rss.xml is the same feed document as /feed.xml.
+  await writeFile(path.join(publicDir, "rss.xml"), feed);
   const badgeCount = await writeBadgeFiles(publicDir, models, day);
   await writeOgImages(publicDir, models, providers);
   await writeFile(

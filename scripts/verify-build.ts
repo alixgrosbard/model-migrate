@@ -338,8 +338,8 @@ async function main() {
     if (html.includes("—") || html.includes("–")) throw new Error(`Em dash on ${rel}`);
   }
   const rss = await readFile(path.join(dist, "rss.xml"), "utf8");
-  if (!rss.includes('http-equiv="refresh" content="0; url=/feed.xml"')) throw new Error("/rss.xml is missing its refresh to /feed.xml");
-  if (!rss.includes('rel="canonical" href="https://sunsetdiff.com/feed.xml"')) throw new Error("/rss.xml is missing the feed canonical");
+  if (rss !== feed) throw new Error("/rss.xml must be the same document as /feed.xml");
+  if (!rss.includes("<rss")) throw new Error("/rss.xml is not an RSS document");
   if (!llms.includes("/rss.xml")) throw new Error("llms.txt is missing /rss.xml");
   if (!llmsFull.includes("/rss.xml")) throw new Error("llms-full.txt is missing /rss.xml");
   for (const page of requestErrors) {

@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 import { glossaryIndexGraph, glossaryTermGraph } from "../src/jsonld.ts";
-import { feedRedirectHtml } from "../src/lib/shortcuts.ts";
 import {
   GLOSSARY_CHECKED,
   GLOSSARY_INDEX,
@@ -91,11 +90,10 @@ describe("glossary", () => {
     }
   });
 
-  it("refreshes /rss.xml to the deprecations feed", () => {
-    const html = feedRedirectHtml("https://sunsetdiff.com");
-    expect(html).toContain('rel="canonical" href="https://sunsetdiff.com/feed.xml"');
-    expect(html).toContain('http-equiv="refresh" content="0; url=/feed.xml"');
-    expect(html).toContain("sunsetdiff-provider-shortcut");
-    expect(html).not.toMatch(/[—–]/);
+  it("lists /rss.xml as the same feed as /feed.xml", () => {
+    const text = llmsTxt("https://sunsetdiff.com", [], []);
+    expect(text).toContain("/rss.xml");
+    expect(text).toContain("/feed.xml");
+    expect(text).toContain("same deprecations feed");
   });
 });

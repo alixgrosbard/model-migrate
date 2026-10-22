@@ -79,7 +79,7 @@ export function llmsTxt(
 - [Deprecation questions](${origin}/questions/)
 - [Guides](${origin}${GUIDES_INDEX})
 - [Glossary](${origin}${GLOSSARY_INDEX}): definitions for deprecated, retired, legacy, snapshot, alias, and the other shutdown words. Checked ${GLOSSARY_CHECKED}.
-- [RSS](${origin}/rss.xml) refreshes to the deprecations feed at /feed.xml.
+- [RSS](${origin}/rss.xml) is the same deprecations feed as /feed.xml.
 - [Changes](${origin}/changes/)
 - [Dataset](${origin}/data/)
 - [Status badges](${origin}${BADGES_PATH}): ${BADGES_DESCRIPTION}
@@ -125,7 +125,7 @@ ${scheduleLinks || "- None published."}
 ${guides.map((guide) => `- [${guide.h1}](${origin}${guidePath(guide.slug)})`).join("\n")}
 
 ## Glossary
-[All terms](${origin}${GLOSSARY_INDEX}). Each term has a short definition and the provider page the wording came from. Checked ${GLOSSARY_CHECKED}. /rss.xml refreshes to /feed.xml.
+[All terms](${origin}${GLOSSARY_INDEX}). Each term has a short definition and the provider page the wording came from. Checked ${GLOSSARY_CHECKED}. /rss.xml is the same feed as /feed.xml.
 ${glossaryTerms.map((term) => `- [${term.name}](${origin}${glossaryPath(term.slug)}): ${term.definition}`).join("\n")}
 
 ## Deprecation questions
