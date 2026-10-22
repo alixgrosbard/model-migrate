@@ -15,7 +15,7 @@
     {
       "url": "https://docs.aws.amazon.com/bedrock/latest/userguide/model-lifecycle-legacy.html",
       "label": "Amazon Bedrock model lifecycle (legacy)",
-      "last_checked": "2026-10-21",
+      "last_checked": "2026-10-22",
       "excerpt": "Policy page https://docs.aws.amazon.com/bedrock/latest/userguide/model-lifecycle.html | Amazon | Nova Canvas | amazon.nova-canvas-v1:0 | ap-northeast-1, eu-west-1, us-east-1 | March 30, 2026 | September 30, 2026 | —"
     }
   ],
@@ -41,5 +41,5 @@
     "specs_sources": {}
   },
   "first_seen": "2026-10-17T15:59:19.574Z",
-  "updated_at": "2026-10-21T12:30:12.996Z"
+  "updated_at": "2026-10-22T04:50:27.922Z"
 }

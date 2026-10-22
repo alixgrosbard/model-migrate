@@ -55,24 +55,24 @@
     "Ship the change before the published shutdown date."
   ],
   "confidence": "partial",
-  "last_checked": "2026-10-21",
+  "last_checked": "2026-10-22",
   "sources": [
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "OpenAI deprecations",
-      "last_checked": "2026-10-21",
+      "last_checked": "2026-10-22",
       "excerpt": "Feb 26, 2027 | gpt-4o-transcribe | gpt-live-transcribe or gpt-transcribe"
     },
     {
       "url": "https://developers.openai.com/api/docs/models/gpt-4o-transcribe.md",
       "label": "OpenAI model docs",
-      "last_checked": "2026-10-21",
+      "last_checked": "2026-10-22",
       "excerpt": "Model ID: gpt-4o-transcribe | context window 16000 | max output 2000"
     },
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "Named as an official replacement",
-      "last_checked": "2026-10-21",
+      "last_checked": "2026-10-22",
       "excerpt": "Named as an official replacement for whisper-1. No shutdown date was published for this id on that page."
     }
   ]

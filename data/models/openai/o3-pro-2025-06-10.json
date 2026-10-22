@@ -22,13 +22,13 @@
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "OpenAI deprecations",
-      "last_checked": "2026-10-21",
+      "last_checked": "2026-10-22",
       "excerpt": "Dec 11, 2026 | o3-pro-2025-06-10 | gpt-5.6-sol (reasoning.mode: pro)"
     },
     {
       "url": "https://developers.openai.com/api/docs/models/o3-pro.md",
       "label": "OpenAI model docs",
-      "last_checked": "2026-10-21",
+      "last_checked": "2026-10-22",
       "excerpt": "Model ID: o3-pro | context window 200000 | max output 100000 | input $20 | output $80 | Default snapshot o3-pro-2025-06-10"
     }
   ],
@@ -54,14 +54,14 @@
     "specs_sources": {
       "context_window_tokens": {
         "url": "https://developers.openai.com/api/docs/models/o3-pro.md",
-        "last_checked": "2026-10-21"
+        "last_checked": "2026-10-22"
       },
       "max_output_tokens": {
         "url": "https://developers.openai.com/api/docs/models/o3-pro.md",
-        "last_checked": "2026-10-21"
+        "last_checked": "2026-10-22"
       }
     }
   },
   "first_seen": "2026-10-17T15:59:19.574Z",
-  "updated_at": "2026-10-21T12:30:12.996Z"
+  "updated_at": "2026-10-22T04:50:27.922Z"
 }

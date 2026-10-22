@@ -22,7 +22,7 @@
     {
       "url": "https://platform.claude.com/docs/en/about-claude/model-deprecations",
       "label": "Anthropic model deprecations",
-      "last_checked": "2026-10-21",
+      "last_checked": "2026-10-22",
       "excerpt": "claude-3-haiku-20240307 | Retired | February 19, 2026 | April 20, 2026"
     }
   ],
@@ -48,5 +48,5 @@
     "specs_sources": {}
   },
   "first_seen": "2026-10-17T15:59:19.574Z",
-  "updated_at": "2026-10-21T12:30:12.996Z"
+  "updated_at": "2026-10-22T04:50:27.922Z"
 }

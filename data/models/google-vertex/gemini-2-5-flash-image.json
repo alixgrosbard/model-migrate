@@ -22,19 +22,19 @@
     {
       "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/model-versions",
       "label": "Vertex AI model versions",
-      "last_checked": "2026-10-21",
+      "last_checked": "2026-10-22",
       "excerpt": "gemini-2.5-flash-image | October 2, 2025 | March 15, 2027 | gemini-3.1-flash-lite-image"
     },
     {
       "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/gemini/2-5-flash-image",
       "label": "Vertex model docs",
-      "last_checked": "2026-10-21",
+      "last_checked": "2026-10-22",
       "excerpt": "Gemini 2.5 Flash Image | gemini-2.5-flash-image | context window 32768 | maximum output tokens 32768"
     },
     {
       "url": "https://cloud.google.com/gemini-enterprise-agent-platform/generative-ai/pricing",
       "label": "Vertex pricing",
-      "last_checked": "2026-10-21",
+      "last_checked": "2026-10-22",
       "excerpt": "Gemini 2.5 Flash Image Input (text, image)*** $0.3 per 1M tokens for the <= 200K column"
     }
   ],
@@ -60,22 +60,22 @@
     "specs_sources": {
       "context_window_tokens": {
         "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/gemini/2-5-flash-image",
-        "last_checked": "2026-10-21"
+        "last_checked": "2026-10-22"
       },
       "max_output_tokens": {
         "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/gemini/2-5-flash-image",
-        "last_checked": "2026-10-21"
+        "last_checked": "2026-10-22"
       },
       "input_price_per_mtok": {
         "url": "https://cloud.google.com/gemini-enterprise-agent-platform/generative-ai/pricing",
-        "last_checked": "2026-10-21"
+        "last_checked": "2026-10-22"
       },
       "output_price_per_mtok": {
         "url": "https://cloud.google.com/gemini-enterprise-agent-platform/generative-ai/pricing",
-        "last_checked": "2026-10-21"
+        "last_checked": "2026-10-22"
       }
     }
   },
   "first_seen": "2026-10-17T15:59:19.574Z",
-  "updated_at": "2026-10-21T12:30:12.996Z"
+  "updated_at": "2026-10-22T04:50:27.922Z"
 }

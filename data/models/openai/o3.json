@@ -15,13 +15,13 @@
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "Named as an official replacement",
-      "last_checked": "2026-10-21",
+      "last_checked": "2026-10-22",
       "excerpt": "Named as an official replacement for o1-preview. No shutdown date was published for this id on that page."
     },
     {
       "url": "https://developers.openai.com/api/docs/models/o3.md",
       "label": "OpenAI model docs",
-      "last_checked": "2026-10-21",
+      "last_checked": "2026-10-22",
       "excerpt": "Model ID: o3 | context window 200000 | max output 100000 | input $2 | output $8"
     }
   ],
@@ -47,26 +47,26 @@
     "specs_sources": {
       "input_price_per_mtok": {
         "url": "https://developers.openai.com/api/docs/models/o3.md",
-        "last_checked": "2026-10-21"
+        "last_checked": "2026-10-22"
       },
       "output_price_per_mtok": {
         "url": "https://developers.openai.com/api/docs/models/o3.md",
-        "last_checked": "2026-10-21"
+        "last_checked": "2026-10-22"
       },
       "cached_input_price_per_mtok": {
         "url": "https://developers.openai.com/api/docs/models/o3.md",
-        "last_checked": "2026-10-21"
+        "last_checked": "2026-10-22"
       },
       "context_window_tokens": {
         "url": "https://developers.openai.com/api/docs/models/o3.md",
-        "last_checked": "2026-10-21"
+        "last_checked": "2026-10-22"
       },
       "max_output_tokens": {
         "url": "https://developers.openai.com/api/docs/models/o3.md",
-        "last_checked": "2026-10-21"
+        "last_checked": "2026-10-22"
       }
     }
   },
   "first_seen": "2026-10-17T15:59:19.574Z",
-  "updated_at": "2026-10-21T12:30:12.996Z"
+  "updated_at": "2026-10-22T04:50:27.922Z"
 }

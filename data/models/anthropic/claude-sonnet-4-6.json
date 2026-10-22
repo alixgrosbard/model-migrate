@@ -15,13 +15,13 @@
     {
       "url": "https://platform.claude.com/docs/en/about-claude/model-deprecations",
       "label": "Anthropic model deprecations",
-      "last_checked": "2026-10-21",
+      "last_checked": "2026-10-22",
       "excerpt": "claude-sonnet-4-6 | Active | N/A | Not sooner than February 17, 2027"
     },
     {
       "url": "https://platform.claude.com/docs/en/models/sonnet-4-6/overview.md",
       "label": "Anthropic model docs",
-      "last_checked": "2026-10-21",
+      "last_checked": "2026-10-22",
       "excerpt": "Model ID: claude-sonnet-4-6 | context window 1000000 | max output 128000 | input $3/MTok | output $15/MTok"
     }
   ],
@@ -47,26 +47,26 @@
     "specs_sources": {
       "input_price_per_mtok": {
         "url": "https://platform.claude.com/docs/en/about-claude/pricing",
-        "last_checked": "2026-10-21"
+        "last_checked": "2026-10-22"
       },
       "output_price_per_mtok": {
         "url": "https://platform.claude.com/docs/en/about-claude/pricing",
-        "last_checked": "2026-10-21"
+        "last_checked": "2026-10-22"
       },
       "cached_input_price_per_mtok": {
         "url": "https://platform.claude.com/docs/en/about-claude/pricing",
-        "last_checked": "2026-10-21"
+        "last_checked": "2026-10-22"
       },
       "context_window_tokens": {
         "url": "https://platform.claude.com/docs/en/models/sonnet-4-6/overview.md",
-        "last_checked": "2026-10-21"
+        "last_checked": "2026-10-22"
       },
       "max_output_tokens": {
         "url": "https://platform.claude.com/docs/en/models/sonnet-4-6/overview.md",
-        "last_checked": "2026-10-21"
+        "last_checked": "2026-10-22"
       }
     }
   },
   "first_seen": "2026-10-17T15:59:19.574Z",
-  "updated_at": "2026-10-21T12:30:12.996Z"
+  "updated_at": "2026-10-22T04:50:27.922Z"
 }
