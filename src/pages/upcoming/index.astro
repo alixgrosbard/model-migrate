@@ -1,0 +1,76 @@
+---
+import Base from "../../layouts/Base.astro";
+import FaqList from "../../components/FaqList.astro";
+import ShutdownTable from "../../components/ShutdownTable.astro";
+import { scheduleGraph } from "../../jsonld.ts";
+import { clipMeta, today } from "../../lib/format.ts";
+import { loadMigrations, loadModels, loadProviders } from "../../lib/load.ts";
+import { longDate } from "../../lib/shutdowns.ts";
+import { DEFAULT_SITE_URL } from "../../lib/site.ts";
+import {
+  groupRowsByMonth,
+  listItems,
+  newestUpdated,
+  periodFaqs,
+  periodIntro,
+  PLATFORM_GUIDE_PATH,
+  toScheduleRows,
+  upcomingScope,
+  upcomingShutdowns,
+  UPCOMING_PATH,
+} from "../../lib/schedule.ts";
+
+const day = today();
+const models = await loadModels();
+const providers = await loadProviders();
+const migrations = await loadMigrations();
+const selected = upcomingShutdowns(models, day);
+const rows = toScheduleRows(selected, models, providers, migrations, day);
+const groups = groupRowsByMonth(rows);
+const scope = upcomingScope(day);
+const intro = periodIntro(rows, providers, scope);
+const faqs = periodFaqs(rows, providers, scope, day);
+const description = clipMeta(`Announced AI model shutdowns ${scope}. ${intro}`);
+const modified = newestUpdated(selected);
+const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
+const name = "Upcoming AI model shutdowns";
+---
+<Base
+  title={`${name} | SunsetDiff`}
+  description={description}
+  crumbs={[{ name: "Home", path: "/" }, { name: "Upcoming", path: UPCOMING_PATH }]}
+  extraGraph={scheduleGraph(
+    site,
+    {
+      path: UPCOMING_PATH,
+      name,
+      description,
+      modified,
+      datasetName: "SunsetDiff upcoming AI model shutdowns",
+      temporalCoverage: `${day}/..`,
+      aboutUrl: "/data/models.json",
+    },
+    listItems(rows),
+    faqs,
+  )}
+>
+  <h1>Upcoming AI model shutdowns</h1>
+  <p class="answer">{intro}</p>
+  <p>
+    {selected.length} rows, sorted by shutdown date and grouped by month.
+    A month link opens the whole month, including any earlier date in that month.
+    Download <a href="/calendar.ics">calendar.ics</a> or open the <a href="/calendar/">calendar</a>.
+    The next 30, 90, and 365 days are on <a href="/deadlines/">deadlines</a>.
+    New deprecations are in the <a href="/feed.xml">RSS feed</a>.
+    The same model id can have a different date on Vertex, the Gemini API, Azure, or Bedrock.
+    <a href={PLATFORM_GUIDE_PATH}>Why shutdown dates differ by platform</a>.
+    <a href="/timeline/">Timeline</a> lists every year in the dataset.
+  </p>
+  {groups.map((group) => (
+    <section>
+      <h2 id={group.key}><a href={group.path}>{group.label}</a></h2>
+      <ShutdownTable rows={group.rows} caption={`Announced shutdowns in ${group.label}.`} />
+    </section>
+  ))}
+  <FaqList items={faqs} />
+</Base>

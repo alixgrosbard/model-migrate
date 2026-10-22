@@ -2,7 +2,7 @@ import { readFile, readdir, stat } from "node:fs/promises";
 import path from "node:path";
 import { BADGES_DESCRIPTION, BADGES_TITLE, badgeSvgPath, badgeView } from "../src/lib/badges.ts";
 import { htmlContainsOwnerPlaceholder } from "../src/lib/public-copy.ts";
-import { loadMigrations, loadModels, loadProviders } from "../src/lib/load.ts";
+import { loadModels, loadProviders } from "../src/lib/load.ts";
 import { siteOrigin } from "../src/lib/site.ts";
 import { HUBS } from "../src/lib/hubs.ts";
 import { today } from "../src/lib/format.ts";
@@ -16,6 +16,21 @@ import {
   breakingChangesChecked,
 } from "../src/lib/breaking-changes.ts";
 import { REQUEST_ERRORS_CHECKED, REQUEST_ERRORS_INDEX, requestErrorPath, requestErrors } from "../src/lib/request-errors.ts";
+import {
+  CHANGELOG_PATH,
+  FAQ_PATH,
+  monthKeyPath,
+  monthScope,
+  periodFaqs,
+  shutdownMonthList,
+  shutdownsInMonth,
+  shutdownYearList,
+  TIMELINE_PATH,
+  toScheduleRows,
+  UPCOMING_PATH,
+  yearPath,
+} from "../src/lib/schedule.ts";
+import { loadMigrations } from "../src/lib/load.ts";
 
 const dist = path.join(process.cwd(), "dist");
 const required = [
@@ -48,6 +63,10 @@ const required = [
   "replace/index.html",
   "migrate/index.html",
   "providers/index.html",
+  "upcoming/index.html",
+  "timeline/index.html",
+  "changelog/index.html",
+  "faq/index.html",
   "alternatives/index.html",
   "api/index.html",
   "alternatives/modeldeprecations/index.html",
@@ -166,6 +185,7 @@ async function main() {
   if (!llms.includes("/api/")) throw new Error("llms.txt is missing /api/");
   const llmsFull = await readFile(path.join(dist, "llms-full.txt"), "utf8");
   await checkHubs(sitemap, llms, llmsFull);
+  await checkSchedule(sitemap, llms, llmsFull);
   if (!llmsFull.includes("/alternatives/")) throw new Error("llms-full.txt is missing /alternatives/");
   if (!llmsFull.includes("/api/")) throw new Error("llms-full.txt is missing /api/");
   const comparePages = [
@@ -467,6 +487,41 @@ async function checkHubs(sitemap: string, llms: string, llmsFull: string) {
     throw new Error("Models hub is missing the filter");
   }
   if (!modelsHub.includes(`/models/${sample.provider}/${sample.slug}/`)) throw new Error("Models hub is missing a model link");
+}
+
+async function checkSchedule(sitemap: string, llms: string, llmsFull: string) {
+  const [models, providers, migrations] = await Promise.all([loadModels(), loadProviders(), loadMigrations()]);
+  const day = today();
+  const origin = siteOrigin();
+  const pages = [UPCOMING_PATH, TIMELINE_PATH, CHANGELOG_PATH, FAQ_PATH, ...shutdownYearList(models).map(yearPath)];
+  const sampleMonth = shutdownMonthList(models).includes("2027-01") ? "2027-01" : shutdownMonthList(models)[0];
+  if (!sampleMonth) throw new Error("No shutdown month pages were generated");
+  pages.push(monthKeyPath(sampleMonth));
+  for (const page of pages) {
+    if (!sitemap.includes(`${origin}${page}`)) throw new Error(`Sitemap is missing ${page}`);
+    if (!llms.includes(page)) throw new Error(`llms.txt is missing ${page}`);
+    if (!llmsFull.includes(page)) throw new Error(`llms-full.txt is missing ${page}`);
+    const html = await readFile(path.join(dist, page.slice(1), "index.html"), "utf8");
+    for (const type of ["CollectionPage", "ItemList", "FAQPage", "Dataset", "BreadcrumbList"]) {
+      if (!html.includes(`"${type}"`)) throw new Error(`${page} is missing ${type} JSON-LD`);
+    }
+    if (html.includes("—") || html.includes("–")) throw new Error(`Em dash on ${page}`);
+  }
+  const upcoming = await readFile(path.join(dist, "upcoming/index.html"), "utf8");
+  if (!upcoming.includes("/calendar.ics") || !upcoming.includes("/calendar/") || !upcoming.includes("/feed.xml")) {
+    throw new Error("Upcoming page is missing the calendar or feed link");
+  }
+  const changelog = await readFile(path.join(dist, "changelog/index.html"), "utf8");
+  if (!changelog.includes("/feed.xml") || !changelog.includes("/data/changelog.json")) {
+    throw new Error("Changelog page is missing the feed or changelog.json link");
+  }
+  const rows = toScheduleRows(shutdownsInMonth(models, sampleMonth), models, providers, migrations, day);
+  const question = periodFaqs(rows, providers, monthScope(sampleMonth), day).find((item) => item.question.startsWith("How many OpenAI"));
+  if (!question) throw new Error(`Missing OpenAI count question for ${sampleMonth}`);
+  const monthHtml = await readFile(path.join(dist, monthKeyPath(sampleMonth).slice(1), "index.html"), "utf8");
+  if (!monthHtml.includes(question.question) || !monthHtml.includes(question.answer)) {
+    throw new Error(`Month page is missing the OpenAI count answer for ${sampleMonth}`);
+  }
 }
 
 function htmlHas(html: string, text: string): boolean {

@@ -249,6 +249,66 @@ export function faqPage(items: FaqItem[]) {
   return faqNode(items);
 }
 
+export function scheduleGraph(
+  site: string,
+  page: {
+    path: string;
+    name: string;
+    description: string;
+    modified?: string;
+    datasetName: string;
+    temporalCoverage?: string;
+    aboutUrl: string;
+  },
+  items: { name: string; path: string }[],
+  faqs: FaqItem[],
+) {
+  const url = new URL(page.path, site).href;
+  const nodes: Record<string, unknown>[] = [
+    {
+      "@type": "CollectionPage",
+      name: page.name,
+      description: page.description,
+      url,
+      ...(page.modified ? { dateModified: page.modified } : {}),
+      inLanguage: "en",
+      isPartOf: { "@id": `${siteRoot(site)}/#website` },
+      publisher: { "@type": "Organization", name: "SunsetDiff" },
+    },
+    {
+      "@type": "ItemList",
+      name: page.name,
+      numberOfItems: items.length,
+      itemListElement: items.map((item, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        name: item.name,
+        url: new URL(item.path, site).href,
+      })),
+    },
+    faqNode(faqs),
+    {
+      "@type": "Dataset",
+      name: page.datasetName,
+      description: page.description,
+      url,
+      license: "https://creativecommons.org/licenses/by/4.0/",
+      creator: { "@type": "Organization", name: "SunsetDiff" },
+      ...(page.modified ? { dateModified: page.modified } : {}),
+      ...(page.temporalCoverage ? { temporalCoverage: page.temporalCoverage } : {}),
+      isBasedOn: new URL(page.aboutUrl, site).href,
+      distribution: [
+        {
+          "@type": "DataDownload",
+          encodingFormat: page.aboutUrl.endsWith(".csv") ? "text/csv" : "application/json",
+          contentUrl: new URL(page.aboutUrl, site).href,
+        },
+      ],
+    },
+  ];
+  return nodes;
+}
+
 export function comparisonGraph(
   site: string,
   page: {

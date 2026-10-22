@@ -1,0 +1,75 @@
+---
+import Base from "../../layouts/Base.astro";
+import FaqList from "../../components/FaqList.astro";
+import { scheduleGraph } from "../../jsonld.ts";
+import { changelogEntries, changelogFaqs, groupChangelogByDate } from "../../lib/changelog-log.ts";
+import { clipMeta, today } from "../../lib/format.ts";
+import { loadChanges, loadModels, loadProviders } from "../../lib/load.ts";
+import { CHANGELOG_PATH } from "../../lib/schedule.ts";
+import { DEFAULT_SITE_URL } from "../../lib/site.ts";
+
+const day = today();
+const changes = await loadChanges();
+const models = await loadModels();
+const providers = await loadProviders();
+const entries = changelogEntries(changes, models, providers);
+const groups = groupChangelogByDate(entries);
+const faqs = changelogFaqs(entries, day);
+const newest = entries[0]?.date ?? "";
+const intro = entries.length
+  ? `${entries.length} deprecation changes are recorded, newest first. Each line is a shutdown date, deprecation date, announced date, status, or replacement change. The newest recorded day is ${newest}.`
+  : "No deprecation change is recorded yet.";
+const description = clipMeta(`${intro} Price and context edits are on the changes page.`);
+const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
+const name = "AI model deprecation changelog";
+const items = entries.map((entry) => ({
+  name: `${entry.date} ${entry.providerName} ${entry.modelId} ${entry.field}`,
+  path: entry.links[0]?.href ?? CHANGELOG_PATH,
+}));
+---
+<Base
+  title={`${name} | SunsetDiff`}
+  description={description}
+  crumbs={[{ name: "Home", path: "/" }, { name: "Changelog", path: CHANGELOG_PATH }]}
+  extraGraph={scheduleGraph(
+    site,
+    {
+      path: CHANGELOG_PATH,
+      name,
+      description,
+      modified: newest,
+      datasetName: "SunsetDiff model deprecation changelog",
+      temporalCoverage: newest ? `${groups[groups.length - 1]?.date ?? newest}/${newest}` : undefined,
+      aboutUrl: "/data/changelog.json",
+    },
+    items,
+    faqs,
+  )}
+>
+  <h1>Deprecation changelog</h1>
+  <p class="answer">{intro}</p>
+  <p>
+    Built from <a href="/data/changelog.json">changelog.json</a>.
+    The <a href="/feed.xml">RSS feed</a> covers these deprecation changes.
+    <a href="/changes/">What changed</a> is the raw log, including price and context edits.
+    <a href="/changes.xml">changes.xml</a> is that raw log as RSS.
+  </p>
+  {groups.map((group) => (
+    <section>
+      <h2>{group.date}</h2>
+      <ul>
+        {group.entries.map((entry) => (
+          <li>
+            {entry.sentence}
+            {" "}
+            {entry.links.map((link) => (
+              <><a href={link.href}>{link.label}</a>{" "}</>
+            ))}
+            <a href={entry.sourceUrl}>Source</a>
+          </li>
+        ))}
+      </ul>
+    </section>
+  ))}
+  <FaqList items={faqs} />
+</Base>
