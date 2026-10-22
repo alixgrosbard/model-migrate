@@ -26,16 +26,16 @@
       "excerpt": "2025-10-27 | text-moderation-007 | omni-moderation"
     },
     {
+      "url": "https://developers.openai.com/api/docs/models/text-moderation-latest.md",
+      "label": "OpenAI model docs",
+      "last_checked": "2026-10-22",
+      "excerpt": "Model ID: text-moderation-latest | max output 32768 | Default snapshot text-moderation-007"
+    },
+    {
       "url": "https://developers.openai.com/api/docs/models/text-moderation-stable.md",
       "label": "OpenAI model docs",
       "last_checked": "2026-10-22",
       "excerpt": "Model ID: text-moderation-stable | max output 32768 | Default snapshot text-moderation-007"
-    },
-    {
-      "url": "https://developers.openai.com/api/docs/models/text-moderation-latest.md",
-      "label": "OpenAI model docs",
-      "last_checked": "2026-10-21",
-      "excerpt": "Model ID: text-moderation-latest | max output 32768 | Default snapshot text-moderation-007"
     }
   ],
   "specs": {
@@ -59,11 +59,11 @@
     "endpoints": null,
     "specs_sources": {
       "max_output_tokens": {
-        "url": "https://developers.openai.com/api/docs/models/text-moderation-stable.md",
+        "url": "https://developers.openai.com/api/docs/models/text-moderation-latest.md",
         "last_checked": "2026-10-22"
       }
     }
   },
   "first_seen": "2026-10-17T15:59:19.574Z",
-  "updated_at": "2026-10-22T04:50:27.922Z"
+  "updated_at": "2026-10-22T11:56:02.174Z"
 }
