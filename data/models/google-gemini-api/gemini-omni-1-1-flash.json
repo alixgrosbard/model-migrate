@@ -22,7 +22,7 @@
   "specs": {
     "input_price_per_mtok": 1.5,
     "output_price_per_mtok": 9,
-    "cached_input_price_per_mtok": null,
+    "cached_input_price_per_mtok": 0.2,
     "batch_discount_pct": null,
     "currency": "USD",
     "context_window_tokens": null,
@@ -46,9 +46,13 @@
       "output_price_per_mtok": {
         "url": "https://ai.google.dev/gemini-api/docs/pricing",
         "last_checked": "2026-10-22"
+      },
+      "cached_input_price_per_mtok": {
+        "url": "https://ai.google.dev/gemini-api/docs/pricing",
+        "last_checked": "2026-10-22"
       }
     }
   },
   "first_seen": "2026-10-17T15:59:19.574Z",
-  "updated_at": "2026-10-22T04:50:27.922Z"
+  "updated_at": "2026-10-22T17:12:55.998Z"
 }
