@@ -5,6 +5,7 @@ import { collectionGraph } from "../../jsonld.ts";
 import { autoRouteStatusText, formatWhen } from "../../lib/format.ts";
 import { publicName } from "../../lib/growth.ts";
 import { filterText, modelPath, modelsForProvider, modelsHub, providersHub, replaceHub, replacePath, replacementLinkText } from "../../lib/hubs.ts";
+import { STATUS_HUBS } from "../../lib/status-hubs.ts";
 import { loadModels, loadProviders } from "../../lib/load.ts";
 import { DEFAULT_SITE_URL } from "../../lib/site.ts";
 
@@ -32,6 +33,7 @@ const items = groups.flatMap((group) =>
     The replacement link goes to that model's replacement page.
     The filter hides rows in the browser and does not change the data.
     <a href={providersHub.path}>{providersHub.nav}</a> · <a href={replaceHub.path}>{replaceHub.nav}</a>
+    {STATUS_HUBS.map((hub) => <> · <a href={hub.path}>{hub.nav} models</a></>)}
   </p>
   <p>{models.length} model records.</p>
   <HubFilter status />

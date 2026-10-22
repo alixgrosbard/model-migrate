@@ -9,6 +9,8 @@ import { REQUEST_ERRORS_INDEX, requestErrorChecked, requestErrorPath, requestErr
 import { BADGES_PATH } from "./badges.ts";
 import { modelsInMonth, questionPath, shutdownMonths, topRetiringModels } from "./growth.ts";
 import { migrateHub, modelsHub, providersHub, replaceHub } from "./hubs.ts";
+import { OPENAPI_PATH } from "./openapi.ts";
+import { providerStatusPath, statusHubPath } from "./status-hubs.ts";
 import { shutdownEventPath, shutdownEvents } from "./shutdowns.ts";
 import {
   CHANGELOG_PATH,
@@ -111,6 +113,17 @@ function build(): Map<string, string> {
     map.set(questionPath(model, "shutdown-date"), day);
   }
   const changeDay = latestChangeDate(root);
+  const statusStamp = changeDay ?? newestModel;
+  if (statusStamp) {
+    map.set(statusHubPath("deprecated"), statusStamp);
+    map.set(statusHubPath("retired"), statusStamp);
+    map.set(OPENAPI_PATH, statusStamp);
+    for (const model of all) {
+      if (model.status === "deprecated" || model.status === "retired") {
+        map.set(providerStatusPath(model.provider, model.status), statusStamp);
+      }
+    }
+  }
   if (changeDay) {
     map.set("/feed.xml", changeDay);
     map.set("/data/changelog.json", changeDay);

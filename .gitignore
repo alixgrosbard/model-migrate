@@ -17,6 +17,8 @@ public/data/changelog.json
 public/data/breaking-changes.json
 public/data/breaking-changes.csv
 public/search-index.json
+public/openapi.json
+public/*/index.html
 public/og/
 public/badge/
 subscribers.csv

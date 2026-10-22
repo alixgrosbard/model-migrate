@@ -3,6 +3,7 @@ import Base from "../../layouts/Base.astro";
 import { collectionGraph } from "../../jsonld.ts";
 import { today } from "../../lib/format.ts";
 import { modelsHub, migrateHub, nextUpcomingShutdown, providersHub, replaceHub, statusCountLabel, modelsForProvider, modelPath } from "../../lib/hubs.ts";
+import { STATUS_HUBS } from "../../lib/status-hubs.ts";
 import { loadModels, loadProviders } from "../../lib/load.ts";
 import { publicName } from "../../lib/growth.ts";
 import { DEFAULT_SITE_URL } from "../../lib/site.ts";
@@ -31,6 +32,7 @@ const items = rows.map((row) => ({ name: row.provider.name, path: `/providers/${
     Next shutdown is the earliest exact date or shutdown month that is still ahead.
     A date that only says not sooner than is left out.
     <a href={modelsHub.path}>{modelsHub.nav}</a> · <a href={replaceHub.path}>{replaceHub.nav}</a> · <a href={migrateHub.path}>{migrateHub.nav}</a>
+    {STATUS_HUBS.map((hub) => <> · <a href={hub.path}>{hub.nav} models</a></>)}
   </p>
   <table>
     <caption>{providers.length} providers. {models.length} model records.</caption>

@@ -18,6 +18,12 @@ services:
       - path: /api/*
         name: Content-Type
         value: application/json
+      - path: /openapi.json
+        name: Access-Control-Allow-Origin
+        value: "*"
+      - path: /openapi.json
+        name: Content-Type
+        value: application/json
       - path: /dataset/*
         name: Access-Control-Allow-Origin
         value: "*"

@@ -4,6 +4,7 @@ import { loadModels, loadProviders, providerName } from "../../lib/load.ts";
 import { formatWhen, isUpcomingShutdown, today } from "../../lib/format.ts";
 import { publicName } from "../../lib/growth.ts";
 import { providersHub } from "../../lib/hubs.ts";
+import { providerStatusPath, STATUS_HUBS } from "../../lib/status-hubs.ts";
 import type { ModelRecord } from "../../schema.ts";
 
 export async function getStaticPaths() {
@@ -31,6 +32,13 @@ const description = `${provider.name} model shutdown dates, grouped by status.`;
 >
   <h1>{provider.name}</h1>
   <p>Official source: <a href={provider.deprecations_url}>{provider.deprecations_url}</a>. <a href="/#soonest">Soonest shutdowns on the homepage</a>.</p>
+  <p>
+    {STATUS_HUBS.map((hub) => {
+      const count = models.filter((model) => model.status === hub.kind).length;
+      return count ? <><a href={providerStatusPath(provider.id, hub.kind)}>{hub.nav} {provider.name} models</a> ({count}) · </> : null;
+    })}
+    <a href="/deprecated/">All deprecated models</a> · <a href="/retired/">All retired models</a>
+  </p>
   <h2>Soonest shutdowns</h2>
   <ul>
     {soonest.length ? soonest.map((model) => (

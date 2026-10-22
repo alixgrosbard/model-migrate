@@ -31,6 +31,10 @@ import {
   yearPath,
 } from "../src/lib/schedule.ts";
 import { loadMigrations } from "../src/lib/load.ts";
+import SwaggerParser from "@apidevtools/swagger-parser";
+import { ENDPOINTS } from "../src/lib/endpoints.ts";
+import { OPENAPI_PATH, OPENAPI_SERVER, openApiPath } from "../src/lib/openapi.ts";
+import { providerStatusTargets } from "../src/lib/status-hubs.ts";
 
 const dist = path.join(process.cwd(), "dist");
 const required = [
@@ -63,6 +67,13 @@ const required = [
   "replace/index.html",
   "migrate/index.html",
   "providers/index.html",
+  "deprecated/index.html",
+  "retired/index.html",
+  "google/index.html",
+  "openapi.json",
+  "openai/index.html",
+  "anthropic/index.html",
+  "mistral/index.html",
   "upcoming/index.html",
   "timeline/index.html",
   "changelog/index.html",
@@ -185,6 +196,7 @@ async function main() {
   if (!llms.includes("/api/")) throw new Error("llms.txt is missing /api/");
   const llmsFull = await readFile(path.join(dist, "llms-full.txt"), "utf8");
   await checkHubs(sitemap, llms, llmsFull);
+  await checkStatusPages(sitemap, llms, llmsFull);
   await checkSchedule(sitemap, llms, llmsFull);
   if (!llmsFull.includes("/alternatives/")) throw new Error("llms-full.txt is missing /alternatives/");
   if (!llmsFull.includes("/api/")) throw new Error("llms-full.txt is missing /api/");
@@ -487,6 +499,78 @@ async function checkHubs(sitemap: string, llms: string, llmsFull: string) {
     throw new Error("Models hub is missing the filter");
   }
   if (!modelsHub.includes(`/models/${sample.provider}/${sample.slug}/`)) throw new Error("Models hub is missing a model link");
+}
+
+async function checkStatusPages(sitemap: string, llms: string, llmsFull: string) {
+  const [models, providers] = await Promise.all([loadModels(), loadProviders()]);
+  const origin = siteOrigin();
+  for (const page of ["/deprecated/", "/retired/", OPENAPI_PATH]) {
+    if (!sitemap.includes(`${origin}${page}`)) throw new Error(`Sitemap is missing ${page}`);
+    if (!llms.includes(page)) throw new Error(`llms.txt is missing ${page}`);
+    if (!llmsFull.includes(page)) throw new Error(`llms-full.txt is missing ${page}`);
+  }
+  const locs = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => new URL(match[1]).pathname);
+  for (const provider of providers) {
+    if (locs.includes(`/${provider.id}/`)) throw new Error(`Sitemap includes shortcut /${provider.id}/`);
+  }
+  if (locs.includes("/google/")) throw new Error("Sitemap includes shortcut /google/");
+  for (const target of providerStatusTargets(models)) {
+    const pathName = `/providers/${target.provider}/${target.status}/`;
+    if (!sitemap.includes(`${origin}${pathName}`)) throw new Error(`Sitemap is missing ${pathName}`);
+    if (!llms.includes(pathName)) throw new Error(`llms.txt is missing ${pathName}`);
+    if (!llmsFull.includes(pathName)) throw new Error(`llms-full.txt is missing ${pathName}`);
+  }
+  for (const page of ["/deprecated/", "/retired/"]) {
+    const html = await readFile(path.join(dist, page.slice(1), "index.html"), "utf8");
+    for (const type of ["CollectionPage", "ItemList", "FAQPage", "BreadcrumbList"]) {
+      if (!html.includes(`"${type}"`)) throw new Error(`${page} is missing ${type} JSON-LD`);
+    }
+    if (!html.includes("dataset version")) throw new Error(`${page} is missing the dataset version`);
+    if (!html.includes("/replace/")) throw new Error(`${page} is missing a replacement page link`);
+    const answer = html.match(/<p class="answer">([\s\S]*?)<\/p>/);
+    if (!answer || answer[1].includes("—") || answer[1].includes("–")) throw new Error(`Em dash in the ${page} intro`);
+  }
+  const deprecated = await readFile(path.join(dist, "deprecated/index.html"), "utf8");
+  const deprecatedCount = models.filter((model) => model.status === "deprecated").length;
+  if (!deprecated.includes(`"numberOfItems":${deprecatedCount}`) && !deprecated.includes(`"numberOfItems": ${deprecatedCount}`)) {
+    throw new Error("Deprecated ItemList count does not match the dataset");
+  }
+  const openai = await readFile(path.join(dist, "providers/openai/deprecated/index.html"), "utf8");
+  if (!openai.includes("/models/openai/") || !openai.includes("/replace/openai/")) {
+    throw new Error("OpenAI deprecated page is missing model or replacement links");
+  }
+  const modelsHub = await readFile(path.join(dist, "models/index.html"), "utf8");
+  if (!modelsHub.includes('href="/deprecated/"') || !modelsHub.includes('href="/retired/"')) {
+    throw new Error("Models hub is missing deprecated or retired links");
+  }
+  const providersHub = await readFile(path.join(dist, "providers/index.html"), "utf8");
+  if (!providersHub.includes('href="/deprecated/"') || !providersHub.includes('href="/retired/"')) {
+    throw new Error("Providers hub is missing deprecated or retired links");
+  }
+  const apiPage = await readFile(path.join(dist, "api/index.html"), "utf8");
+  if (!apiPage.includes('href="/openapi.json"')) throw new Error("API page is missing the OpenAPI link");
+  const shortcut = await readFile(path.join(dist, "openai/index.html"), "utf8");
+  if (!shortcut.includes('rel="canonical" href="https://sunsetdiff.com/providers/openai/"')) {
+    throw new Error("OpenAI shortcut is missing its canonical URL");
+  }
+  if (!shortcut.includes('http-equiv="refresh" content="0; url=/providers/openai/"')) {
+    throw new Error("OpenAI shortcut is missing its refresh");
+  }
+  const google = await readFile(path.join(dist, "google/index.html"), "utf8");
+  if (!google.includes("/providers/google-gemini-api/") || !google.includes("/providers/google-vertex/")) {
+    throw new Error("Google shortcut is missing a provider page");
+  }
+  if (!google.includes('content="noindex"')) throw new Error("Google shortcut should stay out of the index");
+  if (google.includes('http-equiv="refresh"')) throw new Error("Google shortcut must not refresh to one provider");
+  const spec = JSON.parse(await readFile(path.join(dist, "openapi.json"), "utf8")) as { openapi: string; servers: { url: string }[]; paths: Record<string, unknown> };
+  if (spec.openapi !== "3.1.0") throw new Error("openapi.json is not OpenAPI 3.1");
+  if (spec.servers[0]?.url !== OPENAPI_SERVER) throw new Error("openapi.json server is not https://sunsetdiff.com");
+  for (const endpoint of ENDPOINTS) {
+    if (!spec.paths[openApiPath(endpoint.path)]) throw new Error(`openapi.json is missing ${endpoint.path}`);
+  }
+  await SwaggerParser.validate(path.join(dist, "openapi.json"));
+  const headers = await readFile(path.join(process.cwd(), "render.yaml"), "utf8");
+  if (!headers.includes("path: /openapi.json")) throw new Error("render.yaml is missing the OpenAPI header path");
 }
 
 async function checkSchedule(sitemap: string, llms: string, llmsFull: string) {
