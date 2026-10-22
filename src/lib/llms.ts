@@ -78,11 +78,11 @@ export function llmsTxt(
 - [Pro](${origin}/pro/) is free until launch, then $19 a month. You won't be charged until Pro launches.
 
 ## Request errors
-[All request errors](${origin}${REQUEST_ERRORS_INDEX}). Each page names the failure, the model change, and the source. Check dates are on the pages (${REQUEST_ERRORS_CHECKED}, and 2026-10-21 for the thinking budget page). A code block is a quoted error only when the linked source prints that sentence.
+[All request errors](${origin}${REQUEST_ERRORS_INDEX}). Each page names the failure, the model change, and the source. Check dates are on the pages (${REQUEST_ERRORS_CHECKED}, 2026-10-21 for the thinking budget page, and 2026-10-22 for the API version 2026-10-21 sampling page). A code block is a quoted error only when the linked source prints that sentence.
 ${requestErrors.map((page) => `- [${page.h1}](${origin}${requestErrorPath(page.slug)})`).join("\n")}
 
 ## Request breaking changes
-[All breaking changes](${origin}${BREAKING_CHANGES_PATH}). One rule per row: the old setting, the models, what the source says happens, the fix, and the source URL. error_text is quoted only when that page prints the sentence. Newest check date: ${breakingChangesChecked()}. License CC BY 4.0.
+[All breaking changes](${origin}${BREAKING_CHANGES_PATH}). One rule per row: the old setting, the models or API version, what the source says happens, the fix, and the source URL. error_text is quoted only when that page prints the sentence. Newest check date: ${breakingChangesChecked()}. License CC BY 4.0.
 - [breaking-changes.json](${origin}${BREAKING_CHANGES_JSON})
 - [breaking-changes.csv](${origin}${BREAKING_CHANGES_CSV})
 ${breakingChanges.map((rule) => `- [${rule.old_setting}](${origin}${BREAKING_CHANGES_PATH}#${rule.id}) (${rule.provider})`).join("\n")}

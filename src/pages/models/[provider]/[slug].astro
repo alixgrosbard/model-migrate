@@ -6,7 +6,7 @@ import NewsletterForm from "../../../components/NewsletterForm.astro";
 import SponsorSlot from "../../../components/SponsorSlot.astro";
 import { loadChanges, loadMigrations, loadModels, loadProviders } from "../../../lib/load.ts";
 import { GEMINI_25_ACCESS_CHECKED, GEMINI_25_ACCESS_QUOTE, GEMINI_25_ACCESS_SOURCE, gemini25Restricted } from "../../../lib/access.ts";
-import { answerSentence, clipMeta, formatWhen, modelFaqs, modelTitle, money, relatedModels, tokens } from "../../../lib/format.ts";
+import { answerSentence, autoRouteStatusText, clipMeta, formatWhen, modelFaqs, modelTitle, money, relatedModels, tokens } from "../../../lib/format.ts";
 import { publicName } from "../../../lib/growth.ts";
 import { modelsHub } from "../../../lib/hubs.ts";
 import { modelGraph } from "../../../jsonld.ts";
@@ -24,7 +24,8 @@ const providers = await loadProviders();
 const model = models.find((item) => item.provider === Astro.params.provider && item.slug === Astro.params.slug);
 if (!model) throw new Error("Missing model");
 const provider = providers.find((item) => item.id === model.provider)!;
-const migration = (await loadMigrations()).find((item) => item.from.provider === model.provider && item.from.slug === model.slug);
+const migrations = await loadMigrations();
+const migration = migrations.find((item) => item.from.provider === model.provider && item.from.slug === model.slug);
 const answer = answerSentence(model, provider, migration);
 const faqs = modelFaqs(model, provider, migration);
 const related = relatedModels(model, models);
@@ -34,6 +35,7 @@ const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
 const relatedErrors = requestErrorsForModel(model.provider, model.id);
 const breakingRules = breakingChangesForModel(model.provider, model.id);
 const restrictedAccess = gemini25Restricted(model);
+const statusLabel = autoRouteStatusText(model) ?? (restrictedAccess ? "existing users only" : model.status);
 const specRows: [string, string, string][] = [
   ["Input price / 1M", money(model.specs.input_price_per_mtok), "input_price_per_mtok"],
   ["Output price / 1M", money(model.specs.output_price_per_mtok), "output_price_per_mtok"],
@@ -59,7 +61,7 @@ const specRows: [string, string, string][] = [
 >
   <h1>When is {publicName(model)} shut down?</h1>
   <p class="answer">{answer}</p>
-  <p><span class="badge">{restrictedAccess ? "existing users only" : model.status}</span></p>
+  <p><span class="badge">{statusLabel}</span></p>
   <BadgeSnippet model={model} origin={site.replace(/\/+$/, "")} />
   <table>
     <caption>Dates</caption>
@@ -88,12 +90,24 @@ const specRows: [string, string, string][] = [
   <h2>Replacements</h2>
   {model.replacements.length ? (
     <ul>
-      {model.replacements.map((item) => (
-        <li>
-          <a href={`/migrate/${model.provider}__${model.slug}__to__${item.provider}__${models.find((row) => row.provider === item.provider && row.id === item.model_id)?.slug ?? item.model_id}/`}>{item.model_id}</a>
-          {" "}({item.kind}), <a href={item.source_url}>source</a>
-        </li>
-      ))}
+      {model.replacements.map((item) => {
+        const target = models.find((row) => row.provider === item.provider && row.id === item.model_id);
+        const pair = `${model.provider}__${model.slug}__to__${item.provider}__${target?.slug ?? item.model_id}`;
+        const hasMigration = migrations.some(
+          (row) => `${row.from.provider}__${row.from.slug}__to__${row.to.provider}__${row.to.slug}` === pair,
+        );
+        const href = hasMigration
+          ? `/migrate/${pair}/`
+          : target
+            ? `/models/${target.provider}/${target.slug}/`
+            : item.source_url;
+        return (
+          <li>
+            <a href={href}>{item.model_id}</a>
+            {" "}({item.kind}), <a href={item.source_url}>source</a>
+          </li>
+        );
+      })}
     </ul>
   ) : <p>Not published.</p>}
   <p><a href={`/replace/${model.provider}/${model.slug}/`}>See the replacement diff</a> · <a href={`/providers/${provider.id}/`}>{provider.name} models</a></p>

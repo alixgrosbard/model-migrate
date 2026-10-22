@@ -187,7 +187,7 @@ export const ENDPOINTS: EndpointDoc[] = [
     title: "Request breaking changes",
     format: "application/json",
     summary:
-      "One rule per row for a request setting or endpoint a replacement model rejects. License CC BY 4.0. error_text is null when the cited page does not print a sentence.",
+      "One rule per row for a request setting or endpoint a replacement model rejects, or for an API version that rejects a setting on every model. License CC BY 4.0. error_text is null when the cited page does not print a sentence. scope and api_version are omitted on model-scoped rows.",
     fields: [
       { name: "name", detail: "Fixed string: SunsetDiff request breaking changes." },
       { name: "publisher", detail: "Fixed string: SunsetDiff." },
@@ -213,6 +213,8 @@ export const ENDPOINTS: EndpointDoc[] = [
       { name: "rules[].error_page", detail: "SunsetDiff /errors/ path, or null when this rule has no error page." },
       { name: "rules[].migrations", detail: "Switch guides this rule applies to. Each item has href and label." },
       { name: "rules[].citations", detail: "Every URL read for the row, including source_url." },
+      { name: "rules[].scope", detail: "Optional. api_version when the rule follows an API version instead of one model id. Omitted on model-scoped rows." },
+      { name: "rules[].api_version", detail: "Optional. The API version string, such as 2026-10-21, when scope is api_version. Omitted on model-scoped rows." },
     ],
     notes: [
       "The human page is /breaking-changes/.",
@@ -245,7 +247,11 @@ export const ENDPOINTS: EndpointDoc[] = [
                       ? "Source URLs separated by spaces."
                       : name === "model_family"
                         ? "Family label from the source. Empty when the source names only specific ids and this row left the family blank."
-                        : "Same meaning as the matching field in /data/breaking-changes.json.",
+                        : name === "scope"
+                          ? "api_version when the rule follows an API version. Empty on model-scoped rows."
+                          : name === "api_version"
+                            ? "API version string, such as 2026-10-21. Empty on model-scoped rows."
+                            : "Same meaning as the matching field in /data/breaking-changes.json.",
     })),
     notes: ["Quoted CSV. An empty error_text cell means the source did not print a sentence."],
     body: "text",

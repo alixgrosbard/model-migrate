@@ -29,25 +29,28 @@ export function parseGemini(html: string, pricing = "", checked = todayISO()): S
       if (!isModelId(id)) continue;
       const shutdown = parseDate(row[shutdownIdx] ?? "");
       const release = releaseIdx >= 0 ? parseDate(row[releaseIdx] ?? "") : { date: null, kind: "none" as const };
-      const replacements = (row[replacementIdx] ?? "")
-        .split(/\s+or\s+|,/i)
-        .map((part) => part.trim())
-        .filter(isModelId)
-        .map((modelId) => ({
-          model_id: modelId,
-          provider: "google-gemini-api" as const,
-          kind: "official" as const,
-          source_url: DEPRECATIONS_URL,
-        }));
+      const cell = row[replacementIdx] ?? "";
+      const parsedReplacement = replacementIds(cell);
+      const replacements = parsedReplacement.ids.map((modelId) => ({
+        model_id: modelId,
+        provider: "google-gemini-api" as const,
+        kind: "official" as const,
+        source_url: DEPRECATIONS_URL,
+      }));
+      const autoRouted = parsedReplacement.autoRouteId != null && shutdown.kind === "none";
+      const releaseNote = release.date ? `Release date on the deprecations page: ${release.date}.` : null;
+      const routeNote = autoRouted
+        ? `Deprecated, requests auto-routed to ${parsedReplacement.autoRouteId}, no shutdown date.`
+        : null;
       models.push(
         baseModel({
           id,
           provider: "google-gemini-api",
-          status: geminiStatus(shutdown.date, shutdown.kind, checked),
+          status: autoRouted ? "deprecated" : geminiStatus(shutdown.date, shutdown.kind, checked),
           announced: null,
           shutdown: shutdown.date,
           kind: shutdown.kind,
-          notes: release.date ? `Release date on the deprecations page: ${release.date}.` : null,
+          notes: [releaseNote, routeNote].filter(Boolean).join(" ") || null,
           replacements,
           sourceUrl: DEPRECATIONS_URL,
           sourceLabel: "Gemini API deprecations",
@@ -69,6 +72,31 @@ export function parseGemini(html: string, pricing = "", checked = todayISO()): S
     }
   }
   return dedupe(models);
+}
+
+/** Official wording: "automatically routes API requests to <id>", plus the shorter "auto-routes to <id>". */
+const AUTO_ROUTE =
+  /(?:automatically routes API requests to|auto-routes to)\s+([A-Za-z0-9][A-Za-z0-9._:/-]*)/i;
+
+export function autoRouteTarget(text: string): string | null {
+  const match = text.match(AUTO_ROUTE);
+  if (!match || !isModelId(match[1])) return null;
+  return match[1];
+}
+
+function replacementIds(cell: string): { ids: string[]; autoRouteId: string | null } {
+  const autoRouteId = autoRouteTarget(cell);
+  const listed = cell
+    .replace(/\([^)]*\)/g, " ")
+    .split(/\s+or\s+|,/i)
+    .map((part) => part.trim())
+    .filter(isModelId);
+  const ids = autoRouteId ? unique([autoRouteId, ...listed]) : unique(listed);
+  return { ids, autoRouteId };
+}
+
+function unique(values: string[]): string[] {
+  return [...new Set(values)];
 }
 
 function geminiStatus(date: string | null, kind: ScrapedModel["shutdown_date_kind"], today: string): ScrapedModel["status"] {

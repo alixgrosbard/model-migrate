@@ -58,6 +58,13 @@ describe("status badges", () => {
       color: "green",
     });
     expect(badgeView(stub("old", null, "none", "deprecated"), day).message).toBe("deprecated / no shutdown announced");
+    const routed = stub("gemini-3.7-flash", null, "none", "deprecated");
+    routed.provider = "google-gemini-api";
+    routed.region_or_platform_notes =
+      "Release date on the deprecations page: 2026-08-13. Deprecated, requests auto-routed to gemini-3.8-flash, no shutdown date.";
+    expect(badgeView(routed, day).message).toBe("deprecated, requests auto-routed to gemini-3.8-flash, no shutdown date");
+    expect(badgeView(routed, day).message).not.toContain("active");
+    expect(badgeView(routed, day).color).toBe("gray");
     const quiet = badgeView(stub("open", null, "none", "active"), day);
     expect(quiet.message).not.toMatch(/\d{4}-\d{2}-\d{2}/);
   });

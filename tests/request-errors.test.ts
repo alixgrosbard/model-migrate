@@ -128,6 +128,22 @@ describe("request error pages", () => {
     const topP = requestErrors.find((page) => page.slug === "claude-sonnet-5-5-top-p-top-k");
     expect(topP?.errorQuoted).toBe(false);
     expect(topP?.errorText).not.toContain("top_p is deprecated for this model");
+    expect(topP?.apiVersionNote?.href).toBe("/errors/claude-api-2026-10-21-sampling-params-400/");
+    expect(topP?.apiVersionNote?.checked).toBe("2026-10-22");
+    const temperature = requestErrors.find((page) => page.slug === "claude-temperature-is-deprecated-for-this-model");
+    expect(temperature?.apiVersionNote?.href).toBe("/errors/claude-api-2026-10-21-sampling-params-400/");
+    expect(temperature?.apiVersionNote?.sourceUrl).toBe("https://platform.claude.com/docs/en/api/versioning");
+    const sampling = requestErrors.find((page) => page.slug === "claude-api-2026-10-21-sampling-params-400");
+    expect(sampling?.errorQuoted).toBe(false);
+    expect(sampling?.checked).toBe("2026-10-22");
+    expect(sampling?.errorText).not.toContain("temperature is deprecated for this model");
+    expect(sampling?.rule).toContain("Claude Sonnet 4.6");
+    expect(sampling?.rule).toContain("On Amazon Bedrock, it's available for Claude 4.7 and later models.");
+    expect(sampling?.seeAlso?.map((item) => item.href)).toEqual([
+      "/errors/claude-temperature-is-deprecated-for-this-model/",
+      "/errors/claude-sonnet-5-5-top-p-top-k/",
+      "https://platform.claude.com/docs/en/api/versioning",
+    ]);
     expect(requestErrors.filter((page) => page.errorQuoted).length).toBeGreaterThanOrEqual(8);
   });
 });

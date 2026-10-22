@@ -19,6 +19,21 @@ export function isUpcomingShutdown(model: ModelRecord, day: string): boolean {
   return model.shutdown_date >= day;
 }
 
+const AUTO_ROUTE_NOTE = /requests auto-routed to ([A-Za-z0-9][A-Za-z0-9._:/-]*)/i;
+
+/** Id from a parser note such as "requests auto-routed to gemini-3.8-flash". */
+export function autoRoutedReplacementId(model: { region_or_platform_notes?: string | null }): string | null {
+  const match = model.region_or_platform_notes?.match(AUTO_ROUTE_NOTE);
+  return match?.[1] ?? null;
+}
+
+/** Badge and status line for an endpoint that stays up and silently routes. Null for every other model. */
+export function autoRouteStatusText(model: { region_or_platform_notes?: string | null }): string | null {
+  const id = autoRoutedReplacementId(model);
+  if (!id) return null;
+  return `deprecated, requests auto-routed to ${id}, no shutdown date`;
+}
+
 export function formatWhen(model: ModelRecord): string {
   if (!model.shutdown_date || model.shutdown_date_kind === "none") return "Not published";
   if (model.shutdown_date_kind === "not_before") return `Not sooner than ${model.shutdown_date}`;
@@ -37,6 +52,8 @@ export function shutdownSentence(model: ModelRecord, provider: Provider): string
     when = `shut down on ${model.shutdown_date}`;
   } else if (model.shutdown_date) {
     when = `shuts down on ${model.shutdown_date}`;
+  } else if (autoRoutedReplacementId(model)) {
+    when = `is deprecated with no shutdown date, and the deprecations page says the endpoint is not shutting down and automatically routes API requests to ${autoRoutedReplacementId(model)}`;
   } else {
     when = "does not have a published shutdown date";
   }

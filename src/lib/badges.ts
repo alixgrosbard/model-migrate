@@ -2,7 +2,7 @@ import { mkdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import type { ModelRecord } from "../schema.ts";
 import { GEMINI_25_ACCESS_CHECKED, GEMINI_25_ACCESS_SOURCE, gemini25Restricted } from "./access.ts";
-import type { FaqItem } from "./format.ts";
+import { autoRouteStatusText, type FaqItem } from "./format.ts";
 
 export const BADGES_PATH = "/badges/";
 export const BADGES_NAV = "Badges";
@@ -98,6 +98,8 @@ export function badgeView(model: ModelRecord, day: string): BadgeView {
   if (model.shutdown_date && model.shutdown_date_kind === "not_before") {
     return paint(label, `not before ${model.shutdown_date}`, "gray");
   }
+  const routed = autoRouteStatusText(model);
+  if (routed) return paint(label, routed, "gray");
   if (model.status === "active" && gemini25Restricted(model)) return paint(label, "existing users only", "green");
   if (model.status === "active") return paint(label, "active / no shutdown announced", "green");
   if (model.status === "legacy") return paint(label, "legacy / no shutdown announced", "gray");

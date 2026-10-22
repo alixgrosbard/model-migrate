@@ -4,7 +4,7 @@ import { newestRollingName, snapshotsToPrune } from "../scrapers/lib/fetch.ts";
 import { parseAnthropic } from "../scrapers/anthropic.ts";
 import { parseAzure } from "../scrapers/azure-openai.ts";
 import { parseBedrock } from "../scrapers/aws-bedrock.ts";
-import { parseGemini } from "../scrapers/google-gemini-api.ts";
+import { DEPRECATIONS_URL, parseGemini } from "../scrapers/google-gemini-api.ts";
 import { parseMistral } from "../scrapers/mistral.ts";
 import { parseOpenAI } from "../scrapers/openai.ts";
 import { parseVertex } from "../scrapers/google-vertex.ts";
@@ -151,6 +151,74 @@ describe("official snapshots", () => {
     const medium = mistral.find((model) => model.id === "mistral-medium-2508");
     expect(medium?.deprecation_date).toBe("2026-05-22");
     expect(medium?.shutdown_date).toBe("2026-08-31");
+  });
+
+  it("fills a replacement when a deprecations cell says requests auto-route", () => {
+    const models = parseGemini(read(fixture("google-gemini-api", "2026-10-17.html")), "", checked);
+    const flash37 = models.find((model) => model.id === "gemini-3.7-flash");
+    const flash35 = models.find((model) => model.id === "gemini-3.5-flash");
+    expect(flash37?.status).toBe("deprecated");
+    expect(flash37?.shutdown_date).toBeNull();
+    expect(flash37?.shutdown_date_kind).toBe("none");
+    expect(flash37?.replacements).toEqual([
+      { model_id: "gemini-3.8-flash", provider: "google-gemini-api", kind: "official", source_url: DEPRECATIONS_URL },
+    ]);
+    expect(flash37?.region_or_platform_notes).toBe(
+      "Release date on the deprecations page: 2026-08-13. Deprecated, requests auto-routed to gemini-3.8-flash, no shutdown date.",
+    );
+    expect(flash35?.status).toBe("deprecated");
+    expect(flash35?.replacements.map((item) => item.model_id)).toEqual(["gemini-3.6-flash"]);
+    expect(flash35?.region_or_platform_notes).toContain("requests auto-routed to gemini-3.6-flash");
+    expect(models.find((model) => model.id === "gemini-3.8-flash")?.status).toBe("active");
+    expect(models.find((model) => model.id === "gemini-3.8-flash")?.replacements).toEqual([]);
+    expect(models.find((model) => model.id === "gemini-3.6-flash")?.replacements).toEqual([]);
+    expect(models.find((model) => model.id === "gemini-3.1-flash-lite")?.replacements.map((item) => item.model_id)).toEqual([
+      "gemini-3.5-flash-lite",
+    ]);
+    const madeUp = `
+      <table>
+        <tr><th>Model</th><th>Release date</th><th>Shutdown date</th><th>Recommended replacement</th></tr>
+        <tr>
+          <td><code>example-old-1</code></td>
+          <td>January 2, 2026</td>
+          <td>N/A</td>
+          <td><code>example-new-9</code> (the endpoint is not shutting down and auto-routes to <code>example-new-9</code>)</td>
+        </tr>
+        <tr>
+          <td><code>example-dated-2</code></td>
+          <td>January 2, 2026</td>
+          <td>June 1, 2026</td>
+          <td>example-keep-3 (automatically routes API requests to example-keep-3)</td>
+        </tr>
+      </table>`;
+    const parsed = parseGemini(madeUp, "", "2026-10-22");
+    expect(parsed.find((model) => model.id === "example-old-1")?.status).toBe("deprecated");
+    expect(parsed.find((model) => model.id === "example-old-1")?.replacements.map((item) => item.model_id)).toEqual(["example-new-9"]);
+    expect(parsed.find((model) => model.id === "example-old-1")?.region_or_platform_notes).toContain(
+      "requests auto-routed to example-new-9",
+    );
+    const dated = parsed.find((model) => model.id === "example-dated-2");
+    expect(dated?.status).toBe("retired");
+    expect(dated?.replacements.map((item) => item.model_id)).toEqual(["example-keep-3"]);
+    expect(dated?.region_or_platform_notes).not.toContain("no shutdown date");
+    const live = parseGemini(read(newestSnapshot("google-gemini-api")), "", "2026-10-22");
+    for (const [id, slug] of [
+      ["gemini-3.7-flash", "gemini-3-7-flash"],
+      ["gemini-3.5-flash", "gemini-3-5-flash"],
+    ] as const) {
+      const parsed = live.find((model) => model.id === id);
+      const stored = JSON.parse(read(`data/models/google-gemini-api/${slug}.json`)) as {
+        status: string;
+        replacements: { model_id: string; kind: string }[];
+        region_or_platform_notes: string;
+        shutdown_date: string | null;
+      };
+      expect(stored.status).toBe(parsed?.status);
+      expect(stored.shutdown_date).toBe(parsed?.shutdown_date ?? null);
+      expect(stored.replacements).toEqual(parsed?.replacements);
+      expect(stored.region_or_platform_notes).toBe(parsed?.region_or_platform_notes);
+      expect(stored.status).not.toBe("active");
+    }
   });
 
   it("keeps the last Vertex replacement id and skips a name that is not an id", () => {

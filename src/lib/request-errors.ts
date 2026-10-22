@@ -1,5 +1,5 @@
 import type { FaqItem } from "./format.ts";
-import { moreRequestErrors } from "./request-error-more.ts";
+import { API_VERSION_SAMPLING_NOTE, moreRequestErrors } from "./request-error-more.ts";
 
 /** Day the official pages below were read for these error pages. */
 export const REQUEST_ERRORS_CHECKED = "2026-10-20";
@@ -46,7 +46,7 @@ export const requestErrorHubFaqs: FaqItem[] = [
   {
     question: "Which shutdowns do these pages cover?",
     answer:
-      "The OpenAI page is for the October 23, 2026 batch. The Gemini API pages cover the October 22, 2026 batch and the thinking budget 400 recorded for gemini-4-argon on Vertex. The Claude pages are for claude-sonnet-5-5, which rejects request settings older Sonnet models accepted.",
+      "The OpenAI page is for the October 23, 2026 batch. The Gemini API pages cover the October 22, 2026 batch and the thinking budget 400 recorded for gemini-4-argon on Vertex. The Claude pages cover claude-sonnet-5-5 request settings and API version 2026-10-21, which returns a 400 for temperature, top_p, and top_k on every model.",
   },
 ];
 
@@ -102,11 +102,22 @@ export interface RequestErrorPage {
   models: ErrorModel[];
   fixes: ErrorFix[];
   guides: ErrorGuideLink[];
+  /** Extra pages, such as a related error page. Not required to be a migration file. */
+  seeAlso?: ErrorGuideLink[];
   shutdowns?: ErrorShutdownLink[];
   faqs: FaqItem[];
   citations: string[];
   /** Day this page's sources were read, when it is not REQUEST_ERRORS_CHECKED. */
   checked?: string;
+  /** Short note linking the Claude API version 2026-10-21 sampling page. */
+  apiVersionNote?: {
+    text: string;
+    href: string;
+    label: string;
+    sourceLabel: string;
+    sourceUrl: string;
+    checked: string;
+  };
 }
 
 export const requestErrors: RequestErrorPage[] = [
@@ -225,7 +236,153 @@ const { text } = await generateText({
           "Omit temperature, top_p, and top_k. The same guide says thinking budgets are replaced by output_config.effort. The switch guide lists each request change: [claude-sonnet-4-5-20250929 to claude-sonnet-5-5](/migrate/anthropic__claude-sonnet-4-5-20250929__to__anthropic__claude-sonnet-5-5/).",
       },
     ],
-    citations: [SONNET_GUIDE, LITELLM_DROP, AI_SDK_GENERATE],
+    citations: [SONNET_GUIDE, LITELLM_DROP, AI_SDK_GENERATE, API_VERSION_SAMPLING_NOTE.sourceUrl],
+    apiVersionNote: API_VERSION_SAMPLING_NOTE,
+  },
+  {
+    slug: "claude-api-2026-10-21-sampling-params-400",
+    provider: "anthropic",
+    cause: "temperature, top_p, or top_k on Claude API version 2026-10-21, even at the default value.",
+    title: "temperature, top_p, and top_k return 400 on API version 2026-10-21 | SunsetDiff",
+    description:
+      "Claude API version 2026-10-21 returns HTTP 400 when a request sends temperature, top_p, or top_k, even at the default. Remove them, or keep that request on 2023-06-01.",
+    h1: "temperature, top_p, and top_k return 400 on API version 2026-10-21",
+    lead: "API version 2026-10-21 removes temperature, top_p, and top_k. A request that sends any of them returns a 400 on every model, even at the default value. This covers the Messages API, token counting, and each request in a Message Batch.",
+    errorQuoted: false,
+    errorText:
+      "The versioning page and the migration guide do not print an error sentence. They say a request that sends temperature, top_p, or top_k returns a 400 error on every model, even at the parameter's default value.",
+    rule: "The migration guide says models that already accept only the defaults, such as Claude 4.7 and later models, sample as before once the parameters are removed. On models that accept other values, such as Claude Sonnet 4.6, a request that lowered temperature for more consistent output loses that effect. No other setting replaces it. Remove the three parameters, or keep that request on 2023-06-01. The versioning page still lists 2023-06-01 and does not call that version deprecated. The versioning page states: Available on the Claude API, Claude Platform on AWS, Microsoft Foundry, and Google Cloud. On Amazon Bedrock, it's available for Claude 4.7 and later models. For other models on Bedrock, see the migration guide. The first SDK and CLI versions that send 2026-10-21 are Python anthropic 2.0.0, TypeScript @anthropic-ai/sdk 1.0.0, Go SDK 2.0.0, Java com.anthropic:anthropic-java 3.0.0, C# Anthropic 13.0.0, PHP anthropic-ai/sdk 1.0.0, the Ruby anthropic gem 2.0.0, and the ant CLI 2.0.0. The model-scoped pages are still the ones for claude-sonnet-5-5: temperature is deprecated for this model, and top_p and top_k return a 400 on claude-sonnet-5-5.",
+    ruleSourceLabel: "Migrating to Claude API version 2026-10-21",
+    ruleSourceUrl: "https://platform.claude.com/docs/en/api/migration-2026-10-21",
+    modelsCaption: "The versioning page says the 400 applies to every model. Claude Sonnet 4.6 is the example the migration guide gives for a model that accepted other values.",
+    models: [
+      {
+        id: "claude-sonnet-4-6",
+        provider: "anthropic",
+        slug: "claude-sonnet-4-6",
+        note: "The migration guide names Claude Sonnet 4.6 as a model that accepts values other than the defaults. Under 2026-10-21, sending temperature, top_p, or top_k returns a 400, and a request that lowered temperature loses that effect.",
+      },
+    ],
+    fixes: [
+      {
+        heading: "Raw SDK",
+        text: [
+          "Remove temperature, top_p, and top_k. The migration guide says a request without them samples with the defaults, including a temperature of 1.0, the same as a 2023-06-01 request that leaves them out.",
+          "If the request needs a non-default value, keep that request on 2023-06-01. Earlier SDK and CLI versions sent that version. The majors named above send 2026-10-21. If you call the API without an SDK, set the anthropic-version header. The versioning page still lists 2023-06-01 and does not call that version deprecated.",
+        ],
+        samples: [
+          {
+            caption: "Messages request without the removed parameters",
+            code: `curl https://api.anthropic.com/v1/messages \\
+  -H "x-api-key: $ANTHROPIC_API_KEY" \\
+  -H "anthropic-version: 2026-10-21" \\
+  -H "content-type: application/json" \\
+  -d '{
+    "model": "claude-sonnet-4-6",
+    "max_tokens": 1024,
+    "messages": [{"role": "user", "content": "Hello, Claude"}]
+  }'
+`,
+          },
+          {
+            caption: "Keep a non-default temperature on 2023-06-01",
+            code: `curl https://api.anthropic.com/v1/messages \\
+  -H "x-api-key: $ANTHROPIC_API_KEY" \\
+  -H "anthropic-version: 2023-06-01" \\
+  -H "content-type: application/json" \\
+  -d '{
+    "model": "claude-sonnet-4-6",
+    "max_tokens": 1024,
+    "temperature": 0.2,
+    "messages": [{"role": "user", "content": "Hello, Claude"}]
+  }'
+`,
+          },
+        ],
+        sourceLabel: "Migrating to Claude API version 2026-10-21",
+        sourceUrl: "https://platform.claude.com/docs/en/api/migration-2026-10-21",
+      },
+      {
+        heading: "LiteLLM",
+        text: [
+          "Do not send temperature, top_p, or top_k on a call that uses API version 2026-10-21. LiteLLM's drop_params setting removes a field only when LiteLLM already lists that field as unsupported for the model. To remove these three on this call, pass additional_drop_params.",
+        ],
+        samples: [
+          {
+            caption: "Python",
+            code: `import litellm
+response = litellm.completion(
+    model="anthropic/claude-sonnet-4-6",
+    messages=[{"role": "user", "content": "Hello"}],
+    additional_drop_params=["temperature", "top_p", "top_k"],
+)
+`,
+          },
+        ],
+        sourceLabel: "LiteLLM drop unsupported params",
+        sourceUrl: LITELLM_DROP,
+      },
+      {
+        heading: "Vercel AI SDK",
+        text: [
+          "Leave temperature, topP, and topK unset on generateText and streamText. The AI SDK passes those values through to the provider. Unset fields are left out of the request.",
+        ],
+        samples: [
+          {
+            caption: "TypeScript",
+            code: `import { anthropic } from "@ai-sdk/anthropic";
+import { generateText } from "ai";
+
+const { text } = await generateText({
+  model: anthropic("claude-sonnet-4-6"),
+  prompt: "Hello",
+});
+`,
+          },
+        ],
+        sourceLabel: "AI SDK generateText",
+        sourceUrl: AI_SDK_GENERATE,
+      },
+    ],
+    guides: [],
+    seeAlso: [
+      {
+        href: "/errors/claude-temperature-is-deprecated-for-this-model/",
+        label: "temperature is deprecated for this model",
+      },
+      {
+        href: "/errors/claude-sonnet-5-5-top-p-top-k/",
+        label: "top_p and top_k return a 400 on claude-sonnet-5-5",
+      },
+      {
+        href: "https://platform.claude.com/docs/en/api/versioning",
+        label: "Claude API versioning",
+      },
+    ],
+    faqs: [
+      {
+        question: "Which models lose the old sampling behavior?",
+        answer:
+          "The migration guide says models that already accept only the defaults, such as Claude 4.7 and later, sample as before once the parameters are removed. On models that accept other values, such as Claude Sonnet 4.6, a request that lowered temperature loses that effect. No other setting replaces it. The 400 itself applies to every model.",
+      },
+      {
+        question: "What are the two fixes?",
+        answer:
+          "Remove temperature, top_p, and top_k, or keep that request on 2023-06-01. The versioning page still lists 2023-06-01 and does not call that version deprecated. Sources: [the migration guide](https://platform.claude.com/docs/en/api/migration-2026-10-21) and [Claude API versioning](https://platform.claude.com/docs/en/api/versioning), checked 2026-10-22.",
+      },
+      {
+        question: "How is this different from the claude-sonnet-5-5 temperature page?",
+        answer:
+          "The [temperature page](/errors/claude-temperature-is-deprecated-for-this-model/) and the [top_p and top_k page](/errors/claude-sonnet-5-5-top-p-top-k/) are about claude-sonnet-5-5 rejecting a non-default value. API version 2026-10-21 rejects the parameters on every model, even at the default value.",
+      },
+    ],
+    citations: [
+      "https://platform.claude.com/docs/en/api/migration-2026-10-21",
+      "https://platform.claude.com/docs/en/api/versioning",
+      LITELLM_DROP,
+      AI_SDK_GENERATE,
+    ],
+    checked: "2026-10-22",
   },
   {
     slug: "gpt-6-luna-function-tools-reasoning-effort",

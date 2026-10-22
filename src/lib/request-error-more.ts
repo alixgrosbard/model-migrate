@@ -43,6 +43,17 @@ const TOOL_CHOICE = 'tool_choice: type "tool" and "any" are not supported for th
 
 const PREFILL = "This model does not support assistant message prefill. The conversation must end with a user message.";
 
+const CLAUDE_VERSIONING = "https://platform.claude.com/docs/en/api/versioning";
+
+export const API_VERSION_SAMPLING_NOTE = {
+  text: "API version 2026-10-21: sending temperature, top_p, or top_k returns a 400 on every model, even at the default value.",
+  href: "/errors/claude-api-2026-10-21-sampling-params-400/",
+  label: "API version 2026-10-21 sampling parameters",
+  sourceLabel: "Claude API versioning",
+  sourceUrl: CLAUDE_VERSIONING,
+  checked: "2026-10-22",
+};
+
 const VISION_DEPRECATED =
   "The model `gpt-4-vision-preview` has been deprecated, learn more here: https://platform.openai.com/docs/deprecations";
 
@@ -690,7 +701,8 @@ const { text } = await generateText({
           "The migration guide does not print one. It says a non-default temperature, top_p, or top_k returns a 400. The temperature sentence is documented on [temperature is deprecated for this model](/errors/claude-temperature-is-deprecated-for-this-model/).",
       },
     ],
-    citations: [SONNET_GUIDE, LITELLM_DROP, AI_SDK_GENERATE],
+    citations: [SONNET_GUIDE, LITELLM_DROP, AI_SDK_GENERATE, CLAUDE_VERSIONING],
+    apiVersionNote: API_VERSION_SAMPLING_NOTE,
   },
   {
     slug: "openai-model-has-been-deprecated",

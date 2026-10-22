@@ -4,13 +4,20 @@
   "provider": "google-gemini-api",
   "display_name": "gemini-3.5-flash",
   "family": null,
-  "status": "active",
+  "status": "deprecated",
   "announced_date": null,
   "deprecation_date": null,
   "shutdown_date": null,
   "shutdown_date_kind": "none",
-  "region_or_platform_notes": "Release date on the deprecations page: 2026-05-19.",
-  "replacements": [],
+  "region_or_platform_notes": "Release date on the deprecations page: 2026-05-19. Deprecated, requests auto-routed to gemini-3.6-flash, no shutdown date.",
+  "replacements": [
+    {
+      "model_id": "gemini-3.6-flash",
+      "provider": "google-gemini-api",
+      "kind": "official",
+      "source_url": "https://ai.google.dev/gemini-api/docs/deprecations"
+    }
+  ],
   "sources": [
     {
       "url": "https://ai.google.dev/gemini-api/docs/deprecations",
@@ -56,5 +63,5 @@
     }
   },
   "first_seen": "2026-10-17T15:59:19.574Z",
-  "updated_at": "2026-10-22T04:50:27.922Z"
+  "updated_at": "2026-10-22T05:25:00.000Z"
 }

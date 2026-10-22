@@ -32,6 +32,20 @@ const checked = new Date(`${requestErrorChecked(page)}T00:00:00Z`).toLocaleDateS
 >
   <h1>{page.h1}</h1>
   <p class="answer">{page.lead}</p>
+  {page.seeAlso?.length ? (
+    <ul>
+      {page.seeAlso.map((item) => (
+        <li><a href={item.href}>{item.label}</a></li>
+      ))}
+    </ul>
+  ) : null}
+  {page.apiVersionNote ? (
+    <p>
+      {page.apiVersionNote.text}{" "}
+      <a href={page.apiVersionNote.href}>{page.apiVersionNote.label}</a>.
+      Source: <a href={page.apiVersionNote.sourceUrl}>{page.apiVersionNote.sourceLabel}</a>, checked {page.apiVersionNote.checked}.
+    </p>
+  ) : null}
   {page.errorQuoted ? (
     <>
       <h2>Error text</h2>

@@ -21,9 +21,23 @@ const GEMINI_THINKING = "https://ai.google.dev/gemini-api/docs/thinking";
 const GEMINI_IMAGEN = "https://ai.google.dev/gemini-api/docs/imagen";
 const GEMINI_IMAGE = "https://ai.google.dev/gemini-api/docs/image-generation";
 const GEMINI_VEO = "https://ai.google.dev/gemini-api/docs/veo";
+const CLAUDE_VERSIONING = "https://platform.claude.com/docs/en/api/versioning";
+const CLAUDE_MIGRATION_2026 = "https://platform.claude.com/docs/en/api/migration-2026-10-21";
+const ISSUE_MESSAGE_PARAM = "https://github.com/pydantic/pydantic-ai/issues/10923";
 
 const CHECKED_ERRORS = "2026-10-20";
 const CHECKED_LATER = "2026-10-21";
+const CHECKED_VERSION = "2026-10-22";
+
+/** Exact availability sentences from the Claude API versioning page, checked 2026-10-22. */
+const BEDROCK_CAVEAT =
+  "Available on the Claude API, Claude Platform on AWS, Microsoft Foundry, and Google Cloud. On Amazon Bedrock, it's available for Claude 4.7 and later models. For other models on Bedrock, see the migration guide.";
+
+const API_VERSION_FIX_KEEP =
+  "The versioning page still lists 2023-06-01 and does not call that version deprecated.";
+
+const API_SDK_MAJORS =
+  "The migration guide says the first versions that send 2026-10-21 are the Python anthropic package 2.0.0, TypeScript @anthropic-ai/sdk 1.0.0, the Go SDK 2.0.0 (module github.com/anthropics/anthropic-sdk-go/v2), Java com.anthropic:anthropic-java 3.0.0, C# Anthropic 13.0.0, PHP anthropic-ai/sdk 1.0.0, the Ruby anthropic gem 2.0.0, and the ant CLI 2.0.0.";
 
 const SONNET_MIGRATIONS: BreakingMigration[] = [
   {
@@ -154,6 +168,13 @@ export interface BreakingChange {
   error_page: string | null;
   migrations: BreakingMigration[];
   citations: string[];
+  /**
+   * Absent on older model-scoped rows. "api_version" means the rule follows the
+   * provider API version, not one model id. models may be empty in that case.
+   */
+  scope?: "model" | "api_version";
+  /** Set when scope is api_version. Absent on model-scoped rows. */
+  api_version?: string;
 }
 
 export const BREAKING_CHANGES_CSV_HEADERS = [
@@ -174,6 +195,8 @@ export const BREAKING_CHANGES_CSV_HEADERS = [
   "error_page",
   "migrations",
   "citations",
+  "scope",
+  "api_version",
 ] as const;
 
 export const breakingChangeHubFaqs: FaqItem[] = [
@@ -548,6 +571,131 @@ export const breakingChanges: BreakingChange[] = [
     migrations: VEO_MIGRATIONS,
     citations: cited([GEMINI_VEO]),
   },
+  {
+    id: "anthropic-api-2026-10-21-sampling-params",
+    provider: "anthropic",
+    provider_name: "Anthropic",
+    model_family: null,
+    models: [],
+    scope: "api_version",
+    api_version: "2026-10-21",
+    old_setting: "temperature, top_p, or top_k on API version 2026-10-21",
+    what_happens:
+      "Under API version 2026-10-21, a request that sends temperature, top_p, or top_k returns a 400 on every model, even at the parameter's default value. The migration guide says this applies to the Messages API (POST /v1/messages), to token counting, and to each request in a Message Batch created with 2026-10-21. Models that already accept only the defaults, such as Claude 4.7 and later models, sample as before once the parameters are removed. On models that accept other values, such as Claude Sonnet 4.6, a request that lowered temperature for more consistent output loses that effect. No other setting replaces it. The versioning page states: " +
+      BEDROCK_CAVEAT +
+      " " +
+      API_SDK_MAJORS +
+      " The versioning page and the migration guide do not print an error sentence.",
+    error_text: null,
+    fix: `Remove temperature, top_p, and top_k. If the request needs a non-default value, the migration guide says to keep that request on 2023-06-01. ${API_VERSION_FIX_KEEP}`,
+    source_url: CLAUDE_MIGRATION_2026,
+    source_label: "Migrating to Claude API version 2026-10-21",
+    quote_source_url: null,
+    quote_source_label: null,
+    checked: CHECKED_VERSION,
+    error_page: "/errors/claude-api-2026-10-21-sampling-params-400/",
+    migrations: [],
+    citations: cited([CLAUDE_MIGRATION_2026, CLAUDE_VERSIONING]),
+  },
+  {
+    id: "anthropic-api-2026-10-21-assistant-document",
+    provider: "anthropic",
+    provider_name: "Anthropic",
+    model_family: null,
+    models: [],
+    scope: "api_version",
+    api_version: "2026-10-21",
+    old_setting: "a document block placed directly in an assistant message on API version 2026-10-21",
+    what_happens:
+      "Under API version 2026-10-21, a request that places a document block directly in an assistant message returns a 400. The migration guide says to send documents in user messages instead. A document nested inside another block, such as a web fetch tool result that Claude returned, is still accepted. The same section applies to the Messages API, token counting, and each request in a Message Batch created with 2026-10-21. The versioning page also says the 400 covers a document block placed directly in an assistant message. The versioning page states: " +
+      BEDROCK_CAVEAT +
+      " The pages do not print an error sentence.",
+    error_text: null,
+    fix: `Send document blocks in user messages. A request kept on 2023-06-01 is outside this version. ${API_VERSION_FIX_KEEP}`,
+    source_url: CLAUDE_MIGRATION_2026,
+    source_label: "Migrating to Claude API version 2026-10-21",
+    quote_source_url: null,
+    quote_source_label: null,
+    checked: CHECKED_VERSION,
+    error_page: null,
+    migrations: [],
+    citations: cited([CLAUDE_MIGRATION_2026, CLAUDE_VERSIONING]),
+  },
+  {
+    id: "anthropic-api-2026-10-21-user-citations",
+    provider: "anthropic",
+    provider_name: "Anthropic",
+    model_family: null,
+    models: [],
+    scope: "api_version",
+    api_version: "2026-10-21",
+    old_setting: "a text block with a non-empty citations array in a user message on API version 2026-10-21",
+    what_happens:
+      "Under API version 2026-10-21, sending a text block with a non-empty citations array in a user message returns a 400. The versioning page says this includes a text block sent directly or inside a search_result block. The migration guide says to remove citations from those blocks. Citations on text blocks in assistant messages, such as Claude's earlier replies that you send back, are still accepted, and so is the citations enabled setting on documents and search results. The same section applies to the Messages API, token counting, and each request in a Message Batch created with 2026-10-21. The versioning page states: " +
+      BEDROCK_CAVEAT +
+      " The pages do not print an error sentence.",
+    error_text: null,
+    fix: `Remove citations from text blocks in user messages. A request kept on 2023-06-01 is outside this version. ${API_VERSION_FIX_KEEP}`,
+    source_url: CLAUDE_VERSIONING,
+    source_label: "Claude API versioning",
+    quote_source_url: null,
+    quote_source_label: null,
+    checked: CHECKED_VERSION,
+    error_page: null,
+    migrations: [],
+    citations: cited([CLAUDE_VERSIONING, CLAUDE_MIGRATION_2026]),
+  },
+  {
+    id: "anthropic-api-2026-10-21-authorization-header",
+    provider: "anthropic",
+    provider_name: "Anthropic",
+    model_family: null,
+    models: [],
+    scope: "api_version",
+    api_version: "2026-10-21",
+    old_setting: "reading the API key from the X-Api-Key header after the SDK or CLI majors that send 2026-10-21",
+    what_happens:
+      "The migration guide says the SDK and the CLI send the API key as Authorization: Bearer instead of in the X-Api-Key header. It says to change any proxy or gateway that reads or sets X-Api-Key to use Authorization, or send the key in X-Api-Key yourself. The Claude API accepts a key in either header, so a program that talks to the API directly needs no change. " +
+      API_SDK_MAJORS +
+      " The versioning page states: " +
+      BEDROCK_CAVEAT +
+      " The page does not print an error sentence for this header change.",
+    error_text: null,
+    fix: "Change a proxy or gateway that reads or sets X-Api-Key to use Authorization, or send the key in X-Api-Key yourself. A program that talks to the Claude API directly needs no change for this header.",
+    source_url: CLAUDE_MIGRATION_2026,
+    source_label: "Migrating to Claude API version 2026-10-21",
+    quote_source_url: null,
+    quote_source_label: null,
+    checked: CHECKED_VERSION,
+    error_page: null,
+    migrations: [],
+    citations: cited([CLAUDE_MIGRATION_2026, CLAUDE_VERSIONING]),
+  },
+  {
+    id: "anthropic-api-2026-10-21-message-param-union",
+    provider: "anthropic",
+    provider_name: "Anthropic",
+    model_family: null,
+    models: [],
+    scope: "api_version",
+    api_version: "2026-10-21",
+    old_setting: "calling MessageParam or BetaMessageParam as one type for every role",
+    what_happens:
+      "The migration guide says MessageParam was one type for all roles and is now a union of UserMessageParam, AssistantMessageParam, and SystemMessageParam. BetaMessageParam is split the same way, into BetaUserMessageParam, BetaAssistantMessageParam, and BetaSystemMessageParam. Calling either name raises a TypeError. GitHub issue pydantic/pydantic-ai#10923 records that anthropic 2.0.0 makes every pydantic-ai Anthropic request fail before it is sent, because BetaMessageParam is now a union, and the recorded exception is TypeError: Cannot instantiate typing.Union. " +
+      API_SDK_MAJORS +
+      " The versioning page states: " +
+      BEDROCK_CAVEAT,
+    error_text: null,
+    fix: "The migration guide says to write the message as a dict, or subclass the type for the role, such as UserMessageParam. The pydantic-ai issue says the call sites can build the role-specific types or plain dicts.",
+    source_url: CLAUDE_MIGRATION_2026,
+    source_label: "Migrating to Claude API version 2026-10-21",
+    quote_source_url: null,
+    quote_source_label: null,
+    checked: CHECKED_VERSION,
+    error_page: null,
+    migrations: [],
+    citations: cited([CLAUDE_MIGRATION_2026, ISSUE_MESSAGE_PARAM, CLAUDE_VERSIONING]),
+  },
 ];
 
 export function breakingChangesChecked(): string {
@@ -571,13 +719,17 @@ export function rejectingModels(rule: BreakingChange): BreakingModel[] {
   return rule.models.filter((model) => model.role === "rejects");
 }
 
+export function breakingChangeScope(rule: BreakingChange): "model" | "api_version" {
+  return rule.scope ?? "model";
+}
+
 export function breakingChangesDocument() {
   return {
     name: "SunsetDiff request breaking changes",
     publisher: "SunsetDiff",
     license: BREAKING_CHANGES_LICENSE,
     description:
-      "Request settings and endpoints a replacement model rejects. One rule per row. error_text is copied from the cited page, or null when that page does not print a sentence. Retired model ids are not in this file.",
+      "Request settings and endpoints a replacement model rejects, plus API-version rules that apply to every model on that version. One rule per row. error_text is copied from the cited page, or null when that page does not print a sentence. scope and api_version are omitted on model-scoped rows. Retired model ids are not in this file.",
     version: breakingChangesChecked(),
     rules: breakingChanges,
   };
@@ -615,6 +767,8 @@ export function breakingChangesCsv(): string {
       error_page: rule.error_page ?? "",
       migrations: rule.migrations.map((migration) => migration.href).join("; "),
       citations: rule.citations.join(" "),
+      scope: rule.scope ?? "",
+      api_version: rule.api_version ?? "",
     };
     lines.push(BREAKING_CHANGES_CSV_HEADERS.map((header) => csvCell(row[header])).join(","));
   }
@@ -627,7 +781,7 @@ export function breakingChangesDatasetGraph(site: string) {
     "@type": "Dataset",
     name: "SunsetDiff request breaking changes",
     description:
-      "Request settings and endpoints a replacement AI model rejects, one sourced rule per row. error_text is quoted only when the cited page prints it.",
+      "Request settings and endpoints a replacement AI model rejects, plus API-version rules, one sourced rule per row. error_text is quoted only when the cited page prints it.",
     url: hub,
     license: BREAKING_CHANGES_LICENSE,
     creator: { "@type": "Organization", name: "SunsetDiff" },

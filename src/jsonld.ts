@@ -409,7 +409,7 @@ export function breakingChangesIndexGraph(
       "@type": "CollectionPage",
       name: "Request breaking changes",
       description:
-        "Request settings and endpoints a replacement AI model rejects. Each rule cites an official page or a public issue.",
+        "Request settings and endpoints a replacement AI model rejects, plus API-version rules such as Claude API version 2026-10-21. Each rule cites an official page or a public issue.",
       url,
       dateModified: breakingChangesChecked(),
       inLanguage: "en",

@@ -9,6 +9,7 @@ import {
   BREAKING_CHANGES_LICENSE,
   BREAKING_CHANGES_PATH,
   breakingChangeHubFaqs,
+  breakingChangeScope,
   breakingChanges,
   breakingChangesChecked,
   breakingChangesForProvider,
@@ -28,14 +29,14 @@ const items = breakingChanges.map((rule) => ({ name: rule.old_setting, path: `${
 ---
 <Base
   title="Request breaking changes when you switch AI models | SunsetDiff"
-  description="Sourced rules for request settings and endpoints a replacement model rejects. Grouped by provider, with JSON and CSV."
+  description="Sourced rules for request settings a replacement model rejects, and for Claude API version 2026-10-21. Grouped by provider, with JSON and CSV."
   crumbs={[{ name: "Home", path: "/" }, { name: "Breaking changes", path: BREAKING_CHANGES_PATH }]}
   extraGraph={breakingChangesIndexGraph(site, items, breakingChangeHubFaqs)}
 >
   <h1>Request breaking changes</h1>
   <p class="answer">
-    These are the old request settings and endpoints that fail after you change the model id.
-    Each row names the models, what the source says happens, the fix, and the page it came from.
+    These are the old request settings and endpoints that fail after you change the model id, and the settings that fail under a new API version.
+    Each row names the models or the API version, what the source says happens, the fix, and the page it came from.
     {breakingChanges.length} rules. The newest check date is {checkedLabel} ({checked}).
     Machine-readable copies: <a href={BREAKING_CHANGES_JSON}>breaking-changes.json</a> and <a href={BREAKING_CHANGES_CSV}>breaking-changes.csv</a>.
     License <a href={BREAKING_CHANGES_LICENSE}>CC BY 4.0</a>. Publisher: SunsetDiff.
@@ -64,6 +65,9 @@ const items = breakingChanges.map((rule) => ({ name: rule.old_setting, path: `${
                 <td>{rule.old_setting}</td>
                 <td>
                   {rule.model_family ? <p>{rule.model_family}</p> : null}
+                  {breakingChangeScope(rule) === "api_version" ? (
+                    <p>API version {rule.api_version}. Every model on that version.</p>
+                  ) : null}
                   <ul>
                     {rejectingModels(rule).map((model) => (
                       <li><a href={`/models/${model.provider}/${model.slug}/`}><code>{model.id}</code></a></li>

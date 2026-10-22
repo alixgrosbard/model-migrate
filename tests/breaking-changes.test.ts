@@ -63,7 +63,14 @@ describe("request breaking changes", () => {
         expect(page?.errorQuoted).toBe(true);
         expect(page?.errorText).toBe(rule.error_text);
       }
-      expect(rule.models.some((model) => model.role === "rejects")).toBe(true);
+      if ((rule.scope ?? "model") === "api_version") {
+        expect(rule.api_version).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+        expect(rule.models).toEqual([]);
+      } else {
+        expect(rule.scope).toBeUndefined();
+        expect(rule.api_version).toBeUndefined();
+        expect(rule.models.some((model) => model.role === "rejects")).toBe(true);
+      }
       for (const model of rule.models) {
         const file = nodePath.join("data/models", model.provider, `${model.slug}.json`);
         expect(existsSync(file), file).toBe(true);
@@ -119,8 +126,8 @@ describe("request breaking changes", () => {
     expect(text).toContain(BREAKING_CHANGES_CSV);
     expect(full).toContain(BREAKING_CHANGES_JSON);
     expect(full).toContain(BREAKING_CHANGES_CSV);
-    expect(lastmodForUrl(`https://sunsetdiff.com${BREAKING_CHANGES_PATH}`)).toBe("2026-10-21");
-    expect(lastmodForUrl(`https://sunsetdiff.com${BREAKING_CHANGES_JSON}`)).toBe("2026-10-21");
+    expect(lastmodForUrl(`https://sunsetdiff.com${BREAKING_CHANGES_PATH}`)).toBe("2026-10-22");
+    expect(lastmodForUrl(`https://sunsetdiff.com${BREAKING_CHANGES_JSON}`)).toBe("2026-10-22");
     const graph = breakingChangesIndexGraph("https://sunsetdiff.com/", breakingChanges.map((rule) => ({
       name: rule.old_setting,
       path: `${BREAKING_CHANGES_PATH}#${rule.id}`,
@@ -135,5 +142,49 @@ describe("request breaking changes", () => {
       `https://sunsetdiff.com${BREAKING_CHANGES_CSV}`,
     ]);
     expect(JSON.stringify(graph)).not.toMatch(/[—–]/);
+  });
+
+  it("publishes Claude API version 2026-10-21 rules without a model id", () => {
+    const rules = breakingChanges.filter((rule) => rule.api_version === "2026-10-21");
+    expect(rules.map((rule) => rule.id)).toEqual([
+      "anthropic-api-2026-10-21-sampling-params",
+      "anthropic-api-2026-10-21-assistant-document",
+      "anthropic-api-2026-10-21-user-citations",
+      "anthropic-api-2026-10-21-authorization-header",
+      "anthropic-api-2026-10-21-message-param-union",
+    ]);
+    const document = breakingChangesDocument();
+    for (const rule of rules) {
+      expect(rule.scope).toBe("api_version");
+      expect(rule.provider).toBe("anthropic");
+      expect(rule.checked).toBe("2026-10-22");
+      expect(rule.citations).toEqual(expect.arrayContaining([
+        "https://platform.claude.com/docs/en/api/versioning",
+        "https://platform.claude.com/docs/en/api/migration-2026-10-21",
+      ]));
+      expect(rule.what_happens).toContain("On Amazon Bedrock, it's available for Claude 4.7 and later models.");
+      expect(rule.error_text).toBeNull();
+      expect(document.rules).toContain(rule);
+    }
+    const sampling = rules[0];
+    expect(sampling.error_page).toBe("/errors/claude-api-2026-10-21-sampling-params-400/");
+    expect(sampling.what_happens).toContain("even at the parameter's default value");
+    expect(sampling.what_happens).toContain("Claude Sonnet 4.6");
+    expect(sampling.fix).toContain("2023-06-01");
+    expect(sampling.fix).toContain("does not call that version deprecated");
+    const auth = rules.find((rule) => rule.id === "anthropic-api-2026-10-21-authorization-header");
+    expect(auth?.what_happens).toContain("Authorization: Bearer");
+    expect(auth?.what_happens).toContain("X-Api-Key");
+    expect(auth?.what_happens).toContain("accepts a key in either header");
+    const union = rules.find((rule) => rule.id === "anthropic-api-2026-10-21-message-param-union");
+    expect(union?.citations).toContain("https://github.com/pydantic/pydantic-ai/issues/10923");
+    expect(union?.what_happens).toContain("TypeError: Cannot instantiate typing.Union");
+    expect(union?.what_happens).toContain("UserMessageParam");
+    const csv = breakingChangesCsv();
+    expect(csv).toContain("anthropic-api-2026-10-21-sampling-params");
+    expect(csv.split("\n")[0]).toContain("api_version");
+    const older = breakingChanges.find((rule) => rule.id === "anthropic-sonnet-5-5-temperature");
+    expect(older?.scope).toBeUndefined();
+    expect(JSON.stringify(older)).not.toContain("api_version");
   });
 });

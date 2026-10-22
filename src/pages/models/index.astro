@@ -2,7 +2,7 @@
 import Base from "../../layouts/Base.astro";
 import HubFilter from "../../components/HubFilter.astro";
 import { collectionGraph } from "../../jsonld.ts";
-import { formatWhen } from "../../lib/format.ts";
+import { autoRouteStatusText, formatWhen } from "../../lib/format.ts";
 import { publicName } from "../../lib/growth.ts";
 import { filterText, modelPath, modelsForProvider, modelsHub, providersHub, replaceHub, replacePath, replacementLinkText } from "../../lib/hubs.ts";
 import { loadModels, loadProviders } from "../../lib/load.ts";
@@ -58,7 +58,7 @@ const items = groups.flatMap((group) =>
                 <a href={modelPath(model)}>{publicName(model)}</a>
                 {publicName(model) !== model.id ? <><br /><code>{model.id}</code></> : null}
               </td>
-              <td><span class="badge">{model.status}</span></td>
+              <td><span class="badge">{autoRouteStatusText(model) ?? model.status}</span></td>
               <td>{formatWhen(model)}</td>
               <td><a href={replacePath(model)}>{replacementLinkText(model)}</a></td>
             </tr>
