@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 import { defineConfig } from "astro/config";
 import sitemap from "@astrojs/sitemap";
 import { lastmodForUrl } from "./src/lib/lastmod.ts";
+import { OPENAPI_PATH } from "./src/lib/openapi.ts";
 import { siteOrigin } from "./src/lib/site.ts";
 
 const site = siteOrigin();
@@ -14,6 +15,13 @@ export default defineConfig({
   trailingSlash: "always",
   integrations: [
     sitemap({
+      filter(page) {
+        try {
+          return new URL(page).pathname !== "/google/";
+        } catch {
+          return true;
+        }
+      },
       customPages: [
         `${site}/deadlines.ics`,
         `${site}/feed.xml`,
@@ -22,6 +30,7 @@ export default defineConfig({
         `${site}/data/changelog.json`,
         `${site}/data/breaking-changes.json`,
         `${site}/data/breaking-changes.csv`,
+        `${site}${OPENAPI_PATH}`,
       ],
       serialize(item) {
         const lastmod = lastmodForUrl(item.url);

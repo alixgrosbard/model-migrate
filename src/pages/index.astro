@@ -6,6 +6,7 @@ import SponsorSlot from "../components/SponsorSlot.astro";
 import { loadModels, loadProviders, providerName } from "../lib/load.ts";
 import { formatWhen, isSoon, officialReplacement, today } from "../lib/format.ts";
 import { HUBS } from "../lib/hubs.ts";
+import { STATUS_HUBS } from "../lib/status-hubs.ts";
 import { publicName } from "../lib/growth.ts";
 import { batchHeadline, eventCountLabel, orderShutdownEvents, providerDisplayName, shutdownEventPath, shutdownEvents } from "../lib/shutdowns.ts";
 
@@ -37,6 +38,7 @@ function replacementModel(model: (typeof models)[number]) {
         <a href={hub.path}>{hub.nav}</a>
       </>
     ))}
+    {STATUS_HUBS.map((hub) => <> · <a href={hub.path}>{hub.nav}</a></>)}
   </p>
   <SearchBox />
   <h2 id="soonest">Shutting down in the next 30 days</h2>

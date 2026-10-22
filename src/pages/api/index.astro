@@ -3,6 +3,7 @@ import Base from "../../layouts/Base.astro";
 import FaqList from "../../components/FaqList.astro";
 import { apiDocsGraph } from "../../jsonld.ts";
 import { ENDPOINTS, apiFaqs, curlExample, fetchExample } from "../../lib/endpoints.ts";
+import { OPENAPI_PATH } from "../../lib/openapi.ts";
 import { loadModels } from "../../lib/load.ts";
 import { DEFAULT_SITE_URL } from "../../lib/site.ts";
 
@@ -31,9 +32,11 @@ function anchor(path: string): string {
     A GitHub Action checks the official provider pages about every 6 hours. The next site build rewrites these files when the data changes.
     Each model source has a last_checked date. A null or blank field was not on the official page.
     The human-readable dataset page is <a href="/data/">/data/</a>. Comparisons with other trackers are on <a href="/alternatives/">/alternatives/</a>.
+    A machine-readable description of these files is <a href={OPENAPI_PATH}>OpenAPI 3.1</a>. It needs no API key. The server is https://sunsetdiff.com.
   </p>
   <h2>Files</h2>
   <ul>
+    <li><a href={OPENAPI_PATH}>/openapi.json</a>: OpenAPI 3.1 document for the files on this page</li>
     {ENDPOINTS.map((endpoint) => (
       <li><a href={`#${anchor(endpoint.path)}`}>{endpoint.path}</a>: {endpoint.format}</li>
     ))}

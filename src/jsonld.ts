@@ -223,6 +223,46 @@ export function collectionGraph(
   ];
 }
 
+export function statusHubGraph(
+  site: string,
+  page: {
+    path: string;
+    h1: string;
+    description: string;
+    version: string;
+    items: { name: string; path: string }[];
+    faqs: FaqItem[];
+  },
+) {
+  const url = new URL(page.path, site).href;
+  const modified = /^\d{4}-\d{2}-\d{2}$/.test(page.version) ? page.version : undefined;
+  const nodes: Record<string, unknown>[] = [
+    {
+      "@type": "CollectionPage",
+      name: page.h1,
+      description: page.description,
+      url,
+      ...(modified ? { dateModified: modified } : {}),
+      inLanguage: "en",
+      isPartOf: { "@id": `${siteRoot(site)}/#website` },
+      publisher: { "@type": "Organization", name: "SunsetDiff" },
+    },
+    {
+      "@type": "ItemList",
+      name: page.h1,
+      numberOfItems: page.items.length,
+      itemListElement: page.items.map((item, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        name: item.name,
+        url: new URL(item.path, site).href,
+      })),
+    },
+  ];
+  if (page.faqs.length) nodes.push(faqNode(page.faqs));
+  return nodes;
+}
+
 export function shutdownIndexGraph(site: string, items: { name: string; path: string }[]) {
   const url = new URL("/shutdowns/", site).href;
   return [

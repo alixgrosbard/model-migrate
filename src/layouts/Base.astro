@@ -5,6 +5,7 @@ import { loadModels, loadProviders } from "../lib/load.ts";
 import { monthLabel, shutdownMonths } from "../lib/growth.ts";
 import { shutdownYearList, yearPath } from "../lib/schedule.ts";
 import { HUBS } from "../lib/hubs.ts";
+import { STATUS_HUBS } from "../lib/status-hubs.ts";
 import { PRO_FOOTER } from "../lib/public-copy.ts";
 import { DEFAULT_SITE_URL } from "../lib/site.ts";
 
@@ -16,14 +17,16 @@ interface Props {
   extraGraph?: unknown[];
   image?: string;
   robots?: string;
+  canonicalPath?: string;
+  refresh?: string;
 }
-const { title, description, crumbs, extraGraph = [], image = "/og/sunsetdiff.svg", robots } = Astro.props;
+const { title, description, crumbs, extraGraph = [], image = "/og/sunsetdiff.svg", robots, canonicalPath, refresh } = Astro.props;
 const providers = await loadProviders();
 const models = await loadModels();
 const months = shutdownMonths(models);
 const years = shutdownYearList(models);
 const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
-const canonical = new URL(Astro.url.pathname, site).href;
+const canonical = new URL(canonicalPath ?? Astro.url.pathname, site).href;
 const imageUrl = new URL(image, site).href;
 const jsonld = graph([...websiteGraph(site), breadcrumb(site, crumbs), ...extraGraph]);
 ---
@@ -36,6 +39,7 @@ const jsonld = graph([...websiteGraph(site), breadcrumb(site, crumbs), ...extraG
     <meta name="description" content={description} />
     {robots ? <meta name="robots" content={robots} /> : null}
     <link rel="canonical" href={canonical} />
+    {refresh ? <meta http-equiv="refresh" content={`0; url=${refresh}`} /> : null}
     <link rel="alternate" type="application/rss+xml" title="SunsetDiff new deprecations" href="/feed.xml" />
     <link rel="alternate" type="text/calendar" title="SunsetDiff deadlines" href="/deadlines.ics" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
@@ -59,6 +63,7 @@ const jsonld = graph([...websiteGraph(site), breadcrumb(site, crumbs), ...extraG
       <a class="brand" href="/">SunsetDiff</a>
       <nav aria-label="Main">
         {HUBS.map((hub) => <a href={hub.path}>{hub.nav}</a>)}
+        {STATUS_HUBS.map((hub) => <a href={hub.path}>{hub.nav}</a>)}
         <a href="/calendar/">Calendar</a>
         <a href="/upcoming/">Upcoming</a>
         <a href="/timeline/">Timeline</a>
@@ -102,6 +107,7 @@ const jsonld = graph([...websiteGraph(site), breadcrumb(site, crumbs), ...extraG
     <footer>
       <nav aria-label="Site">
         {HUBS.map((hub) => <a href={hub.path}>{hub.nav}</a>)}
+        {STATUS_HUBS.map((hub) => <a href={hub.path}>{hub.nav}</a>)}
         <a href="/upcoming/">Upcoming</a>
         <a href="/timeline/">Timeline</a>
         <a href="/changelog/">Changelog</a>

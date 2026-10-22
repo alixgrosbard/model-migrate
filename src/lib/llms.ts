@@ -4,6 +4,8 @@ import { publicName } from "./growth.ts";
 import { scheduleIndexLinks } from "./schedule.ts";
 import { GUIDES_INDEX, guidePath, guides } from "./guides.ts";
 import { HUBS } from "./hubs.ts";
+import { OPENAPI_PATH } from "./openapi.ts";
+import { statusLlmsEntries } from "./status-hubs.ts";
 import {
   BREAKING_CHANGES_CSV,
   BREAKING_CHANGES_JSON,
@@ -22,6 +24,7 @@ export function llmsTxt(
     questions?: ModelRecord[];
     shutdowns?: { title: string; path: string }[];
     schedule?: { title: string; path: string }[];
+    statusPages?: { title: string; path: string }[];
   } = {},
 ): string {
   const origin = site.replace(/\/+$/, "");
@@ -44,6 +47,9 @@ export function llmsTxt(
   const scheduleLinks = (extra.schedule ?? [])
     .map((page) => `- [${page.title}](${origin}${page.path})`)
     .join("\n");
+  const statusLinks = (extra.statusPages ?? [])
+    .map((page) => `- [${page.title}](${origin}${page.path})`)
+    .join("\n");
   return `# SunsetDiff
 
 > SunsetDiff tracks AI model retirements and the migration diff: shutdown date, official replacement, and published changes in price, context, and code. Publisher: SunsetDiff.
@@ -54,6 +60,8 @@ export function llmsTxt(
 - [Replacements](${origin}/replace/)
 - [Migrations](${origin}/migrate/)
 - [Providers](${origin}/providers/)
+- [Deprecated models](${origin}/deprecated/): AI models with status deprecated, grouped by provider and sorted by shutdown date.
+- [Retired models](${origin}/retired/): AI models with status retired, grouped by provider and sorted by shutdown date.
 - [Soonest shutdowns](${origin}/#soonest)
 - [Calendar](${origin}/calendar/)
 - [Upcoming shutdowns](${origin}/upcoming/)
@@ -127,8 +135,15 @@ ${hubLinks}
 [All providers](${origin}/providers/).
 ${providerLinks}
 
+## Status lists
+Deprecated means the stored status is deprecated. Retired means the stored status is retired. Dates come from the model records.
+- [Deprecated models](${origin}/deprecated/)
+- [Retired models](${origin}/retired/)
+${statusLinks || ""}
+
 ## API
 - [Static API docs](${origin}/api/)
+- [OpenAPI 3.1](${origin}${OPENAPI_PATH}): no API key. Server https://sunsetdiff.com.
 - [Index](${origin}/api/v1/index.json)
 - [Upcoming shutdowns](${origin}/api/v1/upcoming.json)
 - [Full model records](${origin}/data/models.json)
@@ -149,7 +164,7 @@ SunsetDiff compared with other public trackers. Competitor facts are quoted from
 `;
 }
 
-export function llmsFull(site: string, models: ModelRecord[]): string {
+export function llmsFull(site: string, models: ModelRecord[], providers: Provider[] = []): string {
   const origin = site.replace(/\/+$/, "");
   const lines = models.map((model) => {
     const source = model.sources[0];
@@ -179,6 +194,8 @@ export function llmsFull(site: string, models: ModelRecord[]): string {
     `Breaking changes: ${origin}${BREAKING_CHANGES_PATH}`,
     ...breakingChanges.map((rule) => `Breaking change: ${origin}${BREAKING_CHANGES_PATH}#${rule.id}`),
     `API docs: ${origin}/api/`,
+    `OpenAPI: ${origin}${OPENAPI_PATH}`,
+    ...statusLlmsEntries(models, providers).map((page) => `${page.title}: ${origin}${page.path}`),
     `Compare trackers: ${origin}/alternatives/`,
     ...HUBS.map((hub) => `${hub.nav}: ${origin}${hub.path}`),
     `Request errors: ${origin}${REQUEST_ERRORS_INDEX}`,

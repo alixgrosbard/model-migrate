@@ -37,6 +37,7 @@
   },
   "devDependencies": {
     "@actions/core": "^1.11.1",
+    "@apidevtools/swagger-parser": "^13.1.0",
     "@types/node": "^22.18.0",
     "@types/pg": "^8.23.1",
     "@vercel/ncc": "^0.38.3",

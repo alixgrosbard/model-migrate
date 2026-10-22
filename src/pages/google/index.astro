@@ -1,0 +1,33 @@
+---
+import Base from "../../layouts/Base.astro";
+import { loadModels, loadProviders } from "../../lib/load.ts";
+import { providerStatusPath, providerStatusTargets } from "../../lib/status-hubs.ts";
+
+const providers = await loadProviders();
+const models = await loadModels();
+const matches = providers.filter((provider) => provider.id === "google" || provider.id.startsWith("google-"));
+const targets = new Set(providerStatusTargets(models).map((target) => `${target.provider}:${target.status}`));
+const only = matches.length === 1 ? matches[0] : null;
+---
+<Base
+  title="Google model shutdowns | SunsetDiff"
+  description="Google models are listed on these SunsetDiff provider pages."
+  crumbs={[{ name: "Home", path: "/" }, { name: "Google", path: "/google/" }]}
+  robots="noindex"
+  refresh={only ? `/providers/${only.id}/` : undefined}
+  canonicalPath={only ? `/providers/${only.id}/` : undefined}
+>
+  <h1>Google model shutdowns</h1>
+  <p class="answer">Google models are listed on these provider pages.</p>
+  {matches.length ? (
+    <ul>
+      {matches.map((provider) => (
+        <li>
+          <a href={`/providers/${provider.id}/`}>{provider.name}</a>
+          {targets.has(`${provider.id}:deprecated`) ? <> · <a href={providerStatusPath(provider.id, "deprecated")}>Deprecated</a></> : null}
+          {targets.has(`${provider.id}:retired`) ? <> · <a href={providerStatusPath(provider.id, "retired")}>Retired</a></> : null}
+        </li>
+      ))}
+    </ul>
+  ) : <p>No Google provider page is in the dataset.</p>}
+</Base>

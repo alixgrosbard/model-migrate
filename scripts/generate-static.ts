@@ -1,11 +1,11 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { zodToJsonSchema } from "zod-to-json-schema";
 import { migrationSchema, modelSchema, providerSchema } from "../src/schema.ts";
 import { loadChanges, loadMigrations, loadModels, loadProviders } from "../src/lib/load.ts";
 import { addDays, formatWhen, isSoon, officialReplacement, today } from "../src/lib/format.ts";
 import { llmsFull, llmsTxt } from "../src/lib/llms.ts";
-import { changelogDocument, deadlinesIcs, deprecationsCsv, deprecationsFeed, shutdownMonths, topRetiringModels, type FeedEntry } from "../src/lib/growth.ts";
+import { changelogDocument, datasetVersion, deadlinesIcs, deprecationsCsv, deprecationsFeed, shutdownMonths, topRetiringModels, type FeedEntry } from "../src/lib/growth.ts";
 import {
   eventDateModified,
   orderShutdownEvents,
@@ -19,6 +19,9 @@ import { writeBadgeFiles } from "../src/lib/badges.ts";
 import { breakingChangesCsv, breakingChangesDocument } from "../src/lib/breaking-changes.ts";
 import { scheduleIndexLinks } from "../src/lib/schedule.ts";
 import { siteOrigin } from "../src/lib/site.ts";
+import { openApiDocument } from "../src/lib/openapi.ts";
+import { statusLlmsEntries } from "../src/lib/status-hubs.ts";
+import { SHORTCUT_MARKER, shortcutFiles } from "../src/lib/shortcuts.ts";
 
 const site = siteOrigin();
 const publicDir = path.join(process.cwd(), "public");
@@ -126,13 +129,16 @@ async function main() {
     title: shutdownEventTitle(providerDisplayName(providers, event.provider), event, day),
     path: shutdownEventPath(event),
   }));
-  await writeFile(path.join(publicDir, "llms-full.txt"), llmsFull(site, models));
+  await writeFile(path.join(publicDir, "llms-full.txt"), llmsFull(site, models, providers));
   await writeFile(path.join(publicDir, "llms.txt"), llmsTxt(site, providers, soonForLlms, {
     months,
     questions: questionModels,
     shutdowns: shutdownLinks,
     schedule: scheduleIndexLinks(models),
+    statusPages: statusLlmsEntries(models, providers).filter((page) => page.path.startsWith("/providers/")),
   }));
+  await writeJson(path.join(publicDir, "openapi.json"), openApiDocument(datasetVersion(changes)));
+  await writeShortcuts(publicDir, site, providers);
   const changelog = changelogDocument(changes);
   await mkdir(path.join(publicDir, "data"), { recursive: true });
   await writeJson(path.join(publicDir, "data/models.json"), {
@@ -305,6 +311,25 @@ function clip(value: string, max: number): string {
 
 function xml(value: string): string {
   return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+async function writeShortcuts(dir: string, origin: string, providers: Awaited<ReturnType<typeof loadProviders>>) {
+  const entries = await readdir(dir, { withFileTypes: true });
+  for (const entry of entries) {
+    if (!entry.isDirectory()) continue;
+    const index = path.join(dir, entry.name, "index.html");
+    try {
+      const html = await readFile(index, "utf8");
+      if (html.includes(SHORTCUT_MARKER)) await rm(path.join(dir, entry.name), { recursive: true, force: true });
+    } catch {
+      /* not a shortcut directory */
+    }
+  }
+  for (const file of shortcutFiles(origin, providers)) {
+    const folder = path.join(dir, file.slug);
+    await mkdir(folder, { recursive: true });
+    await writeFile(path.join(folder, "index.html"), file.html);
+  }
 }
 
 async function writeJson(file: string, value: unknown) {

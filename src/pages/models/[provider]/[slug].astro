@@ -110,7 +110,15 @@ const specRows: [string, string, string][] = [
       })}
     </ul>
   ) : <p>Not published.</p>}
-  <p><a href={`/replace/${model.provider}/${model.slug}/`}>See the replacement diff</a> · <a href={`/providers/${provider.id}/`}>{provider.name} models</a></p>
+  <p>
+    <a href={`/replace/${model.provider}/${model.slug}/`}>See the replacement diff</a>
+    {" · "}<a href={`/providers/${provider.id}/`}>{provider.name} models</a>
+    {model.status === "deprecated" || model.status === "retired" ? (
+      <>{" · "}<a href={`/providers/${provider.id}/${model.status}/`}>{model.status === "deprecated" ? "Deprecated" : "Retired"} {provider.name} models</a></>
+    ) : null}
+    {" · "}<a href="/deprecated/">All deprecated models</a>
+    {" · "}<a href="/retired/">All retired models</a>
+  </p>
   {relatedErrors.length ? (
     <>
       <h2>Request errors</h2>
