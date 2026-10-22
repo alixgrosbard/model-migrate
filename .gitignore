@@ -11,6 +11,7 @@ public/calendar/
 public/changes.xml
 public/deadlines.ics
 public/feed.xml
+public/rss.xml
 public/data/models.json
 public/data/deprecations.csv
 public/data/changelog.json

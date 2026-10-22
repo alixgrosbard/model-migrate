@@ -3,6 +3,7 @@ import { BADGES_DESCRIPTION, BADGES_PATH } from "./lib/badges.ts";
 import { modelFaqs, replaceFaqs, type FaqItem } from "./lib/format.ts";
 import { deprecatedFaqs, publicName, questionPath, shutdownFaqs } from "./lib/growth.ts";
 import { GUIDES_CHECKED, GUIDES_INDEX, guidePath, type GuidePage } from "./lib/guides.ts";
+import { GLOSSARY_CHECKED, GLOSSARY_INDEX, glossaryPath, glossaryTerms, type GlossaryTerm } from "./lib/glossary.ts";
 import { BREAKING_CHANGES_PATH, breakingChangesChecked, breakingChangesDatasetGraph } from "./lib/breaking-changes.ts";
 import { REQUEST_ERRORS_INDEX, requestErrorChecked, requestErrorPath, requestErrorsIndexChecked, type RequestErrorPage } from "./lib/request-errors.ts";
 
@@ -613,6 +614,72 @@ export function guideGraph(site: string, page: GuidePage) {
   }
   if (page.faqs.length) nodes.push(faqNode(page.faqs));
   return nodes;
+}
+
+export function glossaryIndexGraph(site: string, faqs: FaqItem[]) {
+  const url = new URL(GLOSSARY_INDEX, site).href;
+  return [
+    {
+      "@type": "DefinedTermSet",
+      "@id": `${url}#termset`,
+      name: "SunsetDiff glossary",
+      description: "Definitions for AI model deprecation words, with how each provider uses them.",
+      url,
+      dateModified: GLOSSARY_CHECKED,
+      inLanguage: "en",
+      isPartOf: { "@id": `${siteRoot(site)}/#website` },
+      publisher: { "@type": "Organization", name: "SunsetDiff" },
+      hasDefinedTerm: glossaryTerms.map((term) => definedTermNode(site, term)),
+    },
+    {
+      "@type": "ItemList",
+      name: "SunsetDiff glossary",
+      numberOfItems: glossaryTerms.length,
+      itemListElement: glossaryTerms.map((term, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        name: term.name,
+        url: new URL(glossaryPath(term.slug), site).href,
+      })),
+    },
+    faqNode(faqs),
+  ];
+}
+
+export function glossaryTermGraph(site: string, term: GlossaryTerm) {
+  const url = new URL(glossaryPath(term.slug), site).href;
+  return [
+    definedTermNode(site, term),
+    {
+      "@type": "Article",
+      headline: term.h1,
+      description: term.description,
+      datePublished: GLOSSARY_CHECKED,
+      dateModified: GLOSSARY_CHECKED,
+      url,
+      mainEntityOfPage: url,
+      mainEntity: { "@id": `${url}#term` },
+      inLanguage: "en",
+      author: { "@type": "Organization", name: "SunsetDiff" },
+      publisher: { "@type": "Organization", name: "SunsetDiff" },
+      citation: term.citations,
+    },
+  ];
+}
+
+function definedTermNode(site: string, term: GlossaryTerm) {
+  const url = new URL(glossaryPath(term.slug), site).href;
+  const node: Record<string, unknown> = {
+    "@type": "DefinedTerm",
+    "@id": `${url}#term`,
+    name: term.name,
+    description: term.definition,
+    url,
+    termCode: term.slug,
+    inDefinedTermSet: `${new URL(GLOSSARY_INDEX, site).href}#termset`,
+  };
+  if (term.alternateNames?.length) node.alternateName = term.alternateNames;
+  return node;
 }
 
 export function graph(nodes: unknown[]) {

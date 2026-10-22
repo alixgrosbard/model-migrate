@@ -21,7 +21,7 @@ import { scheduleIndexLinks } from "../src/lib/schedule.ts";
 import { siteOrigin } from "../src/lib/site.ts";
 import { openApiDocument } from "../src/lib/openapi.ts";
 import { statusLlmsEntries } from "../src/lib/status-hubs.ts";
-import { SHORTCUT_MARKER, shortcutFiles } from "../src/lib/shortcuts.ts";
+import { feedRedirectHtml, SHORTCUT_MARKER, shortcutFiles } from "../src/lib/shortcuts.ts";
 
 const site = siteOrigin();
 const publicDir = path.join(process.cwd(), "public");
@@ -165,6 +165,7 @@ async function main() {
     };
   });
   await writeFile(path.join(publicDir, "feed.xml"), deprecationsFeed(changes, models, site, feedEvents));
+  await writeFile(path.join(publicDir, "rss.xml"), feedRedirectHtml(site));
   const badgeCount = await writeBadgeFiles(publicDir, models, day);
   await writeOgImages(publicDir, models, providers);
   await writeFile(

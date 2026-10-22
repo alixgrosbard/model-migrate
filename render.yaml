@@ -24,6 +24,10 @@ services:
       - path: /openapi.json
         name: Content-Type
         value: application/json
+      # The file is the same meta-refresh page as /openai/. Force HTML so the refresh runs.
+      - path: /rss.xml
+        name: Content-Type
+        value: text/html; charset=utf-8
       - path: /dataset/*
         name: Access-Control-Allow-Origin
         value: "*"

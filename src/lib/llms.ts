@@ -3,6 +3,7 @@ import { BADGES_DESCRIPTION, BADGES_NAV, BADGES_PATH } from "./badges.ts";
 import { publicName } from "./growth.ts";
 import { scheduleIndexLinks } from "./schedule.ts";
 import { GUIDES_INDEX, guidePath, guides } from "./guides.ts";
+import { GLOSSARY_CHECKED, GLOSSARY_INDEX, glossaryPath, glossaryTerms } from "./glossary.ts";
 import { HUBS } from "./hubs.ts";
 import { OPENAPI_PATH } from "./openapi.ts";
 import { statusLlmsEntries } from "./status-hubs.ts";
@@ -77,6 +78,8 @@ export function llmsTxt(
 - [Code scan](${origin}/scan/)
 - [Deprecation questions](${origin}/questions/)
 - [Guides](${origin}${GUIDES_INDEX})
+- [Glossary](${origin}${GLOSSARY_INDEX}): definitions for deprecated, retired, legacy, snapshot, alias, and the other shutdown words. Checked ${GLOSSARY_CHECKED}.
+- [RSS](${origin}/rss.xml) refreshes to the deprecations feed at /feed.xml.
 - [Changes](${origin}/changes/)
 - [Dataset](${origin}/data/)
 - [Status badges](${origin}${BADGES_PATH}): ${BADGES_DESCRIPTION}
@@ -120,6 +123,10 @@ ${scheduleLinks || "- None published."}
 ## Guides
 [All guides](${origin}${GUIDES_INDEX}). Each guide has a direct answer and links the official page for a provider fact.
 ${guides.map((guide) => `- [${guide.h1}](${origin}${guidePath(guide.slug)})`).join("\n")}
+
+## Glossary
+[All terms](${origin}${GLOSSARY_INDEX}). Each term has a short definition and the provider page the wording came from. Checked ${GLOSSARY_CHECKED}. /rss.xml refreshes to /feed.xml.
+${glossaryTerms.map((term) => `- [${term.name}](${origin}${glossaryPath(term.slug)}): ${term.definition}`).join("\n")}
 
 ## Deprecation questions
 ${questionLinks || "- None published."}
@@ -207,6 +214,9 @@ export function llmsFull(site: string, models: ModelRecord[], providers: Provide
     `Deprecations feed: ${origin}/feed.xml`,
     `Guides: ${origin}${GUIDES_INDEX}`,
     ...guides.map((guide) => `Guide: ${origin}${guidePath(guide.slug)}`),
+    `Glossary: ${origin}${GLOSSARY_INDEX}`,
+    ...glossaryTerms.map((term) => `Glossary: ${origin}${glossaryPath(term.slug)}`),
+    `RSS alias: ${origin}/rss.xml`,
     `Questions: ${origin}/questions/`,
     `Code scan: ${origin}/scan/`,
     `Data page: ${origin}/data/`,

@@ -8,6 +8,7 @@ import { HUBS } from "../src/lib/hubs.ts";
 import { today } from "../src/lib/format.ts";
 import { isPastShutdown, shutdownEventPath, shutdownEvents } from "../src/lib/shutdowns.ts";
 import { GUIDES_CHECKED, guidePath, guides } from "../src/lib/guides.ts";
+import { GLOSSARY_CHECKED, GLOSSARY_INDEX, glossaryPath, glossaryTerms } from "../src/lib/glossary.ts";
 import {
   BREAKING_CHANGES_CSV,
   BREAKING_CHANGES_JSON,
@@ -306,6 +307,41 @@ async function main() {
   }
   if (!sitemap.includes("/guides/")) throw new Error("Sitemap is missing /guides/");
   if (!llms.includes("/guides/")) throw new Error("llms.txt is missing /guides/");
+  if (!homeNav.includes('href="/glossary/"')) throw new Error("Footer is missing /glossary/");
+  if (!guideHub.includes('href="/glossary/"')) throw new Error("Guides hub is missing /glossary/");
+  const faqPage = await readFile(path.join(dist, "faq/index.html"), "utf8");
+  if (!faqPage.includes('href="/glossary/"')) throw new Error("FAQ is missing /glossary/");
+  const glossaryHub = await readFile(path.join(dist, "glossary/index.html"), "utf8");
+  if (!glossaryHub.includes('"DefinedTermSet"') || !glossaryHub.includes('"BreadcrumbList"') || !glossaryHub.includes('"FAQPage"')) {
+    throw new Error("Glossary hub JSON-LD is missing DefinedTermSet, BreadcrumbList, or FAQPage");
+  }
+  if (!glossaryHub.includes(GLOSSARY_CHECKED)) throw new Error("Glossary hub is missing the review date");
+  if (glossaryHub.includes("—") || glossaryHub.includes("–")) throw new Error("Em dash on /glossary/");
+  if (!sitemap.includes(GLOSSARY_INDEX)) throw new Error("Sitemap is missing /glossary/");
+  if (!llms.includes(GLOSSARY_INDEX)) throw new Error("llms.txt is missing /glossary/");
+  if (!llmsFull.includes(GLOSSARY_INDEX)) throw new Error("llms-full.txt is missing /glossary/");
+  for (const term of glossaryTerms) {
+    const rel = glossaryPath(term.slug);
+    if (!glossaryHub.includes(rel)) throw new Error(`Glossary hub is missing ${term.slug}`);
+    const html = await readFile(path.join(dist, rel.slice(1), "index.html"), "utf8");
+    if (!sitemap.includes(rel)) throw new Error(`Sitemap is missing ${rel}`);
+    if (!llms.includes(rel)) throw new Error(`llms.txt is missing ${rel}`);
+    if (!llmsFull.includes(rel)) throw new Error(`llms-full.txt is missing ${rel}`);
+    if (!html.includes('"DefinedTerm"') || !html.includes('"BreadcrumbList"')) {
+      throw new Error(`JSON-LD missing DefinedTerm or BreadcrumbList in ${rel}`);
+    }
+    if (!html.includes(term.definition)) throw new Error(`Glossary term is missing its definition: ${rel}`);
+    if (!html.includes(GLOSSARY_CHECKED)) throw new Error(`Glossary term is missing the review date: ${rel}`);
+    for (const citation of term.citations) {
+      if (!html.includes(citation)) throw new Error(`${rel} is missing citation ${citation}`);
+    }
+    if (html.includes("—") || html.includes("–")) throw new Error(`Em dash on ${rel}`);
+  }
+  const rss = await readFile(path.join(dist, "rss.xml"), "utf8");
+  if (!rss.includes('http-equiv="refresh" content="0; url=/feed.xml"')) throw new Error("/rss.xml is missing its refresh to /feed.xml");
+  if (!rss.includes('rel="canonical" href="https://sunsetdiff.com/feed.xml"')) throw new Error("/rss.xml is missing the feed canonical");
+  if (!llms.includes("/rss.xml")) throw new Error("llms.txt is missing /rss.xml");
+  if (!llmsFull.includes("/rss.xml")) throw new Error("llms-full.txt is missing /rss.xml");
   for (const page of requestErrors) {
     const rel = requestErrorPath(page.slug);
     const html = await readFile(path.join(dist, rel.slice(1), "index.html"), "utf8");

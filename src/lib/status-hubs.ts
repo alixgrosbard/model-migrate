@@ -175,7 +175,10 @@ function statusIntro(page: StatusPage, rows: ModelRecord[]): string {
   const more = page.provider
     ? `See [all ${label} models](${statusHubPath(page.kind)}).`
     : `The same records are in [models.json](/data/models.json) and [deprecations.csv](/data/deprecations.csv). See ${page.kind === "deprecated" ? "[retired models](/retired/)" : "[deprecated models](/deprecated/)"} too.`;
-  return [scope, timing, dates, "Each row links the model page and the replacement page.", source, updated, more].filter(Boolean).join(" ");
+  const glossary = page.kind === "deprecated"
+    ? "What deprecated means is on [Deprecated](/glossary/deprecated/)."
+    : "What retired means is on [Retired](/glossary/retired/).";
+  return [scope, timing, dates, "Each row links the model page and the replacement page.", source, updated, more, glossary].filter(Boolean).join(" ");
 }
 
 function statusFaqs(page: StatusPage, rows: ModelRecord[], providers: Provider[]): FaqItem[] {
