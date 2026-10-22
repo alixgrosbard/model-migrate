@@ -1,6 +1,7 @@
 import type { ModelRecord, Provider } from "../schema.ts";
 import { BADGES_DESCRIPTION, BADGES_NAV, BADGES_PATH } from "./badges.ts";
 import { publicName } from "./growth.ts";
+import { scheduleIndexLinks } from "./schedule.ts";
 import { GUIDES_INDEX, guidePath, guides } from "./guides.ts";
 import { HUBS } from "./hubs.ts";
 import {
@@ -16,7 +17,12 @@ export function llmsTxt(
   site: string,
   providers: Provider[],
   soon: ModelRecord[],
-  extra: { months?: string[]; questions?: ModelRecord[]; shutdowns?: { title: string; path: string }[] } = {},
+  extra: {
+    months?: string[];
+    questions?: ModelRecord[];
+    shutdowns?: { title: string; path: string }[];
+    schedule?: { title: string; path: string }[];
+  } = {},
 ): string {
   const origin = site.replace(/\/+$/, "");
   const providerLinks = providers.map((provider) => `- [${provider.name}](${origin}/providers/${provider.id}/)`).join("\n");
@@ -35,6 +41,9 @@ export function llmsTxt(
     })
     .join("\n");
   const hubLinks = HUBS.map((hub) => `- [${hub.nav}](${origin}${hub.path}): ${hub.description}`).join("\n");
+  const scheduleLinks = (extra.schedule ?? [])
+    .map((page) => `- [${page.title}](${origin}${page.path})`)
+    .join("\n");
   return `# SunsetDiff
 
 > SunsetDiff tracks AI model retirements and the migration diff: shutdown date, official replacement, and published changes in price, context, and code. Publisher: SunsetDiff.
@@ -47,6 +56,10 @@ export function llmsTxt(
 - [Providers](${origin}/providers/)
 - [Soonest shutdowns](${origin}/#soonest)
 - [Calendar](${origin}/calendar/)
+- [Upcoming shutdowns](${origin}/upcoming/)
+- [Shutdown timeline](${origin}/timeline/)
+- [Deprecation changelog](${origin}/changelog/)
+- [Shutdown questions](${origin}/faq/)
 - [Deadlines](${origin}/deadlines/)
 - [Shutdown batches](${origin}/shutdowns/)
 - [Request errors](${origin}${REQUEST_ERRORS_INDEX})
@@ -91,6 +104,10 @@ ${shutdownLinks || "- None published."}
 
 ## Shutdown months
 ${monthLinks || "- None published."}
+
+## Shutdown schedule
+Upcoming rows, year pages, month pages, the timeline, the changelog, and the question index. A date that only says not sooner than is not a shutdown on these pages.
+${scheduleLinks || "- None published."}
 
 ## Guides
 [All guides](${origin}${GUIDES_INDEX}). Each guide has a direct answer and links the official page for a provider fact.
@@ -168,6 +185,7 @@ export function llmsFull(site: string, models: ModelRecord[]): string {
     ...requestErrors.map((page) => `Request error: ${origin}${requestErrorPath(page.slug)}`),
     `Deadlines: ${origin}/deadlines/`,
     `Shutdown batches: ${origin}/shutdowns/`,
+    ...scheduleIndexLinks(models).map((page) => `${page.title}: ${origin}${page.path}`),
     `iCal: ${origin}/deadlines.ics`,
     `Deprecations feed: ${origin}/feed.xml`,
     `Guides: ${origin}${GUIDES_INDEX}`,

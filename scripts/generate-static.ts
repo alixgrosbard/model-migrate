@@ -17,6 +17,7 @@ import {
 } from "../src/lib/shutdowns.ts";
 import { writeBadgeFiles } from "../src/lib/badges.ts";
 import { breakingChangesCsv, breakingChangesDocument } from "../src/lib/breaking-changes.ts";
+import { scheduleIndexLinks } from "../src/lib/schedule.ts";
 import { siteOrigin } from "../src/lib/site.ts";
 
 const site = siteOrigin();
@@ -126,7 +127,12 @@ async function main() {
     path: shutdownEventPath(event),
   }));
   await writeFile(path.join(publicDir, "llms-full.txt"), llmsFull(site, models));
-  await writeFile(path.join(publicDir, "llms.txt"), llmsTxt(site, providers, soonForLlms, { months, questions: questionModels, shutdowns: shutdownLinks }));
+  await writeFile(path.join(publicDir, "llms.txt"), llmsTxt(site, providers, soonForLlms, {
+    months,
+    questions: questionModels,
+    shutdowns: shutdownLinks,
+    schedule: scheduleIndexLinks(models),
+  }));
   const changelog = changelogDocument(changes);
   await mkdir(path.join(publicDir, "data"), { recursive: true });
   await writeJson(path.join(publicDir, "data/models.json"), {

@@ -1,0 +1,63 @@
+---
+import type { ScheduleRow } from "../lib/schedule.ts";
+
+interface Props {
+  rows: ScheduleRow[];
+  caption: string;
+}
+const { rows, caption } = Astro.props;
+---
+<table>
+  <caption>{caption}</caption>
+  <thead>
+    <tr>
+      <th>Shutdown</th>
+      <th>Provider</th>
+      <th>Model</th>
+      <th>Replacement</th>
+      <th>Other platforms</th>
+    </tr>
+  </thead>
+  <tbody>
+    {rows.map((row) => (
+      <tr>
+        <td>
+          {row.when}
+          {row.sourceUrl ? (
+            <>
+              <br /><a href={row.sourceUrl}>source</a>{row.sourceChecked ? <>, checked {row.sourceChecked}</> : null}
+            </>
+          ) : null}
+        </td>
+        <td><a href={`/providers/${row.model.provider}/`}>{row.providerName}</a></td>
+        <td>
+          <a href={row.modelPath}>{row.modelLabel}</a>
+          {row.modelLabel !== row.model.id ? <><br /><code>{row.model.id}</code></> : null}
+          {row.model.region_or_platform_notes ? <><br />{row.model.region_or_platform_notes}</> : null}
+        </td>
+        <td>
+          {row.replacements.length ? row.replacements.map((link) => (
+            <span>
+              {link.modelPath ? <a href={link.modelPath}>{link.id}</a> : link.id}
+              <br />
+            </span>
+          )) : "Not published"}
+          {row.switchLinks.map((link) => (
+            <span>
+              <a href={link.href}>{link.label}</a>
+              <br />
+            </span>
+          ))}
+        </td>
+        <td>
+          {row.peers.length ? row.peers.map((peer) => (
+            <span>
+              <a href={peer.path}>{peer.providerName}</a>: {peer.detail}
+              <br />
+            </span>
+          )) : "This id is listed for one provider."}
+        </td>
+      </tr>
+    ))}
+  </tbody>
+</table>

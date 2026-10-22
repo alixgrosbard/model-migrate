@@ -10,6 +10,21 @@ import { BADGES_PATH } from "./badges.ts";
 import { modelsInMonth, questionPath, shutdownMonths, topRetiringModels } from "./growth.ts";
 import { migrateHub, modelsHub, providersHub, replaceHub } from "./hubs.ts";
 import { shutdownEventPath, shutdownEvents } from "./shutdowns.ts";
+import {
+  CHANGELOG_PATH,
+  datedShutdowns,
+  FAQ_PATH,
+  monthKeyPath,
+  newestUpdated,
+  shutdownMonthList,
+  shutdownsInMonth,
+  shutdownsInYear,
+  shutdownYearList,
+  TIMELINE_PATH,
+  UPCOMING_PATH,
+  upcomingShutdowns,
+  yearPath,
+} from "./schedule.ts";
 
 let cache: Map<string, string> | null = null;
 
@@ -66,6 +81,22 @@ function build(): Map<string, string> {
     const newest = newestDate(modelsInMonth(all, month).map((model) => model.updated_at));
     if (newest) map.set(`/deadlines/${month}/`, newest);
   }
+  const dated = datedShutdowns(all);
+  const datedModified = newestUpdated(dated);
+  if (datedModified) {
+    map.set(TIMELINE_PATH, datedModified);
+    map.set(FAQ_PATH, datedModified);
+  }
+  const upcomingModified = newestUpdated(upcomingShutdowns(all, today()));
+  if (upcomingModified) map.set(UPCOMING_PATH, upcomingModified);
+  for (const year of shutdownYearList(all)) {
+    const newest = newestUpdated(shutdownsInYear(all, year));
+    if (newest) map.set(yearPath(year), newest);
+  }
+  for (const month of shutdownMonthList(all)) {
+    const newest = newestUpdated(shutdownsInMonth(all, month));
+    if (newest) map.set(monthKeyPath(month), newest);
+  }
   const events = shutdownEvents(all);
   const newestEvent = newestDate(events.flatMap((event) => event.models.map((model) => model.updated_at)));
   if (newestEvent) map.set("/shutdowns/", newestEvent);
@@ -83,6 +114,7 @@ function build(): Map<string, string> {
   if (changeDay) {
     map.set("/feed.xml", changeDay);
     map.set("/data/changelog.json", changeDay);
+    map.set(CHANGELOG_PATH, changeDay);
   }
   const migrations = path.join(root, "data/migrations");
   let newestMigration = "";

@@ -1,0 +1,102 @@
+---
+import Base from "../../layouts/Base.astro";
+import FaqList from "../../components/FaqList.astro";
+import { scheduleGraph } from "../../jsonld.ts";
+import { clipMeta, today, type FaqItem } from "../../lib/format.ts";
+import { monthLabel } from "../../lib/growth.ts";
+import { loadModels, loadProviders } from "../../lib/load.ts";
+import { DEFAULT_SITE_URL } from "../../lib/site.ts";
+import {
+  FAQ_PATH,
+  monthKeyPath,
+  monthScope,
+  newestUpdated,
+  periodFaqs,
+  shutdownMonthList,
+  shutdownsInMonth,
+  shutdownsInYear,
+  shutdownYearList,
+  TIMELINE_PATH,
+  toScheduleRows,
+  upcomingScope,
+  upcomingShutdowns,
+  yearPath,
+  yearScope,
+  datedShutdowns,
+} from "../../lib/schedule.ts";
+
+const day = today();
+const models = await loadModels();
+const providers = await loadProviders();
+const years = shutdownYearList(models);
+const months = shutdownMonthList(models);
+const upcomingRows = toScheduleRows(upcomingShutdowns(models, day), models, providers, [], day);
+const yearBlocks = years.map((year) => {
+  const rows = toScheduleRows(shutdownsInYear(models, year), models, providers, [], day);
+  return { year, path: yearPath(year), faqs: periodFaqs(rows, providers, yearScope(year), day) };
+});
+const monthBlocks = months.map((month) => {
+  const rows = toScheduleRows(shutdownsInMonth(models, month), models, providers, [], day);
+  return { key: month, label: monthLabel(month), path: monthKeyPath(month), faqs: periodFaqs(rows, providers, monthScope(month), day) };
+});
+const upcomingFaqs = periodFaqs(upcomingRows, providers, upcomingScope(day), day);
+const featured: FaqItem[] = [
+  ...upcomingFaqs.filter((item) => item.question.startsWith("How many")),
+  ...yearBlocks.flatMap((block) => block.faqs.filter((item) => item.question.startsWith("How many"))),
+];
+const intro = "Each answer is counted from published shutdown dates. A date that only says not sooner than is a floor and is not counted. The questions below link to the year or month page that lists the rows.";
+const description = clipMeta(intro);
+const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
+const items = [
+  { name: "Upcoming AI model shutdowns", path: "/upcoming/" },
+  { name: "AI model shutdown timeline", path: TIMELINE_PATH },
+  { name: "Deprecation changelog", path: "/changelog/" },
+  ...yearBlocks.map((block) => ({ name: `AI model shutdowns in ${block.year}`, path: block.path })),
+  ...monthBlocks.map((block) => ({ name: `AI model shutdowns in ${block.label}`, path: block.path })),
+];
+---
+<Base
+  title="AI model shutdown questions | SunsetDiff"
+  description={description}
+  crumbs={[{ name: "Home", path: "/" }, { name: "FAQ", path: FAQ_PATH }]}
+  extraGraph={scheduleGraph(
+    site,
+    {
+      path: FAQ_PATH,
+      name: "AI model shutdown questions",
+      description,
+      modified: newestUpdated(datedShutdowns(models)),
+      datasetName: "SunsetDiff AI model shutdown questions",
+      aboutUrl: "/data/models.json",
+    },
+    items,
+    featured,
+  )}
+>
+  <h1>AI model shutdown questions</h1>
+  <p class="answer">{intro}</p>
+  <p>
+    Per-model questions stay on <a href="/questions/">model questions</a>.
+    What changed this week is on the <a href="/changelog/#questions">changelog</a>.
+  </p>
+  <h2>From today forward</h2>
+  <ul>
+    {upcomingFaqs.filter((item) => item.question.startsWith("How many")).map((item) => (
+      <li><a href="/upcoming/#questions">{item.question}</a></li>
+    ))}
+  </ul>
+  {yearBlocks.map((block) => (
+    <section>
+      <h2><a href={block.path}>{block.year}</a></h2>
+      <ul>
+        {block.faqs.filter((item) => item.question.startsWith("How many") || item.question.startsWith("Does ")).map((item) => (
+          <li><a href={`${block.path}#questions`}>{item.question}</a></li>
+        ))}
+        {monthBlocks.filter((month) => month.key.startsWith(`${block.year}-`)).map((month) => (
+          <li><a href={`${month.path}#questions`}>How many AI models shut down {monthScope(month.key)}?</a></li>
+        ))}
+      </ul>
+    </section>
+  ))}
+  <FaqList items={featured} />
+</Base>
