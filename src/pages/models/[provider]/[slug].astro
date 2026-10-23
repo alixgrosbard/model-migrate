@@ -2,10 +2,12 @@
 import Base from "../../../layouts/Base.astro";
 import BadgeSnippet from "../../../components/BadgeSnippet.astro";
 import FaqList from "../../../components/FaqList.astro";
+import InlineText from "../../../components/InlineText.astro";
 import NewsletterForm from "../../../components/NewsletterForm.astro";
 import SponsorSlot from "../../../components/SponsorSlot.astro";
 import { loadChanges, loadMigrations, loadModels, loadProviders } from "../../../lib/load.ts";
 import { GEMINI_25_ACCESS_CHECKED, GEMINI_25_ACCESS_QUOTE, GEMINI_25_ACCESS_SOURCE, gemini25Restricted } from "../../../lib/access.ts";
+import { CONFLICTS_PATH, disagreementNote, noteWithoutDisagreement } from "../../../lib/conflicts.ts";
 import { answerSentence, autoRouteStatusText, clipMeta, formatWhen, modelFaqs, modelTitle, money, relatedModels, tokens } from "../../../lib/format.ts";
 import { publicName } from "../../../lib/growth.ts";
 import { modelsHub } from "../../../lib/hubs.ts";
@@ -35,6 +37,8 @@ const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
 const relatedErrors = requestErrorsForModel(model.provider, model.id);
 const breakingRules = breakingChangesForModel(model.provider, model.id);
 const restrictedAccess = gemini25Restricted(model);
+const disagree = disagreementNote(model.region_or_platform_notes);
+const regionNote = noteWithoutDisagreement(model.region_or_platform_notes);
 const statusLabel = autoRouteStatusText(model) ?? (restrictedAccess ? "existing users only" : model.status);
 const specRows: [string, string, string][] = [
   ["Input price / 1M", money(model.specs.input_price_per_mtok), "input_price_per_mtok"],
@@ -61,6 +65,12 @@ const specRows: [string, string, string][] = [
 >
   <h1>When is {publicName(model)} shut down?</h1>
   <p class="answer">{answer}</p>
+  {disagree ? (
+    <p class="answer">
+      <InlineText text={disagree} />
+      {" "}<a href={CONFLICTS_PATH}>All conflicting dates</a>.
+    </p>
+  ) : null}
   <p><span class="badge">{statusLabel}</span></p>
   <BadgeSnippet model={model} origin={site.replace(/\/+$/, "")} />
   <table>
@@ -83,10 +93,16 @@ const specRows: [string, string, string][] = [
           </td>
         </tr>
       ) : null}
-      {model.region_or_platform_notes ? <tr><th scope="row">Region</th><td>{model.region_or_platform_notes}</td></tr> : null}
+      {disagree ? (
+        <tr>
+          <th scope="row">Sources disagree</th>
+          <td><InlineText text={disagree} /></td>
+        </tr>
+      ) : null}
+      {regionNote ? <tr><th scope="row">Region</th><td>{regionNote}</td></tr> : null}
     </tbody>
   </table>
-  {model.region_or_platform_notes && <p>{model.region_or_platform_notes}</p>}
+  {regionNote && <p>{regionNote}</p>}
   <h2>Replacements</h2>
   {model.replacements.length ? (
     <ul>

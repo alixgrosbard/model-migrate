@@ -134,7 +134,7 @@ export const ENDPOINTS: EndpointDoc[] = [
       { name: "models[].deprecation_date", detail: "YYYY-MM-DD, or null." },
       { name: "models[].shutdown_date", detail: "YYYY-MM-DD, or null." },
       { name: "models[].shutdown_date_kind", detail: "exact, not_before, month_only, or none. not_before is a floor, not a deadline." },
-      { name: "models[].region_or_platform_notes", detail: "Scope note when the date does not apply everywhere, or null." },
+      { name: "models[].region_or_platform_notes", detail: "Scope note when the date does not apply everywhere, a release note, or a Sources disagree note when official pages list different shutdown dates. Null when none of those were published. shutdown_date stays the deprecations-page date when sources disagree." },
       { name: "models[].replacements", detail: replacementDetail },
       { name: "models[].sources", detail: sourceDetail },
       { name: "models[].specs", detail: specDetail },

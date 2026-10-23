@@ -25,4 +25,5 @@ const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
   extraGraph={statusHubGraph(site, page)}
 >
   <StatusHub page={page} />
+  <p>When two official pages name different shutdown dates, those models are on <a href="/conflicts/">Conflicting dates</a>. The stored shutdown_date stays the deprecations-page date.</p>
 </Base>

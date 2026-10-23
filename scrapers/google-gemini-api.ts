@@ -1,3 +1,4 @@
+import { SOURCES_DISAGREE } from "../src/lib/conflicts.ts";
 import { compareDate, monthEnd, parseDate, todayISO } from "./lib/dates.ts";
 import { excerpt, isModelId, loadHtml, tableRows } from "./lib/html.ts";
 import { applyPrice, baseModel } from "./lib/model.ts";
@@ -16,6 +17,7 @@ export async function scrape(checked = todayISO()): Promise<ScrapedModel[]> {
 export function parseGemini(html: string, pricing = "", checked = todayISO()): ScrapedModel[] {
   const $ = loadHtml(html);
   const models: ScrapedModel[] = [];
+  const shutdownTextById = new Map<string, string>();
   $("table").each((_, table) => {
     const rows = tableRows($, table);
     const header = (rows[0] ?? []).map((cell) => cell.toLowerCase());
@@ -27,7 +29,9 @@ export function parseGemini(html: string, pricing = "", checked = todayISO()): S
     for (const row of rows.slice(1)) {
       const id = (row[modelIdx] ?? "").trim();
       if (!isModelId(id)) continue;
-      const shutdown = parseDate(row[shutdownIdx] ?? "");
+      const shutdownCell = (row[shutdownIdx] ?? "").replace(/\s+/g, " ").trim();
+      if (!shutdownTextById.has(id)) shutdownTextById.set(id, shutdownCell);
+      const shutdown = parseDate(shutdownCell);
       const release = releaseIdx >= 0 ? parseDate(row[releaseIdx] ?? "") : { date: null, kind: "none" as const };
       const cell = row[replacementIdx] ?? "";
       const parsedReplacement = replacementIds(cell);
@@ -71,7 +75,9 @@ export function parseGemini(html: string, pricing = "", checked = todayISO()): S
       model.specs.specs_sources.context_window_tokens = { url: PRICING_URL, last_checked: checked };
     }
   }
-  return dedupe(models);
+  const unique = dedupe(models);
+  applyPricingShutdownWarnings(unique, pricing, shutdownTextById, checked);
+  return unique;
 }
 
 /** Official wording: "automatically routes API requests to <id>", plus the shorter "auto-routes to <id>". */
@@ -156,6 +162,115 @@ export function parseGeminiPricing(html: string): Map<string, { input: number | 
     }
   }
   return map;
+}
+
+export interface PricingShutdownWarning {
+  id: string;
+  date: string;
+  dateText: string;
+  excerpt: string;
+}
+
+const MONTH_WORD =
+  "January|February|March|April|May|June|July|August|September|October|November|December|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sept|Sep|Oct|Nov|Dec";
+const SHUTDOWN_PHRASE = new RegExp(
+  `is deprecated and will be shut down on\\s+((?:${MONTH_WORD})\\.?\\s+\\d{1,2},?\\s+\\d{4})`,
+  "gi",
+);
+const PRICING_LABEL = "Gemini API pricing";
+
+/** Pricing-page warnings: "<model> is deprecated and will be shut down on <date>". Dates come only from that sentence. */
+export function parseGeminiPricingShutdowns(html: string): PricingShutdownWarning[] {
+  if (!html.trim()) return [];
+  const text = pageText(html);
+  const warnings: PricingShutdownWarning[] = [];
+  const seen = new Set<string>();
+  for (const match of text.matchAll(SHUTDOWN_PHRASE)) {
+    const dateText = match[1].replace(/\s+/g, " ").trim();
+    const parsed = parseDate(dateText);
+    if (!parsed.date || parsed.kind !== "exact") continue;
+    const phraseStart = match.index ?? 0;
+    const dateEnd = phraseStart + match[0].length;
+    const quote = warningExcerpt(text, phraseStart, dateEnd).slice(0, 300);
+    for (const id of idsBeforePhrase(text, phraseStart)) {
+      if (seen.has(id)) continue;
+      seen.add(id);
+      warnings.push({ id, date: parsed.date, dateText, excerpt: quote });
+    }
+  }
+  return warnings;
+}
+
+function applyPricingShutdownWarnings(
+  models: ScrapedModel[],
+  pricing: string,
+  shutdownTextById: Map<string, string>,
+  checked: string,
+) {
+  const warnings = parseGeminiPricingShutdowns(pricing);
+  if (!warnings.length) return;
+  const byId = new Map(warnings.map((warning) => [warning.id, warning]));
+  for (const model of models) {
+    const warning = byId.get(model.id);
+    if (!warning) continue;
+    model.sources = [
+      ...model.sources.filter((source) => !(source.url === PRICING_URL && source.label === PRICING_LABEL)),
+      { url: PRICING_URL, label: PRICING_LABEL, last_checked: checked, excerpt: warning.excerpt },
+    ];
+    const prefix = stripDisagreement(model.region_or_platform_notes);
+    if (model.shutdown_date === warning.date) {
+      model.region_or_platform_notes = prefix;
+      continue;
+    }
+    const printed = shutdownTextById.get(model.id) ?? "";
+    const listed = printed
+      ? `lists shutdown date ${printed}`
+      : "has an empty shutdown cell for this model";
+    const said = warning.excerpt.endsWith(".") ? warning.excerpt : `${warning.excerpt}.`;
+    const note = `${SOURCES_DISAGREE} The [Gemini API deprecations](${DEPRECATIONS_URL}) page ${listed}. The [Gemini API pricing](${PRICING_URL}) page says "${said}" The stored shutdown_date stays the deprecations-page date.`;
+    model.region_or_platform_notes = prefix ? `${prefix} ${note}` : note;
+  }
+}
+
+function stripDisagreement(notes: string | null): string | null {
+  if (!notes) return null;
+  const index = notes.indexOf(SOURCES_DISAGREE);
+  const kept = (index >= 0 ? notes.slice(0, index) : notes).trim();
+  return kept || null;
+}
+
+function pageText(html: string): string {
+  if (!html.includes("<")) return html.replace(/\u00a0/g, " ").replace(/\s+/g, " ").trim();
+  const $ = loadHtml(html);
+  $("script, style, noscript").remove();
+  return $.root().text().replace(/\u00a0/g, " ").replace(/\s+/g, " ").trim();
+}
+
+function idsBeforePhrase(text: string, phraseStart: number): string[] {
+  const windowStart = Math.max(0, phraseStart - 500);
+  const before = text.slice(windowStart, phraseStart);
+  const warningAt = before.lastIndexOf("Warning:");
+  const subject = warningAt >= 0 ? before.slice(warningAt) : before.slice(-300);
+  const ids: string[] = [];
+  for (const match of subject.matchAll(/[A-Za-z0-9][A-Za-z0-9._:/-]*/g)) {
+    const id = match[0];
+    if (!isModelId(id) || !/[-0-9]/.test(id) || ids.includes(id)) continue;
+    ids.push(id);
+  }
+  return ids;
+}
+
+function warningExcerpt(text: string, phraseStart: number, dateEnd: number): string {
+  const windowStart = Math.max(0, phraseStart - 500);
+  const before = text.slice(windowStart, phraseStart);
+  const warningAt = before.lastIndexOf("Warning:");
+  const start = warningAt >= 0 ? windowStart + warningAt : phraseStart;
+  const rest = text.slice(dateEnd);
+  const sentence = rest.match(/\.(?=\s|$)/);
+  const end = sentence?.index == null ? dateEnd : dateEnd + sentence.index + 1;
+  const full = text.slice(start, end).replace(/\s+/g, " ").trim();
+  if (full.length <= 300) return full;
+  return text.slice(start, dateEnd).replace(/\s+/g, " ").trim();
 }
 
 function dedupe(models: ScrapedModel[]): ScrapedModel[] {
