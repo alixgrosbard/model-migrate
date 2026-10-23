@@ -4,7 +4,7 @@
   "provider": "google-gemini-api",
   "display_name": "veo-3.1-lite-generate-preview",
   "family": null,
-  "status": "deprecated",
+  "status": "retired",
   "announced_date": null,
   "deprecation_date": null,
   "shutdown_date": "2026-10-22",
@@ -22,7 +22,7 @@
     {
       "url": "https://ai.google.dev/gemini-api/docs/deprecations",
       "label": "Gemini API deprecations",
-      "last_checked": "2026-10-22",
+      "last_checked": "2026-10-23",
       "excerpt": "veo-3.1-lite-generate-preview | March 31, 2026 | October 22, 2026 | gemini-omni-1.1-flash"
     }
   ],
@@ -48,5 +48,5 @@
     "specs_sources": {}
   },
   "first_seen": "2026-10-17T15:59:19.574Z",
-  "updated_at": "2026-10-22T04:50:27.922Z"
+  "updated_at": "2026-10-23T00:12:01.288Z"
 }

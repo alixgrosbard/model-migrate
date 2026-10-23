@@ -55,30 +55,30 @@
     "Ship the change before the published shutdown date."
   ],
   "confidence": "official",
-  "last_checked": "2026-10-22",
+  "last_checked": "2026-10-23",
   "sources": [
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "OpenAI deprecations",
-      "last_checked": "2026-10-22",
+      "last_checked": "2026-10-23",
       "excerpt": "October 23, 2026 | gpt-4-turbo | gpt-4-turbo-2024-04-09, gpt-4-turbo-completions | gpt-5.6-sol"
     },
     {
       "url": "https://developers.openai.com/api/docs/models/gpt-4-turbo.md",
       "label": "OpenAI model docs",
-      "last_checked": "2026-10-22",
+      "last_checked": "2026-10-23",
       "excerpt": "Model ID: gpt-4-turbo | context window 128000 | max output 4096 | input $10 | output $30 | Default snapshot gpt-4-turbo-2024-04-09"
     },
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "Named as an official replacement",
-      "last_checked": "2026-10-22",
+      "last_checked": "2026-10-23",
       "excerpt": "Named as an official replacement for gpt-5-2025-08-07. No shutdown date was published for this id on that page."
     },
     {
       "url": "https://developers.openai.com/api/docs/models/gpt-daybreak-blue-latest.md",
       "label": "OpenAI model docs",
-      "last_checked": "2026-10-22",
+      "last_checked": "2026-10-23",
       "excerpt": "Model ID: gpt-daybreak-blue-latest | context window 1050000 | max output 128000 | Default snapshot gpt-5.6-sol"
     }
   ]

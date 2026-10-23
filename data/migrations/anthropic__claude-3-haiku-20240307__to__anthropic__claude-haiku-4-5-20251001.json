@@ -55,24 +55,24 @@
     "Ship the change before the published shutdown date."
   ],
   "confidence": "partial",
-  "last_checked": "2026-10-22",
+  "last_checked": "2026-10-23",
   "sources": [
     {
       "url": "https://platform.claude.com/docs/en/about-claude/model-deprecations",
       "label": "Anthropic model deprecations",
-      "last_checked": "2026-10-22",
+      "last_checked": "2026-10-23",
       "excerpt": "claude-3-haiku-20240307 | Retired | February 19, 2026 | April 20, 2026"
     },
     {
       "url": "https://platform.claude.com/docs/en/about-claude/model-deprecations",
       "label": "Anthropic model deprecations",
-      "last_checked": "2026-10-22",
+      "last_checked": "2026-10-23",
       "excerpt": "claude-haiku-4-5-20251001 | Active | N/A | Not sooner than October 15, 2026"
     },
     {
       "url": "https://platform.claude.com/docs/en/models/haiku-4-5/overview.md",
       "label": "Anthropic model docs",
-      "last_checked": "2026-10-22",
+      "last_checked": "2026-10-23",
       "excerpt": "Model ID: claude-haiku-4-5-20251001 | context window 200000 | max output 64000 | input $1/MTok | output $5/MTok"
     }
   ]

@@ -55,24 +55,24 @@
     "Ship the change before the published shutdown date."
   ],
   "confidence": "partial",
-  "last_checked": "2026-10-22",
+  "last_checked": "2026-10-23",
   "sources": [
     {
       "url": "https://platform.claude.com/docs/en/about-claude/model-deprecations",
       "label": "Anthropic model deprecations",
-      "last_checked": "2026-10-22",
+      "last_checked": "2026-10-23",
       "excerpt": "claude-opus-4-20250514 | Retired | April 14, 2026 | June 15, 2026"
     },
     {
       "url": "https://platform.claude.com/docs/en/about-claude/model-deprecations",
       "label": "Anthropic model deprecations",
-      "last_checked": "2026-10-22",
+      "last_checked": "2026-10-23",
       "excerpt": "claude-opus-4-8 | Active | N/A | Not sooner than May 28, 2027"
     },
     {
       "url": "https://platform.claude.com/docs/en/models/opus-4-8/overview.md",
       "label": "Anthropic model docs",
-      "last_checked": "2026-10-22",
+      "last_checked": "2026-10-23",
       "excerpt": "Model ID: claude-opus-4-8 | context window 1000000 | max output 128000 | input $5/MTok | output $25/MTok"
     }
   ]

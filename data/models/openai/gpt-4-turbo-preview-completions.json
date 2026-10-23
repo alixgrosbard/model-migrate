@@ -28,7 +28,7 @@
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "OpenAI deprecations",
-      "last_checked": "2026-10-22",
+      "last_checked": "2026-10-23",
       "excerpt": "2026‑03‑26 | gpt-4-0125-preview (including gpt-4-turbo-preview and gpt-4-turbo-preview-completions, which point to this snapshot) | gpt-5 or gpt-4.1*"
     }
   ],
@@ -54,5 +54,5 @@
     "specs_sources": {}
   },
   "first_seen": "2026-10-17T15:59:19.574Z",
-  "updated_at": "2026-10-22T04:50:27.922Z"
+  "updated_at": "2026-10-23T00:12:01.288Z"
 }

@@ -55,30 +55,30 @@
     "Ship the change before the published shutdown date."
   ],
   "confidence": "official",
-  "last_checked": "2026-10-22",
+  "last_checked": "2026-10-23",
   "sources": [
     {
       "url": "https://docs.mistral.ai/models",
       "label": "Mistral models",
-      "last_checked": "2026-10-22",
+      "last_checked": "2026-10-23",
       "excerpt": "Codestral | 24.05 | codestral-2405 | 12/2/2024 6/16/2025 | Codestral"
     },
     {
       "url": "https://docs.mistral.ai/models/codestral-24-05",
       "label": "Mistral model docs",
-      "last_checked": "2026-10-22",
+      "last_checked": "2026-10-23",
       "excerpt": "codestral-2405 | Context 32k"
     },
     {
       "url": "https://docs.mistral.ai/models",
       "label": "Mistral models",
-      "last_checked": "2026-10-22",
+      "last_checked": "2026-10-23",
       "excerpt": "Codestral | 24.05 | codestral-2405 | 12/2/2024 6/16/2025 | Codestral"
     },
     {
       "url": "https://docs.mistral.ai/models/codestral-24-05",
       "label": "Mistral model docs",
-      "last_checked": "2026-10-22",
+      "last_checked": "2026-10-23",
       "excerpt": "codestral-2405 | Context 32k"
     }
   ]

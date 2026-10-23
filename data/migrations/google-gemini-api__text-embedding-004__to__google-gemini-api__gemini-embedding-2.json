@@ -55,18 +55,18 @@
     "Ship the change before the published shutdown date."
   ],
   "confidence": "partial",
-  "last_checked": "2026-10-22",
+  "last_checked": "2026-10-23",
   "sources": [
     {
       "url": "https://ai.google.dev/gemini-api/docs/deprecations",
       "label": "Gemini API deprecations",
-      "last_checked": "2026-10-22",
+      "last_checked": "2026-10-23",
       "excerpt": "text-embedding-004 | April 9, 2024 | January 14, 2026 | gemini-embedding-2"
     },
     {
       "url": "https://ai.google.dev/gemini-api/docs/deprecations",
       "label": "Gemini API deprecations",
-      "last_checked": "2026-10-22",
+      "last_checked": "2026-10-23",
       "excerpt": "gemini-embedding-2 | April 22, 2026 | No shutdown date announced"
     }
   ]

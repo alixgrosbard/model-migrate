@@ -22,13 +22,13 @@
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "OpenAI deprecations",
-      "last_checked": "2026-10-22",
+      "last_checked": "2026-10-23",
       "excerpt": "July 23, 2026 | gpt-4o-search-preview-2025-03-11 | gpt-5.6-terra"
     },
     {
       "url": "https://developers.openai.com/api/docs/models/gpt-4o-search-preview.md",
       "label": "OpenAI model docs",
-      "last_checked": "2026-10-22",
+      "last_checked": "2026-10-23",
       "excerpt": "Model ID: gpt-4o-search-preview | context window 128000 | max output 16384 | input $2.5 | output $10 | Default snapshot gpt-4o-search-preview-2025-03-11"
     }
   ],
@@ -54,14 +54,14 @@
     "specs_sources": {
       "context_window_tokens": {
         "url": "https://developers.openai.com/api/docs/models/gpt-4o-search-preview.md",
-        "last_checked": "2026-10-22"
+        "last_checked": "2026-10-23"
       },
       "max_output_tokens": {
         "url": "https://developers.openai.com/api/docs/models/gpt-4o-search-preview.md",
-        "last_checked": "2026-10-22"
+        "last_checked": "2026-10-23"
       }
     }
   },
   "first_seen": "2026-10-17T15:59:19.574Z",
-  "updated_at": "2026-10-22T04:50:27.922Z"
+  "updated_at": "2026-10-23T00:12:01.288Z"
 }
