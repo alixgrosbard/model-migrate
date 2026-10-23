@@ -1,0 +1,111 @@
+---
+import Base from "../../layouts/Base.astro";
+import FaqList from "../../components/FaqList.astro";
+import { mcpGraph } from "../../jsonld.ts";
+import { DEFAULT_SITE_URL } from "../../lib/site.ts";
+import {
+  MCP_DOCS_CHECKED,
+  MCP_ENDPOINT,
+  MCP_PATH,
+  MCP_REGISTRY_NAME,
+  MCP_SCHEMA_URL,
+  MCP_SERVER_JSON_PATH,
+  MCP_SERVER_VERSION,
+  mcpClients,
+  mcpFaqs,
+  mcpTools,
+  schemaText,
+} from "../../lib/mcp-docs.ts";
+
+const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
+const checked = new Date(`${MCP_DOCS_CHECKED}T00:00:00Z`).toLocaleDateString("en-US", {
+  month: "long",
+  day: "numeric",
+  year: "numeric",
+  timeZone: "UTC",
+});
+---
+<Base
+  title="SunsetDiff MCP server | SunsetDiff"
+  description="Free streamable HTTP MCP server for AI model shutdown dates. No API key. Tools: check_model, upcoming_shutdowns, migration_diff, scan_text."
+  crumbs={[{ name: "Home", path: "/" }, { name: "MCP", path: MCP_PATH }]}
+  extraGraph={mcpGraph(site, mcpFaqs)}
+>
+  <h1>SunsetDiff MCP server</h1>
+  <p class="answer">
+    This server answers questions about AI model shutdown dates, official replacements, and migration diffs.
+    It is free. It does not need an API key.
+    The transport is streamable HTTP.
+    Publisher: SunsetDiff.
+  </p>
+  <p>
+    Endpoint: <a href={MCP_ENDPOINT}>{MCP_ENDPOINT}</a><br />
+    Server name: sunsetdiff<br />
+    Server version: {MCP_SERVER_VERSION}<br />
+    Client steps below were read from the linked official docs on <time datetime={MCP_DOCS_CHECKED}>{checked}</time>.
+    Other ways to use the same dates are on <a href="/integrations/">Integrations</a>.
+    The static files are on the <a href="/api/">API</a> page.
+  </p>
+  <h2>Tools</h2>
+  <p>Each input schema is the JSON Schema the server builds from the Zod fields in the service code.</p>
+  {mcpTools.map((tool) => (
+    <section id={tool.name}>
+      <h3><code>{tool.name}</code></h3>
+      <p>{tool.description}</p>
+      <h4>Input schema</h4>
+      <pre><code>{schemaText(tool.inputSchema)}</code></pre>
+      <ul>{tool.notes.map((note) => <li>{note}</li>)}</ul>
+      <h4>Example prompt</h4>
+      <p>{tool.prompt}</p>
+    </section>
+  ))}
+  <h2>Add it to a client</h2>
+  <p>Each snippet uses only fields those docs show for a remote streamable HTTP server. Leave out any API key header. This server does not use one.</p>
+  {mcpClients.map((client) => (
+    <section id={client.id}>
+      <h3>{client.name}</h3>
+      {client.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
+      {client.steps?.length ? (
+        <ol>{client.steps.map((step) => <li>{step}</li>)}</ol>
+      ) : null}
+      {client.files?.length ? (
+        <ul>
+          {client.files.map((file) => <li><code>{file}</code></li>)}
+        </ul>
+      ) : null}
+      {client.snippets.map((snippet) => (
+        <div>
+          <h4>{snippet.caption}</h4>
+          <pre><code>{snippet.code}</code></pre>
+        </div>
+      ))}
+      <p>
+        Source{client.docs.length > 1 ? "s" : ""}:{" "}
+        {client.docs.map((doc, index) => (
+          <>
+            {index > 0 ? ", " : null}
+            <a href={doc.url}>{doc.label}</a>
+          </>
+        ))}
+        , checked {checked}.
+      </p>
+    </section>
+  ))}
+  <h2>Registry manifest</h2>
+  <p>
+    <a href={MCP_SERVER_JSON_PATH}>server.json</a> follows the MCP registry schema at <a href={MCP_SCHEMA_URL}>{MCP_SCHEMA_URL}</a>.
+    The server name is <code>{MCP_REGISTRY_NAME}</code>.
+    The remote type is <code>streamable-http</code>.
+    The URL is the endpoint above.
+  </p>
+  <p>
+    The registry's authentication docs say a domain name must be the reverse-DNS form of a domain you control.
+    <code>com.sunsetdiff</code> is the reverse-DNS form of sunsetdiff.com.
+    Publishing needs a person who can prove that domain, either with a file at <code>https://sunsetdiff.com/.well-known/mcp-registry-auth</code> or with a DNS TXT record on sunsetdiff.com.
+    This site does not publish the server.
+  </p>
+  <p>
+    Sources: <a href="https://modelcontextprotocol.io/registry/remote-servers">Publishing remote servers</a>, <a href="https://modelcontextprotocol.io/registry/authentication">Registry authentication</a>, checked {checked}.
+  </p>
+  <FaqList items={mcpFaqs} />
+</Base>

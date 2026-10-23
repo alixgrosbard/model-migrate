@@ -1,4 +1,4 @@
-import { mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
+import { copyFile, mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { zodToJsonSchema } from "zod-to-json-schema";
 import { migrationSchema, modelSchema, providerSchema } from "../src/schema.ts";
@@ -138,6 +138,7 @@ async function main() {
     statusPages: statusLlmsEntries(models, providers).filter((page) => page.path.startsWith("/providers/")),
   }));
   await writeJson(path.join(publicDir, "openapi.json"), openApiDocument(datasetVersion(changes)));
+  await copyFile(path.join(process.cwd(), "server.json"), path.join(publicDir, "server.json"));
   await writeShortcuts(publicDir, site, providers);
   const changelog = changelogDocument(changes);
   await mkdir(path.join(publicDir, "data"), { recursive: true });

@@ -10,6 +10,7 @@ import { REQUEST_ERRORS_INDEX, requestErrorChecked, requestErrorPath, requestErr
 import { BADGES_PATH } from "./badges.ts";
 import { modelsInMonth, questionPath, shutdownMonths, topRetiringModels } from "./growth.ts";
 import { migrateHub, modelsHub, providersHub, replaceHub } from "./hubs.ts";
+import { INTEGRATIONS_PATH, MCP_DOCS_CHECKED, MCP_PATH, MCP_SERVER_JSON_PATH } from "./mcp-docs.ts";
 import { OPENAPI_PATH } from "./openapi.ts";
 import { providerStatusPath, statusHubPath } from "./status-hubs.ts";
 import { shutdownEventPath, shutdownEvents } from "./shutdowns.ts";
@@ -58,6 +59,9 @@ function build(): Map<string, string> {
     if (newest) map.set(`/providers/${provider}/`, newest);
   }
   const newestModel = newestDate(all.map((model) => model.updated_at));
+  map.set(MCP_PATH, MCP_DOCS_CHECKED);
+  map.set(INTEGRATIONS_PATH, MCP_DOCS_CHECKED);
+  map.set(MCP_SERVER_JSON_PATH, MCP_DOCS_CHECKED);
   map.set("/alternatives/", COMPARISON_CHECKED);
   map.set(BREAKING_CHANGES_PATH, breakingChangesChecked());
   map.set(BREAKING_CHANGES_JSON, breakingChangesChecked());

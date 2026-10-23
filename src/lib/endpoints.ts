@@ -508,6 +508,11 @@ export const apiFaqs: FaqItem[] = [
       "Yes. These are static files and they need no API key. [upcoming.json](/api/v1/upcoming.json) lists shutdowns in the next 90 days. [models.json](/data/models.json) is the full model record list. [sunsetdiff.json](/dataset/sunsetdiff.json) adds providers and migration diffs.",
   },
   {
+    question: "Is there an MCP server for model shutdown dates?",
+    answer:
+      "Yes. The free streamable HTTP server is at https://sunsetdiff-api.onrender.com/mcp. It needs no API key. Tools and client setup are on the [MCP page](/mcp/). The registry manifest is [server.json](/server.json).",
+  },
+  {
     question: "How often is the SunsetDiff API updated?",
     answer:
       "A GitHub Action checks the official provider pages about every 6 hours. The next site build rewrites these files when the data changes. Each source has a last_checked date.",

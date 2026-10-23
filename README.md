@@ -55,6 +55,10 @@ Counts are stored in the free Render Postgres database `sunsetdiff-stats`. The s
 - `/dataset/sunsetdiff.json` and `/dataset/sunsetdiff.csv`
 - `/data/models.json`, `/data/deprecations.csv`, and `/data/changelog.json`
 - `/deadlines.ics` and `/feed.xml`
+- MCP docs: https://sunsetdiff.com/mcp/
+- Remote MCP (streamable HTTP, no API key): https://sunsetdiff-api.onrender.com/mcp
+- Registry manifest: https://sunsetdiff.com/server.json
+- Integrations: https://sunsetdiff.com/integrations/
 - MCP tools on the Node service at `/mcp`: `check_model`, `upcoming_shutdowns`, `migration_diff`, `scan_text`
 - Local MCP: `npx github:alixgrosbard/model-migrate mcp`
 - GitHub Action in `action/` (not published to the Marketplace)

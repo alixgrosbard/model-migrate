@@ -84,6 +84,10 @@ export function guidePath(slug: string): string {
   return `/guides/${slug}/`;
 }
 
+export function guideHeadingId(heading: string): string {
+  return heading.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+}
+
 export const guideHubFaqs: FaqItem[] = [
   {
     question: "Where are the SunsetDiff guides?",
@@ -961,12 +965,13 @@ curl -fsSL https://sunsetdiff.com/api/v1/upcoming.json
       {
         heading: "MCP",
         paragraphs: [
-          "The read-only MCP endpoint is /mcp on the API service. Tools: check_model, upcoming_shutdowns, migration_diff, scan_text.",
+          "The read-only MCP endpoint is /mcp on the API service. Tools: check_model, upcoming_shutdowns, migration_diff, scan_text. Client setup is on the [MCP page](/mcp/).",
         ],
         sources: [{ label: "SunsetDiff API docs", url: "https://sunsetdiff.com/api/" }],
       },
     ],
     related: [
+      { href: "/mcp/", label: "MCP server" },
       { href: "/api/", label: "API docs" },
       { href: "/data/", label: "Dataset" },
       { href: "/scan/", label: "Scan code" },

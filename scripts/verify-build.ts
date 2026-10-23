@@ -17,6 +17,7 @@ import {
   breakingChangesChecked,
 } from "../src/lib/breaking-changes.ts";
 import { REQUEST_ERRORS_CHECKED, REQUEST_ERRORS_INDEX, requestErrorPath, requestErrors } from "../src/lib/request-errors.ts";
+import { MCP_ENDPOINT, MCP_REGISTRY_NAME, mcpClients, mcpTools } from "../src/lib/mcp-docs.ts";
 import {
   CHANGELOG_PATH,
   FAQ_PATH,
@@ -416,6 +417,7 @@ async function main() {
     if (deps[name]) throw new Error(`Disallowed package installed: ${name}`);
   }
   await checkBadges(sitemap, llms, llmsFull);
+  await checkDiscovery(sitemap, llms, llmsFull);
   console.log(`Verified ${checked} HTML files and required static outputs.`);
 }
 
@@ -674,6 +676,67 @@ async function sitemapText(dir: string): Promise<string> {
   const parts: string[] = [];
   for (const name of names) parts.push(await readFile(path.join(dir, name), "utf8"));
   return parts.join("\n");
+}
+
+async function checkDiscovery(sitemap: string, llms: string, llmsFull: string) {
+  const mcp = await readFile(path.join(dist, "mcp/index.html"), "utf8");
+  const integrations = await readFile(path.join(dist, "integrations/index.html"), "utf8");
+  const manifest = await readFile(path.join(dist, "server.json"), "utf8");
+  const rootManifest = await readFile(path.join(process.cwd(), "server.json"), "utf8");
+  if (manifest !== rootManifest) throw new Error("dist/server.json does not match the repo root server.json");
+  const server = JSON.parse(manifest) as { name?: string; remotes?: { type?: string; url?: string }[] };
+  if (server.name !== MCP_REGISTRY_NAME) throw new Error("server.json name is not the domain namespace");
+  if (server.remotes?.[0]?.type !== "streamable-http") throw new Error("server.json remote type is not streamable-http");
+  if (server.remotes?.[0]?.url !== MCP_ENDPOINT) throw new Error("server.json remote URL is wrong");
+  for (const page of [mcp, integrations]) {
+    if (page.includes("—") || page.includes("–")) throw new Error("Em dash on an MCP or integrations page");
+    if (page.toLowerCase().includes("alix")) throw new Error("Personal name on an MCP or integrations page");
+    if (!page.includes("BreadcrumbList") && !page.includes('"BreadcrumbList"')) {
+      throw new Error("MCP or integrations page is missing breadcrumb JSON-LD");
+    }
+  }
+  if (!mcp.includes('"SoftwareApplication"') || !mcp.includes('"WebAPI"')) {
+    throw new Error("MCP page is missing SoftwareApplication or WebAPI JSON-LD");
+  }
+  if (!mcp.includes(MCP_ENDPOINT)) throw new Error("MCP page is missing the endpoint");
+  for (const tool of mcpTools) {
+    if (!mcp.includes(tool.name)) throw new Error(`MCP page is missing ${tool.name}`);
+    if (!mcp.includes(tool.description)) throw new Error(`MCP page is missing the ${tool.name} description`);
+  }
+  for (const client of mcpClients) {
+    for (const doc of client.docs) {
+      if (!mcp.includes(doc.url)) throw new Error(`MCP page is missing doc ${doc.url}`);
+    }
+  }
+  for (const href of [
+    "/guides/swap-a-deprecated-model/",
+    "/guides/swap-a-deprecated-model/#litellm",
+    "/guides/swap-a-deprecated-model/#openrouter",
+    "/guides/swap-a-deprecated-model/#vercel-ai-sdk",
+    "/guides/swap-a-deprecated-model/#langchain",
+    "/mcp/",
+    "/api/",
+    "/badges/",
+    "/feed.xml",
+    "/deadlines.ics",
+    "/data/#github-action",
+  ]) {
+    if (!integrations.includes(href)) throw new Error(`Integrations page is missing ${href}`);
+  }
+  if (!integrations.includes('"CollectionPage"')) throw new Error("Integrations page is missing CollectionPage JSON-LD");
+  const home = await readFile(path.join(dist, "index.html"), "utf8");
+  if (!home.includes('href="/mcp/"') || !home.includes('href="/integrations/"')) {
+    throw new Error("Nav is missing MCP or Integrations");
+  }
+  const api = await readFile(path.join(dist, "api/index.html"), "utf8");
+  if (!api.includes("/mcp/") || !api.includes(MCP_ENDPOINT)) throw new Error("API page is missing the MCP server");
+  for (const rel of ["/mcp/</loc>", "/integrations/</loc>", "/server.json</loc>"]) {
+    if (!sitemap.includes(rel)) throw new Error(`Sitemap is missing ${rel}`);
+  }
+  for (const rel of ["/mcp/", "/integrations/", "/server.json", MCP_ENDPOINT]) {
+    if (!llms.includes(rel)) throw new Error(`llms.txt is missing ${rel}`);
+    if (!llmsFull.includes(rel)) throw new Error(`llms-full.txt is missing ${rel}`);
+  }
 }
 
 async function walk(dir: string): Promise<string[]> {

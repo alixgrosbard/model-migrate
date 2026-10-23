@@ -4,7 +4,7 @@ import FaqList from "../../components/FaqList.astro";
 import InlineText from "../../components/InlineText.astro";
 import NewsletterForm from "../../components/NewsletterForm.astro";
 import { guideGraph } from "../../jsonld.ts";
-import { GUIDES_CHECKED, GUIDES_INDEX, guideBySlug, guidePath, guides } from "../../lib/guides.ts";
+import { GUIDES_CHECKED, GUIDES_INDEX, guideBySlug, guideHeadingId, guidePath, guides } from "../../lib/guides.ts";
 import { loadProviders } from "../../lib/load.ts";
 import { DEFAULT_SITE_URL } from "../../lib/site.ts";
 
@@ -41,7 +41,7 @@ const more = guides.filter((item) => item.slug !== guide.slug);
     ))}
   </ol>
   {guide.sections.map((section) => (
-    <section>
+    <section id={guideHeadingId(section.heading)}>
       <h2>{section.heading}</h2>
       {section.paragraphs.map((paragraph) => <p><InlineText text={paragraph} /></p>)}
       {section.bullets?.length ? (

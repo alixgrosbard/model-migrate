@@ -14,6 +14,7 @@ import {
   breakingChanges,
   breakingChangesChecked,
 } from "./breaking-changes.ts";
+import { INTEGRATIONS_PATH, MCP_ENDPOINT, MCP_PATH, MCP_REGISTRY_NAME, MCP_SERVER_JSON_PATH } from "./mcp-docs.ts";
 import { REQUEST_ERRORS_CHECKED, REQUEST_ERRORS_INDEX, requestErrorPath, requestErrors } from "./request-errors.ts";
 
 export function llmsTxt(
@@ -148,6 +149,11 @@ Deprecated means the stored status is deprecated. Retired means the stored statu
 - [Retired models](${origin}/retired/)
 ${statusLinks || ""}
 
+## MCP and integrations
+- [MCP server](${origin}${MCP_PATH}): free streamable HTTP MCP at ${MCP_ENDPOINT}. No API key. Tools: check_model, upcoming_shutdowns, migration_diff, scan_text. Registry name ${MCP_REGISTRY_NAME}.
+- [server.json](${origin}${MCP_SERVER_JSON_PATH}): MCP registry manifest for that remote server.
+- [Integrations](${origin}${INTEGRATIONS_PATH}): the MCP server, the JSON API, status badges, the RSS feed, the deadline calendar, and the guide for swapping a model in LiteLLM, OpenRouter, the Vercel AI SDK, and LangChain.
+
 ## API
 - [Static API docs](${origin}/api/)
 - [OpenAPI 3.1](${origin}${OPENAPI_PATH}): no API key. Server https://sunsetdiff.com.
@@ -200,6 +206,10 @@ export function llmsFull(site: string, models: ModelRecord[], providers: Provide
     `breaking-changes.csv: ${origin}${BREAKING_CHANGES_CSV}`,
     `Breaking changes: ${origin}${BREAKING_CHANGES_PATH}`,
     ...breakingChanges.map((rule) => `Breaking change: ${origin}${BREAKING_CHANGES_PATH}#${rule.id}`),
+    `MCP: ${origin}${MCP_PATH} tools check_model, upcoming_shutdowns, migration_diff, scan_text`,
+    `MCP endpoint: ${MCP_ENDPOINT}`,
+    `server.json: ${origin}${MCP_SERVER_JSON_PATH}`,
+    `Integrations: ${origin}${INTEGRATIONS_PATH}`,
     `API docs: ${origin}/api/`,
     `OpenAPI: ${origin}${OPENAPI_PATH}`,
     ...statusLlmsEntries(models, providers).map((page) => `${page.title}: ${origin}${page.path}`),

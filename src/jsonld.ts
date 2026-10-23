@@ -5,6 +5,7 @@ import { deprecatedFaqs, publicName, questionPath, shutdownFaqs } from "./lib/gr
 import { GUIDES_CHECKED, GUIDES_INDEX, guidePath, type GuidePage } from "./lib/guides.ts";
 import { GLOSSARY_CHECKED, GLOSSARY_INDEX, glossaryPath, glossaryTerms, type GlossaryTerm } from "./lib/glossary.ts";
 import { BREAKING_CHANGES_PATH, breakingChangesChecked, breakingChangesDatasetGraph } from "./lib/breaking-changes.ts";
+import { INTEGRATIONS_PATH, MCP_DOCS_CHECKED, MCP_ENDPOINT, MCP_PATH, MCP_SERVER_VERSION } from "./lib/mcp-docs.ts";
 import { REQUEST_ERRORS_INDEX, requestErrorChecked, requestErrorPath, requestErrorsIndexChecked, type RequestErrorPage } from "./lib/request-errors.ts";
 
 function siteRoot(site: string): string {
@@ -435,6 +436,76 @@ export function apiDocsGraph(site: string, modified: string, faqs: FaqItem[]) {
     },
     ...datasetGraph(site, modified),
     breakingChangesDatasetGraph(site),
+    faqNode(faqs),
+  ];
+}
+
+export function mcpGraph(site: string, faqs: FaqItem[]) {
+  const url = new URL(MCP_PATH, site).href;
+  const root = siteRoot(site);
+  return [
+    {
+      "@type": "WebPage",
+      "@id": `${url}#page`,
+      name: "SunsetDiff MCP server",
+      url,
+      dateModified: MCP_DOCS_CHECKED,
+      inLanguage: "en",
+      isPartOf: { "@id": `${root}/#website` },
+      publisher: { "@type": "Organization", name: "SunsetDiff" },
+      mainEntity: { "@id": `${url}#app` },
+    },
+    {
+      "@type": "SoftwareApplication",
+      "@id": `${url}#app`,
+      name: "SunsetDiff MCP server",
+      applicationCategory: "DeveloperApplication",
+      operatingSystem: "Any",
+      softwareVersion: MCP_SERVER_VERSION,
+      description: "Free streamable HTTP MCP server for AI model shutdown dates, replacements, and migration diffs. No API key.",
+      url,
+      isAccessibleForFree: true,
+      offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+      provider: { "@id": `${root}/#org` },
+      featureList: "check_model, upcoming_shutdowns, migration_diff, scan_text",
+    },
+    {
+      "@type": "WebAPI",
+      name: "SunsetDiff MCP endpoint",
+      description: "Free streamable HTTP MCP endpoint for AI model shutdown dates. No API key.",
+      url: MCP_ENDPOINT,
+      documentation: url,
+      isAccessibleForFree: true,
+      provider: { "@id": `${root}/#org` },
+    },
+    faqNode(faqs),
+  ];
+}
+
+export function integrationsGraph(site: string, items: { name: string; path: string }[], faqs: FaqItem[]) {
+  const url = new URL(INTEGRATIONS_PATH, site).href;
+  return [
+    {
+      "@type": "CollectionPage",
+      name: "SunsetDiff integrations",
+      description: "Ways to use SunsetDiff: the MCP server, the free JSON API, badges, RSS, the deadline calendar, and the model swap guides.",
+      url,
+      dateModified: MCP_DOCS_CHECKED,
+      inLanguage: "en",
+      isPartOf: { "@id": `${siteRoot(site)}/#website` },
+      publisher: { "@type": "Organization", name: "SunsetDiff" },
+    },
+    {
+      "@type": "ItemList",
+      name: "SunsetDiff integrations",
+      numberOfItems: items.length,
+      itemListElement: items.map((item, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        name: item.name,
+        url: new URL(item.path, site).href,
+      })),
+    },
     faqNode(faqs),
   ];
 }

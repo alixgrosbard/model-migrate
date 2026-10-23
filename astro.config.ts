@@ -31,6 +31,7 @@ export default defineConfig({
         `${site}/data/breaking-changes.json`,
         `${site}/data/breaking-changes.csv`,
         `${site}${OPENAPI_PATH}`,
+        `${site}/server.json`,
       ],
       serialize(item) {
         const lastmod = lastmodForUrl(item.url);
