@@ -8,6 +8,7 @@ import { GLOSSARY_CHECKED, GLOSSARY_INDEX, glossaryPath, glossaryTerms } from ".
 import { BREAKING_CHANGES_CSV, BREAKING_CHANGES_JSON, BREAKING_CHANGES_PATH, breakingChangesChecked } from "./breaking-changes.ts";
 import { REQUEST_ERRORS_INDEX, requestErrorChecked, requestErrorPath, requestErrors, requestErrorsIndexChecked } from "./request-errors.ts";
 import { BADGES_PATH } from "./badges.ts";
+import { CONFLICTS_PATH, disagreementNote } from "./conflicts.ts";
 import { modelsInMonth, questionPath, shutdownMonths, topRetiringModels } from "./growth.ts";
 import { migrateHub, modelsHub, providersHub, replaceHub } from "./hubs.ts";
 import { INTEGRATIONS_PATH, MCP_DOCS_CHECKED, MCP_PATH, MCP_SERVER_JSON_PATH } from "./mcp-docs.ts";
@@ -73,6 +74,10 @@ function build(): Map<string, string> {
   map.set(GLOSSARY_INDEX, GLOSSARY_CHECKED);
   for (const term of glossaryTerms) map.set(glossaryPath(term.slug), GLOSSARY_CHECKED);
   for (const comparison of comparisons) map.set(comparisonPath(comparison.slug), COMPARISON_CHECKED);
+  const conflictStamp = newestDate(
+    all.filter((model) => disagreementNote(model.region_or_platform_notes)).map((model) => model.updated_at),
+  );
+  if (conflictStamp) map.set(CONFLICTS_PATH, conflictStamp);
   if (newestModel) {
     map.set(modelsHub.path, newestModel);
     map.set(replaceHub.path, newestModel);

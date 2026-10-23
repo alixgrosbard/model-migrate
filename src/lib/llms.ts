@@ -15,6 +15,7 @@ import {
   breakingChangesChecked,
 } from "./breaking-changes.ts";
 import { INTEGRATIONS_PATH, MCP_ENDPOINT, MCP_PATH, MCP_REGISTRY_NAME, MCP_SERVER_JSON_PATH } from "./mcp-docs.ts";
+import { CONFLICTS_PATH } from "./conflicts.ts";
 import { REQUEST_ERRORS_CHECKED, REQUEST_ERRORS_INDEX, requestErrorPath, requestErrors } from "./request-errors.ts";
 
 export function llmsTxt(
@@ -64,6 +65,7 @@ export function llmsTxt(
 - [Providers](${origin}/providers/)
 - [Deprecated models](${origin}/deprecated/): AI models with status deprecated, grouped by provider and sorted by shutdown date.
 - [Retired models](${origin}/retired/): AI models with status retired, grouped by provider and sorted by shutdown date.
+- [Conflicting shutdown dates](${origin}${CONFLICTS_PATH}): models whose official pages list different shutdown dates. shutdown_date stays the deprecations-page date.
 - [Soonest shutdowns](${origin}/#soonest)
 - [Calendar](${origin}/calendar/)
 - [Upcoming shutdowns](${origin}/upcoming/)
@@ -213,6 +215,7 @@ export function llmsFull(site: string, models: ModelRecord[], providers: Provide
     `API docs: ${origin}/api/`,
     `OpenAPI: ${origin}${OPENAPI_PATH}`,
     ...statusLlmsEntries(models, providers).map((page) => `${page.title}: ${origin}${page.path}`),
+    `Conflicting shutdown dates: ${origin}${CONFLICTS_PATH}`,
     `Compare trackers: ${origin}/alternatives/`,
     ...HUBS.map((hub) => `${hub.nav}: ${origin}${hub.path}`),
     `Request errors: ${origin}${REQUEST_ERRORS_INDEX}`,

@@ -1,5 +1,6 @@
 import type { MigrationRecord, ModelRecord, Provider } from "../schema.ts";
 import { GEMINI_25_ACCESS_CHECKED, GEMINI_25_ACCESS_SOURCE, gemini25Restricted } from "./access.ts";
+import { disagreementNote } from "./conflicts.ts";
 
 export interface FaqItem {
   question: string;
@@ -114,8 +115,13 @@ export function replacementAnswer(model: ModelRecord, provider: Provider, migrat
 }
 
 export function modelFaqs(model: ModelRecord, provider: Provider, migration?: MigrationRecord | null): FaqItem[] {
+  const shutdown = answerSentence(model, provider, migration);
+  const conflict = disagreementNote(model.region_or_platform_notes);
   return [
-    { question: `When is ${visibleName(model)} shut down?`, answer: answerSentence(model, provider, migration) },
+    {
+      question: `When is ${visibleName(model)} shut down?`,
+      answer: conflict ? `${shutdown} ${conflict.replace(/\[([^\]]+)\]\((https:\/\/[^)\s]+|\/[^)\s]*)\)/g, "$1 ($2)")}` : shutdown,
+    },
     { question: `What replaces ${visibleName(model)}?`, answer: replacementSentence(model) },
     {
       question: `Is ${visibleName(model)} deprecated?`,
