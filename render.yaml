@@ -24,6 +24,9 @@ services:
       - path: /openapi.json
         name: Content-Type
         value: application/json
+      - path: /.well-known/mcp-registry-auth
+        name: Content-Type
+        value: text/plain; charset=utf-8
       - path: /rss.xml
         name: Content-Type
         value: application/rss+xml; charset=utf-8

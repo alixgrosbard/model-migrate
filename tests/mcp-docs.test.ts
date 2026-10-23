@@ -151,4 +151,12 @@ describe("MCP docs", () => {
     expect(hrefs).toContain("/deadlines.ics");
     expect(hrefs).toContain("/data/#github-action");
   });
+
+  it("serves the registry HTTP auth file as one public-key line", () => {
+    const body = readFileSync("public/.well-known/mcp-registry-auth", "utf8");
+    expect(body).toBe("v=MCPv1; k=ed25519; p=UCvDWI9YGSHOtlXA/x9Qy0DtAfm0Ru6HbLOIvV07i34=\n");
+    expect(body.includes("<")).toBe(false);
+    const config = readFileSync("astro.config.ts", "utf8");
+    expect(config).toContain('!pathname.startsWith("/.well-known/")');
+  });
 });

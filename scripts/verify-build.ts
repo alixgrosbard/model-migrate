@@ -197,6 +197,7 @@ async function main() {
   if (!llms.includes("/alternatives/")) throw new Error("llms.txt is missing /alternatives/");
   if (!llms.includes("/api/")) throw new Error("llms.txt is missing /api/");
   const llmsFull = await readFile(path.join(dist, "llms-full.txt"), "utf8");
+  await checkRegistryAuth(sitemap);
   await checkHubs(sitemap, llms, llmsFull);
   await checkStatusPages(sitemap, llms, llmsFull);
   await checkSchedule(sitemap, llms, llmsFull);
@@ -676,6 +677,16 @@ async function sitemapText(dir: string): Promise<string> {
   const parts: string[] = [];
   for (const name of names) parts.push(await readFile(path.join(dir, name), "utf8"));
   return parts.join("\n");
+}
+
+async function checkRegistryAuth(sitemap: string) {
+  const rel = ".well-known/mcp-registry-auth";
+  const expected = "v=MCPv1; k=ed25519; p=UCvDWI9YGSHOtlXA/x9Qy0DtAfm0Ru6HbLOIvV07i34=\n";
+  const built = await readFile(path.join(dist, rel), "utf8");
+  const source = await readFile(path.join(process.cwd(), "public", rel), "utf8");
+  if (built !== expected || source !== expected) throw new Error("MCP registry auth file is not the one public-key line");
+  if (built.includes("<") || built.includes(">")) throw new Error("MCP registry auth file contains markup");
+  if (sitemap.includes(".well-known/mcp-registry-auth")) throw new Error("Sitemap includes the MCP registry auth file");
 }
 
 async function checkDiscovery(sitemap: string, llms: string, llmsFull: string) {

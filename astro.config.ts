@@ -1,4 +1,4 @@
-import { copyFile, rm } from "node:fs/promises";
+import { copyFile, cp, rm } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { defineConfig } from "astro/config";
@@ -17,7 +17,8 @@ export default defineConfig({
     sitemap({
       filter(page) {
         try {
-          return new URL(page).pathname !== "/google/";
+          const pathname = new URL(page).pathname;
+          return pathname !== "/google/" && !pathname.startsWith("/.well-known/");
         } catch {
           return true;
         }
@@ -50,6 +51,12 @@ export default defineConfig({
           const target = path.join(out, "sitemap.xml");
           await rm(target, { recursive: true, force: true });
           await copyFile(source, target);
+          // Vite's public copy uses readdir, which includes dot directories.
+          // Copy again so a bundler that skips them cannot drop this file.
+          await cp(path.join(process.cwd(), "public", ".well-known"), path.join(out, ".well-known"), {
+            recursive: true,
+            force: true,
+          });
         },
       },
     },
