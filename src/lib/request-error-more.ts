@@ -17,6 +17,16 @@ const ISSUE_GPT4_0314 = "https://github.com/BerriAI/litellm/pull/23747";
 const ISSUE_GEMINI_GONE = "https://github.com/google/adk-python/issues/6010";
 const ISSUE_GEMINI_NEW_USERS = "https://github.com/googleapis/python-genai/issues/2087";
 const ISSUE_MAX_TOKENS = "https://github.com/openai/openai-python/issues/2046";
+const OPENAI_GPT6 = "https://developers.openai.com/api/docs/guides/latest-model";
+const ISSUE_TEMPERATURE = "https://github.com/neondatabase/neon-pkgs/issues/937";
+const ISSUE_NANO_SHUTDOWN = "https://github.com/maxswaine/game-repository/issues/110";
+const ISSUE_GEMINI_25 = "https://github.com/LebgaaAbderrahmane/ecomAssistant/issues/92";
+const AZURE_RETIREMENTS = "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirements";
+const AZURE_SCHEDULE = "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule";
+const AZURE_WORKING = "https://learn.microsoft.com/en-us/azure/foundry/openai/how-to/working-with-models";
+const TEMPERATURE_UNSUPPORTED = "Unsupported parameter: 'temperature' is not supported with this model.";
+const TOP_P_UNSUPPORTED = "Unsupported parameter: 'top_p' is not supported with this model.";
+const GEMINI_25_NEW_USERS = "models/gemini-2.5-flash is no longer available to new users";
 
 const SONNET_GUIDES = [
   {
@@ -1224,5 +1234,453 @@ print(interaction.output_text)
       "https://github.com/can1357/oh-my-pi/issues/16350",
       "https://ai.google.dev/gemini-api/docs/thinking",
     ],
+  },
+  {
+    slug: "openai-temperature-is-not-supported-with-this-model",
+    provider: "openai",
+    checked: "2026-10-24",
+    cause: "temperature on gpt-6-sol or gpt-6-luna when reasoning effort is not none.",
+    title: "Unsupported parameter: temperature is not supported with this model | SunsetDiff",
+    description:
+      "OpenAI's Using GPT-6 guide says to remove temperature when reasoning effort is not none. A GitHub issue records that sentence for gpt-6-sol, gpt-6-luna, gpt-6-astra, and gpt-6.1-sol.",
+    h1: TEMPERATURE_UNSUPPORTED,
+    lead: "A request that sends temperature can come back with the sentence below. OpenAI's Using GPT-6 guide says to remove temperature when reasoning effort is not none.",
+    errorQuoted: true,
+    errorText: TEMPERATURE_UNSUPPORTED,
+    quoteSourceLabel: "GitHub issue neondatabase/neon-pkgs#937",
+    quoteSourceUrl: ISSUE_TEMPERATURE,
+    rule: `The Using GPT-6 guide says: when reasoning effort is not none, remove temperature, top_p, and top_logprobs. For Chat Completions, also remove logprobs. For Responses, remove message.output_text.logprobs from include. GPT-6 Astra and GPT-6.1 Sol do not support reasoning effort none. GPT-6 Sol and GPT-6 Luna do. ${ISSUE_TEMPERATURE} records the temperature sentence for gpt-6-astra, gpt-6-sol, gpt-6-luna, and gpt-6-1-sol when temperature is set and no reasoning effort is set. The same issue records this sentence for top_p on gpt-6-astra: ${TOP_P_UNSUPPORTED} Its table says gpt-5.6-luna, gpt-5.6-sol, gpt-5.6-terra, gpt-6-sol, and gpt-6-luna accept temperature and top_p only with effort none. ${ISSUE_NANO_SHUTDOWN} says gpt-4.1-nano shut down on 2026-10-23, that calls return 404 model_not_found, and that temperature is unsupported on successor models. That issue does not print the temperature sentence. SunsetDiff's gpt-4.1-nano record lists shutdown date 2026-10-23 and replacement gpt-5.6-luna. gpt-6-astra and gpt-6.1-sol are named in the guide and in the neon issue. SunsetDiff has no model file for those two ids, so they are not linked below.`,
+    ruleSourceLabel: "Using GPT-6",
+    ruleSourceUrl: OPENAI_GPT6,
+    modelsCaption: "The quoted temperature sentence was recorded for gpt-6-astra, gpt-6-sol, gpt-6-luna, and gpt-6.1-sol. Only ids with a SunsetDiff model file are linked.",
+    models: [
+      {
+        id: "gpt-6-sol",
+        provider: "openai",
+        slug: "gpt-6-sol",
+        note: "The neon issue reproduced the temperature sentence on this id. The Using GPT-6 guide says GPT-6 Sol supports reasoning effort none, and to remove temperature when effort is not none.",
+      },
+      {
+        id: "gpt-6-luna",
+        provider: "openai",
+        slug: "gpt-6-luna",
+        note: "The neon issue reproduced the temperature sentence on this id. The Using GPT-6 guide says GPT-6 Luna supports reasoning effort none.",
+      },
+      {
+        id: "gpt-5.6-sol",
+        provider: "openai",
+        slug: "gpt-5-6-sol",
+        note: "The neon issue's table says this id accepts temperature and top_p only with effort none. The quoted sentence in that issue was reproduced for the gpt-6 ids, not for this id.",
+      },
+      {
+        id: "gpt-5.6-luna",
+        provider: "openai",
+        slug: "gpt-5-6-luna",
+        note: "SunsetDiff lists this id as the replacement for gpt-4.1-nano, which shut down October 23, 2026. The neon issue's table says this id accepts temperature and top_p only with effort none. The quoted sentence was not reproduced for this id in that issue.",
+      },
+      {
+        id: "gpt-5.6-terra",
+        provider: "openai",
+        slug: "gpt-5-6-terra",
+        note: "The neon issue's table says this id accepts temperature and top_p only with effort none. The quoted sentence was not reproduced for this id in that issue.",
+      },
+    ],
+    shutdowns: [{ provider: "openai", date: "2026-10-23" }],
+    fixes: [
+      {
+        heading: "Raw SDK",
+        text: [
+          "Omit temperature when reasoning effort is not none. gpt-6-sol and gpt-6-luna can keep temperature if reasoning_effort is none. GPT-6 Astra and GPT-6.1 Sol do not support none, so the guide says to remove temperature on those models. The sample uses gpt-6-sol, which is in this dataset.",
+        ],
+        samples: [
+          {
+            caption: "Before",
+            code: `from openai import OpenAI
+client = OpenAI()
+response = client.chat.completions.create(
+    model="gpt-6-sol",
+    messages=[{"role": "user", "content": "Hello"}],
+    temperature=0.2,
+)
+`,
+          },
+          {
+            caption: "After",
+            code: `from openai import OpenAI
+client = OpenAI()
+response = client.chat.completions.create(
+    model="gpt-6-sol",
+    messages=[{"role": "user", "content": "Hello"}],
+)
+`,
+          },
+          {
+            caption: "gpt-6-sol with temperature kept",
+            code: `response = client.chat.completions.create(
+    model="gpt-6-sol",
+    messages=[{"role": "user", "content": "Hello"}],
+    reasoning_effort="none",
+    temperature=0.2,
+)
+`,
+          },
+        ],
+        sourceLabel: "Using GPT-6",
+        sourceUrl: OPENAI_GPT6,
+      },
+      {
+        heading: "LiteLLM",
+        text: [
+          "Do not send temperature. additional_drop_params removes named fields on that call. This page does not claim LiteLLM already lists temperature as unsupported for gpt-6-sol.",
+        ],
+        samples: [
+          {
+            caption: "Python",
+            code: `import litellm
+response = litellm.completion(
+    model="openai/gpt-6-sol",
+    messages=[{"role": "user", "content": "Hello"}],
+    additional_drop_params=["temperature", "top_p"],
+)
+`,
+          },
+        ],
+        sourceLabel: "LiteLLM drop unsupported params",
+        sourceUrl: LITELLM_DROP,
+      },
+      {
+        heading: "Vercel AI SDK",
+        text: [
+          "The neon issue called generateText with temperature 0.2 and recorded the sentence above for the gpt-6 ids. Leave temperature unset. The generateText reference says temperature is passed through to the provider. That reference does not print this error sentence.",
+        ],
+        samples: [
+          {
+            caption: "TypeScript",
+            code: `import { openai } from "@ai-sdk/openai";
+import { generateText } from "ai";
+
+const { text } = await generateText({
+  model: openai("gpt-6-sol"),
+  prompt: "Hello",
+});
+`,
+          },
+        ],
+        sourceLabel: "AI SDK generateText",
+        sourceUrl: AI_SDK_GENERATE,
+      },
+    ],
+    guides: [
+      { href: "/migrate/openai__gpt-4__to__openai__gpt-5-6-sol/", label: "gpt-4 to gpt-5.6-sol" },
+      { href: "/migrate/openai__o1__to__openai__gpt-5-6-sol/", label: "o1 to gpt-5.6-sol" },
+      { href: "/migrate/openai__gpt-4-1-nano__to__openai__gpt-5-6-luna/", label: "gpt-4.1-nano to gpt-5.6-luna" },
+      { href: "/migrate/openai__o4-mini__to__openai__gpt-5-6-terra/", label: "o4-mini to gpt-5.6-terra" },
+      { href: "/migrate/openai__gpt-5-1__to__openai__gpt-6-sol/", label: "gpt-5.1 to gpt-6-sol" },
+      { href: "/migrate/openai__gpt-4o-mini-2024-07-18__to__openai__gpt-6-luna/", label: "gpt-4o-mini-2024-07-18 to gpt-6-luna" },
+    ],
+    seeAlso: [
+      { href: "/errors/openai-model-has-been-deprecated/", label: "The model has been deprecated" },
+      { href: "/errors/openai-max-tokens-use-max-completion-tokens/", label: "max_tokens is not supported. Use max_completion_tokens" },
+      { href: "/guides/silent-failures-after-model-shutdown/", label: "Silent failures after a model shutdown" },
+      { href: OPENAI_GPT6, label: "Using GPT-6" },
+    ],
+    faqs: [
+      {
+        question: "Which models returned this exact sentence?",
+        answer:
+          "neondatabase/neon-pkgs#937 records it for gpt-6-astra, gpt-6-sol, gpt-6-luna, and gpt-6-1-sol. gpt-6-astra and gpt-6.1-sol have no SunsetDiff model file. The same issue records a matching top_p sentence for gpt-6-astra.",
+      },
+      {
+        question: "Can gpt-6-sol keep temperature?",
+        answer:
+          "The Using GPT-6 guide says GPT-6 Sol and GPT-6 Luna support reasoning effort none, and to remove temperature when effort is not none. GPT-6 Astra and GPT-6.1 Sol do not support none.",
+      },
+      {
+        question: "Is this the October 23 shutdown error?",
+        answer:
+          "maxswaine/game-repository#110 records 404 model_not_found for gpt-4.1-nano on October 23, 2026, and says temperature is unsupported on the successor. That issue does not print the temperature sentence. The shutdown sentence is on [The model has been deprecated](/errors/openai-model-has-been-deprecated/).",
+      },
+    ],
+    citations: [OPENAI_GPT6, ISSUE_TEMPERATURE, ISSUE_NANO_SHUTDOWN, LITELLM_DROP, AI_SDK_GENERATE],
+  },
+  {
+    slug: "gemini-2-5-flash-no-longer-available-to-new-users",
+    provider: "google-gemini-api",
+    checked: "2026-10-24",
+    cause: "A Gemini API key that counts as a new user calling gemini-2.5-flash.",
+    title: "gemini-2.5-flash is no longer available to new users | SunsetDiff",
+    description:
+      "GitHub issue ecomAssistant#92 records HTTP 404 for gemini-2.5-flash: models/gemini-2.5-flash is no longer available to new users. Google's deprecations page limits 2.5 access to people who have used those models and says they are not deprecated.",
+    h1: GEMINI_25_NEW_USERS,
+    lead: "Some Gemini API keys get HTTP 404 on gemini-2.5-flash. Google's deprecations page says access to the 2.5 models is limited to users who have actively used them. It says the models are not deprecated.",
+    errorQuoted: true,
+    errorText: GEMINI_25_NEW_USERS,
+    quoteSourceLabel: "GitHub issue LebgaaAbderrahmane/ecomAssistant#92",
+    quoteSourceUrl: ISSUE_GEMINI_25,
+    rule: `The issue says Google answers 404 with that message for some API keys, and that older keys still work. The deprecations page says it is limiting access to the 2.5 models to users who have actively used them in the past. It says these models are not deprecated and will continue to be served until further notice through the API. For any new projects it names 3.5 Flash-Lite or 3.8 Flash. The model table on that page uses the ids gemini-3.5-flash-lite and gemini-3.8-flash. The deprecations page does not print the 404 sentence. The issue records the sentence for gemini-2.5-flash. The same access note sits above the gemini-2.5-pro section and the Gemini 2.5 Flash section, which also lists gemini-2.5-flash-lite with no shutdown date announced. A different sentence, recorded for gemini-2.0-flash after that model shut down, is on [This model is no longer available](/errors/gemini-model-no-longer-available/).`,
+    ruleSourceLabel: "Gemini API deprecations",
+    ruleSourceUrl: GEMINI_DEPRECATIONS,
+    modelsCaption: "The quoted 404 fragment was recorded for gemini-2.5-flash. The other 2.5 ids are the stable models under the same access note. The issue does not record this sentence for them.",
+    models: [
+      {
+        id: "gemini-2.5-flash",
+        provider: "google-gemini-api",
+        slug: "gemini-2-5-flash",
+        note: "The GitHub issue records HTTP 404 with the sentence above for this id. The deprecations page lists release date June 17, 2025 and no shutdown date announced.",
+      },
+      {
+        id: "gemini-2.5-pro",
+        provider: "google-gemini-api",
+        slug: "gemini-2-5-pro",
+        note: "The 2.5 Pro section has the same access note. Release date June 17, 2025. No shutdown date announced. The issue does not record this 404 sentence for this id.",
+      },
+      {
+        id: "gemini-2.5-flash-lite",
+        provider: "google-gemini-api",
+        slug: "gemini-2-5-flash-lite",
+        note: "Listed under Gemini 2.5 Flash models, under the same access note. Release date July 22, 2025. No shutdown date announced. The issue does not record this 404 sentence for this id.",
+      },
+      {
+        id: "gemini-3.8-flash",
+        provider: "google-gemini-api",
+        slug: "gemini-3-8-flash",
+        note: "The deprecations note names 3.8 Flash for new projects. The table id on that page is gemini-3.8-flash.",
+      },
+      {
+        id: "gemini-3.5-flash-lite",
+        provider: "google-gemini-api",
+        slug: "gemini-3-5-flash-lite",
+        note: "The deprecations note names 3.5 Flash-Lite for new projects. The table id on that page is gemini-3.5-flash-lite.",
+      },
+    ],
+    fixes: [
+      {
+        heading: "Raw SDK",
+        text: [
+          "For a new project, call an id the deprecations note names for new projects. The sample uses gemini-3.8-flash. The issue says older keys can still call gemini-2.5-flash. This page does not say the model is shut down.",
+        ],
+        samples: [
+          {
+            caption: "Before",
+            code: `curl "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent" \\
+  -H "Content-Type: application/json" \\
+  -H "x-goog-api-key: $GEMINI_API_KEY" \\
+  -X POST \\
+  -d '{"contents":[{"parts":[{"text":"Hello"}]}]}'
+`,
+          },
+          {
+            caption: "After",
+            code: `curl "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent" \\
+  -H "Content-Type: application/json" \\
+  -H "x-goog-api-key: $GEMINI_API_KEY" \\
+  -X POST \\
+  -d '{"contents":[{"parts":[{"text":"Hello"}]}]}'
+`,
+          },
+        ],
+        sourceLabel: "Gemini API deprecations",
+        sourceUrl: GEMINI_DEPRECATIONS,
+      },
+      {
+        heading: "LiteLLM",
+        text: [
+          "LiteLLM's Gemini API route is the gemini/ prefix plus the model id. For a new project, use an id from the deprecations note.",
+        ],
+        samples: [
+          {
+            caption: "Python",
+            code: `import litellm
+response = litellm.completion(
+    model="gemini/gemini-3.8-flash",
+    messages=[{"role": "user", "content": "Hello"}],
+)
+`,
+          },
+        ],
+        sourceLabel: "LiteLLM Gemini provider",
+        sourceUrl: LITELLM_GEMINI,
+      },
+      {
+        heading: "Vercel AI SDK",
+        text: ["generateText takes the model id from google(). Use gemini-3.8-flash or gemini-3.5-flash-lite for a new project."],
+        samples: [
+          {
+            caption: "TypeScript",
+            code: `import { google } from "@ai-sdk/google";
+import { generateText } from "ai";
+
+const { text } = await generateText({
+  model: google("gemini-3.8-flash"),
+  prompt: "Hello",
+});
+`,
+          },
+        ],
+        sourceLabel: "AI SDK generateText",
+        sourceUrl: AI_SDK_GENERATE,
+      },
+    ],
+    guides: [],
+    seeAlso: [
+      { href: "/errors/gemini-model-no-longer-available/", label: "This model is no longer available" },
+      { href: "/models/google-gemini-api/gemini-2-5-flash/", label: "gemini-2.5-flash" },
+      { href: "/models/google-gemini-api/gemini-3-8-flash/", label: "gemini-3.8-flash" },
+      { href: "/guides/silent-failures-after-model-shutdown/", label: "Silent failures after a model shutdown" },
+    ],
+    faqs: [
+      {
+        question: "Does Google's deprecations page print this 404 sentence?",
+        answer:
+          "No. The page says 2.5 access is limited to users who have actively used those models, and that the models are not deprecated. The sentence in the Error text block is from GitHub issue LebgaaAbderrahmane/ecomAssistant#92, which records HTTP 404 for gemini-2.5-flash.",
+      },
+      {
+        question: "Why does an older key still work?",
+        answer:
+          "The issue says a key that counts as a new user gets the 404, and older keys still call gemini-2.5-flash. The deprecations page says the models are still served for users who have actively used them.",
+      },
+      {
+        question: "Which ids does the deprecations page name for a new project?",
+        answer:
+          "The note says 3.5 Flash-Lite or 3.8 Flash. The table on that page uses gemini-3.5-flash-lite and gemini-3.8-flash. gemini-2.5-flash, gemini-2.5-pro, and gemini-2.5-flash-lite have no shutdown date announced.",
+      },
+    ],
+    citations: [GEMINI_DEPRECATIONS, ISSUE_GEMINI_25, LITELLM_GEMINI, AI_SDK_GENERATE],
+  },
+  {
+    slug: "azure-openai-retired-model-410-gone",
+    provider: "azure-openai",
+    checked: "2026-10-24",
+    cause: "An Azure OpenAI o-series deployment after the model version is retired.",
+    title: "Azure OpenAI retired models return 410 Gone | SunsetDiff",
+    description:
+      "Microsoft's lifecycle page says a retired model is removed from service and inference returns 410 Gone. The retirement schedule and SunsetDiff list several o-series versions for November 19, 2026.",
+    h1: "Azure OpenAI retired models return 410 Gone",
+    lead: "After an Azure OpenAI model version is retired, Microsoft says every inference request returns 410 Gone. Several o-series versions have retirement date November 19, 2026 on the schedule and in SunsetDiff.",
+    errorQuoted: false,
+    errorText:
+      "Microsoft's lifecycle page does not print an error sentence. It says a Retired model is removed from service and all inference requests return 410 Gone.",
+    rule: `The lifecycle table says Retired means removed from service, new deployments are not allowed, existing deployments do not work, and all inference requests return 410 Gone. The same page says the API value lifecycleStatus Deprecated means the model is retired and inference returns 410 Gone. The docs stage Deprecated is lifecycleStatus Deprecating, and inference still works. The retirement schedule, checked October 24, 2026, lists these Azure OpenAI base rows as Deprecated with retirement date 2026-11-19: o1 2024-12-17 and o1-pro 2025-03-19 and o3 2025-04-16 and o3-deep-research 2025-06-26 and o3-pro 2025-06-10, replacement gpt-5.6-sol; o3-mini 2025-01-31, replacement gpt-5.6-terra. SunsetDiff stores shutdown_date 2026-11-19 for those six ids. The schedule's base row for o4-mini 2025-04-16 is also Deprecated, retirement 2026-11-19, replacement gpt-5.6-terra. SunsetDiff's file for o4-mini-2025-04-16 stores shutdown_date 2027-11-19, which is the fine-tuned deployment retirement on that schedule, so this page does not treat the stored date as the base-row date. The lifecycle page says Global Standard, Data Zone Standard, and Standard deployments are auto-upgraded at retirement, and provisioned deployments are not. The working-with-models page says automatic model updates are supported for Standard deployment types. On that page, NoAutoUpgrade never upgrades and the deployment stops working at retirement. OnceNewDefaultVersionAvailable upgrades within two weeks of a new default. OnceCurrentVersionExpired upgrades when the retirement date is reached.`,
+    ruleSourceLabel: "Foundry Models lifecycle",
+    ruleSourceUrl: AZURE_RETIREMENTS,
+    modelsCaption: "o-series versions whose SunsetDiff shutdown_date is 2026-11-19, plus o4-mini, whose stored date is the fine-tuned deployment date.",
+    models: [
+      {
+        id: "o1-2024-12-17",
+        provider: "azure-openai",
+        slug: "o1-2024-12-17",
+        note: "Schedule and SunsetDiff: Deprecated, retirement 2026-11-19, replacement gpt-5.6-sol.",
+      },
+      {
+        id: "o1-pro-2025-03-19",
+        provider: "azure-openai",
+        slug: "o1-pro-2025-03-19",
+        note: "Schedule and SunsetDiff: Deprecated, retirement 2026-11-19, replacement gpt-5.6-sol.",
+      },
+      {
+        id: "o3-2025-04-16",
+        provider: "azure-openai",
+        slug: "o3-2025-04-16",
+        note: "Schedule and SunsetDiff: Deprecated, retirement 2026-11-19, replacement gpt-5.6-sol.",
+      },
+      {
+        id: "o3-mini-2025-01-31",
+        provider: "azure-openai",
+        slug: "o3-mini-2025-01-31",
+        note: "Schedule and SunsetDiff: Deprecated, retirement 2026-11-19, replacement gpt-5.6-terra.",
+      },
+      {
+        id: "o3-deep-research-2025-06-26",
+        provider: "azure-openai",
+        slug: "o3-deep-research-2025-06-26",
+        note: "Schedule and SunsetDiff: Deprecated, retirement 2026-11-19, replacement gpt-5.6-sol.",
+      },
+      {
+        id: "o3-pro-2025-06-10",
+        provider: "azure-openai",
+        slug: "o3-pro-2025-06-10",
+        note: "Schedule and SunsetDiff: Deprecated, retirement 2026-11-19, replacement gpt-5.6-sol.",
+      },
+      {
+        id: "o4-mini-2025-04-16",
+        provider: "azure-openai",
+        slug: "o4-mini-2025-04-16",
+        note: "The schedule's base row says Deprecated, retirement 2026-11-19, replacement gpt-5.6-terra. SunsetDiff stores shutdown_date 2027-11-19 from the fine-tuned deployment row.",
+      },
+      {
+        id: "gpt-5.6-sol",
+        provider: "azure-openai",
+        slug: "gpt-5-6-sol",
+        note: "Replacement named for o1, o1-pro, o3, o3-deep-research, and o3-pro.",
+      },
+      {
+        id: "gpt-5.6-terra",
+        provider: "azure-openai",
+        slug: "gpt-5-6-terra",
+        note: "Replacement named for o3-mini. The schedule also names it for the o4-mini base row.",
+      },
+    ],
+    shutdowns: [{ provider: "azure-openai", date: "2026-11-19" }],
+    fixes: [
+      {
+        heading: "Raw SDK",
+        text: [
+          "Point the deployment at the replacement in the table before the retirement date. Working with models says automatic updates are supported for Standard deployment types. NoAutoUpgrade never upgrades, and at retirement that deployment stops working. You then point the code at a deployment that has not expired. The replacement ids are the ones in the table, from the retirement schedule.",
+        ],
+        samples: [],
+        sourceLabel: "Working with Azure OpenAI models",
+        sourceUrl: AZURE_WORKING,
+      },
+      {
+        heading: "LiteLLM",
+        text: [
+          "This page does not show a LiteLLM call. Change the Azure deployment the proxy uses so it is a deployment of the replacement id on the schedule. The 410 status is on the lifecycle page, after the model is retired.",
+        ],
+        samples: [],
+        sourceLabel: "Foundry Models lifecycle",
+        sourceUrl: AZURE_RETIREMENTS,
+      },
+      {
+        heading: "Vercel AI SDK",
+        text: [
+          "This page does not show an AI SDK call. The Azure target is a deployment of the replacement model. The lifecycle page is the source for 410 Gone.",
+        ],
+        samples: [],
+        sourceLabel: "Azure OpenAI retirement schedule",
+        sourceUrl: AZURE_SCHEDULE,
+      },
+    ],
+    guides: [
+      { href: "/migrate/azure-openai__o1-2024-12-17__to__azure-openai__gpt-5-6-sol/", label: "o1 2024-12-17 to gpt-5.6-sol" },
+      { href: "/migrate/azure-openai__o1-pro-2025-03-19__to__azure-openai__gpt-5-6-sol/", label: "o1-pro 2025-03-19 to gpt-5.6-sol" },
+      { href: "/migrate/azure-openai__o3-2025-04-16__to__azure-openai__gpt-5-6-sol/", label: "o3 2025-04-16 to gpt-5.6-sol" },
+      { href: "/migrate/azure-openai__o3-deep-research-2025-06-26__to__azure-openai__gpt-5-6-sol/", label: "o3-deep-research 2025-06-26 to gpt-5.6-sol" },
+      { href: "/migrate/azure-openai__o3-mini-2025-01-31__to__azure-openai__gpt-5-6-terra/", label: "o3-mini 2025-01-31 to gpt-5.6-terra" },
+      { href: "/migrate/azure-openai__o3-pro-2025-06-10__to__azure-openai__gpt-5-6-sol/", label: "o3-pro 2025-06-10 to gpt-5.6-sol" },
+    ],
+    seeAlso: [
+      { href: "/shutdowns/azure-openai-2026-11-19/", label: "Azure OpenAI November 19, 2026 batch" },
+      { href: "/models/azure-openai/o4-mini-2025-04-16/", label: "o4-mini 2025-04-16" },
+      { href: "/guides/silent-failures-after-model-shutdown/", label: "Silent failures after a model shutdown" },
+      { href: AZURE_SCHEDULE, label: "Azure OpenAI retirement schedule" },
+    ],
+    faqs: [
+      {
+        question: "Do these models return 410 Gone before November 19, 2026?",
+        answer:
+          "The schedule lists them as Deprecated, which the lifecycle page maps to API status Deprecating. Inference still works in that stage. 410 Gone is what the page says a Retired model returns. The retirement date on the matching SunsetDiff rows is 2026-11-19.",
+      },
+      {
+        question: "Will every deployment return 410 on that date?",
+        answer:
+          "The lifecycle page says Global Standard, Data Zone Standard, and Standard deployments are auto-upgraded at retirement, and provisioned deployments are not. Working with models says automatic updates are supported for Standard deployment types. NoAutoUpgrade never upgrades, and that deployment stops working at retirement.",
+      },
+      {
+        question: "Why does SunsetDiff list o4-mini on 2027-11-19?",
+        answer:
+          "The stored shutdown_date is the fine-tuned deployment retirement. The schedule's base row for o4-mini 2025-04-16 says retirement 2026-11-19 and replacement gpt-5.6-terra. Read both on [o4-mini 2025-04-16](/models/azure-openai/o4-mini-2025-04-16/).",
+      },
+    ],
+    citations: [AZURE_RETIREMENTS, AZURE_SCHEDULE, AZURE_WORKING],
   },
 ];

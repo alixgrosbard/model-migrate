@@ -92,7 +92,7 @@ export function llmsTxt(
 - [Pro](${origin}/pro/) is free until launch, then $19 a month. You won't be charged until Pro launches.
 
 ## Request errors
-[All request errors](${origin}${REQUEST_ERRORS_INDEX}). Each page names the failure, the model change, and the source. Check dates are on the pages (${REQUEST_ERRORS_CHECKED}, 2026-10-21 for the thinking budget page, and 2026-10-22 for the API version 2026-10-21 sampling page). A code block is a quoted error only when the linked source prints that sentence.
+[All request errors](${origin}${REQUEST_ERRORS_INDEX}). Each page names the failure, the model change, and the source. Check dates are on the pages (${REQUEST_ERRORS_CHECKED}, 2026-10-21 for the thinking budget page, 2026-10-22 for the API version 2026-10-21 sampling page, and 2026-10-24 for the temperature, Gemini 2.5 new-user, and Azure 410 pages). A code block is a quoted error only when the linked source prints that sentence.
 ${requestErrors.map((page) => `- [${page.h1}](${origin}${requestErrorPath(page.slug)})`).join("\n")}
 
 ## Request breaking changes

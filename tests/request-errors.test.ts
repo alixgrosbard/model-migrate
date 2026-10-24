@@ -97,8 +97,7 @@ describe("request error pages", () => {
   it("lists both pages in llms.txt, lastmod, and JSON-LD", () => {
     const text = llmsTxt("https://sunsetdiff.com", [], []);
     const full = llmsFull("https://sunsetdiff.com", []);
-    expect(requestErrors.length).toBeGreaterThanOrEqual(8);
-    expect(requestErrors.length).toBeLessThanOrEqual(12);
+    expect(requestErrors.length).toBe(15);
     expect(text).toContain(REQUEST_ERRORS_INDEX);
     expect(full).toContain(REQUEST_ERRORS_INDEX);
     expect(lastmodForUrl(`https://sunsetdiff.com${REQUEST_ERRORS_INDEX}`)).toBe(requestErrorsIndexChecked());
@@ -145,5 +144,22 @@ describe("request error pages", () => {
       "https://platform.claude.com/docs/en/api/versioning",
     ]);
     expect(requestErrors.filter((page) => page.errorQuoted).length).toBeGreaterThanOrEqual(8);
+    const openaiTemperature = requestErrors.find((page) => page.slug === "openai-temperature-is-not-supported-with-this-model");
+    expect(openaiTemperature?.checked).toBe("2026-10-24");
+    expect(openaiTemperature?.errorQuoted).toBe(true);
+    expect(openaiTemperature?.errorText).toBe("Unsupported parameter: 'temperature' is not supported with this model.");
+    expect(openaiTemperature?.rule).toContain("Unsupported parameter: 'top_p' is not supported with this model.");
+    expect(openaiTemperature?.quoteSourceUrl).toBe("https://github.com/neondatabase/neon-pkgs/issues/937");
+    const geminiNewUsers = requestErrors.find((page) => page.slug === "gemini-2-5-flash-no-longer-available-to-new-users");
+    expect(geminiNewUsers?.errorText).toBe("models/gemini-2.5-flash is no longer available to new users");
+    expect(geminiNewUsers?.models.map((item) => item.id)).toContain("gemini-2.5-flash");
+    expect(requestErrors.find((page) => page.slug === "gemini-model-no-longer-available")?.models.some((item) => item.id === "gemini-2.5-flash")).toBe(false);
+    const azureGone = requestErrors.find((page) => page.slug === "azure-openai-retired-model-410-gone");
+    expect(azureGone?.errorQuoted).toBe(false);
+    expect(azureGone?.errorText).toContain("410 Gone");
+    expect(azureGone?.models.map((item) => item.id)).toContain("o1-2024-12-17");
+    expect(azureGone?.models.map((item) => item.id)).toContain("o4-mini-2025-04-16");
+    expect(azureGone?.rule).toContain("2027-11-19");
+    expect(requestErrors.some((page) => page.slug.includes("deepseek"))).toBe(false);
   });
 });

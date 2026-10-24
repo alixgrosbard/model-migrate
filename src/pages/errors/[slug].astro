@@ -98,7 +98,11 @@ const checked = new Date(`${requestErrorChecked(page)}T00:00:00Z`).toLocaleDateS
         {page.shutdowns.map((item) => (
           <li>
             <a href={`/shutdowns/${item.provider}-${item.date}/`}>
-              {item.provider === "openai" ? "OpenAI October 23, 2026 batch" : "Gemini API October 22, 2026 batch"}
+              {item.provider === "openai"
+                ? "OpenAI October 23, 2026 batch"
+                : item.provider === "google-gemini-api"
+                  ? "Gemini API October 22, 2026 batch"
+                  : "Azure OpenAI November 19, 2026 batch"}
             </a>
           </li>
         ))}

@@ -22,6 +22,9 @@ const ALLOWED_HOSTS = new Set([
   "huggingface.co",
   "help.openai.com",
   "learn.chatgpt.com",
+  "github.com",
+  "api-docs.deepseek.com",
+  "deepseek.com",
 ]);
 
 describe("guides", () => {
@@ -105,5 +108,28 @@ describe("guides", () => {
     expect(alias[0].html).toContain('http-equiv="refresh" content="0; url=/guides/custom-gpt-retirement/"');
     expect(alias[0].html).toContain('content="noindex"');
     expect(alias[0].html).not.toMatch(/[—–]/);
+  });
+
+  it("sources the silent-failure guide from the recorded issues and official pages", () => {
+    const guide = guides.find((item) => item.slug === "silent-failures-after-model-shutdown");
+    expect(guide).toBeTruthy();
+    if (!guide) return;
+    expect(guideChecked(guide)).toBe("2026-10-24");
+    const blob = JSON.stringify(guide);
+    expect(blob).toContain("404 model_not_found");
+    expect(blob).toContain("Unsupported parameter: 'temperature' is not supported with this model.");
+    expect(blob).toContain("models/gemini-2.5-flash is no longer available to new users");
+    expect(blob).toContain("410 Gone");
+    expect(blob).toContain("2026-07-24");
+    expect(blob).toContain("15:59");
+    expect(blob).toContain("2027-03-30");
+    expect(blob).toContain("https://github.com/aaif-goose/goose/issues/13114");
+    expect(blob).toContain("https://api-docs.deepseek.com/updates/");
+    expect(blob).toContain("https://deepseek.com/en/news/v4-preview/");
+    expect(blob).toContain("/errors/openai-temperature-is-not-supported-with-this-model/");
+    expect(blob).toContain("/errors/gemini-2-5-flash-no-longer-available-to-new-users/");
+    expect(blob).toContain("/errors/azure-openai-retired-model-410-gone/");
+    expect(blob).toContain("/api/v1/lookup/gpt-4.1-nano.json");
+    expect(blob.toLowerCase()).not.toContain("deepseek-chat retired on 2026-07-24 in sunsetdiff");
   });
 });
