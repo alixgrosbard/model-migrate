@@ -4,7 +4,7 @@ import FaqList from "../../components/FaqList.astro";
 import InlineText from "../../components/InlineText.astro";
 import NewsletterForm from "../../components/NewsletterForm.astro";
 import { guideGraph } from "../../jsonld.ts";
-import { GUIDES_CHECKED, GUIDES_INDEX, guideBySlug, guideHeadingId, guidePath, guides } from "../../lib/guides.ts";
+import { GUIDES_INDEX, guideBySlug, guideChecked, guideHeadingId, guidePath, guides } from "../../lib/guides.ts";
 import { loadProviders } from "../../lib/load.ts";
 import { DEFAULT_SITE_URL } from "../../lib/site.ts";
 
@@ -17,7 +17,8 @@ if (!guide) throw new Error("Missing guide");
 const providers = await loadProviders();
 const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
 const path = guidePath(guide.slug);
-const checked = new Date(`${GUIDES_CHECKED}T00:00:00Z`).toLocaleDateString("en-US", {
+const checkedDate = guideChecked(guide);
+const checked = new Date(`${checkedDate}T00:00:00Z`).toLocaleDateString("en-US", {
   month: "long",
   day: "numeric",
   year: "numeric",
@@ -33,7 +34,7 @@ const more = guides.filter((item) => item.slug !== guide.slug);
 >
   <h1>{guide.h1}</h1>
   <p class="answer"><InlineText text={guide.answer} /></p>
-  <p>Last reviewed <time datetime={GUIDES_CHECKED}>{checked}</time>. Publisher: SunsetDiff.</p>
+  <p>Last reviewed <time datetime={checkedDate}>{checked}</time>. Publisher: SunsetDiff.</p>
   <h2>Steps</h2>
   <ol>
     {guide.steps.map((step) => (
@@ -48,6 +49,19 @@ const more = guides.filter((item) => item.slug !== guide.slug);
         <ul>
           {section.bullets.map((bullet) => <li><InlineText text={bullet} /></li>)}
         </ul>
+      ) : null}
+      {section.table ? (
+        <table>
+          <caption>{section.table.caption}</caption>
+          <thead>
+            <tr>{section.table.headers.map((header) => <th>{header}</th>)}</tr>
+          </thead>
+          <tbody>
+            {section.table.rows.map((row) => (
+              <tr>{row.map((cell) => <td><InlineText text={cell} /></td>)}</tr>
+            ))}
+          </tbody>
+        </table>
       ) : null}
       {section.codes?.map((sample) => (
         <div>
