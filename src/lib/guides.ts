@@ -40,6 +40,14 @@ const LANGCHAIN_CHAT = "https://docs.langchain.com/oss/python/integrations/chat"
 const OPENAI_CUSTOM_GPT_FAQ = "https://help.openai.com/en/articles/20001519-custom-gpt-retirement-and-migration-faq";
 const OPENAI_CUSTOM_GPT_MIGRATE = "https://learn.chatgpt.com/docs/migrate-custom-gpts";
 const OPENAI_CUSTOM_GPT_MCP = "https://learn.chatgpt.com/docs/extend/mcp";
+const OPENAI_GPT6 = "https://developers.openai.com/api/docs/guides/latest-model";
+const DEEPSEEK_UPDATES = "https://api-docs.deepseek.com/updates/";
+const DEEPSEEK_NEWS = "https://api-docs.deepseek.com/";
+const DEEPSEEK_V4 = "https://deepseek.com/en/news/v4-preview/";
+const ISSUE_TEMPERATURE = "https://github.com/neondatabase/neon-pkgs/issues/937";
+const ISSUE_NANO_SHUTDOWN = "https://github.com/maxswaine/game-repository/issues/110";
+const ISSUE_DEEPSEEK = "https://github.com/aaif-goose/goose/issues/13114";
+const ISSUE_GEMINI_25 = "https://github.com/LebgaaAbderrahmane/ecomAssistant/issues/92";
 
 export interface GuideSource {
   label: string;
@@ -1200,6 +1208,192 @@ curl -fsSL https://sunsetdiff.com/api/v1/upcoming.json
       "https://huggingface.co/datasets/sunsetdiff/ai-model-deprecations",
       CLAUDE_DEPRECATIONS,
       BEDROCK_LEGACY,
+    ],
+  },
+  {
+    slug: "silent-failures-after-model-shutdown",
+    title: "Silent failures after a model shutdown | SunsetDiff",
+    description:
+      "How a caught model_not_found, HTTP 404, or HTTP 410 leaves a job green with no model output, and how to fail those runs and check shutdown dates.",
+    h1: "Silent failures after a model shutdown",
+    summary: "A caught shutdown error can finish the job with no model output.",
+    answer:
+      "A retired model often fails with model_not_found, HTTP 404, or HTTP 410. If the caller catches that error and continues, the job can exit successfully while the model did no work. Fail the run on those signals, alert when a finished run has no output, and read the shutdown date from the SunsetDiff API before the job starts.",
+    checked: "2026-10-24",
+    steps: [
+      {
+        name: "Fail on model_not_found, 404, and 410",
+        text: "Treat those as a failed run. A later step that expected model text should not run.",
+      },
+      {
+        name: "Alert when a finished run has no output",
+        text: "If the handler swallows the error, the process can still exit successfully. Alert when the model text is empty.",
+      },
+      {
+        name: "Read the date before the job",
+        text: "Fetch the model row from the SunsetDiff API. shutdown_date is the published date. Open sources[0].url before you migrate.",
+      },
+    ],
+    sections: [
+      {
+        heading: "A caught error looks like success",
+        paragraphs: [
+          "GitHub issue maxswaine/game-repository#110 says gpt-4.1-nano shut down on 2026-10-23 and that calls return 404 model_not_found. It says the duplicate judge raises on every call, and the caller catches that error and continues, so every borderline duplicate is accepted without a judgment.",
+          "That is the swallow. The exception is handled, and the work that needed the model is skipped. A scheduled job with the same shape can finish with an empty result and a successful exit. Alert on that empty result. The issue itself describes the continue, not a zero-output log line.",
+          "A different failure is a live model rejecting an old field. GitHub issue neondatabase/neon-pkgs#937 records this sentence for gpt-6-astra, gpt-6-sol, gpt-6-luna, and gpt-6-1-sol: Unsupported parameter: 'temperature' is not supported with this model. OpenAI's Using GPT-6 guide says to remove temperature when reasoning effort is not none. That is a request error, and it should fail the run too. The page for the sentence is [temperature is not supported with this model](/errors/openai-temperature-is-not-supported-with-this-model/).",
+        ],
+        sources: [
+          { label: "GitHub issue maxswaine/game-repository#110", url: ISSUE_NANO_SHUTDOWN },
+          { label: "GitHub issue neondatabase/neon-pkgs#937", url: ISSUE_TEMPERATURE },
+          { label: "Using GPT-6", url: OPENAI_GPT6 },
+        ],
+      },
+      {
+        heading: "Status codes that mean the model did no work",
+        paragraphs: [
+          "Fail the run when the provider returns one of these. The sentence is quoted only when the linked source prints it.",
+        ],
+        table: {
+          caption: "Signals recorded in a public issue or on an official lifecycle page.",
+          headers: ["Signal", "Where it is written", "What SunsetDiff links"],
+          rows: [
+            [
+              "404 model_not_found",
+              "[game-repository#110](https://github.com/maxswaine/game-repository/issues/110) for gpt-4.1-nano on 2026-10-23",
+              "[The model has been deprecated](/errors/openai-model-has-been-deprecated/)",
+            ],
+            [
+              "Unsupported parameter: 'temperature' is not supported with this model.",
+              "[neon-pkgs#937](https://github.com/neondatabase/neon-pkgs/issues/937) for gpt-6-sol, gpt-6-luna, gpt-6-astra, and gpt-6.1-sol",
+              "[temperature is not supported with this model](/errors/openai-temperature-is-not-supported-with-this-model/)",
+            ],
+            [
+              "HTTP 404, models/gemini-2.5-flash is no longer available to new users",
+              "[ecomAssistant#92](https://github.com/LebgaaAbderrahmane/ecomAssistant/issues/92). Older keys in that report still work.",
+              "[gemini-2.5-flash is no longer available to new users](/errors/gemini-2-5-flash-no-longer-available-to-new-users/)",
+            ],
+            [
+              "model_not_found",
+              "[goose#13114](https://github.com/aaif-goose/goose/issues/13114) for deepseek-reasoner. DeepSeek's changelog says deepseek-chat and deepseek-reasoner are discontinued on 2026-07-24. The V4 preview note says they are fully retired and inaccessible after Jul 24th, 2026, 15:59 UTC.",
+              "No DeepSeek API model page. See the next section.",
+            ],
+            [
+              "410 Gone",
+              "Azure's lifecycle page says a Retired model is removed from service and all inference requests return 410 Gone.",
+              "[Azure OpenAI retired models return 410 Gone](/errors/azure-openai-retired-model-410-gone/)",
+            ],
+          ],
+        },
+        sources: [
+          { label: "GitHub issue maxswaine/game-repository#110", url: ISSUE_NANO_SHUTDOWN },
+          { label: "GitHub issue neondatabase/neon-pkgs#937", url: ISSUE_TEMPERATURE },
+          { label: "GitHub issue LebgaaAbderrahmane/ecomAssistant#92", url: ISSUE_GEMINI_25 },
+          { label: "GitHub issue aaif-goose/goose#13114", url: ISSUE_DEEPSEEK },
+          { label: "DeepSeek API changelog", url: DEEPSEEK_UPDATES },
+          { label: "DeepSeek-V4 preview", url: DEEPSEEK_V4 },
+          { label: "Foundry Models lifecycle", url: AZURE_RETIREMENTS },
+          { label: "Gemini API deprecations", url: GEMINI_DEPRECATIONS },
+        ],
+      },
+      {
+        heading: "DeepSeek API ids are not in this dataset",
+        paragraphs: [
+          "DeepSeek's API changelog for 2026-04-24 says the legacy names deepseek-chat and deepseek-reasoner will be discontinued on 2026-07-24. During the period before that date they pointed at deepseek-v4-flash non-thinking and thinking. The V4 preview note says deepseek-chat and deepseek-reasoner will be fully retired and inaccessible after Jul 24th, 2026, 15:59 (UTC Time). The current quick start lists deepseek-flash and deepseek-v4-pro.",
+          "GitHub issue aaif-goose/goose#13114 says selecting deepseek-reasoner fails with model_not_found, and that DeepSeek retired it on 2026-07-24 together with deepseek-chat. The issue does not print a longer error sentence. SunsetDiff has no provider row for the DeepSeek API and no model file for deepseek-chat or deepseek-reasoner, so there is no error page for that pair.",
+          "The DeepSeek rows SunsetDiff does store are Amazon Bedrock ids. deepseek.r1-v1:0, deepseek.v3-v1:0, and deepseek.v3.1 have shutdown date 2027-03-30. Those are not deepseek-chat or deepseek-reasoner.",
+        ],
+        bullets: [
+          "[DeepSeek-R1 on Bedrock](/models/aws-bedrock/deepseek-r1-v1-0/): shutdown date 2027-03-30.",
+          "[deepseek.v3-v1:0](/models/aws-bedrock/deepseek-v3-v1-0/) and [deepseek.v3.1](/models/aws-bedrock/deepseek-v3-1/): shutdown date 2027-03-30.",
+        ],
+        sources: [
+          { label: "DeepSeek API changelog", url: DEEPSEEK_UPDATES },
+          { label: "DeepSeek-V4 preview", url: DEEPSEEK_V4 },
+          { label: "DeepSeek API quick start", url: DEEPSEEK_NEWS },
+          { label: "GitHub issue aaif-goose/goose#13114", url: ISSUE_DEEPSEEK },
+          { label: "Bedrock legacy lifecycle", url: BEDROCK_LEGACY },
+        ],
+      },
+      {
+        heading: "Alert when the run has no output",
+        paragraphs: [
+          "Fail before the rest of the job runs. The status codes in the table are the ones to raise on. An empty model result is the second check: the handler may have caught the error and returned no text.",
+          "Gemini is the partial case. ecomAssistant#92 says one key that counts as a new user gets HTTP 404 for gemini-2.5-flash, and older keys still work. A retry on a second key can hide that some calls never ran. Google's deprecations page says 2.5 access is limited to users who have actively used those models, and that the models are not deprecated.",
+        ],
+        codes: [
+          {
+            caption: "Fail the run",
+            code: `status = response.status_code
+body = response.text
+if status in (404, 410) or "model_not_found" in body:
+    raise RuntimeError(f"model request failed with HTTP {status}")
+if not body.strip():
+    raise RuntimeError("model request returned no output")
+`,
+          },
+        ],
+        sources: [
+          { label: "GitHub issue LebgaaAbderrahmane/ecomAssistant#92", url: ISSUE_GEMINI_25 },
+          { label: "Gemini API deprecations", url: GEMINI_DEPRECATIONS },
+          { label: "Foundry Models lifecycle", url: AZURE_RETIREMENTS },
+        ],
+      },
+      {
+        heading: "Check the date before the job",
+        paragraphs: [
+          "The files are static. [Check model shutdown dates programmatically](/guides/check-model-shutdown-dates-programmatically/) lists the fields. shutdown_date_kind not_before is a floor, not a deadline. Read sources[0].url before you migrate.",
+        ],
+        codes: [
+          {
+            caption: "curl",
+            code: `curl -fsSL https://sunsetdiff.com/api/v1/upcoming.json
+curl -fsSL https://sunsetdiff.com/api/v1/lookup/gpt-4.1-nano.json
+`,
+          },
+        ],
+        sources: [{ label: "SunsetDiff API docs", url: "https://sunsetdiff.com/api/" }],
+      },
+    ],
+    related: [
+      { href: "/errors/", label: "Request errors" },
+      { href: "/errors/openai-temperature-is-not-supported-with-this-model/", label: "temperature is not supported with this model" },
+      { href: "/errors/gemini-2-5-flash-no-longer-available-to-new-users/", label: "gemini-2.5-flash new-user 404" },
+      { href: "/errors/azure-openai-retired-model-410-gone/", label: "Azure 410 Gone" },
+      { href: "/errors/openai-model-has-been-deprecated/", label: "The model has been deprecated" },
+      { href: "/guides/check-model-shutdown-dates-programmatically/", label: "Check dates programmatically" },
+      { href: "/shutdowns/openai-2026-10-23/", label: "OpenAI October 23, 2026 batch" },
+      { href: "/shutdowns/azure-openai-2026-11-19/", label: "Azure OpenAI November 19, 2026 batch" },
+    ],
+    faqs: [
+      {
+        question: "Is every shutdown HTTP 404?",
+        answer:
+          "game-repository#110 records 404 model_not_found for gpt-4.1-nano. Azure's lifecycle page says a retired model returns 410 Gone. OpenAI's deprecations page does not print an HTTP status for shutdown. The sentences SunsetDiff quotes are on the [request error pages](/errors/).",
+      },
+      {
+        question: "Why did one Gemini key work and another return 404?",
+        answer:
+          "ecomAssistant#92 says a key that counts as a new user gets HTTP 404 for gemini-2.5-flash, and older keys still work. Google's deprecations page says 2.5 access is limited to users who have actively used those models, and that the models are not deprecated.",
+      },
+      {
+        question: "Where is the DeepSeek API retirement in SunsetDiff?",
+        answer:
+          "It is not a model row. The DeepSeek changelog says deepseek-chat and deepseek-reasoner are discontinued on 2026-07-24. The Bedrock DeepSeek ids on this site shut down on 2027-03-30.",
+      },
+    ],
+    citations: [
+      ISSUE_NANO_SHUTDOWN,
+      ISSUE_TEMPERATURE,
+      OPENAI_GPT6,
+      ISSUE_GEMINI_25,
+      GEMINI_DEPRECATIONS,
+      ISSUE_DEEPSEEK,
+      DEEPSEEK_UPDATES,
+      DEEPSEEK_V4,
+      DEEPSEEK_NEWS,
+      AZURE_RETIREMENTS,
+      BEDROCK_LEGACY,
+      "https://sunsetdiff.com/api/",
     ],
   },
 ];
