@@ -22,6 +22,7 @@ import { siteOrigin } from "../src/lib/site.ts";
 import { openApiDocument } from "../src/lib/openapi.ts";
 import { statusLlmsEntries } from "../src/lib/status-hubs.ts";
 import { SHORTCUT_MARKER, shortcutFiles } from "../src/lib/shortcuts.ts";
+import { replacementApiFields } from "../src/lib/replacement-chain.ts";
 
 const site = siteOrigin();
 const publicDir = path.join(process.cwd(), "public");
@@ -101,7 +102,7 @@ async function main() {
   for (const model of models) {
     const folder = path.join(publicDir, "api/v1/models", model.provider);
     await mkdir(folder, { recursive: true });
-    await writeJson(path.join(folder, `${model.slug}.json`), model);
+    await writeJson(path.join(folder, `${model.slug}.json`), { ...model, ...replacementApiFields(model, models) });
   }
   for (const migration of migrations) {
     const key = `${migration.from.provider}__${migration.from.slug}__to__${migration.to.provider}__${migration.to.slug}`;
@@ -114,7 +115,9 @@ async function main() {
     byId.set(model.id, list);
   }
   for (const [id, list] of byId) {
-    const body = list.length === 1 ? list[0] : list;
+    const body = list.length === 1
+      ? { ...list[0], ...replacementApiFields(list[0], models) }
+      : list.map((item) => ({ ...item, ...replacementApiFields(item, models) }));
     await writeJson(path.join(publicDir, "api/v1/lookup", `${encodeURIComponent(id)}.json`), body);
   }
 

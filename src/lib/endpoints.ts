@@ -414,8 +414,21 @@ export const ENDPOINTS: EndpointDoc[] = [
     title: "One model",
     format: "application/json",
     summary: "The full model record for that provider and slug.",
-    fields: MODEL_RECORD_FIELDS.map((name) => ({ name, detail: "Full model record field. See /data/models.json." })),
-    notes: ["Example: /api/v1/models/openai/gpt-4o.json when that slug is in the dataset."],
+    fields: [
+      ...MODEL_RECORD_FIELDS.map((name) => ({ name, detail: "Full model record field. See /data/models.json." })),
+      {
+        name: "replacement_also_retiring",
+        detail: "True when an official replacement stored in this dataset is deprecated or retired. False when that replacement is active or legacy, or when no official replacement is in the dataset. Existing model fields are unchanged.",
+      },
+      {
+        name: "replacement_chain",
+        detail: "Official replacement steps already in the dataset, at most 4 hops, with cycles skipped. Each step has model_id, provider, slug, status, and shutdown_date. Empty when replacement_also_retiring is false.",
+      },
+    ],
+    notes: [
+      "Example: /api/v1/models/openai/gpt-4o.json when that slug is in the dataset.",
+      "replacement_also_retiring and replacement_chain are added on this file and on /api/v1/lookup/<model-id>.json. They are not new columns in /data/models.json.",
+    ],
     body: "json",
   },
   {
