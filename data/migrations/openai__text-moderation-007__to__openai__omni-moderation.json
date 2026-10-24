@@ -64,16 +64,16 @@
       "excerpt": "2025-10-27 | text-moderation-007 | omni-moderation"
     },
     {
+      "url": "https://developers.openai.com/api/docs/models/text-moderation-stable.md",
+      "label": "OpenAI model docs",
+      "last_checked": "2026-10-24",
+      "excerpt": "Model ID: text-moderation-stable | max output 32768 | Default snapshot text-moderation-007"
+    },
+    {
       "url": "https://developers.openai.com/api/docs/models/text-moderation-latest.md",
       "label": "OpenAI model docs",
       "last_checked": "2026-10-24",
       "excerpt": "Model ID: text-moderation-latest | max output 32768 | Default snapshot text-moderation-007"
-    },
-    {
-      "url": "https://developers.openai.com/api/docs/models/text-moderation-stable.md",
-      "label": "OpenAI model docs",
-      "last_checked": "2026-10-23",
-      "excerpt": "Model ID: text-moderation-stable | max output 32768 | Default snapshot text-moderation-007"
     },
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
