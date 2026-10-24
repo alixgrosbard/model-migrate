@@ -16,6 +16,7 @@ import { DEFAULT_SITE_URL } from "../../../lib/site.ts";
 import BreakingRules from "../../../components/BreakingRules.astro";
 import { breakingChangesForModel } from "../../../lib/breaking-changes.ts";
 import { requestErrorPath, requestErrorsForModel } from "../../../lib/request-errors.ts";
+import { replacementRetirement } from "../../../lib/replacement-chain.ts";
 
 export async function getStaticPaths() {
   const models = await loadModels();
@@ -39,6 +40,7 @@ const breakingRules = breakingChangesForModel(model.provider, model.id);
 const restrictedAccess = gemini25Restricted(model);
 const disagree = disagreementNote(model.region_or_platform_notes);
 const regionNote = noteWithoutDisagreement(model.region_or_platform_notes);
+const retiringReplacements = replacementRetirement(model, models);
 const statusLabel = autoRouteStatusText(model) ?? (restrictedAccess ? "existing users only" : model.status);
 const specRows: [string, string, string][] = [
   ["Input price / 1M", money(model.specs.input_price_per_mtok), "input_price_per_mtok"],
@@ -117,10 +119,19 @@ const specRows: [string, string, string][] = [
           : target
             ? `/models/${target.provider}/${target.slug}/`
             : item.source_url;
+        const retiring = item.kind === "official"
+          ? retiringReplacements.notes.find((note) => note.provider === item.provider && note.model_id === item.model_id)
+          : undefined;
         return (
           <li>
             <a href={href}>{item.model_id}</a>
             {" "}({item.kind}), <a href={item.source_url}>source</a>
+            {retiring ? (
+              <>
+                <br />
+                {retiring.parts.map((part) => part.href ? <a href={part.href}>{part.text}</a> : part.text)}
+              </>
+            ) : null}
           </li>
         );
       })}
