@@ -1,0 +1,78 @@
+---
+import Base from "../../layouts/Base.astro";
+import FaqList from "../../components/FaqList.astro";
+import { apiDocsGraph } from "../../jsonld.ts";
+import { ENDPOINTS, apiFaqs, curlExample, fetchExample } from "../../lib/endpoints.ts";
+import { OPENAPI_PATH } from "../../lib/openapi.ts";
+import { loadModels } from "../../lib/load.ts";
+import { DEFAULT_SITE_URL } from "../../lib/site.ts";
+
+const models = await loadModels();
+const modified = models.reduce((max, model) => (model.updated_at > max ? model.updated_at : max), "").slice(0, 10);
+const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
+const origin = site.replace(/\/+$/, "");
+
+function anchor(path: string): string {
+  return path.replace(/[<>]/g, "").replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "").toLowerCase();
+}
+---
+<Base
+  title="SunsetDiff API: free JSON, CSV, ICS, and RSS | SunsetDiff"
+  description="Static files for AI model shutdown dates and migration diffs. No API key. CC BY 4.0. Field lists, curl, and fetch examples."
+  crumbs={[{ name: "Home", path: "/" }, { name: "API", path: "/api/" }]}
+  extraGraph={apiDocsGraph(site, modified, apiFaqs)}
+>
+  <h1>SunsetDiff API</h1>
+  <p class="answer">
+    These are static files on {origin}. They need no API key and no account.
+    The dataset is <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>.
+    Credit SunsetDiff and link the license. Publisher: SunsetDiff.
+  </p>
+  <p>
+    A GitHub Action checks the official provider pages about every 6 hours. The next site build rewrites these files when the data changes.
+    Each model source has a last_checked date. A null or blank field was not on the official page.
+    The human-readable dataset page is <a href="/data/">/data/</a>. Comparisons with other trackers are on <a href="/alternatives/">/alternatives/</a>.
+    A machine-readable description of these files is <a href={OPENAPI_PATH}>OpenAPI 3.1</a>. It needs no API key. The server is https://sunsetdiff.com.
+  </p>
+  <p>
+    The same dates are also on a free MCP server. It needs no API key.
+    The endpoint is <a href="https://sunsetdiff-api.onrender.com/mcp">https://sunsetdiff-api.onrender.com/mcp</a>.
+    The transport is streamable HTTP.
+    Tools and client setup are on the <a href="/mcp/">MCP page</a>.
+    The registry manifest is <a href="/server.json">server.json</a>.
+  </p>
+  <h2>Files</h2>
+  <ul>
+    <li><a href={OPENAPI_PATH}>/openapi.json</a>: OpenAPI 3.1 document for the files on this page</li>
+    {ENDPOINTS.map((endpoint) => (
+      <li><a href={`#${anchor(endpoint.path)}`}>{endpoint.path}</a>: {endpoint.format}</li>
+    ))}
+  </ul>
+  {ENDPOINTS.map((endpoint) => (
+    <section id={anchor(endpoint.path)}>
+      <h2>{endpoint.title}</h2>
+      <p>{endpoint.summary}</p>
+      <p>
+        URL: {endpoint.path.includes("<") ? <code>{origin}{endpoint.path}</code> : <a href={endpoint.path}>{origin}{endpoint.path}</a>}<br />
+        Format: {endpoint.format}<br />
+        License: <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a> for the JSON and CSV dataset files under /dataset, /data, and /api/v1.
+      </p>
+      <h3>Fields</h3>
+      <table>
+        <caption>{endpoint.path}</caption>
+        <thead><tr><th>Field</th><th>Meaning</th></tr></thead>
+        <tbody>
+          {endpoint.fields.map((field) => (
+            <tr><th scope="row"><code>{field.name}</code></th><td>{field.detail}</td></tr>
+          ))}
+        </tbody>
+      </table>
+      {endpoint.notes.length ? <ul>{endpoint.notes.map((note) => <li>{note}</li>)}</ul> : null}
+      <h3>curl</h3>
+      <pre><code>{curlExample(origin, endpoint)}</code></pre>
+      <h3>fetch</h3>
+      <pre><code>{fetchExample(origin, endpoint)}</code></pre>
+    </section>
+  ))}
+  <FaqList items={apiFaqs} />
+</Base>

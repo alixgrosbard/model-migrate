@@ -1,0 +1,117 @@
+{
+  "from": {
+    "provider": "anthropic",
+    "model_id": "claude-sonnet-4-5-20250929",
+    "slug": "claude-sonnet-4-5-20250929"
+  },
+  "to": {
+    "provider": "anthropic",
+    "model_id": "claude-sonnet-5-5",
+    "slug": "claude-sonnet-5-5"
+  },
+  "price_diff": {
+    "input_pct_change": -33.3,
+    "output_pct_change": -33.3,
+    "example_monthly_cost_old": 60,
+    "example_monthly_cost_new": 40,
+    "currency": "USD",
+    "example_label": "Example monthly cost for 10M input tokens and 2M output tokens. Labeled example, not a bill."
+  },
+  "context_diff": {
+    "old_tokens": 200000,
+    "new_tokens": 1000000,
+    "change_pct": 400
+  },
+  "max_output_diff": {
+    "old_tokens": 64000,
+    "new_tokens": 128000,
+    "change_pct": 100
+  },
+  "capability_changes": [],
+  "api_changes": [
+    {
+      "kind": "removed_param",
+      "detail": "A non-default temperature, top_p, or top_k returns a 400 error on claude-sonnet-5-5. Remove those fields.",
+      "source_url": "https://platform.claude.com/docs/en/models/sonnet-5-5/migration-guide"
+    },
+    {
+      "kind": "removed_param",
+      "detail": "thinking.type.enabled with budget_tokens returns a 400 error. Remove the budget and set output_config.effort. There is no fixed mapping from a token budget to an effort level.",
+      "source_url": "https://platform.claude.com/docs/en/models/sonnet-5-5/migration-guide"
+    },
+    {
+      "kind": "behavior_change",
+      "detail": "thinking.type disabled returns a 400 error. To turn off up-front thinking, send thinking.type between_tools at low, medium, or high effort. between_tools returns a 400 error at xhigh or max effort.",
+      "source_url": "https://platform.claude.com/docs/en/models/sonnet-5-5/migration-guide"
+    },
+    {
+      "kind": "behavior_change",
+      "detail": "A prefilled assistant message at the end of the conversation returns a 400 error. The conversation must end with a user message.",
+      "source_url": "https://platform.claude.com/docs/en/models/sonnet-5-5/migration-guide"
+    },
+    {
+      "kind": "behavior_change",
+      "detail": "tool_choice type \"tool\" and type \"any\" return a 400 error, including on the token counting endpoint. Send tool_choice type \"auto\" and mark the tool strict.",
+      "source_url": "https://platform.claude.com/docs/en/models/sonnet-5-5/migration-guide"
+    }
+  ],
+  "code_change": {
+    "language": "python",
+    "before": "import anthropic\nclient = anthropic.Anthropic()\nmessage = client.messages.create(\n    model=\"claude-sonnet-4-5-20250929\",\n    max_tokens=16000,\n    temperature=0.2,\n    thinking={\"type\": \"enabled\", \"budget_tokens\": 10000},\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n)\n",
+    "after": "import anthropic\nclient = anthropic.Anthropic()\nmessage = client.messages.create(\n    model=\"claude-sonnet-5-5\",\n    max_tokens=16000,\n    thinking={\"type\": \"adaptive\"},\n    output_config={\"effort\": \"high\"},\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n)\n",
+    "snippets": {
+      "python": {
+        "before": "import anthropic\nclient = anthropic.Anthropic()\nmessage = client.messages.create(\n    model=\"claude-sonnet-4-5-20250929\",\n    max_tokens=16000,\n    temperature=0.2,\n    thinking={\"type\": \"enabled\", \"budget_tokens\": 10000},\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n)\n",
+        "after": "import anthropic\nclient = anthropic.Anthropic()\nmessage = client.messages.create(\n    model=\"claude-sonnet-5-5\",\n    max_tokens=16000,\n    thinking={\"type\": \"adaptive\"},\n    output_config={\"effort\": \"high\"},\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n)\n"
+      },
+      "typescript": {
+        "before": "import Anthropic from \"@anthropic-ai/sdk\";\nconst client = new Anthropic();\nconst message = await client.messages.create({\n  model: \"claude-sonnet-4-5-20250929\",\n  max_tokens: 16000,\n  temperature: 0.2,\n  thinking: { type: \"enabled\", budget_tokens: 10000 },\n  messages: [{ role: \"user\", content: \"Hello\" }],\n});\n",
+        "after": "import Anthropic from \"@anthropic-ai/sdk\";\nconst client = new Anthropic();\nconst message = await client.messages.create({\n  model: \"claude-sonnet-5-5\",\n  max_tokens: 16000,\n  thinking: { type: \"adaptive\" },\n  output_config: { effort: \"high\" },\n  messages: [{ role: \"user\", content: \"Hello\" }],\n});\n"
+      },
+      "curl": {
+        "before": "curl https://api.anthropic.com/v1/messages \\\n  -H \"x-api-key: $ANTHROPIC_API_KEY\" \\\n  -H \"anthropic-version: 2023-06-01\" \\\n  -H \"content-type: application/json\" \\\n  -d '{\"model\":\"claude-sonnet-4-5-20250929\",\"max_tokens\":16000,\"temperature\":0.2,\"thinking\":{\"type\":\"enabled\",\"budget_tokens\":10000},\"messages\":[{\"role\":\"user\",\"content\":\"Hello\"}]}'\n",
+        "after": "curl https://api.anthropic.com/v1/messages \\\n  -H \"x-api-key: $ANTHROPIC_API_KEY\" \\\n  -H \"anthropic-version: 2023-06-01\" \\\n  -H \"content-type: application/json\" \\\n  -d '{\"model\":\"claude-sonnet-5-5\",\"max_tokens\":16000,\"thinking\":{\"type\":\"adaptive\"},\"output_config\":{\"effort\":\"high\"},\"messages\":[{\"role\":\"user\",\"content\":\"Hello\"}]}'\n"
+      }
+    }
+  },
+  "migration_checklist": [
+    "Read the shutdown date for claude-sonnet-4-5-20250929 on the linked official page.",
+    "Point your requests at claude-sonnet-5-5.",
+    "Re-check price, context, and parameters on the provider pages linked here.",
+    "Ship the change before the published shutdown date."
+  ],
+  "confidence": "official",
+  "last_checked": "2026-10-24",
+  "sources": [
+    {
+      "url": "https://platform.claude.com/docs/en/about-claude/model-deprecations",
+      "label": "Anthropic model deprecations",
+      "last_checked": "2026-10-24",
+      "excerpt": "claude-sonnet-4-5-20250929 | Deprecated | September 30, 2026 | November 30, 2026"
+    },
+    {
+      "url": "https://platform.claude.com/docs/en/models/sonnet-4-5/overview.md",
+      "label": "Anthropic model docs",
+      "last_checked": "2026-10-24",
+      "excerpt": "Model ID: claude-sonnet-4-5-20250929 | context window 200000 | max output 64000 | input $3/MTok | output $15/MTok"
+    },
+    {
+      "url": "https://platform.claude.com/docs/en/about-claude/model-deprecations",
+      "label": "Anthropic model deprecations",
+      "last_checked": "2026-10-24",
+      "excerpt": "claude-sonnet-5-5 | Active | N/A | Not sooner than September 28, 2027"
+    },
+    {
+      "url": "https://platform.claude.com/docs/en/about-claude/models/overview",
+      "label": "Anthropic models overview",
+      "last_checked": "2026-10-24",
+      "excerpt": "claude-sonnet-5-5 | Context window 1M tokens | Max output 128K tokens | Text and image input, text output, vision, and tool use."
+    },
+    {
+      "url": "https://platform.claude.com/docs/en/models/sonnet-5-5/migration-guide",
+      "label": "Claude Sonnet 5.5 migration guide",
+      "last_checked": "2026-10-20",
+      "excerpt": "On Claude Sonnet 5.5, a non-default value returns a 400 error. Remove them."
+    }
+  ]
+}

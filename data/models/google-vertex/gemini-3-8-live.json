@@ -1,0 +1,56 @@
+{
+  "id": "gemini-3.8-live",
+  "slug": "gemini-3-8-live",
+  "provider": "google-vertex",
+  "display_name": "gemini-3.8-live",
+  "family": null,
+  "status": "active",
+  "announced_date": null,
+  "deprecation_date": null,
+  "shutdown_date": "2027-09-25",
+  "shutdown_date_kind": "not_before",
+  "region_or_platform_notes": "Release date on the Vertex model versions page: 2026-09-24.",
+  "replacements": [],
+  "sources": [
+    {
+      "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/model-versions",
+      "label": "Vertex AI model versions",
+      "last_checked": "2026-10-24",
+      "excerpt": "gemini-3.8-live | September 24, 2026 | September 25, 2027 or later"
+    },
+    {
+      "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/gemini/3-8-live",
+      "label": "Vertex model docs",
+      "last_checked": "2026-10-24",
+      "excerpt": "Gemini 3.8 Live | gemini-3.8-live | maximum output tokens 64000"
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": null,
+    "output_price_per_mtok": null,
+    "cached_input_price_per_mtok": null,
+    "batch_discount_pct": null,
+    "currency": null,
+    "context_window_tokens": null,
+    "max_output_tokens": 64000,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {
+      "max_output_tokens": {
+        "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/gemini/3-8-live",
+        "last_checked": "2026-10-24"
+      }
+    }
+  },
+  "first_seen": "2026-10-17T15:59:19.574Z",
+  "updated_at": "2026-10-24T04:39:18.299Z"
+}

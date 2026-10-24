@@ -1,0 +1,135 @@
+---
+import Base from "../../layouts/Base.astro";
+import FaqList from "../../components/FaqList.astro";
+import HubFilter from "../../components/HubFilter.astro";
+import { badgesGraph } from "../../jsonld.ts";
+import {
+  BADGES_DESCRIPTION,
+  BADGES_PATH,
+  BADGES_TITLE,
+  badgeAlt,
+  badgeFaqs,
+  badgeHtml,
+  badgeJsonPath,
+  badgeMarkdown,
+  badgeShieldsMarkdown,
+  badgeSvgPath,
+  badgeView,
+} from "../../lib/badges.ts";
+import { today } from "../../lib/format.ts";
+import { publicName } from "../../lib/growth.ts";
+import { filterText, modelPath, modelsForProvider } from "../../lib/hubs.ts";
+import { loadModels, loadProviders } from "../../lib/load.ts";
+import { DEFAULT_SITE_URL } from "../../lib/site.ts";
+
+const providers = await loadProviders();
+const models = await loadModels();
+const day = today();
+const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
+const origin = site.replace(/\/+$/, "");
+const groups = providers
+  .map((provider) => ({ provider, models: modelsForProvider(models, provider.id) }))
+  .filter((group) => group.models.length);
+const items = groups.flatMap((group) =>
+  group.models.map((model) => ({ name: `${group.provider.name}: ${model.id}`, path: modelPath(model) })),
+);
+let row = 0;
+---
+<Base
+  title={BADGES_TITLE}
+  description={BADGES_DESCRIPTION}
+  crumbs={[{ name: "Home", path: "/" }, { name: "Badges", path: BADGES_PATH }]}
+  extraGraph={badgesGraph(site, items, badgeFaqs)}
+>
+  <h1>Status badges</h1>
+  <p class="answer">
+    Each model page has a free SVG badge. Put it in a README or in docs.
+    The image shows the model id and the status from the SunsetDiff dataset.
+    The link opens the model page, so the badge points back here.
+    Publisher: SunsetDiff.
+  </p>
+  <h2>Colors</h2>
+  <ul>
+    <li>Red: the model is retired, or the published shutdown date is under 30 days away. A date that is already past is red too.</li>
+    <li>Amber: the published shutdown date is under 90 days away.</li>
+    <li>Green: the shutdown date is further away, or the model is active and no shutdown date is published.</li>
+    <li>Gray: the date is only a not-sooner-than floor, or the status has no shutdown date.</li>
+  </ul>
+  <p>The badge does not invent a date. If the dataset has no shutdown date, the message says so.</p>
+  <h2>URL</h2>
+  <p>
+    SVG: <code>{origin}/badge/&lt;provider&gt;/&lt;slug&gt;.svg</code><br />
+    JSON: <code>{origin}/badge/&lt;provider&gt;/&lt;slug&gt;.json</code>
+  </p>
+  <p>
+    The provider is in the path because the same slug can belong to two providers.
+    The JSON file uses the shields.io endpoint schema.
+    Point <code>img.shields.io/endpoint</code> at that URL if you want shields.io to draw the badge.
+    The files are rewritten when the dataset is refreshed. They can be cached for an hour.
+  </p>
+  <p>{models.length} badges, one for each model page.</p>
+  <HubFilter status />
+  <ul>
+    {groups.map((group) => (
+      <li><a href={`#${group.provider.id}`}>{group.provider.name}</a> ({group.models.length})</li>
+    ))}
+  </ul>
+  {groups.map((group) => (
+    <section id={group.provider.id} data-hub-section>
+      <h2><a href={`/providers/${group.provider.id}/`}>{group.provider.name}</a></h2>
+      {group.models.map((model) => {
+        const index = row++;
+        const view = badgeView(model, day);
+        const markdownId = `badge-md-${index}`;
+        const htmlId = `badge-html-${index}`;
+        const shieldsId = `badge-shields-${index}`;
+        return (
+          <article
+            class="card"
+            data-status={model.status}
+            data-filter={filterText([model.id, publicName(model), model.provider, group.provider.name, view.message, model.status])}
+          >
+            <h3><a href={modelPath(model)}>{publicName(model)}</a></h3>
+            <p>
+              <a href={modelPath(model)}><img src={badgeSvgPath(model)} alt={badgeAlt(model, day)} /></a>
+            </p>
+            <p><code>{model.id}</code> · {view.message}</p>
+            <label for={markdownId}>Markdown</label>
+            <textarea id={markdownId} readonly rows="2">{badgeMarkdown(origin, model, day)}</textarea>
+            <p><button type="button" data-copy={markdownId}>Copy Markdown</button></p>
+            <label for={htmlId}>HTML</label>
+            <textarea id={htmlId} readonly rows="2">{badgeHtml(origin, model, day)}</textarea>
+            <p><button type="button" data-copy={htmlId}>Copy HTML</button></p>
+            <label for={shieldsId}>shields.io endpoint</label>
+            <textarea id={shieldsId} readonly rows="2">{badgeShieldsMarkdown(origin, model, day)}</textarea>
+            <p>
+              <button type="button" data-copy={shieldsId}>Copy shields.io Markdown</button>
+              <a href={badgeJsonPath(model)}>JSON</a>
+            </p>
+          </article>
+        );
+      })}
+    </section>
+  ))}
+  <p id="badge-copy-status" class="note" aria-live="polite"></p>
+  <FaqList items={badgeFaqs} />
+</Base>
+<script>
+  const status = document.querySelector("#badge-copy-status");
+  document.addEventListener("click", async (event) => {
+    const target = event.target;
+    if (!(target instanceof Element)) return;
+    const button = target.closest("button[data-copy]");
+    if (!(button instanceof HTMLButtonElement)) return;
+    const id = button.getAttribute("data-copy");
+    const node = id ? document.getElementById(id) : null;
+    const text = node instanceof HTMLTextAreaElement ? node.value : node?.textContent ?? "";
+    try {
+      await navigator.clipboard.writeText(text);
+      if (status) status.textContent = "Copied.";
+    } catch {
+      if (node instanceof HTMLTextAreaElement) node.select();
+      if (status) status.textContent = "Clipboard access failed. The snippet is selected so you can copy it.";
+    }
+  });
+</script>

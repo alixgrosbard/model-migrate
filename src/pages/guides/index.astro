@@ -1,0 +1,48 @@
+---
+import Base from "../../layouts/Base.astro";
+import FaqList from "../../components/FaqList.astro";
+import { guidesIndexGraph } from "../../jsonld.ts";
+import { GUIDES_CHECKED, GUIDES_INDEX, guideHubFaqs, guidePath, guides } from "../../lib/guides.ts";
+import { DEFAULT_SITE_URL } from "../../lib/site.ts";
+
+const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
+const checked = new Date(`${GUIDES_CHECKED}T00:00:00Z`).toLocaleDateString("en-US", {
+  month: "long",
+  day: "numeric",
+  year: "numeric",
+  timeZone: "UTC",
+});
+const items = guides.map((guide) => ({ name: guide.h1, path: guidePath(guide.slug) }));
+---
+<Base
+  title="Guides for AI model shutdowns | SunsetDiff"
+  description="Practical guides for model aliases, shutdown notices, migration tests, the day a model stops, and the custom GPT retirement. Each fact links to the official page."
+  crumbs={[{ name: "Home", path: "/" }, { name: "Guides", path: GUIDES_INDEX }]}
+  extraGraph={guidesIndexGraph(site, items, guideHubFaqs)}
+>
+  <h1>Guides</h1>
+  <p class="answer">
+    These pages answer the practical questions around a model shutdown.
+    The custom GPT page is a ChatGPT product retirement, with its own review date.
+    Dates and error codes stay on the model, shutdown, and error pages.
+    Facts about a provider link the official page they came from.
+    Word definitions, including deprecated versus retired, are in the <a href="/glossary/">glossary</a>.
+    Last reviewed <time datetime={GUIDES_CHECKED}>{checked}</time>.
+    Publisher: SunsetDiff.
+  </p>
+  <table>
+    <caption>{guides.length} guides.</caption>
+    <thead>
+      <tr><th>Guide</th><th>Summary</th></tr>
+    </thead>
+    <tbody>
+      {guides.map((guide) => (
+        <tr>
+          <td><a href={guidePath(guide.slug)}>{guide.h1}</a></td>
+          <td>{guide.summary}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+  <FaqList items={guideHubFaqs} />
+</Base>

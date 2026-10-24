@@ -1,0 +1,91 @@
+{
+  "from": {
+    "provider": "google-gemini-api",
+    "model_id": "gemini-2.5-flash-image",
+    "slug": "gemini-2-5-flash-image"
+  },
+  "to": {
+    "provider": "google-gemini-api",
+    "model_id": "gemini-3.1-flash-lite-image",
+    "slug": "gemini-3-1-flash-lite-image"
+  },
+  "price_diff": {
+    "input_pct_change": -16.7,
+    "output_pct_change": 3746.2,
+    "example_monthly_cost_old": 3.08,
+    "example_monthly_cost_new": 5.5,
+    "currency": "USD",
+    "example_label": "Example monthly cost for 10M input tokens and 2M output tokens. Labeled example, not a bill."
+  },
+  "context_diff": {
+    "old_tokens": 65536,
+    "new_tokens": 65536,
+    "change_pct": 0
+  },
+  "max_output_diff": {
+    "old_tokens": 32768,
+    "new_tokens": 4096,
+    "change_pct": -87.5
+  },
+  "capability_changes": [],
+  "api_changes": [],
+  "code_change": {
+    "language": "python",
+    "before": "from google import genai\nclient = genai.Client()\ninteraction = client.interactions.create(\n    model=\"gemini-2.5-flash-image\",\n    input=\"Create a picture of a nano banana dish in a fancy restaurant with a Gemini theme\",\n)\n",
+    "after": "from google import genai\nclient = genai.Client()\ninteraction = client.interactions.create(\n    model=\"gemini-3.1-flash-lite-image\",\n    input=\"Create a picture of a nano banana dish in a fancy restaurant with a Gemini theme\",\n)\n",
+    "snippets": {
+      "python": {
+        "before": "from google import genai\nclient = genai.Client()\ninteraction = client.interactions.create(\n    model=\"gemini-2.5-flash-image\",\n    input=\"Create a picture of a nano banana dish in a fancy restaurant with a Gemini theme\",\n)\n",
+        "after": "from google import genai\nclient = genai.Client()\ninteraction = client.interactions.create(\n    model=\"gemini-3.1-flash-lite-image\",\n    input=\"Create a picture of a nano banana dish in a fancy restaurant with a Gemini theme\",\n)\n"
+      },
+      "typescript": {
+        "before": "import { GoogleGenAI } from \"@google/genai\";\nconst ai = new GoogleGenAI({});\nconst interaction = await ai.interactions.create({\n  model: \"gemini-2.5-flash-image\",\n  input: \"Create a picture of a nano banana dish in a fancy restaurant with a Gemini theme\",\n});\n",
+        "after": "import { GoogleGenAI } from \"@google/genai\";\nconst ai = new GoogleGenAI({});\nconst interaction = await ai.interactions.create({\n  model: \"gemini-3.1-flash-lite-image\",\n  input: \"Create a picture of a nano banana dish in a fancy restaurant with a Gemini theme\",\n});\n"
+      },
+      "curl": {
+        "before": "curl -s -X POST \\\n  \"https://generativelanguage.googleapis.com/v1beta/interactions\" \\\n  -H \"x-goog-api-key: $GEMINI_API_KEY\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"model\":\"gemini-2.5-flash-image\",\"input\":[{\"type\":\"text\",\"text\":\"Create a picture of a nano banana dish in a fancy restaurant with a Gemini theme\"}]}'\n",
+        "after": "curl -s -X POST \\\n  \"https://generativelanguage.googleapis.com/v1beta/interactions\" \\\n  -H \"x-goog-api-key: $GEMINI_API_KEY\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"model\":\"gemini-3.1-flash-lite-image\",\"input\":[{\"type\":\"text\",\"text\":\"Create a picture of a nano banana dish in a fancy restaurant with a Gemini theme\"}]}'\n"
+      }
+    }
+  },
+  "migration_checklist": [
+    "Read the shutdown date for gemini-2.5-flash-image on the linked official page.",
+    "Point your requests at gemini-3.1-flash-lite-image.",
+    "Re-check price, context, and parameters on the provider pages linked here.",
+    "Ship the change before the published shutdown date."
+  ],
+  "confidence": "official",
+  "last_checked": "2026-10-24",
+  "sources": [
+    {
+      "url": "https://ai.google.dev/gemini-api/docs/deprecations",
+      "label": "Gemini API deprecations",
+      "last_checked": "2026-10-24",
+      "excerpt": "gemini-2.5-flash-image | October 2, 2025 | March 15, 2027 | gemini-3.1-flash-lite-image"
+    },
+    {
+      "url": "https://ai.google.dev/gemini-api/docs/pricing",
+      "label": "Gemini API pricing",
+      "last_checked": "2026-10-24",
+      "excerpt": "Warning: Gemini 2.5 Flash Image (gemini-2.5-flash-image) is deprecated and will be shut down on October 2, 2026; migrate to Gemini 3.1 Flash Image or Gemini 3.1 Flash Lite Image to avoid service disruption."
+    },
+    {
+      "url": "https://ai.google.dev/gemini-api/docs/models/gemini-2.5-flash-image",
+      "label": "Gemini model docs",
+      "last_checked": "2026-10-24",
+      "excerpt": "gemini-2.5-flash-image input token limit 65536 | max output tokens 32768"
+    },
+    {
+      "url": "https://ai.google.dev/gemini-api/docs/deprecations",
+      "label": "Gemini API deprecations",
+      "last_checked": "2026-10-24",
+      "excerpt": "gemini-3.1-flash-lite-image | June 30, 2026 | No shutdown date announced"
+    },
+    {
+      "url": "https://ai.google.dev/gemini-api/docs/models/gemini-3.1-flash-lite-image",
+      "label": "Gemini model docs",
+      "last_checked": "2026-10-24",
+      "excerpt": "gemini-3.1-flash-lite-image input token limit 65536 | max output tokens 4096"
+    }
+  ]
+}

@@ -1,0 +1,85 @@
+{
+  "from": {
+    "provider": "google-vertex",
+    "model_id": "gemini-1.5-pro-001",
+    "slug": "gemini-1-5-pro-001"
+  },
+  "to": {
+    "provider": "google-vertex",
+    "model_id": "gemini-2.5-flash",
+    "slug": "gemini-2-5-flash"
+  },
+  "price_diff": {
+    "input_pct_change": null,
+    "output_pct_change": null,
+    "example_monthly_cost_old": null,
+    "example_monthly_cost_new": 8,
+    "currency": "USD",
+    "example_label": "Example monthly cost for 10M input tokens and 2M output tokens. Labeled example, not a bill."
+  },
+  "context_diff": {
+    "old_tokens": null,
+    "new_tokens": 1048576,
+    "change_pct": null
+  },
+  "max_output_diff": {
+    "old_tokens": null,
+    "new_tokens": 65536,
+    "change_pct": null
+  },
+  "capability_changes": [],
+  "api_changes": [],
+  "code_change": {
+    "language": "python",
+    "before": "from google import genai\nclient = genai.Client()\nresponse = client.models.generate_content(\n    model=\"gemini-1.5-pro-001\",\n    contents=\"Hello\",\n)\n",
+    "after": "from google import genai\nclient = genai.Client()\nresponse = client.models.generate_content(\n    model=\"gemini-2.5-flash\",\n    contents=\"Hello\",\n)\n",
+    "snippets": {
+      "python": {
+        "before": "from google import genai\nclient = genai.Client()\nresponse = client.models.generate_content(\n    model=\"gemini-1.5-pro-001\",\n    contents=\"Hello\",\n)\n",
+        "after": "from google import genai\nclient = genai.Client()\nresponse = client.models.generate_content(\n    model=\"gemini-2.5-flash\",\n    contents=\"Hello\",\n)\n"
+      },
+      "typescript": {
+        "before": "import { GoogleGenAI } from \"@google/genai\";\nconst ai = new GoogleGenAI({});\nconst response = await ai.models.generateContent({\n  model: \"gemini-1.5-pro-001\",\n  contents: \"Hello\",\n});\n",
+        "after": "import { GoogleGenAI } from \"@google/genai\";\nconst ai = new GoogleGenAI({});\nconst response = await ai.models.generateContent({\n  model: \"gemini-2.5-flash\",\n  contents: \"Hello\",\n});\n"
+      },
+      "curl": {
+        "before": "curl \"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-001:generateContent\" \\\n  -H \"x-goog-api-key: $GEMINI_API_KEY\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"contents\":[{\"parts\":[{\"text\":\"Hello\"}]}]}'\n",
+        "after": "curl \"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent\" \\\n  -H \"x-goog-api-key: $GEMINI_API_KEY\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"contents\":[{\"parts\":[{\"text\":\"Hello\"}]}]}'\n"
+      }
+    }
+  },
+  "migration_checklist": [
+    "Read the shutdown date for gemini-1.5-pro-001 on the linked official page.",
+    "Point your requests at gemini-2.5-flash.",
+    "Re-check price, context, and parameters on the provider pages linked here.",
+    "Ship the change before the published shutdown date."
+  ],
+  "confidence": "partial",
+  "last_checked": "2026-10-24",
+  "sources": [
+    {
+      "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/model-versions",
+      "label": "Vertex AI model versions",
+      "last_checked": "2026-10-24",
+      "excerpt": "gemini-1.5-pro-001 | May 24, 2024 | May 24, 2025 | gemini-2.5-flash"
+    },
+    {
+      "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/model-versions",
+      "label": "Vertex AI model versions",
+      "last_checked": "2026-10-24",
+      "excerpt": "gemini-2.5-flash | June 17, 2025 | October 20, 2026 | gemini-3.8-flash or gemini-3.5-flash-lite"
+    },
+    {
+      "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/gemini/2-5-flash",
+      "label": "Vertex model docs",
+      "last_checked": "2026-10-24",
+      "excerpt": "Gemini 2.5 Flash | gemini-2.5-flash | context window 1048576 | maximum output tokens 65536"
+    },
+    {
+      "url": "https://cloud.google.com/gemini-enterprise-agent-platform/generative-ai/pricing",
+      "label": "Vertex pricing",
+      "last_checked": "2026-10-24",
+      "excerpt": "Gemini 2.5 Flash Input (text, image, video) $0.3 per 1M tokens for the <= 200K column"
+    }
+  ]
+}

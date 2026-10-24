@@ -1,0 +1,25 @@
+name: SunsetDiff
+description: Flag AI model ids that are deprecated or shutting down.
+inputs:
+  paths:
+    description: Glob of files to scan. The bundled scanner walks the repo and keeps these extensions.
+    required: false
+    default: "**/*.{py,ts,js,json,yaml,yml,toml,env.example}"
+  warn-days:
+    description: Warn when a shutdown is within this many days.
+    required: false
+    default: "60"
+  fail-days:
+    description: Fail the job when a shutdown is within this many days, or the model is already retired.
+    required: false
+    default: "14"
+  api-url:
+    description: Models JSON URL. A bundled snapshot is used when this is unreachable.
+    required: false
+    default: "https://sunsetdiff.onrender.com/api/v1/models.json"
+runs:
+  using: node20
+  main: dist/index.js
+branding:
+  icon: sunset
+  color: orange

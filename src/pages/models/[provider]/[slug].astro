@@ -1,0 +1,197 @@
+---
+import Base from "../../../layouts/Base.astro";
+import BadgeSnippet from "../../../components/BadgeSnippet.astro";
+import FaqList from "../../../components/FaqList.astro";
+import InlineText from "../../../components/InlineText.astro";
+import NewsletterForm from "../../../components/NewsletterForm.astro";
+import SponsorSlot from "../../../components/SponsorSlot.astro";
+import { loadChanges, loadMigrations, loadModels, loadProviders } from "../../../lib/load.ts";
+import { GEMINI_25_ACCESS_CHECKED, GEMINI_25_ACCESS_QUOTE, GEMINI_25_ACCESS_SOURCE, gemini25Restricted } from "../../../lib/access.ts";
+import { CONFLICTS_PATH, disagreementNote, noteWithoutDisagreement } from "../../../lib/conflicts.ts";
+import { answerSentence, autoRouteStatusText, clipMeta, formatWhen, modelFaqs, modelTitle, money, relatedModels, tokens } from "../../../lib/format.ts";
+import { publicName } from "../../../lib/growth.ts";
+import { modelsHub } from "../../../lib/hubs.ts";
+import { modelGraph } from "../../../jsonld.ts";
+import { DEFAULT_SITE_URL } from "../../../lib/site.ts";
+import BreakingRules from "../../../components/BreakingRules.astro";
+import { breakingChangesForModel } from "../../../lib/breaking-changes.ts";
+import { requestErrorPath, requestErrorsForModel } from "../../../lib/request-errors.ts";
+import { replacementRetirement } from "../../../lib/replacement-chain.ts";
+
+export async function getStaticPaths() {
+  const models = await loadModels();
+  return models.map((model) => ({ params: { provider: model.provider, slug: model.slug } }));
+}
+const models = await loadModels();
+const providers = await loadProviders();
+const model = models.find((item) => item.provider === Astro.params.provider && item.slug === Astro.params.slug);
+if (!model) throw new Error("Missing model");
+const provider = providers.find((item) => item.id === model.provider)!;
+const migrations = await loadMigrations();
+const migration = migrations.find((item) => item.from.provider === model.provider && item.from.slug === model.slug);
+const answer = answerSentence(model, provider, migration);
+const faqs = modelFaqs(model, provider, migration);
+const related = relatedModels(model, models);
+const changes = (await loadChanges()).filter((change) => change.provider === model.provider && change.model_id === model.id).slice(-20).reverse();
+const description = clipMeta(answer);
+const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
+const relatedErrors = requestErrorsForModel(model.provider, model.id);
+const breakingRules = breakingChangesForModel(model.provider, model.id);
+const restrictedAccess = gemini25Restricted(model);
+const disagree = disagreementNote(model.region_or_platform_notes);
+const regionNote = noteWithoutDisagreement(model.region_or_platform_notes);
+const retiringReplacements = replacementRetirement(model, models);
+const statusLabel = autoRouteStatusText(model) ?? (restrictedAccess ? "existing users only" : model.status);
+const specRows: [string, string, string][] = [
+  ["Input price / 1M", money(model.specs.input_price_per_mtok), "input_price_per_mtok"],
+  ["Output price / 1M", money(model.specs.output_price_per_mtok), "output_price_per_mtok"],
+  ["Cached input / 1M", money(model.specs.cached_input_price_per_mtok), "cached_input_price_per_mtok"],
+  ["Context window", tokens(model.specs.context_window_tokens), "context_window_tokens"],
+  ["Max output", tokens(model.specs.max_output_tokens), "max_output_tokens"],
+  ["Reasoning", model.specs.reasoning ?? "Not published", "reasoning"],
+  ["Vision", model.specs.supports_vision == null ? "Not published" : model.specs.supports_vision ? "Yes" : "No", "supports_vision"],
+  ["Tools", model.specs.supports_tools == null ? "Not published" : model.specs.supports_tools ? "Yes" : "No", "supports_tools"],
+];
+---
+<Base
+  title={modelTitle(model)}
+  description={description}
+  image={`/og/models/${model.provider}/${model.slug}.svg`}
+  crumbs={[
+    { name: "Home", path: "/" },
+    { name: modelsHub.nav, path: modelsHub.path },
+    { name: provider.name, path: `/providers/${provider.id}/` },
+    { name: publicName(model), path: `/models/${model.provider}/${model.slug}/` },
+  ]}
+  extraGraph={modelGraph(site, model, provider, migration)}
+>
+  <h1>When is {publicName(model)} shut down?</h1>
+  <p class="answer">{answer}</p>
+  {disagree ? (
+    <p class="answer">
+      <InlineText text={disagree} />
+      {" "}<a href={CONFLICTS_PATH}>All conflicting dates</a>.
+    </p>
+  ) : null}
+  <p><span class="badge">{statusLabel}</span></p>
+  <BadgeSnippet model={model} origin={site.replace(/\/+$/, "")} />
+  <table>
+    <caption>Dates</caption>
+    <tbody>
+      <tr><th scope="row">Announced</th><td>{model.announced_date ?? "Not published"}</td></tr>
+      <tr><th scope="row">Deprecated</th><td>{model.deprecation_date ?? "Not published"}</td></tr>
+      <tr><th scope="row">Shutdown</th><td>{formatWhen(model)}</td></tr>
+      <tr><th scope="row">Kind</th><td>{model.shutdown_date_kind}</td></tr>
+      {restrictedAccess ? (
+        <tr>
+          <th scope="row">Access</th>
+          <td>
+            <q>{GEMINI_25_ACCESS_QUOTE}</q>
+            {" "}<a href={GEMINI_25_ACCESS_SOURCE}>Source</a>, checked {GEMINI_25_ACCESS_CHECKED}.
+            {" "}The <a href="/errors/gemini-model-no-longer-available/">404 page</a> quotes a sentence recorded for gemini-2.0-flash.
+            {model.id === "gemini-2.5-flash" ? (
+              <> <a href="https://github.com/a2aproject/a2a-samples/issues/722">a2aproject/a2a-samples#722</a> reports that gemini-2.5-flash also returns 404 for new users, and it does not quote that model's response body.</>
+            ) : null}
+          </td>
+        </tr>
+      ) : null}
+      {disagree ? (
+        <tr>
+          <th scope="row">Sources disagree</th>
+          <td><InlineText text={disagree} /></td>
+        </tr>
+      ) : null}
+      {regionNote ? <tr><th scope="row">Region</th><td>{regionNote}</td></tr> : null}
+    </tbody>
+  </table>
+  {regionNote && <p>{regionNote}</p>}
+  <h2>Replacements</h2>
+  {model.replacements.length ? (
+    <ul>
+      {model.replacements.map((item) => {
+        const target = models.find((row) => row.provider === item.provider && row.id === item.model_id);
+        const pair = `${model.provider}__${model.slug}__to__${item.provider}__${target?.slug ?? item.model_id}`;
+        const hasMigration = migrations.some(
+          (row) => `${row.from.provider}__${row.from.slug}__to__${row.to.provider}__${row.to.slug}` === pair,
+        );
+        const href = hasMigration
+          ? `/migrate/${pair}/`
+          : target
+            ? `/models/${target.provider}/${target.slug}/`
+            : item.source_url;
+        const retiring = item.kind === "official"
+          ? retiringReplacements.notes.find((note) => note.provider === item.provider && note.model_id === item.model_id)
+          : undefined;
+        return (
+          <li>
+            <a href={href}>{item.model_id}</a>
+            {" "}({item.kind}), <a href={item.source_url}>source</a>
+            {retiring ? (
+              <>
+                <br />
+                {retiring.parts.map((part) => part.href ? <a href={part.href}>{part.text}</a> : part.text)}
+              </>
+            ) : null}
+          </li>
+        );
+      })}
+    </ul>
+  ) : <p>Not published.</p>}
+  <p>
+    <a href={`/replace/${model.provider}/${model.slug}/`}>See the replacement diff</a>
+    {" · "}<a href={`/providers/${provider.id}/`}>{provider.name} models</a>
+    {model.status === "deprecated" || model.status === "retired" ? (
+      <>{" · "}<a href={`/providers/${provider.id}/${model.status}/`}>{model.status === "deprecated" ? "Deprecated" : "Retired"} {provider.name} models</a></>
+    ) : null}
+    {" · "}<a href="/deprecated/">All deprecated models</a>
+    {" · "}<a href="/retired/">All retired models</a>
+  </p>
+  {relatedErrors.length ? (
+    <>
+      <h2>Request errors</h2>
+      <ul>
+        {relatedErrors.map((item) => (
+          <li><a href={requestErrorPath(item.slug)}>{item.h1}</a>. {item.cause}</li>
+        ))}
+      </ul>
+    </>
+  ) : null}
+  <BreakingRules rules={breakingRules} />
+  <h2>Specs</h2>
+  <table>
+    <caption>Published specs. Missing cells were not on the official pages we checked.</caption>
+    <tbody>
+      {specRows.map(([label, value, field]) => {
+        const source = model.specs.specs_sources[field];
+        return (
+          <tr>
+            <th scope="row">{label}</th>
+            <td>
+              {value}
+              {source && value !== "Not published" ? <> · <a href={source.url}>source</a>, checked {source.last_checked}</> : null}
+            </td>
+          </tr>
+        );
+      })}
+    </tbody>
+  </table>
+  <h2>Related models</h2>
+  <ul>
+    {related.map((item) => (
+      <li><a href={`/models/${item.provider}/${item.slug}/`}>{publicName(item)}</a>: {formatWhen(item)}</li>
+    ))}
+  </ul>
+  <FaqList items={faqs} />
+  <h2>Sources</h2>
+  <ul>
+    {model.sources.map((source) => (
+      <li><a href={source.url}>{source.label}</a>, checked {source.last_checked}. <q>{source.excerpt}</q></li>
+    ))}
+  </ul>
+  <h2>Change history</h2>
+  {changes.length ? (
+    <ul>{changes.map((change) => <li>{change.date}: {change.field} changed. <a href={change.source_url}>Source</a></li>)}</ul>
+  ) : <p>No logged changes for this model yet.</p>}
+  <SponsorSlot modelName={publicName(model)} />
+  <NewsletterForm providers={providers} sourcePage={`/models/${model.provider}/${model.slug}/`} />
+</Base>

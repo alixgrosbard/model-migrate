@@ -1,0 +1,52 @@
+---
+import Base from "../../layouts/Base.astro";
+import FaqList from "../../components/FaqList.astro";
+import { glossaryIndexGraph } from "../../jsonld.ts";
+import { GLOSSARY_CHECKED, GLOSSARY_INDEX, glossaryHubFaqs, glossaryPath, glossaryTerms } from "../../lib/glossary.ts";
+import { DEFAULT_SITE_URL } from "../../lib/site.ts";
+
+const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
+const checked = new Date(`${GLOSSARY_CHECKED}T00:00:00Z`).toLocaleDateString("en-US", {
+  month: "long",
+  day: "numeric",
+  year: "numeric",
+  timeZone: "UTC",
+});
+---
+<Base
+  title="AI model deprecation glossary | SunsetDiff"
+  description="Definitions for deprecated, retired, legacy, shutdown date, snapshot, and alias. Each term says how OpenAI, Anthropic, Gemini, Vertex, Bedrock, and Azure use the word."
+  crumbs={[{ name: "Home", path: "/" }, { name: "Glossary", path: GLOSSARY_INDEX }]}
+  extraGraph={glossaryIndexGraph(site, glossaryHubFaqs)}
+>
+  <h1>Glossary</h1>
+  <p class="answer">
+    These pages define the words providers use when a model is on the way out.
+    The first paragraph of each page is the definition.
+    The sections under it say where OpenAI, Anthropic, Gemini, Vertex, Bedrock, and Azure use a different word.
+    Example rows come from this site's model records.
+    Last reviewed <time datetime={GLOSSARY_CHECKED}>{checked}</time>.
+    Publisher: SunsetDiff.
+  </p>
+  <p>
+    Dates for a specific id stay on the <a href="/models/">model pages</a>,
+    the <a href="/deprecated/">deprecated</a> and <a href="/retired/">retired</a> lists,
+    and <a href="/upcoming/">upcoming shutdowns</a>.
+    Practical steps stay on the <a href="/guides/">guides</a>.
+  </p>
+  <table>
+    <caption>{glossaryTerms.length} terms.</caption>
+    <thead>
+      <tr><th>Term</th><th>Definition</th></tr>
+    </thead>
+    <tbody>
+      {glossaryTerms.map((term) => (
+        <tr>
+          <td><a href={glossaryPath(term.slug)}>{term.name}</a></td>
+          <td>{term.definition}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+  <FaqList items={glossaryHubFaqs} />
+</Base>

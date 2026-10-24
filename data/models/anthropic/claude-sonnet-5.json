@@ -1,0 +1,72 @@
+{
+  "id": "claude-sonnet-5",
+  "slug": "claude-sonnet-5",
+  "provider": "anthropic",
+  "display_name": "claude-sonnet-5",
+  "family": null,
+  "status": "active",
+  "announced_date": null,
+  "deprecation_date": null,
+  "shutdown_date": "2027-06-30",
+  "shutdown_date_kind": "not_before",
+  "region_or_platform_notes": null,
+  "replacements": [],
+  "sources": [
+    {
+      "url": "https://platform.claude.com/docs/en/about-claude/model-deprecations",
+      "label": "Anthropic model deprecations",
+      "last_checked": "2026-10-24",
+      "excerpt": "claude-sonnet-5 | Active | N/A | Not sooner than June 30, 2027"
+    },
+    {
+      "url": "https://platform.claude.com/docs/en/models/sonnet-5/overview.md",
+      "label": "Anthropic model docs",
+      "last_checked": "2026-10-24",
+      "excerpt": "Model ID: claude-sonnet-5 | context window 1000000 | max output 128000 | input $2/MTok | output $10/MTok"
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": 2,
+    "output_price_per_mtok": 10,
+    "cached_input_price_per_mtok": 0.2,
+    "batch_discount_pct": null,
+    "currency": "USD",
+    "context_window_tokens": 1000000,
+    "max_output_tokens": 128000,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {
+      "input_price_per_mtok": {
+        "url": "https://platform.claude.com/docs/en/about-claude/pricing",
+        "last_checked": "2026-10-24"
+      },
+      "output_price_per_mtok": {
+        "url": "https://platform.claude.com/docs/en/about-claude/pricing",
+        "last_checked": "2026-10-24"
+      },
+      "cached_input_price_per_mtok": {
+        "url": "https://platform.claude.com/docs/en/about-claude/pricing",
+        "last_checked": "2026-10-24"
+      },
+      "context_window_tokens": {
+        "url": "https://platform.claude.com/docs/en/models/sonnet-5/overview.md",
+        "last_checked": "2026-10-24"
+      },
+      "max_output_tokens": {
+        "url": "https://platform.claude.com/docs/en/models/sonnet-5/overview.md",
+        "last_checked": "2026-10-24"
+      }
+    }
+  },
+  "first_seen": "2026-10-17T15:59:19.574Z",
+  "updated_at": "2026-10-24T04:39:18.299Z"
+}

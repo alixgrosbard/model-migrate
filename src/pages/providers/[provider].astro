@@ -1,0 +1,88 @@
+---
+import Base from "../../layouts/Base.astro";
+import { loadModels, loadProviders, providerName } from "../../lib/load.ts";
+import { formatWhen, isUpcomingShutdown, today } from "../../lib/format.ts";
+import { publicName } from "../../lib/growth.ts";
+import { providersHub } from "../../lib/hubs.ts";
+import { providerStatusPath, STATUS_HUBS } from "../../lib/status-hubs.ts";
+import type { ModelRecord } from "../../schema.ts";
+
+export async function getStaticPaths() {
+  const providers = await loadProviders();
+  return providers.map((provider) => ({ params: { provider: provider.id } }));
+}
+const { provider: providerId } = Astro.params;
+const providers = await loadProviders();
+const provider = providers.find((item) => item.id === providerId);
+if (!provider) throw new Error("Missing provider");
+const day = today();
+const models = (await loadModels()).filter((model) => model.provider === provider.id);
+const soonest = models
+  .filter((model) => isUpcomingShutdown(model, day))
+  .sort((a, b) => (a.shutdown_date ?? "").localeCompare(b.shutdown_date ?? ""))
+  .slice(0, 8);
+const groups: ModelRecord["status"][] = ["deprecated", "legacy", "retired", "active"];
+const description = `${provider.name} model shutdown dates, grouped by status.`;
+---
+<Base
+  title={`${provider.name} model shutdowns and replacements | SunsetDiff`}
+  description={`Shutdown dates and official replacements for ${provider.name} models, with links to each migration diff.`}
+  image={`/og/providers/${provider.id}.svg`}
+  crumbs={[{ name: "Home", path: "/" }, { name: providersHub.nav, path: providersHub.path }, { name: provider.name, path: `/providers/${provider.id}/` }]}
+>
+  <h1>{provider.name}</h1>
+  <p>Official source: <a href={provider.deprecations_url}>{provider.deprecations_url}</a>. <a href="/#soonest">Soonest shutdowns on the homepage</a>.</p>
+  <p>
+    {STATUS_HUBS.map((hub) => {
+      const count = models.filter((model) => model.status === hub.kind).length;
+      return count ? <><a href={providerStatusPath(provider.id, hub.kind)}>{hub.nav} {provider.name} models</a> ({count}) · </> : null;
+    })}
+    <a href="/deprecated/">All deprecated models</a> · <a href="/retired/">All retired models</a>
+  </p>
+  <h2>Soonest shutdowns</h2>
+  <ul>
+    {soonest.length ? soonest.map((model) => (
+        <li>
+          <a href={`/models/${model.provider}/${model.slug}/`}>{publicName(model)}</a>
+          {": "}{formatWhen(model)}
+          {model.provider === "aws-bedrock" && model.region_or_platform_notes ? <> ({model.region_or_platform_notes})</> : null}
+          {model.replacements[0] ? <> · <a href={`/replace/${model.provider}/${model.slug}/`}>replacement diff</a></> : null}
+        </li>
+      )) : <li>No upcoming shutdown dates are published.</li>}
+  </ul>
+  <button type="button" id="sort-shutdown">Sort by shutdown date</button>
+  {groups.map((status) => {
+    const rows = models.filter((model) => model.status === status);
+    if (!rows.length) return null;
+    return (
+      <section>
+        <h2>{status}</h2>
+        <table data-sortable>
+          <caption>{providerName(providers, provider.id)} {status} models</caption>
+          <thead><tr><th>Model</th><th>Shutdown</th><th>Replacement</th></tr></thead>
+          <tbody>
+            {rows.map((model) => (
+              <tr data-shutdown={model.shutdown_date ?? "9999-99-99"}>
+                <td>
+                  <a href={`/models/${model.provider}/${model.slug}/`}>{publicName(model)}</a><br /><code>{model.id}</code>
+                  {model.provider === "aws-bedrock" && model.region_or_platform_notes ? <><br />{model.region_or_platform_notes}</> : null}
+                </td>
+                <td>{formatWhen(model)}</td>
+                <td>{model.replacements[0] ? <a href={`/replace/${model.provider}/${model.slug}/`}>{model.replacements[0].model_id}</a> : "Not published"}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+    );
+  })}
+  <script>
+    document.querySelector("#sort-shutdown")?.addEventListener("click", () => {
+      document.querySelectorAll("[data-sortable] tbody").forEach((body) => {
+        const rows = [...body.querySelectorAll("tr")];
+        rows.sort((a, b) => (a.getAttribute("data-shutdown") ?? "").localeCompare(b.getAttribute("data-shutdown") ?? ""));
+        rows.forEach((row) => body.append(row));
+      });
+    });
+  </script>
+</Base>

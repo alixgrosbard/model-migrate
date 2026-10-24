@@ -1,0 +1,79 @@
+---
+import Base from "../../layouts/Base.astro";
+import { shutdownIndexGraph } from "../../jsonld.ts";
+import { loadModels, loadProviders } from "../../lib/load.ts";
+import { today } from "../../lib/format.ts";
+import { DEFAULT_SITE_URL } from "../../lib/site.ts";
+import {
+  isPastShutdown,
+  longDate,
+  orderShutdownEvents,
+  providerDisplayName,
+  batchHeadline,
+  eventCountLabel,
+  shutdownEventPath,
+  shutdownEvents,
+} from "../../lib/shutdowns.ts";
+
+const providers = await loadProviders();
+const day = today();
+const events = orderShutdownEvents(shutdownEvents(await loadModels()), day);
+const upcoming = events.filter((event) => !isPastShutdown(event.date, day));
+const past = events.filter((event) => isPastShutdown(event.date, day));
+const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
+const listed = events.map((event) => ({
+  name: batchHeadline(providerDisplayName(providers, event.provider), event, day),
+  path: shutdownEventPath(event),
+}));
+---
+<Base
+  title="AI model shutdown batches | SunsetDiff"
+  description="Models that shut down together. One page per provider and exact shutdown date, when at least three models share that date."
+  crumbs={[{ name: "Home", path: "/" }, { name: "Shutdowns", path: "/shutdowns/" }]}
+  extraGraph={shutdownIndexGraph(site, listed)}
+>
+  <h1>Shutdown batches</h1>
+  <p>
+    Each page is one provider and one exact shutdown date with at least three models.
+    The date and the replacement come from the official page. A date that only says "not sooner than" is not a batch.
+    Upcoming dates are listed first. <a href="/deadlines/">All deadlines</a> · <a href="/upcoming/">Every upcoming shutdown</a> · <a href="/feed.xml">RSS</a> · <a href="/scan/">Scan</a> · <a href="/errors/">Request errors</a>
+  </p>
+  <h2>Upcoming</h2>
+  <table>
+    <caption>{upcoming.length} upcoming shutdown batches.</caption>
+    <thead><tr><th>Date</th><th>Provider</th><th>In the batch</th><th>Page</th></tr></thead>
+    <tbody>
+      {upcoming.length ? upcoming.map((event) => {
+        const name = providerDisplayName(providers, event.provider);
+        const title = batchHeadline(name, event, day);
+        return (
+          <tr>
+            <td>{longDate(event.date)}</td>
+            <td><a href={`/providers/${event.provider}/`}>{name}</a></td>
+            <td>{eventCountLabel(event)}</td>
+            <td><a href={shutdownEventPath(event)}>{title}</a></td>
+          </tr>
+        );
+      }) : <tr><td colspan="4">No upcoming batch has three or more models on one exact date.</td></tr>}
+    </tbody>
+  </table>
+  <h2>Already shut down</h2>
+  <table>
+    <caption>{past.length} past shutdown batches. These pages stay up after the date.</caption>
+    <thead><tr><th>Date</th><th>Provider</th><th>In the batch</th><th>Page</th></tr></thead>
+    <tbody>
+      {past.length ? past.map((event) => {
+        const name = providerDisplayName(providers, event.provider);
+        const title = batchHeadline(name, event, day);
+        return (
+          <tr>
+            <td>{longDate(event.date)}</td>
+            <td><a href={`/providers/${event.provider}/`}>{name}</a></td>
+            <td>{eventCountLabel(event)}</td>
+            <td><a href={shutdownEventPath(event)}>{title}</a></td>
+          </tr>
+        );
+      }) : <tr><td colspan="4">No past batch has three or more models on one exact date.</td></tr>}
+    </tbody>
+  </table>
+</Base>

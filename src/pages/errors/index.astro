@@ -1,0 +1,66 @@
+---
+import Base from "../../layouts/Base.astro";
+import FaqList from "../../components/FaqList.astro";
+import { requestErrorsIndexGraph } from "../../jsonld.ts";
+import {
+  REQUEST_ERRORS_CHECKED,
+  REQUEST_ERRORS_INDEX,
+  requestErrorHubFaqs,
+  requestErrorPath,
+  requestErrorProviders,
+  requestErrorsForProvider,
+} from "../../lib/request-errors.ts";
+import { DEFAULT_SITE_URL } from "../../lib/site.ts";
+
+const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
+const checked = new Date(`${REQUEST_ERRORS_CHECKED}T00:00:00Z`).toLocaleDateString("en-US", {
+  month: "long",
+  day: "numeric",
+  year: "numeric",
+  timeZone: "UTC",
+});
+const items = requestErrorProviders.flatMap((provider) =>
+  requestErrorsForProvider(provider.id).map((page) => ({ name: page.h1, path: requestErrorPath(page.slug) })),
+);
+---
+<Base
+  title="Request errors after an AI model change | SunsetDiff"
+  description="HTTP errors developers see when a replacement model rejects a setting, or when a retired model id is still in the request. Grouped by provider, each with its source."
+  crumbs={[{ name: "Home", path: "/" }, { name: "Request errors", path: REQUEST_ERRORS_INDEX }]}
+  extraGraph={requestErrorsIndexGraph(site, items, requestErrorHubFaqs)}
+>
+  <h1>Request errors</h1>
+  <p class="answer">
+    These are the failures that show up after a model id change, or after a model id stops being accessible.
+    Each row has the error text, the model change that causes it, and a link to the fix.
+    Sources on the earlier pages were checked {checked} ({REQUEST_ERRORS_CHECKED}).
+    The thinking budget page was checked October 21, 2026.
+    The API version 2026-10-21 sampling page was checked October 22, 2026.
+    The machine-readable list of settings a replacement rejects is <a href="/breaking-changes/">Breaking changes</a>.
+    What the provider says happens on the shutdown date is in <a href="/guides/what-happens-on-model-shutdown-day/">What happens on shutdown day</a>.
+  </p>
+  {requestErrorProviders.map((provider) => {
+    const pages = requestErrorsForProvider(provider.id);
+    return (
+      <section>
+        <h2>{provider.name}</h2>
+        <table>
+          <caption>{pages.length} {provider.name} request errors.</caption>
+          <thead>
+            <tr><th>Error</th><th>Model change</th><th>Page</th></tr>
+          </thead>
+          <tbody>
+            {pages.map((page) => (
+              <tr>
+                <td>{page.errorQuoted ? <code>{page.errorText}</code> : page.errorText}</td>
+                <td>{page.cause}</td>
+                <td><a href={requestErrorPath(page.slug)}>{page.h1}</a></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+    );
+  })}
+  <FaqList items={requestErrorHubFaqs} />
+</Base>

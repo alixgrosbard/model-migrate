@@ -1,0 +1,64 @@
+---
+import Base from "../../layouts/Base.astro";
+import FaqList from "../../components/FaqList.astro";
+import MigrationCard from "../../components/MigrationCard.astro";
+import { loadMigrations, loadModels, loadProviders } from "../../lib/load.ts";
+import { clipMeta, replaceFaqs, replacementAnswer } from "../../lib/format.ts";
+import { migrateHub } from "../../lib/hubs.ts";
+import { migrateGraph } from "../../jsonld.ts";
+import { DEFAULT_SITE_URL } from "../../lib/site.ts";
+import BreakingRules from "../../components/BreakingRules.astro";
+import { breakingChangesForMigration } from "../../lib/breaking-changes.ts";
+import { requestErrorPath, requestErrorsForMigration } from "../../lib/request-errors.ts";
+
+export async function getStaticPaths() {
+  const migrations = await loadMigrations();
+  return migrations.map((migration) => ({
+    params: { pair: `${migration.from.provider}__${migration.from.slug}__to__${migration.to.provider}__${migration.to.slug}` },
+  }));
+}
+const migrations = await loadMigrations();
+const models = await loadModels();
+const providers = await loadProviders();
+const migration = migrations.find((item) => `${item.from.provider}__${item.from.slug}__to__${item.to.provider}__${item.to.slug}` === Astro.params.pair);
+if (!migration) throw new Error("Missing migration");
+const from = models.find((model) => model.provider === migration.from.provider && model.slug === migration.from.slug);
+const to = models.find((model) => model.provider === migration.to.provider && model.slug === migration.to.slug);
+if (!from || !to) throw new Error("Missing model for migration");
+const provider = providers.find((item) => item.id === from.provider)!;
+const answer = replacementAnswer(from, provider, migration);
+const faqs = replaceFaqs(from, provider, migration);
+const description = clipMeta(answer);
+const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
+const relatedErrors = requestErrorsForMigration(Astro.params.pair ?? "");
+const breakingRules = breakingChangesForMigration(Astro.params.pair ?? "");
+---
+<Base
+  title={`${from.display_name} to ${to.display_name}: price, context, and code | SunsetDiff`}
+  description={description}
+  image={`/og/models/${from.provider}/${from.slug}.svg`}
+  crumbs={[
+    { name: "Home", path: "/" },
+    { name: migrateHub.nav, path: migrateHub.path },
+    { name: from.display_name, path: `/models/${from.provider}/${from.slug}/` },
+    { name: "Migration", path: `/migrate/${Astro.params.pair}/` },
+  ]}
+  extraGraph={migrateGraph(site, from, migration, provider)}
+>
+  <h1>Replacement for {from.display_name}: what changes when you switch</h1>
+  <p class="answer">{answer}</p>
+  <p>This is the canonical diff. <a href={`/models/${from.provider}/${from.slug}/`}>Model page</a> · <a href={`/replace/${from.provider}/${from.slug}/`}>Replacement page</a> · <a href={`/providers/${from.provider}/`}>{provider.name}</a></p>
+  {relatedErrors.length ? (
+    <>
+      <h2>Request errors</h2>
+      <ul>
+        {relatedErrors.map((item) => (
+          <li><a href={requestErrorPath(item.slug)}>{item.h1}</a></li>
+        ))}
+      </ul>
+    </>
+  ) : null}
+  <BreakingRules rules={breakingRules} />
+  <MigrationCard migration={migration} from={from} to={to} />
+  <FaqList items={faqs} />
+</Base>

@@ -1,0 +1,30 @@
+---
+import type { FaqItem } from "../lib/format.ts";
+interface Props { items: FaqItem[]; }
+const { items } = Astro.props;
+
+function answerParts(answer: string): { text: string; href?: string }[] {
+  const parts: { text: string; href?: string }[] = [];
+  const pattern = /\[([^\]]+)\]\((\/[^)\s]*|https:\/\/[^)\s]+)\)/g;
+  let last = 0;
+  for (const match of answer.matchAll(pattern)) {
+    const index = match.index ?? 0;
+    if (index > last) parts.push({ text: answer.slice(last, index) });
+    parts.push({ text: match[1], href: match[2] });
+    last = index + match[0].length;
+  }
+  if (last < answer.length) parts.push({ text: answer.slice(last) });
+  return parts;
+}
+---
+<section id="questions">
+  <h2>Questions</h2>
+  {items.map((item) => (
+    <article class="faq">
+      <h3>{item.question}</h3>
+      <p>
+        {answerParts(item.answer).map((part) => part.href ? <a href={part.href}>{part.text}</a> : part.text)}
+      </p>
+    </article>
+  ))}
+</section>

@@ -1,0 +1,46 @@
+---
+import type { BreakingChange } from "../lib/breaking-changes.ts";
+import { BREAKING_CHANGES_CSV, BREAKING_CHANGES_JSON, BREAKING_CHANGES_PATH } from "../lib/breaking-changes.ts";
+
+interface Props {
+  rules: BreakingChange[];
+}
+const { rules } = Astro.props;
+---
+{rules.length ? (
+  <>
+    <h2>Request breaking changes</h2>
+    <p>
+      These rows are from the <a href={BREAKING_CHANGES_PATH}>breaking-changes list</a>.
+      <a href={BREAKING_CHANGES_JSON}>JSON</a>
+      {" · "}
+      <a href={BREAKING_CHANGES_CSV}>CSV</a>
+    </p>
+    <table>
+      <caption>{rules.length} {rules.length === 1 ? "rule" : "rules"} that apply here.</caption>
+      <thead>
+        <tr>
+          <th>Old setting</th>
+          <th>What happens</th>
+          <th>Fix</th>
+          <th>Source</th>
+        </tr>
+      </thead>
+      <tbody>
+        {rules.map((rule) => (
+          <tr>
+            <td><a href={`${BREAKING_CHANGES_PATH}#${rule.id}`}>{rule.old_setting}</a></td>
+            <td>
+              {rule.error_text ? <code>{rule.error_text}</code> : rule.what_happens}
+            </td>
+            <td>{rule.fix}</td>
+            <td>
+              <a href={rule.source_url}>{rule.source_label}</a>, checked {rule.checked}
+              {rule.error_page ? <> · <a href={rule.error_page}>Error page</a></> : null}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </>
+) : null}

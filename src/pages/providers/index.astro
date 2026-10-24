@@ -1,0 +1,68 @@
+---
+import Base from "../../layouts/Base.astro";
+import { collectionGraph } from "../../jsonld.ts";
+import { today } from "../../lib/format.ts";
+import { modelsHub, migrateHub, nextUpcomingShutdown, providersHub, replaceHub, statusCountLabel, modelsForProvider, modelPath } from "../../lib/hubs.ts";
+import { STATUS_HUBS } from "../../lib/status-hubs.ts";
+import { loadModels, loadProviders } from "../../lib/load.ts";
+import { publicName } from "../../lib/growth.ts";
+import { DEFAULT_SITE_URL } from "../../lib/site.ts";
+
+const providers = await loadProviders();
+const models = await loadModels();
+const day = today();
+const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
+const rows = providers.map((provider) => {
+  const providerModels = modelsForProvider(models, provider.id);
+  return { provider, models: providerModels, next: nextUpcomingShutdown(providerModels, day) };
+});
+const items = rows.map((row) => ({ name: row.provider.name, path: `/providers/${row.provider.id}/` }));
+---
+<Base
+  title={providersHub.title}
+  description={providersHub.description}
+  crumbs={[{ name: "Home", path: "/" }, { name: providersHub.nav, path: providersHub.path }]}
+  extraGraph={collectionGraph(site, { path: providersHub.path, name: providersHub.h1, description: providersHub.description }, items)}
+>
+  <h1>{providersHub.h1}</h1>
+  <p class="answer">
+    These are the providers SunsetDiff tracks.
+    The model count is how many model records are stored for that provider.
+    The numbers in parentheses are counts by status.
+    Next shutdown is the earliest exact date or shutdown month that is still ahead.
+    A date that only says not sooner than is left out.
+    <a href={modelsHub.path}>{modelsHub.nav}</a> · <a href={replaceHub.path}>{replaceHub.nav}</a> · <a href={migrateHub.path}>{migrateHub.nav}</a>
+    {STATUS_HUBS.map((hub) => <> · <a href={hub.path}>{hub.nav} models</a></>)}
+  </p>
+  <table>
+    <caption>{providers.length} providers. {models.length} model records.</caption>
+    <thead>
+      <tr><th>Provider</th><th>Models</th><th>Next shutdown</th></tr>
+    </thead>
+    <tbody>
+      {rows.map((row) => (
+        <tr>
+          <td>
+            <a href={`/providers/${row.provider.id}/`}>{row.provider.name}</a>
+            <br />
+            <a href={row.provider.deprecations_url}>Official deprecations page</a>
+          </td>
+          <td>
+            {row.models.length ? (
+              <a href={`${modelsHub.path}#${row.provider.id}`}>{statusCountLabel(row.models)}</a>
+            ) : statusCountLabel(row.models)}
+          </td>
+          <td>
+            {row.next ? (
+              row.next.count === 1 ? (
+                <><a href={modelPath(row.next.model)}>{publicName(row.next.model)}</a>{` · ${row.next.label}`}</>
+              ) : (
+                <><a href={`/providers/${row.provider.id}/`}>{row.next.label}</a>{` · ${row.next.count} models`}</>
+              )
+            ) : "None published"}
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</Base>

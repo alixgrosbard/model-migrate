@@ -1,0 +1,56 @@
+{
+  "id": "devstral-2512",
+  "slug": "devstral-2512",
+  "provider": "mistral",
+  "display_name": "Devstral 2 (25.12)",
+  "family": null,
+  "status": "retired",
+  "announced_date": null,
+  "deprecation_date": "2026-05-22",
+  "shutdown_date": "2026-07-31",
+  "shutdown_date_kind": "exact",
+  "region_or_platform_notes": "Replacement named on the models page: Mistral Medium 3.5.",
+  "replacements": [],
+  "sources": [
+    {
+      "url": "https://docs.mistral.ai/models",
+      "label": "Mistral models",
+      "last_checked": "2026-10-24",
+      "excerpt": "Devstral 2 | 25.12 | devstral-2512 | 5/22/2026 7/31/2026 | Mistral Medium 3.5"
+    },
+    {
+      "url": "https://docs.mistral.ai/models/devstral-2-25-12",
+      "label": "Mistral model docs",
+      "last_checked": "2026-10-24",
+      "excerpt": "devstral-2512 | Context 256k"
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": null,
+    "output_price_per_mtok": null,
+    "cached_input_price_per_mtok": null,
+    "batch_discount_pct": null,
+    "currency": null,
+    "context_window_tokens": 256000,
+    "max_output_tokens": null,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {
+      "context_window_tokens": {
+        "url": "https://docs.mistral.ai/models/devstral-2-25-12",
+        "last_checked": "2026-10-24"
+      }
+    }
+  },
+  "first_seen": "2026-10-17T15:59:19.574Z",
+  "updated_at": "2026-10-24T04:39:18.299Z"
+}

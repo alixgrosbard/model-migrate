@@ -1,0 +1,72 @@
+{
+  "id": "gpt-realtime-2.1-mini",
+  "slug": "gpt-realtime-2-1-mini",
+  "provider": "openai",
+  "display_name": "gpt-realtime-2.1-mini",
+  "family": null,
+  "status": "active",
+  "announced_date": null,
+  "deprecation_date": null,
+  "shutdown_date": null,
+  "shutdown_date_kind": "none",
+  "region_or_platform_notes": null,
+  "replacements": [],
+  "sources": [
+    {
+      "url": "https://developers.openai.com/api/docs/deprecations",
+      "label": "Named as an official replacement",
+      "last_checked": "2026-10-24",
+      "excerpt": "Named as an official replacement for tts-1. No shutdown date was published for this id on that page."
+    },
+    {
+      "url": "https://developers.openai.com/api/docs/models/gpt-realtime-2.1-mini.md",
+      "label": "OpenAI model docs",
+      "last_checked": "2026-10-24",
+      "excerpt": "Model ID: gpt-realtime-2.1-mini | context window 128000 | max output 32000 | input $0.6 | output $2.4"
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": 0.6,
+    "output_price_per_mtok": 2.4,
+    "cached_input_price_per_mtok": 0.06,
+    "batch_discount_pct": null,
+    "currency": "USD",
+    "context_window_tokens": 128000,
+    "max_output_tokens": 32000,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {
+      "input_price_per_mtok": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-realtime-2.1-mini.md",
+        "last_checked": "2026-10-24"
+      },
+      "output_price_per_mtok": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-realtime-2.1-mini.md",
+        "last_checked": "2026-10-24"
+      },
+      "cached_input_price_per_mtok": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-realtime-2.1-mini.md",
+        "last_checked": "2026-10-24"
+      },
+      "context_window_tokens": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-realtime-2.1-mini.md",
+        "last_checked": "2026-10-24"
+      },
+      "max_output_tokens": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-realtime-2.1-mini.md",
+        "last_checked": "2026-10-24"
+      }
+    }
+  },
+  "first_seen": "2026-10-17T15:59:19.574Z",
+  "updated_at": "2026-10-24T04:39:18.299Z"
+}
