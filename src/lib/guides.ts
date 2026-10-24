@@ -37,6 +37,9 @@ const OPENROUTER_FALLBACKS = "https://openrouter.ai/docs/guides/routing/model-fa
 const AI_SDK_OPENAI = "https://ai-sdk.dev/docs/guides/openai";
 const LANGCHAIN_MODELS = "https://docs.langchain.com/oss/python/langchain/models";
 const LANGCHAIN_CHAT = "https://docs.langchain.com/oss/python/integrations/chat";
+const OPENAI_CUSTOM_GPT_FAQ = "https://help.openai.com/en/articles/20001519-custom-gpt-retirement-and-migration-faq";
+const OPENAI_CUSTOM_GPT_MIGRATE = "https://learn.chatgpt.com/docs/migrate-custom-gpts";
+const OPENAI_CUSTOM_GPT_MCP = "https://learn.chatgpt.com/docs/extend/mcp";
 
 export interface GuideSource {
   label: string;
@@ -48,10 +51,17 @@ export interface GuideCode {
   code: string;
 }
 
+export interface GuideTable {
+  caption: string;
+  headers: string[];
+  rows: string[][];
+}
+
 export interface GuideSection {
   heading: string;
   paragraphs: string[];
   bullets?: string[];
+  table?: GuideTable;
   codes?: GuideCode[];
   sources: GuideSource[];
 }
@@ -78,10 +88,16 @@ export interface GuidePage {
   related: GuideLink[];
   faqs: FaqItem[];
   citations: string[];
+  /** Day this guide's sources were read. Other guides keep GUIDES_CHECKED. */
+  checked?: string;
 }
 
 export function guidePath(slug: string): string {
   return `/guides/${slug}/`;
+}
+
+export function guideChecked(guide: Pick<GuidePage, "checked">): string {
+  return guide.checked ?? GUIDES_CHECKED;
 }
 
 export function guideHeadingId(heading: string): string {
@@ -105,6 +121,196 @@ export const guideHubFaqs: FaqItem[] = [
 ];
 
 export const guides: GuidePage[] = [
+  {
+    slug: "custom-gpt-retirement",
+    title: "Custom GPT retirement | SunsetDiff",
+    description:
+      "Custom GPTs retire on December 11, 2026. What OpenAI copies into a plugin, what it leaves behind, and what to save before that date.",
+    h1: "Custom GPT retirement",
+    summary: "When custom GPTs stop, what migration copies, and what you have to rebuild.",
+    answer:
+      "OpenAI's help center says custom GPTs retire on December 11, 2026. An Enterprise workspace with a qualified, approved deferral retires them on February 11, 2027. Migration turns the instructions into a skill and copies the knowledge files. The selected model, sharing settings, and custom actions do not carry over, and the new plugin starts private. This is a ChatGPT product change, not an API model shutdown.",
+    checked: "2026-10-24",
+    steps: [
+      {
+        name: "Sort creators from users",
+        text: "List the GPTs you created. You can migrate those. A GPT you only use has to be migrated by its creator, or by a workspace admin in Enterprise. Permission to use it is not permission to migrate it.",
+      },
+      {
+        name: "Save the text and the files",
+        text: "Keep your own copy of the instructions, the knowledge files, and the conversation starters. Record who can open the GPT. The migration guide says conversation starters do not transfer one-to-one.",
+      },
+      {
+        name: "Save action schemas",
+        text: "If the GPT has custom actions, save the action schema, the authentication method, and the connection settings that are not secrets. Do that from the Actions section before you migrate. Leave credentials and secrets out of any notes you paste into chat.",
+      },
+      {
+        name: "Publish, then migrate",
+        text: "Migration uses the latest published version. Drafts do not transfer. Publishing does not require a public share. The help center says creation of new custom GPTs is planned to end on October 26, 2026, so publish a draft you still need before that cutoff.",
+      },
+      {
+        name: "Test, then share",
+        text: "When My GPTs shows Migrate to plugin, run it and read the new skill and files. Test familiar prompts and one harder case. The plugin starts private. Share it yourself, then ask one intended user to install it.",
+      },
+    ],
+    sections: [
+      {
+        heading: "Key dates",
+        paragraphs: [
+          "The help center says the transition affects all ChatGPT plans. The timeline is the one for the account or workspace where the GPT was created, even if you open that GPT from another account. A public GPT created in an affected Enterprise workspace follows that Enterprise timeline.",
+          "The same page says these dates are subject to change. A target date does not mean every account can migrate that day. Standard admin emails use the standard dates and are not tailored to a workspace with an approved delay.",
+          "The migration guide describes the same retirement and says you can still migrate a GPT after it stops running. It does not list the calendar dates. The dates in the table are from the help center.",
+        ],
+        table: {
+          caption: "Dates listed on OpenAI's custom GPT retirement FAQ.",
+          headers: ["Date", "What the help center says"],
+          rows: [
+            ["Sep 11, 2026", "Admin notice for affected Enterprise workspaces, so they can prepare."],
+            ["Sep 22, 2026", "Target for the migration experience and the user banner. Not a guarantee for every workspace."],
+            ["Oct 1, 2026", "Target banner date for workspaces that already opted into delayed migration banners."],
+            ["Oct 26, 2026", "Planned end of creating new custom GPTs. Publish a draft you need to migrate before this. Editing an existing GPT you have not migrated is still allowed. Migration makes that GPT read-only."],
+            ["Dec 11, 2026", "Standard retirement. Custom GPTs and their GPT pages become inaccessible."],
+            ["Feb 11, 2027", "Retirement only for workspaces with a qualified, approved deferral. It does not apply to every workspace."],
+          ],
+        },
+        sources: [
+          { label: "Custom GPT retirement and migration FAQ", url: OPENAI_CUSTOM_GPT_FAQ },
+          { label: "Moving custom GPT workflows to plugins", url: OPENAI_CUSTOM_GPT_MIGRATE },
+        ],
+      },
+      {
+        heading: "What carries over",
+        paragraphs: [
+          "The help center describes the planned migration. The instructions become a skill in the new plugin. Knowledge files are copied into the plugin's reference files. Connected apps are added to the plugin as apps. Review the instructions, files, and tools before you rely on the replacement.",
+          "The migration guide says to check that files, templates, and examples are present, because transfer and retrieval may differ. The selected model does not carry over. In Enterprise workspaces, Enterprise defaults apply.",
+        ],
+        table: {
+          caption: "What OpenAI says migration copies, and what it does not.",
+          headers: ["Item", "What the official pages say"],
+          rows: [
+            ["Instructions", "Become a skill in the new plugin."],
+            ["Knowledge files", "Copied into the plugin's reference files. Review them. Transfer and retrieval may differ."],
+            ["Connected apps", "Added to the plugin as apps. Each app still needs its own access, sign-in, and action approval."],
+            ["Selected model", "Does not carry over. In Enterprise workspaces, Enterprise defaults apply."],
+            ["Sharing settings", "Do not carry over. The plugin starts private. People who could open the GPT do not get the plugin until someone shares it."],
+            ["Conversation starters", "Do not transfer one-to-one. The migration guide says they may not copy. Save the prompts you use."],
+            ["Previous chats", "The help center says existing conversations stay available after retirement. The migration guide says previous chats may not copy into the plugin."],
+            ["Custom actions", "Do not transfer. Rebuild them with a supported app or a custom MCP server, then test. A rebuilt action should not be assumed to do everything the original action did."],
+            ["Capability settings", "Do not guarantee the same tools. The migration guide says to retest web search, images, data analysis, and file creation if you need them."],
+            ["Drafts", "Do not transfer. Migration uses the latest published version. Unpublished edits stay behind."],
+          ],
+        },
+        sources: [
+          { label: "Custom GPT retirement and migration FAQ", url: OPENAI_CUSTOM_GPT_FAQ },
+          { label: "Moving custom GPT workflows to plugins", url: OPENAI_CUSTOM_GPT_MIGRATE },
+        ],
+      },
+      {
+        heading: "What to save before the deadline",
+        paragraphs: [
+          "OpenAI does not describe a single export button for a GPT. The pages say what to record yourself, before migration makes the original read-only.",
+          "The migration guide tells admins to record each GPT's purpose, audience, instructions, reference files, and integrations, and to save a few familiar prompts plus one harder case. The help center says to finish essential edits before you migrate. Publishing is required for migration. A public share is not.",
+          "For actions, OpenAI's MCP page says to save the action schema, the authentication method, and the non-secret connection settings from the GPT editor's Actions section. Keep your own copies of the knowledge files too, then check that the plugin still uses them.",
+        ],
+        bullets: [
+          "Instructions. They become the skill, and you cannot keep editing the original GPT after you migrate it.",
+          "Knowledge files. They are copied, and the migration guide says retrieval may differ.",
+          "Conversation starters and a few real prompts, including one harder case.",
+          "Who can open the GPT today. Sharing settings do not carry over, including in a bulk admin migration.",
+          "Action schema, authentication method, and connection settings that are not secrets.",
+        ],
+        sources: [
+          { label: "Custom GPT retirement and migration FAQ", url: OPENAI_CUSTOM_GPT_FAQ },
+          { label: "Moving custom GPT workflows to plugins", url: OPENAI_CUSTOM_GPT_MIGRATE },
+          { label: "Replacing a GPT custom action", url: OPENAI_CUSTOM_GPT_MCP },
+        ],
+      },
+      {
+        heading: "Custom actions",
+        paragraphs: [
+          "The help center says GPT custom actions do not transfer. Features that depend on them do not work in the plugin until you set up a replacement. Check first whether an available app already does the task. Rebuilding the connection may require a custom MCP server. A rebuilt integration should not be assumed to provide every capability of the original action.",
+          "OpenAI's MCP page says to rebuild the connection as a new Sites plugin and to reuse the existing API where you can. That plugin is separate from the migrated plugin. You can use both in one conversation. Sites plugins do not currently support editing skills or reference files. The page also says to leave credentials, secrets, and hidden instructions out of a rebuild prompt.",
+          "Built-in migration does not require Upload plugins or Upload plugins with custom MCP servers. Rebuilding an integration is a separate task and may require more permissions. The migration guide says the same: allow extra time, and use a supported connector or a custom MCP connection.",
+          "SunsetDiff publishes a remote MCP server for model shutdown dates on the [MCP page](/mcp/). Use it only when the workflow you are rebuilding needs those dates. It does not host a rebuilt GPT action, and it does not replace your API.",
+        ],
+        sources: [
+          { label: "Custom GPT retirement and migration FAQ", url: OPENAI_CUSTOM_GPT_FAQ },
+          { label: "Moving custom GPT workflows to plugins", url: OPENAI_CUSTOM_GPT_MIGRATE },
+          { label: "Replacing a GPT custom action", url: OPENAI_CUSTOM_GPT_MCP },
+        ],
+      },
+      {
+        heading: "After you migrate",
+        paragraphs: [
+          "The help center says the original GPT stays usable until its retirement date, then becomes inaccessible, along with its GPT page. After migration it is read-only, and its creator cannot delete it. Later changes go on the plugin. You can still edit an existing GPT you have not migrated, including after new GPT creation stops.",
+          "The plugin starts private. Migration does not install it for other people and does not give them access. Making a personal plugin public requires a separate plugin submission. In Enterprise, sharing with people or groups requires Share plugins, and publishing to the workspace directory requires Publish plugins to workspace. The migration guide says bulk migration does not copy sharing settings, and that OpenAI expects bulk sharing through the Admin plugin soon.",
+          "The help center says existing conversations with custom GPTs remain accessible after retirement. You do not need to do anything to preserve them.",
+          "In Enterprise workspaces, the help center says using a migrated GPT without apps in Instant Chat has no incremental cost. Creating and editing plugins through a conversation use Work or Codex. Actions in Work consume credits. The migration guide says converting a GPT to a plugin does not consume credits, and that editing a plugin does under credit-based pricing. It also says USD-billed Enterprise agreements have different terms, including charges for Instant usage. Read the rate card for your workspace.",
+        ],
+        sources: [
+          { label: "Custom GPT retirement and migration FAQ", url: OPENAI_CUSTOM_GPT_FAQ },
+          { label: "Moving custom GPT workflows to plugins", url: OPENAI_CUSTOM_GPT_MIGRATE },
+        ],
+      },
+    ],
+    related: [
+      { href: "/mcp/", label: "SunsetDiff MCP server" },
+      { href: "/guides/pre-migration-test-checklist/", label: "API model test checklist" },
+    ],
+    faqs: [
+      {
+        question: "When do custom GPTs retire?",
+        answer:
+          "OpenAI's help center says December 11, 2026. Enterprise workspaces with a qualified, approved deferral retire them on February 11, 2027. That page says the dates are subject to change. Source: [Custom GPT retirement and migration FAQ](https://help.openai.com/en/articles/20001519-custom-gpt-retirement-and-migration-faq).",
+      },
+      {
+        question: "Does every Enterprise workspace get the February date?",
+        answer:
+          "No. The help center says February 11, 2027 applies only to workspaces with a qualified, approved deferral. Other workspaces stay on December 11, 2026. Standard admin emails use the standard dates and are not tailored to an approved delay.",
+      },
+      {
+        question: "What does migration copy?",
+        answer:
+          "The help center says the instructions become a skill, knowledge files are copied into reference files, and connected apps are added as apps. The plugin starts private. Migration does not install it for other people.",
+      },
+      {
+        question: "What does not carry over?",
+        answer:
+          "The help center says the selected model and the sharing settings do not carry over, and custom actions do not transfer. The migration guide says conversation starters do not transfer one-to-one, and that capability settings do not guarantee the same tools. Drafts do not transfer.",
+      },
+      {
+        question: "Do I have to migrate a GPT I only use?",
+        answer:
+          "No. The help center says you do not need to migrate a GPT you only use, and permission to use it does not let you migrate it. In an Enterprise workspace, a workspace admin can migrate it when plugins are enabled and the GPT is published. Check the notice on the GPT and any replacement its creator shares.",
+      },
+      {
+        question: "What happens to old chats?",
+        answer:
+          "The help center says existing conversations with custom GPTs remain accessible after retirement. You do not need to do anything to preserve them. The migration guide says previous chats may not copy into the plugin.",
+      },
+      {
+        question: "Can I edit the original GPT after I migrate it?",
+        answer:
+          "No. The help center says the original becomes read-only after migration, and its creator cannot delete it. It stays usable until the retirement date. Later edits go on the plugin.",
+      },
+      {
+        question: "What should developers do with GPT Actions?",
+        answer:
+          "They do not transfer. OpenAI's MCP page says to rebuild the connection as a new Sites plugin, separate from the migrated plugin, and to save the action schema and the non-secret connection settings first. A supported app is the other option the help center names. The [SunsetDiff MCP server](/mcp/) only answers model shutdown questions. It does not host a rebuilt GPT action.",
+      },
+      {
+        question: "Can I migrate after the retirement date?",
+        answer:
+          "The migration guide says yes. You can still migrate after retirement, but the GPT itself will no longer run. Source: [Moving custom GPT workflows to plugins](https://learn.chatgpt.com/docs/migrate-custom-gpts).",
+      },
+      {
+        question: "Does migration use credits?",
+        answer:
+          "The help center says that in Enterprise workspaces, using a migrated GPT without apps in Instant Chat has no incremental cost, and that creating and editing plugins through a conversation use Work or Codex. Actions in Work consume credits. The migration guide says conversion does not consume credits, and that editing a plugin does under credit-based pricing. It also says USD-billed Enterprise agreements can charge for Instant usage. Read your workspace rate card.",
+      },
+    ],
+    citations: [OPENAI_CUSTOM_GPT_FAQ, OPENAI_CUSTOM_GPT_MIGRATE, OPENAI_CUSTOM_GPT_MCP],
+  },
   {
     slug: "model-aliases-vs-pinned-snapshots",
     title: "Model aliases vs pinned snapshots | SunsetDiff",

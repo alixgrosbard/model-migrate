@@ -21,7 +21,7 @@ import { scheduleIndexLinks } from "../src/lib/schedule.ts";
 import { siteOrigin } from "../src/lib/site.ts";
 import { openApiDocument } from "../src/lib/openapi.ts";
 import { statusLlmsEntries } from "../src/lib/status-hubs.ts";
-import { SHORTCUT_MARKER, shortcutFiles } from "../src/lib/shortcuts.ts";
+import { SHORTCUT_MARKER, contentAliasFiles, shortcutFiles } from "../src/lib/shortcuts.ts";
 import { replacementApiFields } from "../src/lib/replacement-chain.ts";
 
 const site = siteOrigin();
@@ -334,7 +334,7 @@ async function writeShortcuts(dir: string, origin: string, providers: Awaited<Re
       /* not a shortcut directory */
     }
   }
-  for (const file of shortcutFiles(origin, providers)) {
+  for (const file of [...shortcutFiles(origin, providers), ...contentAliasFiles(origin)]) {
     const folder = path.join(dir, file.slug);
     await mkdir(folder, { recursive: true });
     await writeFile(path.join(folder, "index.html"), file.html);

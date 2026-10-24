@@ -7,7 +7,7 @@ import { siteOrigin } from "../src/lib/site.ts";
 import { HUBS } from "../src/lib/hubs.ts";
 import { today } from "../src/lib/format.ts";
 import { isPastShutdown, shutdownEventPath, shutdownEvents } from "../src/lib/shutdowns.ts";
-import { GUIDES_CHECKED, guidePath, guides } from "../src/lib/guides.ts";
+import { GUIDES_CHECKED, guideChecked, guidePath, guides } from "../src/lib/guides.ts";
 import { GLOSSARY_CHECKED, GLOSSARY_INDEX, glossaryPath, glossaryTerms } from "../src/lib/glossary.ts";
 import {
   BREAKING_CHANGES_CSV,
@@ -300,13 +300,34 @@ async function main() {
     if (!llmsFull.includes(rel)) throw new Error(`llms-full.txt is missing ${rel}`);
     if (!html.includes('"Article"') && !html.includes('"HowTo"')) throw new Error(`JSON-LD missing Article or HowTo in ${rel}`);
     if (!html.includes('"BreadcrumbList"')) throw new Error(`JSON-LD missing BreadcrumbList in ${rel}`);
-    if (!html.includes(GUIDES_CHECKED)) throw new Error(`Guide is missing the review date: ${rel}`);
+    if (!html.includes(guideChecked(guide))) throw new Error(`Guide is missing the review date: ${rel}`);
+    if (guide.slug === "custom-gpt-retirement") {
+      const origin = siteOrigin();
+      if (!html.includes(`<title>${guide.title}</title>`)) throw new Error("Custom GPT guide title mismatch");
+      if (!html.includes(`content="${guide.description}"`)) throw new Error("Custom GPT guide description mismatch");
+      if (!html.includes(`rel="canonical" href="${origin}${rel}"`)) throw new Error("Custom GPT guide canonical mismatch");
+      if (!html.includes('"FAQPage"')) throw new Error("Custom GPT guide is missing FAQPage JSON-LD");
+      if (!html.includes("December 11, 2026") || !html.includes("February 11, 2027")) {
+        throw new Error("Custom GPT guide is missing a retirement date");
+      }
+      if (!html.includes("<table>")) throw new Error("Custom GPT guide is missing a table");
+    }
     if (!html.includes("Last reviewed")) throw new Error(`Guide is missing the review line: ${rel}`);
     for (const citation of guide.citations) {
       if (!html.includes(citation)) throw new Error(`${rel} is missing citation ${citation}`);
     }
     if (html.includes("—") || html.includes("–")) throw new Error(`Em dash on ${rel}`);
   }
+  const customAlias = await readFile(path.join(dist, "custom-gpts/index.html"), "utf8");
+  const customGuideUrl = `${siteOrigin()}/guides/custom-gpt-retirement/`;
+  if (!customAlias.includes(`rel="canonical" href="${customGuideUrl}"`)) {
+    throw new Error("Custom GPTs alias is missing its canonical URL");
+  }
+  if (!customAlias.includes('http-equiv="refresh" content="0; url=/guides/custom-gpt-retirement/"')) {
+    throw new Error("Custom GPTs alias is missing its refresh");
+  }
+  if (!customAlias.includes('content="noindex"')) throw new Error("Custom GPTs alias should stay out of the index");
+  if (sitemap.includes("/custom-gpts/")) throw new Error("Sitemap includes the custom GPTs alias");
   if (!sitemap.includes("/guides/")) throw new Error("Sitemap is missing /guides/");
   if (!llms.includes("/guides/")) throw new Error("llms.txt is missing /guides/");
   if (!homeNav.includes('href="/glossary/"')) throw new Error("Footer is missing /glossary/");

@@ -3,7 +3,7 @@ import path from "node:path";
 import type { ModelRecord } from "../schema.ts";
 import { today } from "./format.ts";
 import { COMPARISON_CHECKED, comparisonPath, comparisons } from "./comparisons.ts";
-import { GUIDES_CHECKED, GUIDES_INDEX, guidePath, guides } from "./guides.ts";
+import { GUIDES_CHECKED, GUIDES_INDEX, guideChecked, guidePath, guides } from "./guides.ts";
 import { GLOSSARY_CHECKED, GLOSSARY_INDEX, glossaryPath, glossaryTerms } from "./glossary.ts";
 import { BREAKING_CHANGES_CSV, BREAKING_CHANGES_JSON, BREAKING_CHANGES_PATH, breakingChangesChecked } from "./breaking-changes.ts";
 import { REQUEST_ERRORS_INDEX, requestErrorChecked, requestErrorPath, requestErrors, requestErrorsIndexChecked } from "./request-errors.ts";
@@ -70,7 +70,7 @@ function build(): Map<string, string> {
   map.set(REQUEST_ERRORS_INDEX, requestErrorsIndexChecked());
   for (const page of requestErrors) map.set(requestErrorPath(page.slug), requestErrorChecked(page));
   map.set(GUIDES_INDEX, GUIDES_CHECKED);
-  for (const guide of guides) map.set(guidePath(guide.slug), GUIDES_CHECKED);
+  for (const guide of guides) map.set(guidePath(guide.slug), guideChecked(guide));
   map.set(GLOSSARY_INDEX, GLOSSARY_CHECKED);
   for (const term of glossaryTerms) map.set(glossaryPath(term.slug), GLOSSARY_CHECKED);
   for (const comparison of comparisons) map.set(comparisonPath(comparison.slug), COMPARISON_CHECKED);

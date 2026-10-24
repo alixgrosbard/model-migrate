@@ -16,13 +16,14 @@ const items = guides.map((guide) => ({ name: guide.h1, path: guidePath(guide.slu
 ---
 <Base
   title="Guides for AI model shutdowns | SunsetDiff"
-  description="Practical guides for model aliases, shutdown notices, migration tests, and the day a model stops. Each fact links to the official page."
+  description="Practical guides for model aliases, shutdown notices, migration tests, the day a model stops, and the custom GPT retirement. Each fact links to the official page."
   crumbs={[{ name: "Home", path: "/" }, { name: "Guides", path: GUIDES_INDEX }]}
   extraGraph={guidesIndexGraph(site, items, guideHubFaqs)}
 >
   <h1>Guides</h1>
   <p class="answer">
     These pages answer the practical questions around a model shutdown.
+    The custom GPT page is a ChatGPT product retirement, with its own review date.
     Dates and error codes stay on the model, shutdown, and error pages.
     Facts about a provider link the official page they came from.
     Word definitions, including deprecated versus retired, are in the <a href="/glossary/">glossary</a>.

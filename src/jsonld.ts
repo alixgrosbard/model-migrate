@@ -2,7 +2,7 @@ import type { MigrationRecord, ModelRecord, Provider } from "./schema.ts";
 import { BADGES_DESCRIPTION, BADGES_PATH } from "./lib/badges.ts";
 import { modelFaqs, replaceFaqs, type FaqItem } from "./lib/format.ts";
 import { deprecatedFaqs, publicName, questionPath, shutdownFaqs } from "./lib/growth.ts";
-import { GUIDES_CHECKED, GUIDES_INDEX, guidePath, type GuidePage } from "./lib/guides.ts";
+import { GUIDES_CHECKED, GUIDES_INDEX, guideChecked, guidePath, type GuidePage } from "./lib/guides.ts";
 import { GLOSSARY_CHECKED, GLOSSARY_INDEX, glossaryPath, glossaryTerms, type GlossaryTerm } from "./lib/glossary.ts";
 import { BREAKING_CHANGES_PATH, breakingChangesChecked, breakingChangesDatasetGraph } from "./lib/breaking-changes.ts";
 import { INTEGRATIONS_PATH, MCP_DOCS_CHECKED, MCP_ENDPOINT, MCP_PATH, MCP_SERVER_VERSION } from "./lib/mcp-docs.ts";
@@ -631,7 +631,7 @@ export function guidesIndexGraph(site: string, items: { name: string; path: stri
     {
       "@type": "CollectionPage",
       name: "Guides",
-      description: "Practical guides for AI model aliases, shutdown notices, and the day a model stops.",
+      description: "Practical guides for AI model aliases, shutdown notices, the day a model stops, and the custom GPT retirement.",
       url,
       dateModified: GUIDES_CHECKED,
       inLanguage: "en",
@@ -660,8 +660,8 @@ export function guideGraph(site: string, page: GuidePage) {
       "@type": "Article",
       headline: page.h1,
       description: page.description,
-      datePublished: GUIDES_CHECKED,
-      dateModified: GUIDES_CHECKED,
+      datePublished: guideChecked(page),
+      dateModified: guideChecked(page),
       url,
       mainEntityOfPage: url,
       inLanguage: "en",
