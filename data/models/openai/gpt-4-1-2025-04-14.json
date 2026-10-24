@@ -22,13 +22,13 @@
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "OpenAI deprecations",
-      "last_checked": "2026-10-23",
+      "last_checked": "2026-10-24",
       "excerpt": "January 14, 2027 | GPT-4.1 (gpt-4.1-2025-04-14) | gpt-6-luna"
     },
     {
       "url": "https://developers.openai.com/api/docs/models/gpt-4.1.md",
       "label": "OpenAI model docs",
-      "last_checked": "2026-10-23",
+      "last_checked": "2026-10-24",
       "excerpt": "Model ID: gpt-4.1 | context window 1047576 | max output 32768 | input $2 | output $8 | Default snapshot gpt-4.1-2025-04-14"
     }
   ],
@@ -54,14 +54,14 @@
     "specs_sources": {
       "context_window_tokens": {
         "url": "https://developers.openai.com/api/docs/models/gpt-4.1.md",
-        "last_checked": "2026-10-23"
+        "last_checked": "2026-10-24"
       },
       "max_output_tokens": {
         "url": "https://developers.openai.com/api/docs/models/gpt-4.1.md",
-        "last_checked": "2026-10-23"
+        "last_checked": "2026-10-24"
       }
     }
   },
   "first_seen": "2026-10-17T15:59:19.574Z",
-  "updated_at": "2026-10-23T00:12:01.288Z"
+  "updated_at": "2026-10-24T04:39:18.299Z"
 }

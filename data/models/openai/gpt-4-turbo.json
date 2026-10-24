@@ -4,7 +4,7 @@
   "provider": "openai",
   "display_name": "gpt-4-turbo",
   "family": null,
-  "status": "deprecated",
+  "status": "retired",
   "announced_date": "2026-04-22",
   "deprecation_date": null,
   "shutdown_date": "2026-10-23",
@@ -22,13 +22,13 @@
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "OpenAI deprecations",
-      "last_checked": "2026-10-23",
+      "last_checked": "2026-10-24",
       "excerpt": "October 23, 2026 | gpt-4-turbo | gpt-4-turbo-2024-04-09, gpt-4-turbo-completions | gpt-5.6-sol"
     },
     {
       "url": "https://developers.openai.com/api/docs/models/gpt-4-turbo.md",
       "label": "OpenAI model docs",
-      "last_checked": "2026-10-23",
+      "last_checked": "2026-10-24",
       "excerpt": "Model ID: gpt-4-turbo | context window 128000 | max output 4096 | input $10 | output $30"
     }
   ],
@@ -54,22 +54,22 @@
     "specs_sources": {
       "input_price_per_mtok": {
         "url": "https://developers.openai.com/api/docs/models/gpt-4-turbo.md",
-        "last_checked": "2026-10-23"
+        "last_checked": "2026-10-24"
       },
       "output_price_per_mtok": {
         "url": "https://developers.openai.com/api/docs/models/gpt-4-turbo.md",
-        "last_checked": "2026-10-23"
+        "last_checked": "2026-10-24"
       },
       "context_window_tokens": {
         "url": "https://developers.openai.com/api/docs/models/gpt-4-turbo.md",
-        "last_checked": "2026-10-23"
+        "last_checked": "2026-10-24"
       },
       "max_output_tokens": {
         "url": "https://developers.openai.com/api/docs/models/gpt-4-turbo.md",
-        "last_checked": "2026-10-23"
+        "last_checked": "2026-10-24"
       }
     }
   },
   "first_seen": "2026-10-17T15:59:19.574Z",
-  "updated_at": "2026-10-23T00:12:01.288Z"
+  "updated_at": "2026-10-24T04:39:18.299Z"
 }

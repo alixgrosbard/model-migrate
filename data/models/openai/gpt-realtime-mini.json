@@ -22,13 +22,13 @@
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "OpenAI deprecations",
-      "last_checked": "2026-10-23",
-      "excerpt": "Jan 20, 2027 | gpt-realtime-mini | gpt-realtime-2.1-mini"
+      "last_checked": "2026-10-24",
+      "excerpt": "Jan 20, 2027 | gpt-realtime-mini | gpt-realtime-mini-2025-12-15 | gpt-realtime-2.1-mini"
     },
     {
       "url": "https://developers.openai.com/api/docs/models/gpt-realtime-mini.md",
       "label": "OpenAI model docs",
-      "last_checked": "2026-10-23",
+      "last_checked": "2026-10-24",
       "excerpt": "Model ID: gpt-realtime-mini | context window 32000 | max output 4096 | input $0.6 | output $2.4"
     }
   ],
@@ -54,26 +54,26 @@
     "specs_sources": {
       "input_price_per_mtok": {
         "url": "https://developers.openai.com/api/docs/models/gpt-realtime-mini.md",
-        "last_checked": "2026-10-23"
+        "last_checked": "2026-10-24"
       },
       "output_price_per_mtok": {
         "url": "https://developers.openai.com/api/docs/models/gpt-realtime-mini.md",
-        "last_checked": "2026-10-23"
+        "last_checked": "2026-10-24"
       },
       "cached_input_price_per_mtok": {
         "url": "https://developers.openai.com/api/docs/models/gpt-realtime-mini.md",
-        "last_checked": "2026-10-23"
+        "last_checked": "2026-10-24"
       },
       "context_window_tokens": {
         "url": "https://developers.openai.com/api/docs/models/gpt-realtime-mini.md",
-        "last_checked": "2026-10-23"
+        "last_checked": "2026-10-24"
       },
       "max_output_tokens": {
         "url": "https://developers.openai.com/api/docs/models/gpt-realtime-mini.md",
-        "last_checked": "2026-10-23"
+        "last_checked": "2026-10-24"
       }
     }
   },
   "first_seen": "2026-10-17T15:59:19.574Z",
-  "updated_at": "2026-10-23T00:12:01.288Z"
+  "updated_at": "2026-10-24T04:39:18.299Z"
 }

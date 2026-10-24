@@ -22,13 +22,13 @@
     {
       "url": "https://docs.mistral.ai/models",
       "label": "Mistral models",
-      "last_checked": "2026-10-23",
+      "last_checked": "2026-10-24",
       "excerpt": "Leanstral | 26.03 | labs-leanstral-2603 | 5/22/2026 6/30/2026 | Leanstral 1.5"
     },
     {
       "url": "https://docs.mistral.ai/models/leanstral-26-03",
       "label": "Mistral model docs",
-      "last_checked": "2026-10-23",
+      "last_checked": "2026-10-24",
       "excerpt": "labs-leanstral-2603 | Context 256k"
     }
   ],
@@ -54,10 +54,10 @@
     "specs_sources": {
       "context_window_tokens": {
         "url": "https://docs.mistral.ai/models/leanstral-26-03",
-        "last_checked": "2026-10-23"
+        "last_checked": "2026-10-24"
       }
     }
   },
   "first_seen": "2026-10-17T15:59:19.574Z",
-  "updated_at": "2026-10-23T00:12:01.288Z"
+  "updated_at": "2026-10-24T04:39:18.299Z"
 }

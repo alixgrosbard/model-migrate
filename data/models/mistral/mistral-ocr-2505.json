@@ -15,7 +15,7 @@
     {
       "url": "https://docs.mistral.ai/models",
       "label": "Mistral models",
-      "last_checked": "2026-10-23",
+      "last_checked": "2026-10-24",
       "excerpt": "OCR 2 | 25.05 | mistral-ocr-2505 | 2/27/2026 5/31/2026 | OCR 4.1"
     }
   ],
@@ -41,5 +41,5 @@
     "specs_sources": {}
   },
   "first_seen": "2026-10-17T15:59:19.574Z",
-  "updated_at": "2026-10-23T00:12:01.288Z"
+  "updated_at": "2026-10-24T04:39:18.299Z"
 }

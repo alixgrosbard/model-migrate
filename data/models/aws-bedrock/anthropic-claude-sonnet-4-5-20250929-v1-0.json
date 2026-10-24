@@ -15,7 +15,7 @@
     {
       "url": "https://docs.aws.amazon.com/bedrock/latest/userguide/model-lifecycle-legacy.html",
       "label": "Amazon Bedrock model lifecycle (legacy)",
-      "last_checked": "2026-10-23",
+      "last_checked": "2026-10-24",
       "excerpt": "Policy page https://docs.aws.amazon.com/bedrock/latest/userguide/model-lifecycle.html | Anthropic | Claude Sonnet 4.5 | anthropic.claude-sonnet-4-5-20250929-v1:0 | af-south-1, ap-east-2, ap-northeast-1, ap-northeast-2, ap-northeast-3, ap-south-1, ap-south-2, ap-southeast-1, ap-southeast-2, ap-south…"
     }
   ],
@@ -41,5 +41,5 @@
     "specs_sources": {}
   },
   "first_seen": "2026-10-17T15:59:19.574Z",
-  "updated_at": "2026-10-23T00:12:01.288Z"
+  "updated_at": "2026-10-24T04:39:18.299Z"
 }

@@ -61,18 +61,18 @@
     "Ship the change before the published shutdown date."
   ],
   "confidence": "partial",
-  "last_checked": "2026-10-23",
+  "last_checked": "2026-10-24",
   "sources": [
     {
       "url": "https://ai.google.dev/gemini-api/docs/deprecations",
       "label": "Gemini API deprecations",
-      "last_checked": "2026-10-23",
+      "last_checked": "2026-10-24",
       "excerpt": "veo-3.1-lite-generate-preview | March 31, 2026 | October 22, 2026 | gemini-omni-1.1-flash"
     },
     {
       "url": "https://ai.google.dev/gemini-api/docs/deprecations",
       "label": "Gemini API deprecations",
-      "last_checked": "2026-10-23",
+      "last_checked": "2026-10-24",
       "excerpt": "gemini-omni-1.1-flash | August 27, 2026 | No shutdown date announced"
     }
   ]

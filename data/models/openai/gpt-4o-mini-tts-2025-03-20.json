@@ -22,8 +22,8 @@
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "OpenAI deprecations",
-      "last_checked": "2026-10-23",
-      "excerpt": "Jan 6, 2027 | gpt-4o-mini-tts-2025-03-20 | gpt-realtime-2.1-mini"
+      "last_checked": "2026-10-24",
+      "excerpt": "Jan 6, 2027 | gpt-4o-mini-tts | gpt-4o-mini-tts-2025-03-20 | gpt-realtime-2.1-mini"
     }
   ],
   "specs": {
@@ -48,5 +48,5 @@
     "specs_sources": {}
   },
   "first_seen": "2026-10-17T15:59:19.574Z",
-  "updated_at": "2026-10-23T00:12:01.288Z"
+  "updated_at": "2026-10-24T04:39:18.299Z"
 }

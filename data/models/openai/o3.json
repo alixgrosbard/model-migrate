@@ -4,24 +4,31 @@
   "provider": "openai",
   "display_name": "o3",
   "family": null,
-  "status": "active",
-  "announced_date": null,
+  "status": "deprecated",
+  "announced_date": "2026-06-11",
   "deprecation_date": null,
-  "shutdown_date": null,
-  "shutdown_date_kind": "none",
+  "shutdown_date": "2026-12-11",
+  "shutdown_date_kind": "exact",
   "region_or_platform_notes": null,
-  "replacements": [],
+  "replacements": [
+    {
+      "model_id": "gpt-5.6-sol",
+      "provider": "openai",
+      "kind": "official",
+      "source_url": "https://developers.openai.com/api/docs/deprecations"
+    }
+  ],
   "sources": [
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
-      "label": "Named as an official replacement",
-      "last_checked": "2026-10-23",
-      "excerpt": "Named as an official replacement for o1-preview. No shutdown date was published for this id on that page."
+      "label": "OpenAI deprecations",
+      "last_checked": "2026-10-24",
+      "excerpt": "Dec 11, 2026 | o3 | o3-2025-04-16 | gpt-5.6-sol"
     },
     {
       "url": "https://developers.openai.com/api/docs/models/o3.md",
       "label": "OpenAI model docs",
-      "last_checked": "2026-10-23",
+      "last_checked": "2026-10-24",
       "excerpt": "Model ID: o3 | context window 200000 | max output 100000 | input $2 | output $8"
     }
   ],
@@ -47,26 +54,26 @@
     "specs_sources": {
       "input_price_per_mtok": {
         "url": "https://developers.openai.com/api/docs/models/o3.md",
-        "last_checked": "2026-10-23"
+        "last_checked": "2026-10-24"
       },
       "output_price_per_mtok": {
         "url": "https://developers.openai.com/api/docs/models/o3.md",
-        "last_checked": "2026-10-23"
+        "last_checked": "2026-10-24"
       },
       "cached_input_price_per_mtok": {
         "url": "https://developers.openai.com/api/docs/models/o3.md",
-        "last_checked": "2026-10-23"
+        "last_checked": "2026-10-24"
       },
       "context_window_tokens": {
         "url": "https://developers.openai.com/api/docs/models/o3.md",
-        "last_checked": "2026-10-23"
+        "last_checked": "2026-10-24"
       },
       "max_output_tokens": {
         "url": "https://developers.openai.com/api/docs/models/o3.md",
-        "last_checked": "2026-10-23"
+        "last_checked": "2026-10-24"
       }
     }
   },
   "first_seen": "2026-10-17T15:59:19.574Z",
-  "updated_at": "2026-10-23T00:12:01.288Z"
+  "updated_at": "2026-10-24T04:39:18.299Z"
 }

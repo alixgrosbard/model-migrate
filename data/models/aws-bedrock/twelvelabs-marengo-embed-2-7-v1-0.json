@@ -15,7 +15,7 @@
     {
       "url": "https://docs.aws.amazon.com/bedrock/latest/userguide/model-lifecycle-legacy.html",
       "label": "Amazon Bedrock model lifecycle (legacy)",
-      "last_checked": "2026-10-23",
+      "last_checked": "2026-10-24",
       "excerpt": "Policy page https://docs.aws.amazon.com/bedrock/latest/userguide/model-lifecycle.html | TwelveLabs | Marengo Embed v2.7 | twelvelabs.marengo-embed-2-7-v1:0 | ap-northeast-2, eu-west-1, us-east-1 | May 29, 2026 | November 30, 2026 | August 29, 2026"
     }
   ],
@@ -41,5 +41,5 @@
     "specs_sources": {}
   },
   "first_seen": "2026-10-17T15:59:19.574Z",
-  "updated_at": "2026-10-23T00:12:01.288Z"
+  "updated_at": "2026-10-24T04:39:18.299Z"
 }

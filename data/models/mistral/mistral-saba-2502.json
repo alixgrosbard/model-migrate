@@ -15,13 +15,13 @@
     {
       "url": "https://docs.mistral.ai/models",
       "label": "Mistral models",
-      "last_checked": "2026-10-23",
+      "last_checked": "2026-10-24",
       "excerpt": "Mistral Saba | 25.02 | mistral-saba-2502 | 6/10/2025 9/30/2025 | Mistral Small 4"
     },
     {
       "url": "https://docs.mistral.ai/models/mistral-saba-25-02",
       "label": "Mistral model docs",
-      "last_checked": "2026-10-23",
+      "last_checked": "2026-10-24",
       "excerpt": "mistral-saba-2502 | Context 32k"
     }
   ],
@@ -47,10 +47,10 @@
     "specs_sources": {
       "context_window_tokens": {
         "url": "https://docs.mistral.ai/models/mistral-saba-25-02",
-        "last_checked": "2026-10-23"
+        "last_checked": "2026-10-24"
       }
     }
   },
   "first_seen": "2026-10-17T15:59:19.574Z",
-  "updated_at": "2026-10-23T00:12:01.288Z"
+  "updated_at": "2026-10-24T04:39:18.299Z"
 }

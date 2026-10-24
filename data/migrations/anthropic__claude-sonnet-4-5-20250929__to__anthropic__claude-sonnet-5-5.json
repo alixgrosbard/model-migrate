@@ -81,30 +81,30 @@
     "Ship the change before the published shutdown date."
   ],
   "confidence": "official",
-  "last_checked": "2026-10-23",
+  "last_checked": "2026-10-24",
   "sources": [
     {
       "url": "https://platform.claude.com/docs/en/about-claude/model-deprecations",
       "label": "Anthropic model deprecations",
-      "last_checked": "2026-10-23",
+      "last_checked": "2026-10-24",
       "excerpt": "claude-sonnet-4-5-20250929 | Deprecated | September 30, 2026 | November 30, 2026"
     },
     {
       "url": "https://platform.claude.com/docs/en/models/sonnet-4-5/overview.md",
       "label": "Anthropic model docs",
-      "last_checked": "2026-10-23",
+      "last_checked": "2026-10-24",
       "excerpt": "Model ID: claude-sonnet-4-5-20250929 | context window 200000 | max output 64000 | input $3/MTok | output $15/MTok"
     },
     {
       "url": "https://platform.claude.com/docs/en/about-claude/model-deprecations",
       "label": "Anthropic model deprecations",
-      "last_checked": "2026-10-23",
+      "last_checked": "2026-10-24",
       "excerpt": "claude-sonnet-5-5 | Active | N/A | Not sooner than September 28, 2027"
     },
     {
       "url": "https://platform.claude.com/docs/en/about-claude/models/overview",
       "label": "Anthropic models overview",
-      "last_checked": "2026-10-23",
+      "last_checked": "2026-10-24",
       "excerpt": "claude-sonnet-5-5 | Context window 1M tokens | Max output 128K tokens | Text and image input, text output, vision, and tool use."
     },
     {
