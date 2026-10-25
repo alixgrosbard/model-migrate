@@ -8,6 +8,7 @@ const providerIds = [
   "aws-bedrock",
   "azure-openai",
   "mistral",
+  "deepseek",
 ] as const;
 
 const hits = new Map<string, number[]>();

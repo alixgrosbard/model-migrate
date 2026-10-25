@@ -11,6 +11,7 @@ import {
   type ModelRecord,
   type Provider,
 } from "../schema.ts";
+import { compareModels } from "./stable-export.ts";
 
 const root = process.cwd();
 let providerCache: Promise<Provider[]> | undefined;
@@ -44,7 +45,7 @@ async function readModels(): Promise<ModelRecord[]> {
       models.push(modelSchema.parse(raw));
     }
   }
-  return models.sort((a, b) => a.provider.localeCompare(b.provider) || a.id.localeCompare(b.id));
+  return models.sort(compareModels);
 }
 
 export async function loadMigrations(): Promise<MigrationRecord[]> {

@@ -47,5 +47,12 @@
     "deprecations_url": "https://docs.mistral.ai/models",
     "pricing_url": "https://docs.mistral.ai/models/pricing",
     "models_url": "https://docs.mistral.ai/models"
+  },
+  {
+    "id": "deepseek",
+    "name": "DeepSeek",
+    "deprecations_url": "https://api-docs.deepseek.com/updates/",
+    "pricing_url": "https://api-docs.deepseek.com/quick_start/pricing",
+    "models_url": "https://api-docs.deepseek.com/quick_start/pricing"
   }
 ]

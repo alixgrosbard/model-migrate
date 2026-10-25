@@ -5,6 +5,7 @@ import { parseAnthropic } from "../scrapers/anthropic.ts";
 import { parseAzure } from "../scrapers/azure-openai.ts";
 import { parseBedrock } from "../scrapers/aws-bedrock.ts";
 import { DEPRECATIONS_URL, parseGemini } from "../scrapers/google-gemini-api.ts";
+import { parseDeepSeek, UPDATES_URL as DEEPSEEK_UPDATES } from "../scrapers/deepseek.ts";
 import { parseMistral } from "../scrapers/mistral.ts";
 import { parseOpenAI } from "../scrapers/openai.ts";
 import { parseVertex } from "../scrapers/google-vertex.ts";
@@ -333,6 +334,54 @@ describe("snapshot retention", () => {
     expect(snapshotsToPrune(files, 3)).not.toContain("pricing-2026-10-17.html");
     expect(newestRollingName(files, "-pricing")).toBe("2026-10-18-pricing.html");
     expect(newestRollingName(files, "")).toBe("2026-10-20.html");
+  });
+});
+
+describe("deepseek", () => {
+  const updates = read(fixture("deepseek", "updates-2026-10-25.html"));
+  const pricing = read(fixture("deepseek", "pricing-2026-10-25.html"));
+  const news = read(fixture("deepseek", "news-2026-04-24.html"));
+
+  it("records the 2026-07-24 discontinuation and the named replacement", () => {
+    const models = parseDeepSeek(updates, pricing, news, "2026-10-25");
+    const chat = models.find((model) => model.id === "deepseek-chat");
+    const reasoner = models.find((model) => model.id === "deepseek-reasoner");
+    expect(chat?.status).toBe("retired");
+    expect(chat?.shutdown_date).toBe("2026-07-24");
+    expect(chat?.shutdown_date_kind).toBe("exact");
+    expect(chat?.replacements).toEqual([
+      { model_id: "deepseek-v4-flash", provider: "deepseek", kind: "official", source_url: DEEPSEEK_UPDATES },
+    ]);
+    expect(chat?.region_or_platform_notes).toContain("15:59");
+    expect(reasoner?.replacements[0]?.model_id).toBe("deepseek-v4-flash");
+    expect(reasoner?.region_or_platform_notes).toContain("thinking mode");
+    expect(parseDeepSeek(updates, pricing, news, "2026-07-24").find((model) => model.id === "deepseek-chat")?.status).toBe("deprecated");
+  });
+
+  it("keeps the current pricing ids and leaves the retired flash names without a shutdown day", () => {
+    const models = parseDeepSeek(updates, pricing, news, "2026-10-25");
+    const flash = models.find((model) => model.id === "deepseek-flash");
+    const pro = models.find((model) => model.id === "deepseek-v4-pro");
+    const oldFlash = models.find((model) => model.id === "deepseek-v4-flash");
+    expect(flash?.status).toBe("active");
+    expect(flash?.shutdown_date).toBeNull();
+    expect(flash?.specs.context_window_tokens).toBe(1_000_000);
+    expect(flash?.specs.max_output_tokens).toBe(384_000);
+    expect(flash?.specs.input_price_per_mtok).toBe(0.3);
+    expect(flash?.specs.supports_vision).toBe(true);
+    expect(pro?.status).toBe("active");
+    expect(pro?.shutdown_date).toBeNull();
+    expect(pro?.specs.input_price_per_mtok).toBe(1.32);
+    expect(pro?.specs.supports_vision).toBe(false);
+    expect(pro?.region_or_platform_notes).toContain("No shutdown date is published");
+    expect(oldFlash?.status).toBe("retired");
+    expect(oldFlash?.shutdown_date).toBeNull();
+    expect(oldFlash?.replacements[0]?.model_id).toBe("deepseek-flash");
+    expect(models.find((model) => model.id === "deepseek-v4-flash-vision-exp")?.announced_date).toBe("2026-08-21");
+  });
+
+  it("does not invent deepseek-chat when the discontinuation sentence is absent", () => {
+    expect(parseDeepSeek("<html></html>", "<html></html>", "", "2026-10-25")).toEqual([]);
   });
 });
 

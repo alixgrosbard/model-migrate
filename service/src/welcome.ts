@@ -13,6 +13,7 @@ const PROVIDER_NAMES: Record<string, string> = {
   "aws-bedrock": "AWS Bedrock",
   "azure-openai": "Azure OpenAI",
   mistral: "Mistral",
+  deepseek: "DeepSeek",
 };
 
 export interface ShutdownModel {

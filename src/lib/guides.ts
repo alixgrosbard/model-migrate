@@ -1219,7 +1219,7 @@ curl -fsSL https://sunsetdiff.com/api/v1/upcoming.json
     summary: "A caught shutdown error can finish the job with no model output.",
     answer:
       "A retired model often fails with model_not_found, HTTP 404, or HTTP 410. If the caller catches that error and continues, the job can exit successfully while the model did no work. Fail the run on those signals, alert when a finished run has no output, and read the shutdown date from the SunsetDiff API before the job starts.",
-    checked: "2026-10-24",
+    checked: "2026-10-25",
     steps: [
       {
         name: "Fail on model_not_found, 404, and 410",
@@ -1275,7 +1275,7 @@ curl -fsSL https://sunsetdiff.com/api/v1/upcoming.json
             [
               "model_not_found",
               "[goose#13114](https://github.com/aaif-goose/goose/issues/13114) for deepseek-reasoner. DeepSeek's changelog says deepseek-chat and deepseek-reasoner are discontinued on 2026-07-24. The V4 preview note says they are fully retired and inaccessible after Jul 24th, 2026, 15:59 UTC.",
-              "No DeepSeek API model page. See the next section.",
+              "[DeepSeek model_not_found](/errors/deepseek-model-not-found/) and [deepseek-reasoner](/models/deepseek/deepseek-reasoner/).",
             ],
             [
               "410 Gone",
@@ -1296,13 +1296,14 @@ curl -fsSL https://sunsetdiff.com/api/v1/upcoming.json
         ],
       },
       {
-        heading: "DeepSeek API ids are not in this dataset",
+        heading: "DeepSeek API ids",
         paragraphs: [
           "DeepSeek's API changelog for 2026-04-24 says the legacy names deepseek-chat and deepseek-reasoner will be discontinued on 2026-07-24. During the period before that date they pointed at deepseek-v4-flash non-thinking and thinking. The V4 preview note says deepseek-chat and deepseek-reasoner will be fully retired and inaccessible after Jul 24th, 2026, 15:59 (UTC Time). The current quick start lists deepseek-flash and deepseek-v4-pro.",
-          "GitHub issue aaif-goose/goose#13114 says selecting deepseek-reasoner fails with model_not_found, and that DeepSeek retired it on 2026-07-24 together with deepseek-chat. The issue does not print a longer error sentence. SunsetDiff has no provider row for the DeepSeek API and no model file for deepseek-chat or deepseek-reasoner, so there is no error page for that pair.",
-          "The DeepSeek rows SunsetDiff does store are Amazon Bedrock ids. deepseek.r1-v1:0, deepseek.v3-v1:0, and deepseek.v3.1 have shutdown date 2027-03-30. Those are not deepseek-chat or deepseek-reasoner.",
+          "GitHub issue aaif-goose/goose#13114 says selecting deepseek-reasoner fails with model_not_found, and that DeepSeek retired it on 2026-07-24 together with deepseek-chat. The issue does not print a JSON body. The error page is [DeepSeek model_not_found](/errors/deepseek-model-not-found/). The model rows are [deepseek-chat](/models/deepseek/deepseek-chat/) and [deepseek-reasoner](/models/deepseek/deepseek-reasoner/).",
+          "The DeepSeek rows on Amazon Bedrock are separate. deepseek.r1-v1:0, deepseek.v3-v1:0, and deepseek.v3.1 have shutdown date 2027-03-30. Those are not deepseek-chat or deepseek-reasoner.",
         ],
         bullets: [
+          "[deepseek-chat](/models/deepseek/deepseek-chat/) and [deepseek-reasoner](/models/deepseek/deepseek-reasoner/): discontinued 2026-07-24.",
           "[DeepSeek-R1 on Bedrock](/models/aws-bedrock/deepseek-r1-v1-0/): shutdown date 2027-03-30.",
           "[deepseek.v3-v1:0](/models/aws-bedrock/deepseek-v3-v1-0/) and [deepseek.v3.1](/models/aws-bedrock/deepseek-v3-1/): shutdown date 2027-03-30.",
         ],
@@ -1359,6 +1360,7 @@ curl -fsSL https://sunsetdiff.com/api/v1/lookup/gpt-4.1-nano.json
       { href: "/errors/openai-temperature-is-not-supported-with-this-model/", label: "temperature is not supported with this model" },
       { href: "/errors/gemini-2-5-flash-no-longer-available-to-new-users/", label: "gemini-2.5-flash new-user 404" },
       { href: "/errors/azure-openai-retired-model-410-gone/", label: "Azure 410 Gone" },
+      { href: "/errors/deepseek-model-not-found/", label: "DeepSeek Model Not Exist" },
       { href: "/errors/openai-model-has-been-deprecated/", label: "The model has been deprecated" },
       { href: "/guides/check-model-shutdown-dates-programmatically/", label: "Check dates programmatically" },
       { href: "/shutdowns/openai-2026-10-23/", label: "OpenAI October 23, 2026 batch" },
@@ -1378,7 +1380,7 @@ curl -fsSL https://sunsetdiff.com/api/v1/lookup/gpt-4.1-nano.json
       {
         question: "Where is the DeepSeek API retirement in SunsetDiff?",
         answer:
-          "It is not a model row. The DeepSeek changelog says deepseek-chat and deepseek-reasoner are discontinued on 2026-07-24. The Bedrock DeepSeek ids on this site shut down on 2027-03-30.",
+          "The DeepSeek API rows are [deepseek-chat](/models/deepseek/deepseek-chat/) and [deepseek-reasoner](/models/deepseek/deepseek-reasoner/), discontinued on 2026-07-24. The error page is [DeepSeek model_not_found](/errors/deepseek-model-not-found/). The Bedrock DeepSeek ids on this site shut down on 2027-03-30.",
       },
     ],
     citations: [

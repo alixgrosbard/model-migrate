@@ -24,6 +24,18 @@ const ISSUE_GEMINI_25 = "https://github.com/LebgaaAbderrahmane/ecomAssistant/iss
 const AZURE_RETIREMENTS = "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirements";
 const AZURE_SCHEDULE = "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule";
 const AZURE_WORKING = "https://learn.microsoft.com/en-us/azure/foundry/openai/how-to/working-with-models";
+const DEEPSEEK_UPDATES = "https://api-docs.deepseek.com/updates/";
+const DEEPSEEK_NEWS = "https://api-docs.deepseek.com/news/news260424/";
+const DEEPSEEK_PRICING = "https://api-docs.deepseek.com/quick_start/pricing";
+const DEEPSEEK_QUICK_START = "https://api-docs.deepseek.com/";
+const DEEPSEEK_THINKING = "https://api-docs.deepseek.com/guides/thinking_mode";
+const DEEPSEEK_ERRORS = "https://api-docs.deepseek.com/quick_start/error_codes";
+const DEEPSEEK_WORKBUDDY = "https://api-docs.deepseek.com/quick_start/agent_integrations/workbuddy";
+const ISSUE_DEEPSEEK_GOOSE = "https://github.com/aaif-goose/goose/issues/13114";
+const ISSUE_DEEPSEEK_NOFX = "https://github.com/NoFxAiOS/nofx/issues/912";
+const ISSUE_DEEPSEEK_ASTRBOT = "https://github.com/AstrBotDevs/AstrBot/issues/7286";
+const DEEPSEEK_MODEL_NOT_EXIST =
+  '{"error":{"message":"Model Not Exist","type":"invalid_request_error","param":null,"code":"invalid_request_error"}}';
 const TEMPERATURE_UNSUPPORTED = "Unsupported parameter: 'temperature' is not supported with this model.";
 const TOP_P_UNSUPPORTED = "Unsupported parameter: 'top_p' is not supported with this model.";
 const GEMINI_25_NEW_USERS = "models/gemini-2.5-flash is no longer available to new users";
@@ -1682,5 +1694,162 @@ const { text } = await generateText({
       },
     ],
     citations: [AZURE_RETIREMENTS, AZURE_SCHEDULE, AZURE_WORKING],
+  },
+  {
+    slug: "deepseek-model-not-found",
+    provider: "deepseek",
+    checked: "2026-10-25",
+    cause: "A request still sends deepseek-chat or deepseek-reasoner after 2026-07-24.",
+    title: "DeepSeek model_not_found and Model Not Exist | SunsetDiff",
+    description:
+      "deepseek-chat and deepseek-reasoner were discontinued on 2026-07-24. A public log shows HTTP 400 and Model Not Exist for a different missing id. The current ids are deepseek-flash and deepseek-v4-pro.",
+    h1: "Model Not Exist",
+    lead: "deepseek-chat and deepseek-reasoner stopped on 2026-07-24. A call that still sends one of those ids fails. The JSON below is a real DeepSeek body from a public log. It was not logged for those two ids after the retirement.",
+    errorQuoted: true,
+    errorText: DEEPSEEK_MODEL_NOT_EXIST,
+    quoteSourceLabel: "GitHub issue NoFxAiOS/nofx#912",
+    quoteSourceUrl: ISSUE_DEEPSEEK_NOFX,
+    rule: "The DeepSeek API changelog for 2026-04-24 says the legacy names deepseek-chat and deepseek-reasoner will be discontinued on 2026-07-24. During that period they point to the non-thinking mode and the thinking mode of deepseek-v4-flash, respectively. The V4 preview note says those two names are fully retired and inaccessible after Jul 24th, 2026, 15:59 (UTC Time). The 2026-09-10 changelog says deepseek-v4-flash and deepseek-v4-flash-vision-exp have been retired, and that those names are temporarily routed to V4.1 Flash. It also says to use deepseek-flash. The pricing page lists deepseek-flash (DeepSeek-V4.1-Flash-1017) and deepseek-v4-pro (DeepSeek-V4-Pro-0813). It says the legacy names deepseek-v4-flash and deepseek-v4-flash-vision-exp are still accepted, the models have been retired, and requests are served by DeepSeek-V4.1-Flash-1017. The error-codes page lists 400, 401, 402, 422, 429, 500, and 503. It does not print model_not_found, Model Not Exist, or a JSON body. The WorkBuddy page says `Model Not Found` or `404`: check whether the model id is exactly deepseek-flash. That line is client troubleshooting, not an API body. GitHub issue NoFxAiOS/nofx#912, opened 2025-11-11, logs HTTP 400 from https://api.deepseek.com/v1/chat/completions for model name DeepSeek-V3.2-Exp, with the JSON in the Error text block. GitHub issue AstrBotDevs/AstrBot#7286, opened 2026-04-02, logs the same message, type, and code as a Python error for the prefixed id deepseek/deepseek-reasoner sent to https://api.deepseek.com. That was a prefix bug, and it was before 2026-07-24. GitHub issue aaif-goose/goose#13114 says selecting deepseek-reasoner fails with model_not_found and does not print a JSON body. This page did not find a public log that pastes the JSON above for deepseek-chat or deepseek-reasoner after 2026-07-24.",
+    ruleSourceLabel: "DeepSeek API changelog",
+    ruleSourceUrl: DEEPSEEK_UPDATES,
+    modelsCaption: "Retired names, the replacement named on the 2026-04-24 changelog, and the two ids on the current pricing page.",
+    models: [
+      {
+        id: "deepseek-chat",
+        provider: "deepseek",
+        slug: "deepseek-chat",
+        note: "Discontinued 2026-07-24. Until then, the changelog says it points to the non-thinking mode of deepseek-v4-flash.",
+      },
+      {
+        id: "deepseek-reasoner",
+        provider: "deepseek",
+        slug: "deepseek-reasoner",
+        note: "Discontinued 2026-07-24. Until then, the changelog says it points to the thinking mode of deepseek-v4-flash.",
+      },
+      {
+        id: "deepseek-v4-flash",
+        provider: "deepseek",
+        slug: "deepseek-v4-flash",
+        note: "Named as the model those two ids pointed to. The 2026-09-10 changelog says it has been retired and the name is temporarily routed to V4.1 Flash. No shutdown day is printed.",
+      },
+      {
+        id: "deepseek-flash",
+        provider: "deepseek",
+        slug: "deepseek-flash",
+        note: "Current pricing-page id for DeepSeek-V4.1-Flash-1017. The changelog says to use this name.",
+      },
+      {
+        id: "deepseek-v4-pro",
+        provider: "deepseek",
+        slug: "deepseek-v4-pro",
+        note: "Current pricing-page id for DeepSeek-V4-Pro-0813. The 2026-04-24 changelog also says the model parameter can be set to this id. No shutdown date is published.",
+      },
+    ],
+    fixes: [
+      {
+        heading: "Raw SDK",
+        text: [
+          "The quick start sets base_url to https://api.deepseek.com and the model to deepseek-flash or deepseek-v4-pro. The thinking-mode page says the OpenAI-format toggle is thinking type enabled or disabled, passed in extra_body, and that thinking is enabled by default.",
+          "deepseek-chat was the non-thinking mode, so the sample sets thinking type disabled. deepseek-reasoner was the thinking mode, so use type enabled for that old id. The quick start says to apply for an API key. This sample does not include one.",
+        ],
+        samples: [
+          {
+            caption: "Python, replacement for deepseek-chat",
+            code: `from openai import OpenAI
+client = OpenAI(base_url="https://api.deepseek.com")
+response = client.chat.completions.create(
+    model="deepseek-flash",
+    messages=[{"role": "user", "content": "Hello"}],
+    extra_body={"thinking": {"type": "disabled"}},
+)
+`,
+          },
+          {
+            caption: "Python, replacement for deepseek-reasoner",
+            code: `from openai import OpenAI
+client = OpenAI(base_url="https://api.deepseek.com")
+response = client.chat.completions.create(
+    model="deepseek-flash",
+    messages=[{"role": "user", "content": "Hello"}],
+    extra_body={"thinking": {"type": "enabled"}},
+)
+`,
+          },
+          {
+            caption: "Node",
+            code: `import OpenAI from "openai";
+const client = new OpenAI({ baseURL: "https://api.deepseek.com" });
+const response = await client.chat.completions.create({
+  model: "deepseek-flash",
+  messages: [{ role: "user", content: "Hello" }],
+});
+`,
+          },
+        ],
+        sourceLabel: "DeepSeek API quick start",
+        sourceUrl: DEEPSEEK_QUICK_START,
+      },
+      {
+        heading: "LiteLLM",
+        text: [
+          "This page does not show a LiteLLM call. The DeepSeek quick start sample uses the OpenAI SDK with base_url https://api.deepseek.com and model deepseek-flash or deepseek-v4-pro.",
+        ],
+        samples: [],
+        sourceLabel: "DeepSeek API quick start",
+        sourceUrl: DEEPSEEK_QUICK_START,
+      },
+      {
+        heading: "Vercel AI SDK",
+        text: [
+          "This page does not show an AI SDK call. The quick start sample is the OpenAI SDK. Set the host to https://api.deepseek.com and the model to deepseek-flash or deepseek-v4-pro.",
+        ],
+        samples: [],
+        sourceLabel: "DeepSeek API quick start",
+        sourceUrl: DEEPSEEK_QUICK_START,
+      },
+    ],
+    guides: [
+      { href: "/migrate/deepseek__deepseek-chat__to__deepseek__deepseek-v4-flash/", label: "deepseek-chat to deepseek-v4-flash" },
+      { href: "/migrate/deepseek__deepseek-reasoner__to__deepseek__deepseek-v4-flash/", label: "deepseek-reasoner to deepseek-v4-flash" },
+    ],
+    seeAlso: [
+      { href: "/models/deepseek/deepseek-chat/", label: "deepseek-chat" },
+      { href: "/models/deepseek/deepseek-reasoner/", label: "deepseek-reasoner" },
+      { href: "/models/deepseek/deepseek-flash/", label: "deepseek-flash" },
+      { href: "/models/deepseek/deepseek-v4-pro/", label: "deepseek-v4-pro" },
+      { href: "/models/deepseek/deepseek-v4-flash/", label: "deepseek-v4-flash" },
+      { href: "/guides/silent-failures-after-model-shutdown/", label: "Silent failures after a model shutdown" },
+      { href: DEEPSEEK_ERRORS, label: "DeepSeek error codes" },
+      { href: DEEPSEEK_THINKING, label: "DeepSeek thinking mode" },
+    ],
+    faqs: [
+      {
+        question: "Does deepseek-chat return this JSON after July 24, 2026?",
+        answer:
+          "This page did not find a public log that pastes this JSON for deepseek-chat or deepseek-reasoner after 2026-07-24. The quoted body is from NoFxAiOS/nofx#912 on 2025-11-11, HTTP 400, for model name DeepSeek-V3.2-Exp. AstrBotDevs/AstrBot#7286 logs the same message on 2026-04-02 for a prefixed id. The official error-codes page does not print the body.",
+      },
+      {
+        question: "Which model id should I send instead?",
+        answer:
+          "The pricing page lists deepseek-flash and deepseek-v4-pro. The 2026-04-24 changelog says deepseek-chat and deepseek-reasoner pointed at deepseek-v4-flash. The 2026-09-10 changelog says that model has been retired and to use deepseek-flash. deepseek-v4-flash is still accepted and routed.",
+      },
+      {
+        question: "Why do some reports say model_not_found?",
+        answer:
+          "aaif-goose/goose#13114 says selecting deepseek-reasoner fails with model_not_found and does not print a JSON body. The WorkBuddy page says Model Not Found or 404 when the id is not exactly deepseek-flash. Those words are not the JSON in the Error text block.",
+      },
+    ],
+    citations: [
+      DEEPSEEK_UPDATES,
+      DEEPSEEK_NEWS,
+      DEEPSEEK_PRICING,
+      DEEPSEEK_QUICK_START,
+      DEEPSEEK_THINKING,
+      DEEPSEEK_ERRORS,
+      DEEPSEEK_WORKBUDDY,
+      ISSUE_DEEPSEEK_NOFX,
+      ISSUE_DEEPSEEK_ASTRBOT,
+      ISSUE_DEEPSEEK_GOOSE,
+    ],
   },
 ];

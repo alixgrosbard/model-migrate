@@ -7,6 +7,7 @@ const providerIds = [
     "aws-bedrock",
     "azure-openai",
     "mistral",
+    "deepseek",
 ];
 const hits = new Map();
 export function validEmail(email) {

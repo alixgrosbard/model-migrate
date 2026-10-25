@@ -97,7 +97,7 @@ describe("request error pages", () => {
   it("lists both pages in llms.txt, lastmod, and JSON-LD", () => {
     const text = llmsTxt("https://sunsetdiff.com", [], []);
     const full = llmsFull("https://sunsetdiff.com", []);
-    expect(requestErrors.length).toBe(15);
+    expect(requestErrors.length).toBe(16);
     expect(text).toContain(REQUEST_ERRORS_INDEX);
     expect(full).toContain(REQUEST_ERRORS_INDEX);
     expect(lastmodForUrl(`https://sunsetdiff.com${REQUEST_ERRORS_INDEX}`)).toBe(requestErrorsIndexChecked());
@@ -160,6 +160,22 @@ describe("request error pages", () => {
     expect(azureGone?.models.map((item) => item.id)).toContain("o1-2024-12-17");
     expect(azureGone?.models.map((item) => item.id)).toContain("o4-mini-2025-04-16");
     expect(azureGone?.rule).toContain("2027-11-19");
-    expect(requestErrors.some((page) => page.slug.includes("deepseek"))).toBe(false);
+    const deepseekMissing = requestErrors.find((page) => page.slug === "deepseek-model-not-found");
+    expect(deepseekMissing?.checked).toBe("2026-10-25");
+    expect(deepseekMissing?.errorQuoted).toBe(true);
+    expect(deepseekMissing?.errorText).toBe(
+      '{"error":{"message":"Model Not Exist","type":"invalid_request_error","param":null,"code":"invalid_request_error"}}',
+    );
+    expect(deepseekMissing?.quoteSourceUrl).toBe("https://github.com/NoFxAiOS/nofx/issues/912");
+    expect(deepseekMissing?.models.map((item) => item.id)).toEqual([
+      "deepseek-chat",
+      "deepseek-reasoner",
+      "deepseek-v4-flash",
+      "deepseek-flash",
+      "deepseek-v4-pro",
+    ]);
+    expect(deepseekMissing?.rule).toContain("2026-07-24");
+    expect(deepseekMissing?.rule).toContain("does not print model_not_found");
+    expect(JSON.stringify(deepseekMissing)).not.toContain("sk-");
   });
 });

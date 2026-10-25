@@ -14,7 +14,9 @@ import { LEGACY_URL as AWS_LEGACY, parseBedrock, POLICY_URL as AWS_POLICY } from
 import { DEPRECATIONS_URL as GEMINI_URL, parseGemini, parseGeminiPricing, PRICING_URL as GEMINI_PRICING } from "./google-gemini-api.ts";
 import { DEPRECATIONS_URL as VERTEX_URL, parseVertex } from "./google-vertex.ts";
 import { MODELS_URL as MISTRAL_URL, parseMistral, PRICING_URL as MISTRAL_PRICING } from "./mistral.ts";
+import { NEWS_URL as DEEPSEEK_NEWS, PRICING_URL as DEEPSEEK_PRICING, UPDATES_URL as DEEPSEEK_UPDATES, parseDeepSeek } from "./deepseek.ts";
 import { DEPRECATIONS_URL as OPENAI_URL, parseOpenAI, parseOpenAIPricing, PRICING_URL as OPENAI_PRICING } from "./openai.ts";
+import { canonicalizeModel, realContentKey, recordIdentity } from "../src/lib/stable-export.ts";
 import { writeMigrations } from "./write-migrations.ts";
 import { sanityCheck } from "./sanity.ts";
 import { enrichSpecs } from "./enrich.ts";
@@ -86,6 +88,9 @@ async function scrapeAll(): Promise<Map<string, ScrapedModel[]>> {
   const azurePolicy = await loadText(AZURE_POLICY, "snapshots/fixtures/azure-openai/2026-10-17.html", "azure-openai");
   const mistralHtml = await loadText(MISTRAL_URL, "snapshots/fixtures/mistral/2026-10-17.html", "mistral");
   const mistralPricing = await loadText(MISTRAL_PRICING, "snapshots/fixtures/mistral/pricing-2026-10-17.html", "mistral", "-pricing");
+  const deepseekUpdates = await loadText(DEEPSEEK_UPDATES, "snapshots/fixtures/deepseek/updates-2026-10-25.html", "deepseek");
+  const deepseekPricing = await loadText(DEEPSEEK_PRICING, "snapshots/fixtures/deepseek/pricing-2026-10-25.html", "deepseek", "-pricing");
+  const deepseekNews = await loadText(DEEPSEEK_NEWS, "snapshots/fixtures/deepseek/news-2026-04-24.html", "deepseek", "-news");
 
   const openai = parseOpenAI(openaiHtml, openaiPricing, checked);
   const anthropic = parseAnthropic(anthropicHtml, anthropicPricing, checked);
@@ -95,6 +100,7 @@ async function scrapeAll(): Promise<Map<string, ScrapedModel[]>> {
   const aws = parseBedrock(awsHtml, checked);
   const azure = parseAzure(azureSchedule, azurePolicy, checked);
   const mistral = parseMistral(mistralHtml, mistralPricing, checked);
+  const deepseek = parseDeepSeek(deepseekUpdates, deepseekPricing, deepseekNews, checked);
 
   const groups = new Map<string, ScrapedModel[]>([
     ["openai", openai],
@@ -104,6 +110,7 @@ async function scrapeAll(): Promise<Map<string, ScrapedModel[]>> {
     ["aws-bedrock", aws],
     ["azure-openai", azure],
     ["mistral", mistral],
+    ["deepseek", deepseek],
   ]);
   addReplacementStubs(groups, checked);
   attachStubPrices(groups, openaiPricing, anthropicPricing, geminiPricing, checked);
@@ -179,13 +186,23 @@ function merge(
     if (!scrapedProviders.has(old.provider)) models.push(old);
   }
   for (const [provider, list] of scraped) {
-    const oldById = new Map(previous.filter((model) => model.provider === provider).map((model) => [model.id, model]));
-    const slugs = new Set<string>();
-    for (const item of list) {
-      let slug = item.slug || slugify(item.id);
-      while (slugs.has(slug)) slug = `${slug}-2`;
+    const previousRows = previous.filter((model) => model.provider === provider);
+    const claimed = new Set<ModelRecord>();
+    const sorted = [...list].sort(compareScraped);
+    const pairs = sorted.map((item) => {
+      const old = matchPrevious(item, previousRows, claimed);
+      if (old) claimed.add(old);
+      return { item, old };
+    });
+    // A second row with the same id is a separate record (another region schedule
+    // or another catalog name). The "-2" suffix is that collision, not a race.
+    const slugs = new Set(pairs.flatMap(({ old }) => (old ? [old.slug] : [])));
+    for (const { item, old } of pairs) {
+      let slug = old?.slug || item.slug || slugify(item.id);
+      if (!old) {
+        while (slugs.has(slug)) slug = `${slug}-2`;
+      }
       slugs.add(slug);
-      const old = oldById.get(item.id);
       const record = modelSchema.parse({
         ...item,
         slug,
@@ -194,7 +211,7 @@ function merge(
         first_seen: old?.first_seen ?? now,
         updated_at: now,
       });
-      if (old && stable(old) === stable(record)) record.updated_at = old.updated_at;
+      if (old && realContentKey(old) === realContentKey(record)) record.updated_at = old.updated_at;
       else if (old) pushChanges(changes, old, record, checkedOn);
       else if (record.shutdown_date) {
         changes.push({
@@ -207,7 +224,7 @@ function merge(
           source_url: record.sources[0].url,
         });
       }
-      models.push(record);
+      models.push(canonicalizeModel(record));
     }
   }
   return { models, changes, changeCount: changes.length };
@@ -237,9 +254,22 @@ function mergeSources(next: ModelRecord["sources"], old: ModelRecord["sources"])
   return [...next, ...old.filter((source) => !urls.has(source.url))];
 }
 
-function stable(model: ModelRecord): string {
-  const { updated_at, first_seen, ...rest } = model;
-  return JSON.stringify(rest);
+function compareScraped(a: ScrapedModel, b: ScrapedModel): number {
+  return (
+    a.id.localeCompare(b.id) ||
+    a.display_name.localeCompare(b.display_name) ||
+    (a.shutdown_date ?? "").localeCompare(b.shutdown_date ?? "") ||
+    (a.region_or_platform_notes ?? "").localeCompare(b.region_or_platform_notes ?? "")
+  );
+}
+
+function matchPrevious(item: ScrapedModel, rows: ModelRecord[], claimed: Set<ModelRecord>): ModelRecord | undefined {
+  const identity = recordIdentity(item);
+  const exact = rows.find((row) => !claimed.has(row) && recordIdentity(row) === identity);
+  if (exact) return exact;
+  const sameId = rows.filter((row) => !claimed.has(row) && row.id === item.id);
+  if (sameId.length === 1) return sameId[0];
+  return undefined;
 }
 
 function pushChanges(changes: ChangeRecord[], old: ModelRecord, next: ModelRecord, checkedOn: string) {
