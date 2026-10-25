@@ -1,8 +1,8 @@
 {
-  "id": "gpt-4.1*",
+  "id": "gpt-4.1",
   "slug": "gpt-4-1",
   "provider": "openai",
-  "display_name": "gpt-4.1*",
+  "display_name": "gpt-4.1",
   "family": null,
   "status": "active",
   "announced_date": null,
@@ -16,17 +16,23 @@
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "Named as an official replacement",
       "last_checked": "2026-10-24",
-      "excerpt": "Named as an official replacement for gpt-4-0314. No shutdown date was published for this id on that page."
+      "excerpt": "Named as an official replacement for gpt-4.5-preview. No shutdown date was published for this id on that page."
+    },
+    {
+      "url": "https://developers.openai.com/api/docs/models/gpt-4.1.md",
+      "label": "OpenAI model docs",
+      "last_checked": "2026-10-25",
+      "excerpt": "Model ID: gpt-4.1 | context window 1047576 | max output 32768 | input $2 | cached input $0.5 | output $8 | Default snapshot gpt-4.1-2025-04-14"
     }
   ],
   "specs": {
-    "input_price_per_mtok": null,
-    "output_price_per_mtok": null,
-    "cached_input_price_per_mtok": null,
+    "input_price_per_mtok": 2,
+    "output_price_per_mtok": 8,
+    "cached_input_price_per_mtok": 0.5,
     "batch_discount_pct": null,
-    "currency": null,
-    "context_window_tokens": null,
-    "max_output_tokens": null,
+    "currency": "USD",
+    "context_window_tokens": 1047576,
+    "max_output_tokens": 32768,
     "modalities_in": null,
     "modalities_out": null,
     "supports_tools": null,
@@ -38,8 +44,29 @@
     "reasoning": null,
     "knowledge_cutoff": null,
     "endpoints": null,
-    "specs_sources": {}
+    "specs_sources": {
+      "input_price_per_mtok": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-4.1.md",
+        "last_checked": "2026-10-25"
+      },
+      "output_price_per_mtok": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-4.1.md",
+        "last_checked": "2026-10-25"
+      },
+      "cached_input_price_per_mtok": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-4.1.md",
+        "last_checked": "2026-10-25"
+      },
+      "context_window_tokens": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-4.1.md",
+        "last_checked": "2026-10-25"
+      },
+      "max_output_tokens": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-4.1.md",
+        "last_checked": "2026-10-25"
+      }
+    }
   },
   "first_seen": "2026-10-17T15:59:19.574Z",
-  "updated_at": "2026-10-24T04:39:18.299Z"
+  "updated_at": "2026-10-25T05:21:11.935Z"
 }

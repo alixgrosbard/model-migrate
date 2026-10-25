@@ -2,6 +2,7 @@ import { mkdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import type { ModelRecord } from "../schema.ts";
 import { GEMINI_25_ACCESS_CHECKED, GEMINI_25_ACCESS_SOURCE, gemini25Restricted } from "./access.ts";
+import { aliasSnapshotView } from "./aliases.ts";
 import { autoRouteStatusText, type FaqItem } from "./format.ts";
 
 export const BADGES_PATH = "/badges/";
@@ -22,12 +23,12 @@ export const badgeFaqs: FaqItem[] = [
   {
     question: "What do the badge colors mean?",
     answer:
-      `Red means the model is retired, or the published shutdown date is under 30 days away. A date that is already past is red too. Amber means the published shutdown date is under 90 days away. Green means a later date, or the model is active and no shutdown date is published. For gemini-2.5-pro, gemini-2.5-flash, and gemini-2.5-flash-lite on the Gemini API, the green message says existing users only. Google's deprecations page limits those three ids to people who have used them before, and says they are not deprecated. Source: ${GEMINI_25_ACCESS_SOURCE}, checked ${GEMINI_25_ACCESS_CHECKED}. Gray means the date is only a not-sooner-than floor, or the status has no shutdown date.`,
+      `Red means the model is retired, or the published shutdown date is under 30 days away. A date that is already past is red too. Amber means the published shutdown date is under 90 days away. Green means a later date, or the model is active and no shutdown date is published. For gemini-2.5-pro, gemini-2.5-flash, and gemini-2.5-flash-lite on the Gemini API, the green message says existing users only. Google's deprecations page limits those three ids to people who have used them before, and says they are not deprecated. Source: ${GEMINI_25_ACCESS_SOURCE}, checked ${GEMINI_25_ACCESS_CHECKED}. Gray means the date is only a not-sooner-than floor, or the status has no shutdown date. An undated alias whose dated snapshots are all on the deprecations page uses those snapshot dates for the color. The message says snapshots retire that date.`,
   },
   {
     question: "Where does the badge date come from?",
     answer:
-      "The badge uses the same model record as the model page. It does not add a date that is not in that record. If no shutdown date is published, the message says so.",
+      "The badge uses the same model record as the model page. It does not add a date that is not in that record. If no shutdown date is published, the message says so. When an undated alias has dated snapshots and every one of those snapshots is on the provider deprecations page, the message says snapshots retire and uses the snapshot shutdown date. That date stays off the alias record.",
   },
   {
     question: "When does a badge update?",
@@ -86,8 +87,10 @@ export function daysUntil(day: string, date: string): number {
   return Math.round((end - start) / 86_400_000);
 }
 
-export function badgeView(model: ModelRecord, day: string): BadgeView {
+export function badgeView(model: ModelRecord, day: string, models: ModelRecord[] = []): BadgeView {
   const label = model.id;
+  const alias = models.length ? aliasSnapshotView(model, models) : null;
+  if (alias) return paint(label, alias.badgeMessage, colorForDays(daysUntil(day, alias.badgeDate)));
   if (model.status === "retired") return paint(label, "retired", "red");
   if (model.shutdown_date && model.shutdown_date_kind === "exact") {
     return paint(label, `retires ${model.shutdown_date}`, colorForDays(daysUntil(day, model.shutdown_date)));
@@ -125,8 +128,8 @@ export interface BadgeEndpoint {
   cacheSeconds: number;
 }
 
-export function badgeEndpoint(model: ModelRecord, day: string): BadgeEndpoint {
-  const view = badgeView(model, day);
+export function badgeEndpoint(model: ModelRecord, day: string, models: ModelRecord[] = []): BadgeEndpoint {
+  const view = badgeView(model, day, models);
   return {
     schemaVersion: 1,
     label: view.label,
@@ -136,35 +139,35 @@ export function badgeEndpoint(model: ModelRecord, day: string): BadgeEndpoint {
   };
 }
 
-export function badgeAlt(model: ModelRecord, day: string): string {
-  const view = badgeView(model, day);
+export function badgeAlt(model: ModelRecord, day: string, models: ModelRecord[] = []): string {
+  const view = badgeView(model, day, models);
   return `${view.label}: ${view.message}`;
 }
 
-export function badgeMarkdown(origin: string, model: ModelRecord, day: string): string {
+export function badgeMarkdown(origin: string, model: ModelRecord, day: string, models: ModelRecord[] = []): string {
   const root = trimOrigin(origin);
-  const alt = badgeAlt(model, day).replace(/\]/g, "");
+  const alt = badgeAlt(model, day, models).replace(/\]/g, "");
   return `[![${alt}](${root}${badgeSvgPath(model)})](${root}${modelPagePath(model)})`;
 }
 
-export function badgeHtml(origin: string, model: ModelRecord, day: string): string {
+export function badgeHtml(origin: string, model: ModelRecord, day: string, models: ModelRecord[] = []): string {
   const root = trimOrigin(origin);
-  const alt = escapeAttr(badgeAlt(model, day));
+  const alt = escapeAttr(badgeAlt(model, day, models));
   const src = escapeAttr(`${root}${badgeSvgPath(model)}`);
   const href = escapeAttr(`${root}${modelPagePath(model)}`);
   return `<a href="${href}"><img src="${src}" alt="${alt}"></a>`;
 }
 
-export function badgeShieldsMarkdown(origin: string, model: ModelRecord, day: string): string {
+export function badgeShieldsMarkdown(origin: string, model: ModelRecord, day: string, models: ModelRecord[] = []): string {
   const root = trimOrigin(origin);
-  const alt = badgeAlt(model, day).replace(/\]/g, "");
+  const alt = badgeAlt(model, day, models).replace(/\]/g, "");
   const endpoint = `https://img.shields.io/endpoint?url=${encodeURIComponent(`${root}${badgeJsonPath(model)}`)}`;
   return `[![${alt}](${endpoint})](${root}${modelPagePath(model)})`;
 }
 
 /** Shields flat style. Widths use the Verdana 11px table above. */
-export function badgeSvg(model: ModelRecord, day: string): string {
-  const view = badgeView(model, day);
+export function badgeSvg(model: ModelRecord, day: string, models: ModelRecord[] = []): string {
+  const view = badgeView(model, day, models);
   return flatBadgeSvg(view.label, view.message, view.fill);
 }
 
@@ -203,8 +206,8 @@ export async function writeBadgeFiles(dir: string, models: ModelRecord[], day: s
     seen.add(svgPath);
     const folder = path.join(badgeDir, model.provider);
     await mkdir(folder, { recursive: true });
-    await writeFile(path.join(folder, `${model.slug}.svg`), badgeSvg(model, day));
-    await writeFile(path.join(folder, `${model.slug}.json`), JSON.stringify(badgeEndpoint(model, day)));
+    await writeFile(path.join(folder, `${model.slug}.svg`), badgeSvg(model, day, models));
+    await writeFile(path.join(folder, `${model.slug}.json`), JSON.stringify(badgeEndpoint(model, day, models)));
   }
   return models.length;
 }

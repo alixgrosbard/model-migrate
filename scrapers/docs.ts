@@ -50,6 +50,7 @@ export function parseOpenAIModelDoc(markdown: string): PublishedSpec | null {
       maxOutput ? `max output ${maxOutput}` : "",
       input != null ? `input $${input}` : "",
       output != null ? `output $${output}` : "",
+      snapshot && snapshot !== id ? `Default snapshot ${snapshot}` : "",
     ]),
     limitIds: snapshot && snapshot !== id ? [snapshot] : [],
   };

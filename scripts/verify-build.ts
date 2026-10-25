@@ -1,5 +1,6 @@
 import { readFile, readdir, stat } from "node:fs/promises";
 import path from "node:path";
+import { aliasSnapshotView } from "../src/lib/aliases.ts";
 import { BADGES_DESCRIPTION, BADGES_TITLE, badgeSvgPath, badgeView } from "../src/lib/badges.ts";
 import { htmlContainsOwnerPlaceholder } from "../src/lib/public-copy.ts";
 import { loadModels, loadProviders } from "../src/lib/load.ts";
@@ -472,7 +473,7 @@ async function checkBadges(sitemap: string, llms: string, llmsFull: string) {
     const svgRel = badgeSvgPath(model).slice(1);
     if (seen.has(svgRel)) throw new Error(`Duplicate badge ${svgRel}`);
     seen.add(svgRel);
-    const view = badgeView(model, day);
+    const view = badgeView(model, day, models);
     const svg = await readFile(path.join(dist, svgRel), "utf8");
     const json = JSON.parse(await readFile(path.join(dist, svgRel.replace(/\.svg$/, ".json")), "utf8")) as {
       schemaVersion: number;
@@ -490,7 +491,10 @@ async function checkBadges(sitemap: string, llms: string, llmsFull: string) {
       throw new Error(`Badge JSON mismatch: ${svgRel}`);
     }
     if (json.cacheSeconds < 300) throw new Error(`Badge JSON is not cache-friendly: ${svgRel}`);
-    if (view.message.includes("retires") && !model.shutdown_date) throw new Error(`Badge invented a date: ${svgRel}`);
+    if (/\bretires?\b/.test(view.message) && !model.shutdown_date) {
+      const alias = aliasSnapshotView(model, models);
+      if (!alias || !view.message.includes(alias.badgeDate)) throw new Error(`Badge invented a date: ${svgRel}`);
+    }
   }
   if (seen.size !== models.length) throw new Error(`Expected ${models.length} badges, found ${seen.size}`);
   const sample = models[0];

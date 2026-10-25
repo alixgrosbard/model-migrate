@@ -1,5 +1,6 @@
 import type { MigrationRecord, ModelRecord, Provider } from "../schema.ts";
 import { GEMINI_25_ACCESS_CHECKED, GEMINI_25_ACCESS_SOURCE, gemini25Restricted } from "./access.ts";
+import { aliasLead, aliasReplacementSentence, aliasSnapshotView } from "./aliases.ts";
 import { disagreementNote } from "./conflicts.ts";
 
 export interface FaqItem {
@@ -106,7 +107,14 @@ export function keyChangeSentence(model: ModelRecord, migration?: MigrationRecor
   return "Price, context window, and max output were left blank because the official pages we checked did not publish them.";
 }
 
-export function answerSentence(model: ModelRecord, provider: Provider, migration?: MigrationRecord | null): string {
+export function answerSentence(
+  model: ModelRecord,
+  provider: Provider,
+  migration?: MigrationRecord | null,
+  catalog?: ModelRecord[],
+): string {
+  const alias = catalog?.length ? aliasSnapshotView(model, catalog) : null;
+  if (alias) return aliasLead(alias);
   return `${shutdownSentence(model, provider)} ${replacementSentence(model)} ${keyChangeSentence(model, migration)}`;
 }
 
@@ -114,8 +122,25 @@ export function replacementAnswer(model: ModelRecord, provider: Provider, migrat
   return `${replacementSentence(model)} ${shutdownSentence(model, provider)} ${keyChangeSentence(model, migration)}`;
 }
 
-export function modelFaqs(model: ModelRecord, provider: Provider, migration?: MigrationRecord | null): FaqItem[] {
-  const shutdown = answerSentence(model, provider, migration);
+export function modelFaqs(
+  model: ModelRecord,
+  provider: Provider,
+  migration?: MigrationRecord | null,
+  catalog?: ModelRecord[],
+): FaqItem[] {
+  const alias = catalog?.length ? aliasSnapshotView(model, catalog) : null;
+  if (alias) {
+    const name = visibleName(model);
+    return [
+      { question: `When is ${name} shut down?`, answer: aliasLead(alias) },
+      { question: `What replaces ${name}?`, answer: aliasReplacementSentence(alias) },
+      {
+        question: `Is ${name} deprecated?`,
+        answer: `${name} is not listed by name on the deprecations page (checked ${alias.checked}). The dated snapshots behind it are. This record keeps status ${model.status} and does not copy a snapshot shutdown date onto the alias.`,
+      },
+    ];
+  }
+  const shutdown = answerSentence(model, provider, migration, catalog);
   const conflict = disagreementNote(model.region_or_platform_notes);
   return [
     {
@@ -166,9 +191,11 @@ export function contextAnswer(migration?: MigrationRecord | null): string {
   return `The context window stays ${oldTokens.toLocaleString("en-US")} tokens.`;
 }
 
-export function modelTitle(model: ModelRecord): string {
-  const when = formatWhen(model);
+export function modelTitle(model: ModelRecord, catalog?: ModelRecord[]): string {
+  const alias = catalog?.length ? aliasSnapshotView(model, catalog) : null;
   const name = visibleName(model);
+  if (alias) return `${name} snapshots retire ${alias.badgeDate} | SunsetDiff`;
+  const when = formatWhen(model);
   if (when === "Not published") return `${name} shutdown status | SunsetDiff`;
   return `${name} shuts down ${when} | SunsetDiff`;
 }

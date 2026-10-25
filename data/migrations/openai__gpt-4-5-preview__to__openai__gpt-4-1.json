@@ -7,7 +7,7 @@
   "to": {
     "provider": "openai",
     "model_id": "gpt-4.1",
-    "slug": "gpt-4-1-2"
+    "slug": "gpt-4-1"
   },
   "price_diff": {
     "input_pct_change": -97.3,

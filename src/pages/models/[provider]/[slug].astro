@@ -8,6 +8,7 @@ import SponsorSlot from "../../../components/SponsorSlot.astro";
 import { loadChanges, loadMigrations, loadModels, loadProviders } from "../../../lib/load.ts";
 import { GEMINI_25_ACCESS_CHECKED, GEMINI_25_ACCESS_QUOTE, GEMINI_25_ACCESS_SOURCE, gemini25Restricted } from "../../../lib/access.ts";
 import { CONFLICTS_PATH, disagreementNote, noteWithoutDisagreement } from "../../../lib/conflicts.ts";
+import { aliasSnapshotView } from "../../../lib/aliases.ts";
 import { answerSentence, autoRouteStatusText, clipMeta, formatWhen, modelFaqs, modelTitle, money, relatedModels, tokens } from "../../../lib/format.ts";
 import { publicName } from "../../../lib/growth.ts";
 import { modelsHub } from "../../../lib/hubs.ts";
@@ -29,8 +30,9 @@ if (!model) throw new Error("Missing model");
 const provider = providers.find((item) => item.id === model.provider)!;
 const migrations = await loadMigrations();
 const migration = migrations.find((item) => item.from.provider === model.provider && item.from.slug === model.slug);
-const answer = answerSentence(model, provider, migration);
-const faqs = modelFaqs(model, provider, migration);
+const alias = aliasSnapshotView(model, models);
+const answer = answerSentence(model, provider, migration, models);
+const faqs = modelFaqs(model, provider, migration, models);
 const related = relatedModels(model, models);
 const changes = (await loadChanges()).filter((change) => change.provider === model.provider && change.model_id === model.id).slice(-20).reverse();
 const description = clipMeta(answer);
@@ -41,7 +43,7 @@ const restrictedAccess = gemini25Restricted(model);
 const disagree = disagreementNote(model.region_or_platform_notes);
 const regionNote = noteWithoutDisagreement(model.region_or_platform_notes);
 const retiringReplacements = replacementRetirement(model, models);
-const statusLabel = autoRouteStatusText(model) ?? (restrictedAccess ? "existing users only" : model.status);
+const statusLabel = alias?.badgeMessage ?? autoRouteStatusText(model) ?? (restrictedAccess ? "existing users only" : model.status);
 const specRows: [string, string, string][] = [
   ["Input price / 1M", money(model.specs.input_price_per_mtok), "input_price_per_mtok"],
   ["Output price / 1M", money(model.specs.output_price_per_mtok), "output_price_per_mtok"],
@@ -54,7 +56,7 @@ const specRows: [string, string, string][] = [
 ];
 ---
 <Base
-  title={modelTitle(model)}
+  title={modelTitle(model, models)}
   description={description}
   image={`/og/models/${model.provider}/${model.slug}.svg`}
   crumbs={[
@@ -63,7 +65,7 @@ const specRows: [string, string, string][] = [
     { name: provider.name, path: `/providers/${provider.id}/` },
     { name: publicName(model), path: `/models/${model.provider}/${model.slug}/` },
   ]}
-  extraGraph={modelGraph(site, model, provider, migration)}
+  extraGraph={modelGraph(site, model, provider, migration, models)}
 >
   <h1>When is {publicName(model)} shut down?</h1>
   <p class="answer">{answer}</p>
@@ -74,7 +76,7 @@ const specRows: [string, string, string][] = [
     </p>
   ) : null}
   <p><span class="badge">{statusLabel}</span></p>
-  <BadgeSnippet model={model} origin={site.replace(/\/+$/, "")} />
+  <BadgeSnippet model={model} origin={site.replace(/\/+$/, "")} models={models} />
   <table>
     <caption>Dates</caption>
     <tbody>
@@ -82,6 +84,12 @@ const specRows: [string, string, string][] = [
       <tr><th scope="row">Deprecated</th><td>{model.deprecation_date ?? "Not published"}</td></tr>
       <tr><th scope="row">Shutdown</th><td>{formatWhen(model)}</td></tr>
       <tr><th scope="row">Kind</th><td>{model.shutdown_date_kind}</td></tr>
+      {alias ? (
+        <tr>
+          <th scope="row">Dated snapshots</th>
+          <td>{alias.label} This is not a shutdown date for the alias.</td>
+        </tr>
+      ) : null}
       {restrictedAccess ? (
         <tr>
           <th scope="row">Access</th>
@@ -105,6 +113,49 @@ const specRows: [string, string, string][] = [
     </tbody>
   </table>
   {regionNote && <p>{regionNote}</p>}
+  {alias ? (
+    <>
+      <h2>Dated snapshots</h2>
+      <p>{alias.label}</p>
+      <ul>
+        {alias.snapshots.map((row) => {
+          const replacementId = row.replacementIds[0];
+          const target = replacementId
+            ? models.find((item) => item.provider === row.model.provider && item.id === replacementId)
+            : undefined;
+          const pair = target
+            ? `${row.model.provider}__${row.model.slug}__to__${target.provider}__${target.slug}`
+            : "";
+          const hasMigration = pair
+            ? migrations.some((item) => `${item.from.provider}__${item.from.slug}__to__${item.to.provider}__${item.to.slug}` === pair)
+            : false;
+          return (
+            <li>
+              <a href={`/models/${row.model.provider}/${row.model.slug}/`}>{row.model.id}</a>{`: shutdown ${row.shutdownDate}.`}
+              {replacementId ? (
+                <>
+                  {" Replacement "}
+                  <a href={target ? `/models/${target.provider}/${target.slug}/` : row.sourceUrl}>{replacementId}</a>.
+                </>
+              ) : null}
+              {hasMigration ? <>{" "}<a href={`/migrate/${pair}/`}>Migration</a>.</> : null}
+              {" "}<a href={row.sourceUrl}>Source</a>{`, checked ${row.checked}.`}
+            </li>
+          );
+        })}
+      </ul>
+      {alias.defaultSnapshot ? (
+        <p>
+          The official model page names {alias.defaultSnapshot.id} as the default snapshot.
+          {" "}<a href={alias.defaultSnapshot.url}>Source</a>, checked {alias.defaultSnapshot.checked}.
+        </p>
+      ) : null}
+      <p>
+        <a href={alias.deprecationsUrl}>Deprecations page</a>, checked {alias.checked}.
+        {" "}The alias itself is not listed by name.
+      </p>
+    </>
+  ) : null}
   <h2>Replacements</h2>
   {model.replacements.length ? (
     <ul>
@@ -136,7 +187,7 @@ const specRows: [string, string, string][] = [
         );
       })}
     </ul>
-  ) : <p>Not published.</p>}
+  ) : alias ? <p>No replacement is published for this alias id. The snapshot list names the replacement for each dated snapshot.</p> : <p>Not published.</p>}
   <p>
     <a href={`/replace/${model.provider}/${model.slug}/`}>See the replacement diff</a>
     {" · "}<a href={`/providers/${provider.id}/`}>{provider.name} models</a>
