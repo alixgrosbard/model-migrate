@@ -5,6 +5,7 @@ import { emptySpecs } from "../src/schema.ts";
 import { nowISO, todayISO } from "./lib/dates.ts";
 import { politeFetch, readSnapshot, saveSnapshot } from "./lib/fetch.ts";
 import { missingAliasModels } from "../src/lib/aliases.ts";
+import { carryForwardDocumentedModels } from "./carry.ts";
 import { slugify } from "./lib/html.ts";
 import { applyPrice, baseModel } from "./lib/model.ts";
 import type { ScrapedModel } from "./lib/types.ts";
@@ -250,7 +251,9 @@ function merge(
       models.push(canonicalizeModel(record));
     }
   }
-  return { models, changes, changeCount: changes.length };
+  // gpt-6.1-sol and gpt-6-astra are sourced from model pages, not the deprecations table.
+  // A scrape that omits them would delete those records and fail the tests.
+  return { models: carryForwardDocumentedModels(previous, models), changes, changeCount: changes.length };
 }
 
 function preserveSpecs(old: ModelRecord["specs"], next: ModelRecord["specs"]): ModelRecord["specs"] {

@@ -10,6 +10,8 @@ import { parseMistral } from "../scrapers/mistral.ts";
 import { parseOpenAI } from "../scrapers/openai.ts";
 import { parseVertex } from "../scrapers/google-vertex.ts";
 import { sanityCheck } from "../scrapers/sanity.ts";
+import { carryForwardDocumentedModels } from "../scrapers/carry.ts";
+import { loadModels } from "../src/lib/load.ts";
 import { parseDate } from "../scrapers/lib/dates.ts";
 import { isModelId, loadHtml } from "../scrapers/lib/html.ts";
 import {
@@ -256,6 +258,26 @@ describe("official snapshots", () => {
 });
 
 describe("refresh pipeline", () => {
+  it("keeps documented active models the deprecations scrape does not emit", async () => {
+    const models = await loadModels();
+    const sol = models.find((model) => model.provider === "openai" && model.id === "gpt-6.1-sol");
+    const astra = models.find((model) => model.provider === "openai" && model.id === "gpt-6-astra");
+    expect(sol?.shutdown_date).toBeNull();
+    expect(astra?.shutdown_date).toBeNull();
+    const scraped = models.filter((model) => model.id !== "gpt-6.1-sol" && model.id !== "gpt-6-astra");
+    const kept = carryForwardDocumentedModels(models, scraped);
+    expect(kept.find((model) => model.id === "gpt-6.1-sol")).toBe(sol);
+    expect(kept.find((model) => model.id === "gpt-6-astra")).toBe(astra);
+    expect(kept.filter((model) => model.id === "gpt-6.1-sol")).toHaveLength(1);
+
+    const snapshotId = "gpt-4o-mini-2024-07-18";
+    const withoutSnapshot = carryForwardDocumentedModels(
+      models,
+      models.filter((model) => model.id !== snapshotId),
+    );
+    expect(withoutSnapshot.some((model) => model.id === snapshotId)).toBe(false);
+  });
+
   it("builds undated aliases after model docs are attached", () => {
     const source = readFileSync("scrapers/run.ts", "utf8");
     const enrich = source.indexOf("await enrichSpecs");
