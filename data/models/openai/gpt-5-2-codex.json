@@ -22,13 +22,13 @@
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "OpenAI deprecations",
-      "last_checked": "2026-10-24",
+      "last_checked": "2026-10-25",
       "excerpt": "July 23, 2026 | gpt-5.2-codex | gpt-5.6-sol"
     },
     {
       "url": "https://developers.openai.com/api/docs/models/gpt-5.2-codex.md",
       "label": "OpenAI model docs",
-      "last_checked": "2026-10-24",
+      "last_checked": "2026-10-25",
       "excerpt": "Model ID: gpt-5.2-codex | context window 400000 | max output 128000 | input $1.75 | output $14"
     }
   ],
@@ -52,25 +52,25 @@
     "knowledge_cutoff": null,
     "endpoints": null,
     "specs_sources": {
-      "input_price_per_mtok": {
-        "url": "https://developers.openai.com/api/docs/models/gpt-5.2-codex.md",
-        "last_checked": "2026-10-24"
-      },
-      "output_price_per_mtok": {
-        "url": "https://developers.openai.com/api/docs/models/gpt-5.2-codex.md",
-        "last_checked": "2026-10-24"
-      },
       "cached_input_price_per_mtok": {
         "url": "https://developers.openai.com/api/docs/models/gpt-5.2-codex.md",
-        "last_checked": "2026-10-24"
+        "last_checked": "2026-10-25"
       },
       "context_window_tokens": {
         "url": "https://developers.openai.com/api/docs/models/gpt-5.2-codex.md",
-        "last_checked": "2026-10-24"
+        "last_checked": "2026-10-25"
+      },
+      "input_price_per_mtok": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-5.2-codex.md",
+        "last_checked": "2026-10-25"
       },
       "max_output_tokens": {
         "url": "https://developers.openai.com/api/docs/models/gpt-5.2-codex.md",
-        "last_checked": "2026-10-24"
+        "last_checked": "2026-10-25"
+      },
+      "output_price_per_mtok": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-5.2-codex.md",
+        "last_checked": "2026-10-25"
       }
     }
   },

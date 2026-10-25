@@ -28,8 +28,8 @@
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "OpenAI deprecations",
-      "last_checked": "2026-10-24",
-      "excerpt": "2026\u201103\u201126 | gpt-4-0314 | gpt-5 or gpt-4.1*"
+      "last_checked": "2026-10-25",
+      "excerpt": "2026‑03‑26 | gpt-4-0314 | gpt-5 or gpt-4.1*"
     }
   ],
   "specs": {
@@ -54,11 +54,11 @@
     "specs_sources": {
       "input_price_per_mtok": {
         "url": "https://developers.openai.com/api/docs/deprecations",
-        "last_checked": "2026-10-24"
+        "last_checked": "2026-10-25"
       },
       "output_price_per_mtok": {
         "url": "https://developers.openai.com/api/docs/deprecations",
-        "last_checked": "2026-10-24"
+        "last_checked": "2026-10-25"
       }
     }
   },

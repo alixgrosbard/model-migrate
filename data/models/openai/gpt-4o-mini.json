@@ -22,7 +22,7 @@
       "url": "https://developers.openai.com/api/docs/models/gpt-4o-mini.md",
       "label": "OpenAI model docs",
       "last_checked": "2026-10-25",
-      "excerpt": "Model ID: gpt-4o-mini | context window 128000 | max output 16384 | input $0.15 | cached input $0.075 | output $0.6 | Default snapshot gpt-4o-mini-2024-07-18"
+      "excerpt": "Model ID: gpt-4o-mini | context window 128000 | max output 16384 | input $0.15 | output $0.6 | Default snapshot gpt-4o-mini-2024-07-18"
     }
   ],
   "specs": {
@@ -45,11 +45,11 @@
     "knowledge_cutoff": null,
     "endpoints": null,
     "specs_sources": {
-      "context_window_tokens": {
+      "cached_input_price_per_mtok": {
         "url": "https://developers.openai.com/api/docs/models/gpt-4o-mini.md",
         "last_checked": "2026-10-25"
       },
-      "max_output_tokens": {
+      "context_window_tokens": {
         "url": "https://developers.openai.com/api/docs/models/gpt-4o-mini.md",
         "last_checked": "2026-10-25"
       },
@@ -57,16 +57,16 @@
         "url": "https://developers.openai.com/api/docs/models/gpt-4o-mini.md",
         "last_checked": "2026-10-25"
       },
-      "output_price_per_mtok": {
+      "max_output_tokens": {
         "url": "https://developers.openai.com/api/docs/models/gpt-4o-mini.md",
         "last_checked": "2026-10-25"
       },
-      "cached_input_price_per_mtok": {
+      "output_price_per_mtok": {
         "url": "https://developers.openai.com/api/docs/models/gpt-4o-mini.md",
         "last_checked": "2026-10-25"
       }
     }
   },
   "first_seen": "2026-10-25T05:21:11.935Z",
-  "updated_at": "2026-10-25T05:21:11.935Z"
+  "updated_at": "2026-10-25T20:53:11.768Z"
 }

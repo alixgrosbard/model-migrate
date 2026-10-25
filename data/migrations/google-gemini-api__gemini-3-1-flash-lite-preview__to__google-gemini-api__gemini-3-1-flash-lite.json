@@ -55,30 +55,30 @@
     "Ship the change before the published shutdown date."
   ],
   "confidence": "partial",
-  "last_checked": "2026-10-24",
+  "last_checked": "2026-10-25",
   "sources": [
     {
       "url": "https://ai.google.dev/gemini-api/docs/deprecations",
       "label": "Gemini API deprecations",
-      "last_checked": "2026-10-24",
+      "last_checked": "2026-10-25",
       "excerpt": "gemini-3.1-flash-lite-preview | March 3, 2026 | May 25, 2026 | gemini-3.1-flash-lite"
     },
     {
       "url": "https://ai.google.dev/gemini-api/docs/models/gemini-3.1-flash-lite-preview",
       "label": "Gemini model docs",
-      "last_checked": "2026-10-24",
+      "last_checked": "2026-10-25",
       "excerpt": "gemini-3.1-flash-lite-preview input token limit 1048576 | max output tokens 65536"
     },
     {
       "url": "https://ai.google.dev/gemini-api/docs/deprecations",
       "label": "Gemini API deprecations",
-      "last_checked": "2026-10-24",
+      "last_checked": "2026-10-25",
       "excerpt": "gemini-3.1-flash-lite | May 7, 2026 | May 7, 2027 | gemini-3.5-flash-lite"
     },
     {
       "url": "https://ai.google.dev/gemini-api/docs/models/gemini-3.1-flash-lite",
       "label": "Gemini model docs",
-      "last_checked": "2026-10-24",
+      "last_checked": "2026-10-25",
       "excerpt": "gemini-3.1-flash-lite input token limit 1048576 | max output tokens 65536"
     },
     {

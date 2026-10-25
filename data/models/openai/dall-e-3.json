@@ -34,7 +34,7 @@
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "OpenAI deprecations",
-      "last_checked": "2026-10-24",
+      "last_checked": "2026-10-25",
       "excerpt": "2026-05-12 | dall-e-3 | gpt-image-2, gpt-image-1, or gpt-image-1-mini"
     }
   ],

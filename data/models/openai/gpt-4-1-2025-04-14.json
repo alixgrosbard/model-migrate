@@ -28,7 +28,7 @@
     {
       "url": "https://developers.openai.com/api/docs/models/gpt-4.1.md",
       "label": "OpenAI model docs",
-      "last_checked": "2026-10-24",
+      "last_checked": "2026-10-25",
       "excerpt": "Model ID: gpt-4.1 | context window 1047576 | max output 32768 | input $2 | output $8 | Default snapshot gpt-4.1-2025-04-14"
     }
   ],
@@ -54,11 +54,11 @@
     "specs_sources": {
       "context_window_tokens": {
         "url": "https://developers.openai.com/api/docs/models/gpt-4.1.md",
-        "last_checked": "2026-10-24"
+        "last_checked": "2026-10-25"
       },
       "max_output_tokens": {
         "url": "https://developers.openai.com/api/docs/models/gpt-4.1.md",
-        "last_checked": "2026-10-24"
+        "last_checked": "2026-10-25"
       }
     }
   },

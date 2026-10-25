@@ -33,8 +33,13 @@
     "currency": "USD",
     "context_window_tokens": 1050000,
     "max_output_tokens": 128000,
-    "modalities_in": ["text", "image"],
-    "modalities_out": ["text"],
+    "modalities_in": [
+      "text",
+      "image"
+    ],
+    "modalities_out": [
+      "text"
+    ],
     "supports_tools": true,
     "supports_json_schema": true,
     "supports_vision": true,
@@ -43,7 +48,11 @@
     "supports_prompt_caching": true,
     "reasoning": "always",
     "knowledge_cutoff": "Apr 30, 2026",
-    "endpoints": ["v1/chat/completions", "v1/responses", "v1/batch"],
+    "endpoints": [
+      "v1/chat/completions",
+      "v1/responses",
+      "v1/batch"
+    ],
     "specs_sources": {
       "input_price_per_mtok": {
         "url": "https://developers.openai.com/api/docs/models/gpt-6.1-sol",

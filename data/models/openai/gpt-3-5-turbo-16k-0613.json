@@ -22,13 +22,13 @@
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "OpenAI deprecations",
-      "last_checked": "2026-10-24",
+      "last_checked": "2026-10-25",
       "excerpt": "2024-09-13 | gpt-3.5-turbo-16k-0613 | $3.00 / 1M input tokens + $4.00 / 1M output tokens | gpt-3.5-turbo"
     },
     {
       "url": "https://developers.openai.com/api/docs/models/gpt-3.5-turbo-16k-0613.md",
       "label": "OpenAI model docs",
-      "last_checked": "2026-10-24",
+      "last_checked": "2026-10-25",
       "excerpt": "Model ID: gpt-3.5-turbo-16k-0613 | context window 16385 | max output 4096 | input $3 | output $4"
     }
   ],
@@ -52,21 +52,21 @@
     "knowledge_cutoff": null,
     "endpoints": null,
     "specs_sources": {
-      "input_price_per_mtok": {
-        "url": "https://developers.openai.com/api/docs/deprecations",
-        "last_checked": "2026-10-24"
-      },
-      "output_price_per_mtok": {
-        "url": "https://developers.openai.com/api/docs/deprecations",
-        "last_checked": "2026-10-24"
-      },
       "context_window_tokens": {
         "url": "https://developers.openai.com/api/docs/models/gpt-3.5-turbo-16k-0613.md",
-        "last_checked": "2026-10-24"
+        "last_checked": "2026-10-25"
+      },
+      "input_price_per_mtok": {
+        "url": "https://developers.openai.com/api/docs/deprecations",
+        "last_checked": "2026-10-25"
       },
       "max_output_tokens": {
         "url": "https://developers.openai.com/api/docs/models/gpt-3.5-turbo-16k-0613.md",
-        "last_checked": "2026-10-24"
+        "last_checked": "2026-10-25"
+      },
+      "output_price_per_mtok": {
+        "url": "https://developers.openai.com/api/docs/deprecations",
+        "last_checked": "2026-10-25"
       }
     }
   },

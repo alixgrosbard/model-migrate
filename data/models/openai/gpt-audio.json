@@ -22,14 +22,14 @@
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "OpenAI deprecations",
-      "last_checked": "2026-10-24",
+      "last_checked": "2026-10-25",
       "excerpt": "Jan 20, 2027 | gpt-audio | gpt-audio-2025-08-28 | gpt-audio-1.5"
     },
     {
       "url": "https://developers.openai.com/api/docs/models/gpt-audio.md",
       "label": "OpenAI model docs",
-      "last_checked": "2026-10-24",
-      "excerpt": "Model ID: gpt-audio | context window 128000 | max output 16384 | input $2.5 | output $10"
+      "last_checked": "2026-10-25",
+      "excerpt": "Model ID: gpt-audio | context window 128000 | max output 16384 | input $2.5 | output $10 | Default snapshot gpt-audio-2025-08-28"
     }
   ],
   "specs": {
@@ -52,24 +52,24 @@
     "knowledge_cutoff": null,
     "endpoints": null,
     "specs_sources": {
-      "input_price_per_mtok": {
-        "url": "https://developers.openai.com/api/docs/models/gpt-audio.md",
-        "last_checked": "2026-10-24"
-      },
-      "output_price_per_mtok": {
-        "url": "https://developers.openai.com/api/docs/models/gpt-audio.md",
-        "last_checked": "2026-10-24"
-      },
       "context_window_tokens": {
         "url": "https://developers.openai.com/api/docs/models/gpt-audio.md",
-        "last_checked": "2026-10-24"
+        "last_checked": "2026-10-25"
+      },
+      "input_price_per_mtok": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-audio.md",
+        "last_checked": "2026-10-25"
       },
       "max_output_tokens": {
         "url": "https://developers.openai.com/api/docs/models/gpt-audio.md",
-        "last_checked": "2026-10-24"
+        "last_checked": "2026-10-25"
+      },
+      "output_price_per_mtok": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-audio.md",
+        "last_checked": "2026-10-25"
       }
     }
   },
   "first_seen": "2026-10-17T15:59:19.574Z",
-  "updated_at": "2026-10-24T04:39:18.299Z"
+  "updated_at": "2026-10-25T20:53:11.768Z"
 }

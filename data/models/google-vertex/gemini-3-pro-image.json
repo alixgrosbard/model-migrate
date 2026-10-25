@@ -13,22 +13,22 @@
   "replacements": [],
   "sources": [
     {
-      "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/model-versions",
-      "label": "Vertex AI model versions",
-      "last_checked": "2026-10-24",
-      "excerpt": "gemini-3-pro-image | May 28, 2026 | May 28, 2027 or later"
+      "url": "https://cloud.google.com/gemini-enterprise-agent-platform/generative-ai/pricing",
+      "label": "Vertex pricing",
+      "last_checked": "2026-10-25",
+      "excerpt": "Gemini 3 Pro Image (Nano Banana Pro) Input (text, image) $2 per 1M tokens for the <= 200K column"
     },
     {
       "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/gemini/3-pro-image",
       "label": "Vertex model docs",
-      "last_checked": "2026-10-24",
+      "last_checked": "2026-10-25",
       "excerpt": "Gemini 3 Pro Image (Nano Banana Pro) | gemini-3-pro-image | context window 65536 | maximum output tokens 32768"
     },
     {
-      "url": "https://cloud.google.com/gemini-enterprise-agent-platform/generative-ai/pricing",
-      "label": "Vertex pricing",
-      "last_checked": "2026-10-24",
-      "excerpt": "Gemini 3 Pro Image (Nano Banana Pro) Input (text, image) $2 per 1M tokens for the <= 200K column"
+      "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/model-versions",
+      "label": "Vertex AI model versions",
+      "last_checked": "2026-10-25",
+      "excerpt": "gemini-3-pro-image | May 28, 2026 | May 28, 2027 or later"
     }
   ],
   "specs": {
@@ -53,19 +53,19 @@
     "specs_sources": {
       "context_window_tokens": {
         "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/gemini/3-pro-image",
-        "last_checked": "2026-10-24"
-      },
-      "max_output_tokens": {
-        "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/gemini/3-pro-image",
-        "last_checked": "2026-10-24"
+        "last_checked": "2026-10-25"
       },
       "input_price_per_mtok": {
         "url": "https://cloud.google.com/gemini-enterprise-agent-platform/generative-ai/pricing",
-        "last_checked": "2026-10-24"
+        "last_checked": "2026-10-25"
+      },
+      "max_output_tokens": {
+        "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/gemini/3-pro-image",
+        "last_checked": "2026-10-25"
       },
       "output_price_per_mtok": {
         "url": "https://cloud.google.com/gemini-enterprise-agent-platform/generative-ai/pricing",
-        "last_checked": "2026-10-24"
+        "last_checked": "2026-10-25"
       }
     }
   },

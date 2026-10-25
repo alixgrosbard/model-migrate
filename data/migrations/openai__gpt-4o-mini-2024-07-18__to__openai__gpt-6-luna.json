@@ -71,30 +71,30 @@
     "Ship the change before the published shutdown date."
   ],
   "confidence": "partial",
-  "last_checked": "2026-10-24",
+  "last_checked": "2026-10-25",
   "sources": [
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "OpenAI deprecations",
-      "last_checked": "2026-10-24",
+      "last_checked": "2026-10-25",
       "excerpt": "January 14, 2027 | GPT-4o mini (gpt-4o-mini-2024-07-18) | gpt-6-luna"
     },
     {
       "url": "https://developers.openai.com/api/docs/models/gpt-4o-mini.md",
       "label": "OpenAI model docs",
-      "last_checked": "2026-10-24",
+      "last_checked": "2026-10-25",
       "excerpt": "Model ID: gpt-4o-mini | context window 128000 | max output 16384 | input $0.15 | output $0.6 | Default snapshot gpt-4o-mini-2024-07-18"
     },
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "Named as an official replacement",
-      "last_checked": "2026-10-24",
+      "last_checked": "2026-10-25",
       "excerpt": "Named as an official replacement for gpt-4o-2024-08-06. No shutdown date was published for this id on that page."
     },
     {
       "url": "https://developers.openai.com/api/docs/models/gpt-6-luna.md",
       "label": "OpenAI model docs",
-      "last_checked": "2026-10-24",
+      "last_checked": "2026-10-25",
       "excerpt": "Model ID: gpt-6-luna | context window 1050000 | max output 128000 | input $0.1 | output $0.5"
     },
     {

@@ -22,13 +22,13 @@
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "OpenAI deprecations",
-      "last_checked": "2026-10-24",
+      "last_checked": "2026-10-25",
       "excerpt": "2026-02-17 | chatgpt-4o-latest | gpt-5.1-chat-latest"
     },
     {
       "url": "https://developers.openai.com/api/docs/models/chatgpt-4o-latest.md",
       "label": "OpenAI model docs",
-      "last_checked": "2026-10-24",
+      "last_checked": "2026-10-25",
       "excerpt": "Model ID: chatgpt-4o-latest | context window 128000 | max output 16384 | input $5 | output $15"
     }
   ],
@@ -52,21 +52,21 @@
     "knowledge_cutoff": null,
     "endpoints": null,
     "specs_sources": {
-      "input_price_per_mtok": {
-        "url": "https://developers.openai.com/api/docs/models/chatgpt-4o-latest.md",
-        "last_checked": "2026-10-24"
-      },
-      "output_price_per_mtok": {
-        "url": "https://developers.openai.com/api/docs/models/chatgpt-4o-latest.md",
-        "last_checked": "2026-10-24"
-      },
       "context_window_tokens": {
         "url": "https://developers.openai.com/api/docs/models/chatgpt-4o-latest.md",
-        "last_checked": "2026-10-24"
+        "last_checked": "2026-10-25"
+      },
+      "input_price_per_mtok": {
+        "url": "https://developers.openai.com/api/docs/models/chatgpt-4o-latest.md",
+        "last_checked": "2026-10-25"
       },
       "max_output_tokens": {
         "url": "https://developers.openai.com/api/docs/models/chatgpt-4o-latest.md",
-        "last_checked": "2026-10-24"
+        "last_checked": "2026-10-25"
+      },
+      "output_price_per_mtok": {
+        "url": "https://developers.openai.com/api/docs/models/chatgpt-4o-latest.md",
+        "last_checked": "2026-10-25"
       }
     }
   },

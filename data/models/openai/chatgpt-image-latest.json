@@ -28,13 +28,13 @@
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "OpenAI deprecations",
-      "last_checked": "2026-10-24",
+      "last_checked": "2026-10-25",
       "excerpt": "Dec 1, 2026 | chatgpt-image-latest | gpt-image-2.5-sunburst or gpt-image-2.5-flare"
     },
     {
       "url": "https://developers.openai.com/api/docs/models/chatgpt-image-latest.md",
       "label": "OpenAI model docs",
-      "last_checked": "2026-10-24",
+      "last_checked": "2026-10-25",
       "excerpt": "Model ID: chatgpt-image-latest | input $5 | output $10"
     }
   ],
@@ -58,17 +58,17 @@
     "knowledge_cutoff": null,
     "endpoints": null,
     "specs_sources": {
+      "cached_input_price_per_mtok": {
+        "url": "https://developers.openai.com/api/docs/models/chatgpt-image-latest.md",
+        "last_checked": "2026-10-25"
+      },
       "input_price_per_mtok": {
         "url": "https://developers.openai.com/api/docs/models/chatgpt-image-latest.md",
-        "last_checked": "2026-10-24"
+        "last_checked": "2026-10-25"
       },
       "output_price_per_mtok": {
         "url": "https://developers.openai.com/api/docs/models/chatgpt-image-latest.md",
-        "last_checked": "2026-10-24"
-      },
-      "cached_input_price_per_mtok": {
-        "url": "https://developers.openai.com/api/docs/models/chatgpt-image-latest.md",
-        "last_checked": "2026-10-24"
+        "last_checked": "2026-10-25"
       }
     }
   },

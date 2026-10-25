@@ -22,13 +22,13 @@
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "OpenAI deprecations",
-      "last_checked": "2026-10-24",
+      "last_checked": "2026-10-25",
       "excerpt": "2026-02-12 | codex-mini-latest | gpt-5-codex-mini"
     },
     {
       "url": "https://developers.openai.com/api/docs/models/codex-mini-latest.md",
       "label": "OpenAI model docs",
-      "last_checked": "2026-10-24",
+      "last_checked": "2026-10-25",
       "excerpt": "Model ID: codex-mini-latest | context window 200000 | max output 100000 | input $1.5 | output $6"
     }
   ],
@@ -52,25 +52,25 @@
     "knowledge_cutoff": null,
     "endpoints": null,
     "specs_sources": {
-      "input_price_per_mtok": {
-        "url": "https://developers.openai.com/api/docs/models/codex-mini-latest.md",
-        "last_checked": "2026-10-24"
-      },
-      "output_price_per_mtok": {
-        "url": "https://developers.openai.com/api/docs/models/codex-mini-latest.md",
-        "last_checked": "2026-10-24"
-      },
       "cached_input_price_per_mtok": {
         "url": "https://developers.openai.com/api/docs/models/codex-mini-latest.md",
-        "last_checked": "2026-10-24"
+        "last_checked": "2026-10-25"
       },
       "context_window_tokens": {
         "url": "https://developers.openai.com/api/docs/models/codex-mini-latest.md",
-        "last_checked": "2026-10-24"
+        "last_checked": "2026-10-25"
+      },
+      "input_price_per_mtok": {
+        "url": "https://developers.openai.com/api/docs/models/codex-mini-latest.md",
+        "last_checked": "2026-10-25"
       },
       "max_output_tokens": {
         "url": "https://developers.openai.com/api/docs/models/codex-mini-latest.md",
-        "last_checked": "2026-10-24"
+        "last_checked": "2026-10-25"
+      },
+      "output_price_per_mtok": {
+        "url": "https://developers.openai.com/api/docs/models/codex-mini-latest.md",
+        "last_checked": "2026-10-25"
       }
     }
   },
