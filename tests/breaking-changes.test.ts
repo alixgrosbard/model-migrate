@@ -107,6 +107,12 @@ describe("request breaking changes", () => {
     expect(sonnet.map((rule) => rule.id)).toContain("anthropic-sonnet-5-5-tool-choice");
     const luna = breakingChangesForModel("openai", "gpt-6-luna");
     expect(luna.map((rule) => rule.id)).toEqual(["openai-gpt-6-luna-function-tools-reasoning-effort"]);
+    expect(breakingChangesForModel("openai", "gpt-6.1-sol").map((rule) => rule.id)).toEqual([
+      "openai-gpt-6-1-sol-function-tools-chat-completions",
+    ]);
+    expect(breakingChangesForModel("openai", "gpt-6-astra").map((rule) => rule.id)).toContain(
+      "openai-gpt-6-1-sol-function-tools-chat-completions",
+    );
     const from = breakingChangesForModel("openai", "gpt-4o-2024-08-06");
     expect(from.map((rule) => rule.id)).toContain("openai-gpt-6-luna-function-tools-reasoning-effort");
     expect(breakingChangesForModel("openai", "gpt-5.6-sol")).toEqual([]);
@@ -126,8 +132,8 @@ describe("request breaking changes", () => {
     expect(text).toContain(BREAKING_CHANGES_CSV);
     expect(full).toContain(BREAKING_CHANGES_JSON);
     expect(full).toContain(BREAKING_CHANGES_CSV);
-    expect(lastmodForUrl(`https://sunsetdiff.com${BREAKING_CHANGES_PATH}`)).toBe("2026-10-22");
-    expect(lastmodForUrl(`https://sunsetdiff.com${BREAKING_CHANGES_JSON}`)).toBe("2026-10-22");
+    expect(lastmodForUrl(`https://sunsetdiff.com${BREAKING_CHANGES_PATH}`)).toBe("2026-10-25");
+    expect(lastmodForUrl(`https://sunsetdiff.com${BREAKING_CHANGES_JSON}`)).toBe("2026-10-25");
     const graph = breakingChangesIndexGraph("https://sunsetdiff.com/", breakingChanges.map((rule) => ({
       name: rule.old_setting,
       path: `${BREAKING_CHANGES_PATH}#${rule.id}`,

@@ -97,7 +97,7 @@ describe("request error pages", () => {
   it("lists both pages in llms.txt, lastmod, and JSON-LD", () => {
     const text = llmsTxt("https://sunsetdiff.com", [], []);
     const full = llmsFull("https://sunsetdiff.com", []);
-    expect(requestErrors.length).toBe(16);
+    expect(requestErrors.length).toBe(17);
     expect(text).toContain(REQUEST_ERRORS_INDEX);
     expect(full).toContain(REQUEST_ERRORS_INDEX);
     expect(lastmodForUrl(`https://sunsetdiff.com${REQUEST_ERRORS_INDEX}`)).toBe(requestErrorsIndexChecked());
@@ -177,5 +177,25 @@ describe("request error pages", () => {
     expect(deepseekMissing?.rule).toContain("2026-07-24");
     expect(deepseekMissing?.rule).toContain("does not print model_not_found");
     expect(JSON.stringify(deepseekMissing)).not.toContain("sk-");
+    const solTools = requestErrors.find((page) => page.slug === "gpt-6-1-sol-function-tools-chat-completions");
+    expect(solTools?.checked).toBe("2026-10-25");
+    expect(solTools?.errorQuoted).toBe(true);
+    expect(solTools?.errorText).toBe(
+      "Function tools with reasoning_effort are not supported for gpt-6.1-sol in /v1/chat/completions. To use function tools, use /v1/responses or set reasoning_effort to 'none'.",
+    );
+    expect(solTools?.quoteSourceUrl).toBe("https://github.com/langflow-ai/openrag/issues/2534");
+    expect(solTools?.models.map((item) => item.id)).toEqual(["gpt-6.1-sol", "gpt-6-astra"]);
+    expect(solTools?.rule).toContain("Chat Completions is supported without tool calling");
+    expect(solTools?.rule).toContain("gpt-6-astra");
+    expect(solTools?.fixes[0]?.samples.map((sample) => sample.caption)).toEqual([
+      "Before, Python",
+      "After, Python",
+      "Before, Node",
+      "After, Node",
+    ]);
+    expect(solTools?.seeAlso?.map((item) => item.href)).toContain("/errors/gpt-6-luna-function-tools-reasoning-effort/");
+    expect(solTools?.seeAlso?.map((item) => item.href)).toContain("/guides/move-function-calling-to-responses-api/");
+    const lunaTools = requestErrors.find((page) => page.slug === "gpt-6-luna-function-tools-reasoning-effort");
+    expect(lunaTools?.seeAlso?.map((item) => item.href)).toContain("/errors/gpt-6-1-sol-function-tools-chat-completions/");
   });
 });

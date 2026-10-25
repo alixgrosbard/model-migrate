@@ -7,7 +7,15 @@ export const REQUEST_ERRORS_INDEX = "/errors/";
 
 const SONNET_GUIDE = "https://platform.claude.com/docs/en/models/sonnet-5-5/migration-guide";
 const LUNA_PAGE = "https://developers.openai.com/api/docs/models/gpt-6-luna";
+const SOL_61_PAGE = "https://developers.openai.com/api/docs/models/gpt-6.1-sol";
+const ASTRA_PAGE = "https://developers.openai.com/api/docs/models/gpt-6-astra";
+const OPENAI_GPT6 = "https://developers.openai.com/api/docs/guides/latest-model";
+const OPENAI_REASONING = "https://developers.openai.com/api/docs/guides/reasoning";
+const OPENAI_MIGRATE = "https://developers.openai.com/api/docs/guides/migrate-to-responses";
 const OPENAI_TOOLS = "https://developers.openai.com/api/docs/guides/function-calling";
+const ISSUE_SOL_TOOLS = "https://github.com/langflow-ai/openrag/issues/2534";
+const SOL_TOOLS_ERROR =
+  "Function tools with reasoning_effort are not supported for gpt-6.1-sol in /v1/chat/completions. To use function tools, use /v1/responses or set reasoning_effort to 'none'.";
 const OPENAI_DEPRECATIONS = "https://developers.openai.com/api/docs/deprecations";
 const OPENAI_ERRORS = "https://developers.openai.com/api/docs/guides/error-codes";
 const OPENAI_CHAT = "https://developers.openai.com/api/reference/resources/chat/subresources/completions/methods/create/";
@@ -48,7 +56,7 @@ export const requestErrorHubFaqs: FaqItem[] = [
   {
     question: "Which shutdowns do these pages cover?",
     answer:
-      "The OpenAI pages cover the October 23, 2026 batch, max_tokens on o-series models, and temperature when reasoning effort is not none. The Gemini API pages cover the October 22, 2026 batch, the new-user 404 recorded for gemini-2.5-flash, and the thinking budget 400 recorded for gemini-4-argon on Vertex. The Claude pages cover claude-sonnet-5-5 request settings and API version 2026-10-21, which returns a 400 for temperature, top_p, and top_k on every model. The Azure OpenAI page covers 410 Gone after retirement, including the November 19, 2026 o-series rows stored on this site. The DeepSeek page covers a missing model id after deepseek-chat and deepseek-reasoner were discontinued on 2026-07-24.",
+      "The OpenAI pages cover the October 23, 2026 batch, max_tokens on o-series models, temperature when reasoning effort is not none, and function tools on Chat Completions for gpt-6-luna, gpt-6.1-sol, and gpt-6-astra. The Gemini API pages cover the October 22, 2026 batch, the new-user 404 recorded for gemini-2.5-flash, and the thinking budget 400 recorded for gemini-4-argon on Vertex. The Claude pages cover claude-sonnet-5-5 request settings and API version 2026-10-21, which returns a 400 for temperature, top_p, and top_k on every model. The Azure OpenAI page covers 410 Gone after retirement, including the November 19, 2026 o-series rows stored on this site. The DeepSeek page covers a missing model id after deepseek-chat and deepseek-reasoner were discontinued on 2026-07-24.",
   },
 ];
 
@@ -577,11 +585,21 @@ const result = await generateText({
         label: "gpt-4o-2024-11-20 to gpt-6-luna",
       },
     ],
+    seeAlso: [
+      {
+        href: "/errors/gpt-6-1-sol-function-tools-chat-completions/",
+        label: "Function tools on gpt-6.1-sol and gpt-6-astra Chat Completions",
+      },
+      {
+        href: "/guides/move-function-calling-to-responses-api/",
+        label: "Move function calling to the Responses API",
+      },
+    ],
     faqs: [
       {
         question: "Which model returns this 400?",
         answer:
-          "gpt-6-luna, on POST /v1/chat/completions, when the request includes function tools and reasoning_effort is not none. The model page lists Chat Completions as supported for other calls.",
+          "gpt-6-luna, on POST /v1/chat/completions, when the request includes function tools and reasoning_effort is not none. The model page lists Chat Completions as supported for other calls. gpt-6.1-sol and gpt-6-astra are on [the gpt-6.1-sol function tools page](/errors/gpt-6-1-sol-function-tools-chat-completions/). Those two models do not support reasoning_effort none.",
       },
       {
         question: "What are the two working requests?",
@@ -594,6 +612,257 @@ const result = await generateText({
       },
     ],
     citations: [LUNA_PAGE, OPENAI_TOOLS, LITELLM_OPENAI, AI_SDK_OPENAI],
+  },
+  {
+    slug: "gpt-6-1-sol-function-tools-chat-completions",
+    provider: "openai",
+    checked: "2026-10-25",
+    cause: "Function tools on gpt-6.1-sol or gpt-6-astra Chat Completions.",
+    title: "Function tools with reasoning_effort are not supported for gpt-6.1-sol | SunsetDiff",
+    description:
+      "Function tools with reasoning_effort are not supported for gpt-6.1-sol in /v1/chat/completions. To use function tools, use /v1/responses or set reasoning_effort to 'none'. none is not supported on gpt-6.1-sol or gpt-6-astra. Use the Responses API.",
+    h1: "Function tools with reasoning_effort are not supported for gpt-6.1-sol in /v1/chat/completions",
+    lead: "A Chat Completions request that sends function tools to gpt-6.1-sol fails. The same tool-calling limit is documented for gpt-6-astra. The recorded error names reasoning_effort none as a second option. That value is not supported on either model. Call the Responses API.",
+    errorQuoted: true,
+    errorText: SOL_TOOLS_ERROR,
+    quoteSourceLabel: "GitHub issue langflow-ai/openrag#2534",
+    quoteSourceUrl: ISSUE_SOL_TOOLS,
+    rule: "The GPT-6.1 Sol model page says to use the Responses API for tool calling, and that Chat Completions is supported without tool calling. It also says the none and minimal reasoning efforts are not supported. The Using GPT-6 guide says GPT-6 Astra and GPT-6.1 Sol support Chat Completions, but tool calling requires Responses, and that neither model supports reasoning effort none. The reasoning guide says Chat Completions does not support function calling with GPT-6 Astra or GPT-6.1 Sol, and that setting reasoning effort to none on GPT-6 Astra returns HTTP 400. GPT-6.1 Sol defaults to medium. The openrag issue prints the sentence above for gpt-6.1-sol, after the words OpenAI error. That sentence tells you to set reasoning_effort to none. The model page says that value is not supported, so it is not a fix for gpt-6.1-sol or gpt-6-astra. The Using GPT-6 guide says GPT-6 Sol and GPT-6 Luna do support none, and that Chat Completions function calling on those two works only with reasoning_effort set to none.",
+    ruleSourceLabel: "GPT-6.1 Sol model page",
+    ruleSourceUrl: SOL_61_PAGE,
+    modelsCaption: "The quoted sentence was recorded for gpt-6.1-sol. The Using GPT-6 guide states the same Chat Completions tool limit for gpt-6-astra.",
+    models: [
+      {
+        id: "gpt-6.1-sol",
+        provider: "openai",
+        slug: "gpt-6-1-sol",
+        note: "The openrag issue records the sentence for this id. The model page says Chat Completions is supported without tool calling, and that none and minimal are not supported.",
+      },
+      {
+        id: "gpt-6-astra",
+        provider: "openai",
+        slug: "gpt-6-astra",
+        note: "The Using GPT-6 guide and the reasoning guide say Chat Completions does not support function calling on this id. The quoted sentence was not recorded for this id. Setting reasoning effort to none returns HTTP 400.",
+      },
+    ],
+    fixes: [
+      {
+        heading: "Raw SDK",
+        text: [
+          "Move function tools to the Responses API. The tool object is flat: name sits next to type, not inside a function object. Send the tool result later as a function_call_output item with the same call_id. The migration guide shows that shape.",
+          "Do not set reasoning_effort to none on gpt-6.1-sol or gpt-6-astra. The error text names that option. The GPT-6.1 Sol model page says none is not supported. The reasoning guide says none on GPT-6 Astra returns HTTP 400. none is allowed on gpt-6-luna and gpt-6-sol. That Chat Completions path is on the Luna page.",
+        ],
+        samples: [
+          {
+            caption: "Before, Python",
+            code: `from openai import OpenAI
+client = OpenAI()
+response = client.chat.completions.create(
+    model="gpt-6.1-sol",
+    messages=[{"role": "user", "content": "What is the weather in Paris?"}],
+    tools=[{
+        "type": "function",
+        "function": {
+            "name": "get_weather",
+            "description": "Get the weather for a city.",
+            "parameters": {
+                "type": "object",
+                "properties": {"location": {"type": "string"}},
+                "required": ["location"],
+            },
+        },
+    }],
+)
+`,
+          },
+          {
+            caption: "After, Python",
+            code: `from openai import OpenAI
+client = OpenAI()
+response = client.responses.create(
+    model="gpt-6.1-sol",
+    input=[{"role": "user", "content": "What is the weather in Paris?"}],
+    tools=[{
+        "type": "function",
+        "name": "get_weather",
+        "description": "Get the weather for a city.",
+        "parameters": {
+            "type": "object",
+            "properties": {"location": {"type": "string"}},
+            "required": ["location"],
+        },
+    }],
+)
+`,
+          },
+          {
+            caption: "Before, Node",
+            code: `import OpenAI from "openai";
+const client = new OpenAI();
+const response = await client.chat.completions.create({
+  model: "gpt-6.1-sol",
+  messages: [{ role: "user", content: "What is the weather in Paris?" }],
+  tools: [{
+    type: "function",
+    function: {
+      name: "get_weather",
+      description: "Get the weather for a city.",
+      parameters: {
+        type: "object",
+        properties: { location: { type: "string" } },
+        required: ["location"],
+      },
+    },
+  }],
+});
+`,
+          },
+          {
+            caption: "After, Node",
+            code: `import OpenAI from "openai";
+const client = new OpenAI();
+const response = await client.responses.create({
+  model: "gpt-6.1-sol",
+  input: [{ role: "user", content: "What is the weather in Paris?" }],
+  tools: [{
+    type: "function",
+    name: "get_weather",
+    description: "Get the weather for a city.",
+    parameters: {
+      type: "object",
+      properties: { location: { type: "string" } },
+      required: ["location"],
+    },
+  }],
+});
+`,
+          },
+        ],
+        sourceLabel: "Migrate to the Responses API",
+        sourceUrl: OPENAI_MIGRATE,
+      },
+      {
+        heading: "LiteLLM",
+        text: [
+          "A model string that starts with openai/ calls Chat Completions. Prefix the id with openai/responses/ to call the Responses API. LiteLLM shows openai/responses/gpt-6.1-sol for a call that sends tools and reasoning_effort together, and it says a gpt-6.1-sol call without that prefix uses Chat Completions. Use reasoning_effort low, not none.",
+        ],
+        samples: [
+          {
+            caption: "Responses API",
+            code: `import litellm
+response = litellm.completion(
+    model="openai/responses/gpt-6.1-sol",
+    messages=[{"role": "user", "content": "What is the weather in Paris?"}],
+    reasoning_effort="low",
+    tools=[{
+        "type": "function",
+        "function": {
+            "name": "get_weather",
+            "parameters": {
+                "type": "object",
+                "properties": {"location": {"type": "string"}},
+                "required": ["location"],
+            },
+        },
+    }],
+)
+`,
+          },
+        ],
+        sourceLabel: "LiteLLM OpenAI provider",
+        sourceUrl: LITELLM_OPENAI,
+      },
+      {
+        heading: "Vercel AI SDK",
+        text: [
+          "openai('gpt-6.1-sol') uses the Responses API. The AI SDK guide says to use the Responses API for GPT-6 tool calling, and that GPT-6 Astra and GPT-6.1 Sol do not support reasoningEffort none. openai.chat() stays on Chat Completions. Do not use that factory for function tools on these two models.",
+        ],
+        samples: [
+          {
+            caption: "Responses API",
+            code: `import { openai } from "@ai-sdk/openai";
+import { generateText, tool } from "ai";
+import { z } from "zod";
+
+const result = await generateText({
+  model: openai("gpt-6.1-sol"),
+  prompt: "What is the weather in Paris?",
+  tools: {
+    get_weather: tool({
+      description: "Get the weather for a city.",
+      inputSchema: z.object({ city: z.string() }),
+    }),
+  },
+});
+`,
+          },
+        ],
+        sourceLabel: "AI SDK OpenAI guide",
+        sourceUrl: AI_SDK_OPENAI,
+      },
+    ],
+    guides: [
+      {
+        href: "/migrate/openai__gpt-4o-mini-2024-07-18__to__openai__gpt-6-luna/",
+        label: "gpt-4o-mini-2024-07-18 to gpt-6-luna",
+      },
+      {
+        href: "/migrate/openai__gpt-4o-2024-08-06__to__openai__gpt-6-luna/",
+        label: "gpt-4o-2024-08-06 to gpt-6-luna",
+      },
+      {
+        href: "/migrate/openai__gpt-4o-2024-11-20__to__openai__gpt-6-luna/",
+        label: "gpt-4o-2024-11-20 to gpt-6-luna",
+      },
+      {
+        href: "/migrate/openai__gpt-5-1__to__openai__gpt-6-sol/",
+        label: "gpt-5.1 to gpt-6-sol",
+      },
+    ],
+    seeAlso: [
+      {
+        href: "/errors/gpt-6-luna-function-tools-reasoning-effort/",
+        label: "Function tools on gpt-6-luna when reasoning_effort is not none",
+      },
+      {
+        href: "/guides/move-function-calling-to-responses-api/",
+        label: "Move function calling to the Responses API",
+      },
+      {
+        href: "/models/openai/gpt-6-1-sol/",
+        label: "gpt-6.1-sol",
+      },
+      {
+        href: "/models/openai/gpt-6-astra/",
+        label: "gpt-6-astra",
+      },
+      {
+        href: "/models/openai/gpt-6-sol/",
+        label: "gpt-6-sol",
+      },
+      {
+        href: "/errors/openai-temperature-is-not-supported-with-this-model/",
+        label: "temperature is not supported with this model",
+      },
+    ],
+    faqs: [
+      {
+        question: "Which models return this sentence?",
+        answer:
+          "GitHub issue [langflow-ai/openrag#2534](https://github.com/langflow-ai/openrag/issues/2534) records it for gpt-6.1-sol on /v1/chat/completions. The [Using GPT-6](https://developers.openai.com/api/docs/guides/latest-model) guide states the same Chat Completions tool limit for gpt-6-astra. This page does not quote an Astra error sentence, because that issue does not print one.",
+      },
+      {
+        question: "Can I set reasoning_effort to none?",
+        answer:
+          "Not on gpt-6.1-sol or gpt-6-astra. The [GPT-6.1 Sol model page](https://developers.openai.com/api/docs/models/gpt-6.1-sol) says none and minimal are not supported. The [reasoning guide](https://developers.openai.com/api/docs/guides/reasoning) says none on GPT-6 Astra returns HTTP 400. none works on gpt-6-luna and gpt-6-sol. See [the Luna error](/errors/gpt-6-luna-function-tools-reasoning-effort/).",
+      },
+      {
+        question: "What are the two fixes?",
+        answer:
+          "For gpt-6.1-sol and gpt-6-astra, use [/v1/responses](/guides/move-function-calling-to-responses-api/). reasoning_effort none is the Chat Completions fix only where the model supports none: gpt-6-luna and gpt-6-sol. The steps are in [Move function calling to the Responses API](/guides/move-function-calling-to-responses-api/).",
+      },
+    ],
+    citations: [SOL_61_PAGE, ASTRA_PAGE, OPENAI_GPT6, OPENAI_REASONING, OPENAI_TOOLS, OPENAI_MIGRATE, ISSUE_SOL_TOOLS, LITELLM_OPENAI, AI_SDK_OPENAI],
   },
   ...moreRequestErrors,
 ];

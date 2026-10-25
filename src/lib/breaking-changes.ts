@@ -8,6 +8,11 @@ export const BREAKING_CHANGES_LICENSE = "https://creativecommons.org/licenses/by
 
 const SONNET_GUIDE = "https://platform.claude.com/docs/en/models/sonnet-5-5/migration-guide";
 const LUNA_PAGE = "https://developers.openai.com/api/docs/models/gpt-6-luna";
+const OPENAI_GPT6 = "https://developers.openai.com/api/docs/guides/latest-model";
+const SOL_61_PAGE = "https://developers.openai.com/api/docs/models/gpt-6.1-sol";
+const ISSUE_SOL_TOOLS = "https://github.com/langflow-ai/openrag/issues/2534";
+const SOL_TOOLS_ERROR =
+  "Function tools with reasoning_effort are not supported for gpt-6.1-sol in /v1/chat/completions. To use function tools, use /v1/responses or set reasoning_effort to 'none'.";
 const OPENAI_CHAT = "https://developers.openai.com/api/reference/resources/chat/subresources/completions/methods/create/";
 const OPENAI_DEPRECATIONS = "https://developers.openai.com/api/docs/deprecations";
 const OPENAI_TTS = "https://developers.openai.com/api/docs/guides/text-to-speech";
@@ -443,6 +448,29 @@ export const breakingChanges: BreakingChange[] = [
     error_page: "/errors/gpt-6-luna-function-tools-reasoning-effort/",
     migrations: LUNA_MIGRATIONS,
     citations: cited([LUNA_PAGE]),
+  },
+  {
+    id: "openai-gpt-6-1-sol-function-tools-chat-completions",
+    provider: "openai",
+    provider_name: "OpenAI",
+    model_family: "gpt-6.1-sol and gpt-6-astra",
+    models: [
+      openai("gpt-6.1-sol", "gpt-6-1-sol", "rejects"),
+      openai("gpt-6-astra", "gpt-6-astra", "rejects"),
+    ],
+    old_setting: "function tools on POST /v1/chat/completions",
+    what_happens:
+      "The GPT-6.1 Sol model page says Chat Completions is supported without tool calling, and that reasoning effort none is not supported. The Using GPT-6 guide says GPT-6 Astra and GPT-6.1 Sol support Chat Completions, but tool calling requires the Responses API. The quoted sentence was recorded for gpt-6.1-sol. It also tells you to set reasoning_effort to none. That value is not a fix for these two models.",
+    error_text: SOL_TOOLS_ERROR,
+    fix: "Call the Responses API for function tools. Do not set reasoning_effort to none on gpt-6.1-sol or gpt-6-astra.",
+    source_url: SOL_61_PAGE,
+    source_label: "GPT-6.1 Sol model page",
+    quote_source_url: ISSUE_SOL_TOOLS,
+    quote_source_label: "GitHub issue langflow-ai/openrag#2534",
+    checked: "2026-10-25",
+    error_page: "/errors/gpt-6-1-sol-function-tools-chat-completions/",
+    migrations: [],
+    citations: cited([SOL_61_PAGE, OPENAI_GPT6, ISSUE_SOL_TOOLS]),
   },
   {
     id: "openai-speech-to-realtime",

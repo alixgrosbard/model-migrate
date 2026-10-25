@@ -1261,11 +1261,23 @@ print(interaction.output_text)
     errorText: TEMPERATURE_UNSUPPORTED,
     quoteSourceLabel: "GitHub issue neondatabase/neon-pkgs#937",
     quoteSourceUrl: ISSUE_TEMPERATURE,
-    rule: `The Using GPT-6 guide says: when reasoning effort is not none, remove temperature, top_p, and top_logprobs. For Chat Completions, also remove logprobs. For Responses, remove message.output_text.logprobs from include. GPT-6 Astra and GPT-6.1 Sol do not support reasoning effort none. GPT-6 Sol and GPT-6 Luna do. ${ISSUE_TEMPERATURE} records the temperature sentence for gpt-6-astra, gpt-6-sol, gpt-6-luna, and gpt-6-1-sol when temperature is set and no reasoning effort is set. The same issue records this sentence for top_p on gpt-6-astra: ${TOP_P_UNSUPPORTED} Its table says gpt-5.6-luna, gpt-5.6-sol, gpt-5.6-terra, gpt-6-sol, and gpt-6-luna accept temperature and top_p only with effort none. ${ISSUE_NANO_SHUTDOWN} says gpt-4.1-nano shut down on 2026-10-23, that calls return 404 model_not_found, and that temperature is unsupported on successor models. That issue does not print the temperature sentence. SunsetDiff's gpt-4.1-nano record lists shutdown date 2026-10-23 and replacement gpt-5.6-luna. gpt-6-astra and gpt-6.1-sol are named in the guide and in the neon issue. SunsetDiff has no model file for those two ids, so they are not linked below.`,
+    rule: `The Using GPT-6 guide says: when reasoning effort is not none, remove temperature, top_p, and top_logprobs. For Chat Completions, also remove logprobs. For Responses, remove message.output_text.logprobs from include. GPT-6 Astra and GPT-6.1 Sol do not support reasoning effort none. GPT-6 Sol and GPT-6 Luna do. ${ISSUE_TEMPERATURE} records the temperature sentence for gpt-6-astra, gpt-6-sol, gpt-6-luna, and gpt-6-1-sol when temperature is set and no reasoning effort is set. The same issue records this sentence for top_p on gpt-6-astra: ${TOP_P_UNSUPPORTED} Its table says gpt-5.6-luna, gpt-5.6-sol, gpt-5.6-terra, gpt-6-sol, and gpt-6-luna accept temperature and top_p only with effort none. ${ISSUE_NANO_SHUTDOWN} says gpt-4.1-nano shut down on 2026-10-23, that calls return 404 model_not_found, and that temperature is unsupported on successor models. That issue does not print the temperature sentence. SunsetDiff's gpt-4.1-nano record lists shutdown date 2026-10-23 and replacement gpt-5.6-luna. gpt-6-astra and gpt-6.1-sol are named in the guide and in the neon issue. Both ids are linked below.`,
     ruleSourceLabel: "Using GPT-6",
     ruleSourceUrl: OPENAI_GPT6,
-    modelsCaption: "The quoted temperature sentence was recorded for gpt-6-astra, gpt-6-sol, gpt-6-luna, and gpt-6.1-sol. Only ids with a SunsetDiff model file are linked.",
+    modelsCaption: "The quoted temperature sentence was recorded for gpt-6-astra, gpt-6-sol, gpt-6-luna, and gpt-6.1-sol.",
     models: [
+      {
+        id: "gpt-6-astra",
+        provider: "openai",
+        slug: "gpt-6-astra",
+        note: "The neon issue reproduced the temperature sentence on this id. The Using GPT-6 guide says GPT-6 Astra does not support reasoning effort none, so remove temperature.",
+      },
+      {
+        id: "gpt-6.1-sol",
+        provider: "openai",
+        slug: "gpt-6-1-sol",
+        note: "The neon issue reproduced the temperature sentence on this id. The Using GPT-6 guide says GPT-6.1 Sol does not support reasoning effort none, so remove temperature.",
+      },
       {
         id: "gpt-6-sol",
         provider: "openai",
@@ -1400,7 +1412,7 @@ const { text } = await generateText({
       {
         question: "Which models returned this exact sentence?",
         answer:
-          "neondatabase/neon-pkgs#937 records it for gpt-6-astra, gpt-6-sol, gpt-6-luna, and gpt-6-1-sol. gpt-6-astra and gpt-6.1-sol have no SunsetDiff model file. The same issue records a matching top_p sentence for gpt-6-astra.",
+          "neondatabase/neon-pkgs#937 records it for [gpt-6-astra](/models/openai/gpt-6-astra/), [gpt-6-sol](/models/openai/gpt-6-sol/), [gpt-6-luna](/models/openai/gpt-6-luna/), and [gpt-6.1-sol](/models/openai/gpt-6-1-sol/). The same issue records a matching top_p sentence for gpt-6-astra.",
       },
       {
         question: "Can gpt-6-sol keep temperature?",
