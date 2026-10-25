@@ -1,0 +1,58 @@
+{
+  "id": "deepseek-reasoner",
+  "slug": "deepseek-reasoner",
+  "provider": "deepseek",
+  "display_name": "deepseek-reasoner",
+  "family": null,
+  "status": "retired",
+  "announced_date": null,
+  "deprecation_date": null,
+  "shutdown_date": "2026-07-24",
+  "shutdown_date_kind": "exact",
+  "region_or_platform_notes": "The changelog says this name is discontinued on 2026-07-24 and, until then, points to the thinking mode of deepseek-v4-flash. The V4 preview note says these names are fully retired and inaccessible after Jul 24th, 2026, 15:59 (UTC Time). Replacement named on that sentence: deepseek-v4-flash.",
+  "replacements": [
+    {
+      "model_id": "deepseek-v4-flash",
+      "provider": "deepseek",
+      "kind": "official",
+      "source_url": "https://api-docs.deepseek.com/updates/"
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://api-docs.deepseek.com/news/news260424/",
+      "label": "DeepSeek V4 preview note",
+      "last_checked": "2026-10-25",
+      "excerpt": "deepseek-chat & deepseek-reasoner will be fully retired and inaccessible after Jul 24th, 2026, 15:59 (UTC Time)."
+    },
+    {
+      "url": "https://api-docs.deepseek.com/updates/",
+      "label": "DeepSeek API changelog",
+      "last_checked": "2026-10-25",
+      "excerpt": "The two legacy API model names, deepseek-chat and deepseek-reasoner, will be discontinued in three months (2026-07-24). | During the current period, these two model names point to the non-thinking mode and thinking mode of deepseek-v4-flash, respectively."
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": null,
+    "output_price_per_mtok": null,
+    "cached_input_price_per_mtok": null,
+    "batch_discount_pct": null,
+    "currency": null,
+    "context_window_tokens": null,
+    "max_output_tokens": null,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {}
+  },
+  "first_seen": "2026-10-25T12:00:00.000Z",
+  "updated_at": "2026-10-25T12:00:00.000Z"
+}

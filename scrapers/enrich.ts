@@ -111,14 +111,19 @@ async function enrichGeminiDocs(models: SpecModel[], checked: string): Promise<n
     if (model.specs.context_window_tokens != null && model.specs.max_output_tokens != null) continue;
     urls.add(`https://ai.google.dev/gemini-api/docs/models/${encodeURIComponent(model.id)}?hl=en`);
   }
-  let filled = 0;
-  await mapPool([...urls], 4, async (url) => {
+  const found: { url: string; specs: ReturnType<typeof parseGeminiModelDocs> }[] = [];
+  await mapPool([...urls].sort((a, b) => a.localeCompare(b)), 4, async (url) => {
     const html = await fetchText(url);
     if (!html) return;
-    for (const spec of parseGeminiModelDocs(html)) {
-      filled += applyToIds(models, "google-gemini-api", spec, url.split("?")[0], "Gemini model docs", checked);
-    }
+    found.push({ url: url.split("?")[0], specs: parseGeminiModelDocs(html) });
   });
+  found.sort((a, b) => a.url.localeCompare(b.url));
+  let filled = 0;
+  for (const item of found) {
+    for (const spec of item.specs) {
+      filled += applyToIds(models, "google-gemini-api", spec, item.url, "Gemini model docs", checked);
+    }
+  }
   return filled;
 }
 
@@ -132,14 +137,20 @@ async function enrichVertex(models: SpecModel[], checked: string): Promise<numbe
   } catch (error) {
     console.error(error instanceof Error ? error.message : error);
   }
-  const docs = new Map<string, { title: string; context: number | null; maxOutput: number | null; excerpt: string; url: string }>();
-  await mapPool([...urls], 3, async (url) => {
+  const parsed: { url: string; doc: NonNullable<ReturnType<typeof parseVertexModelDoc>> }[] = [];
+  await mapPool([...urls].sort((a, b) => a.localeCompare(b)), 3, async (url) => {
     const html = await fetchText(url);
     if (!html) return;
     const doc = parseVertexModelDoc(html);
     if (!doc) return;
-    docs.set(doc.id, { ...doc, url: url.split("?")[0] });
+    parsed.push({ url: url.split("?")[0], doc });
   });
+  parsed.sort((a, b) => a.url.localeCompare(b.url));
+  const docs = new Map<string, { title: string; context: number | null; maxOutput: number | null; excerpt: string; url: string }>();
+  for (const item of parsed) {
+    if (docs.has(item.doc.id)) continue;
+    docs.set(item.doc.id, { ...item.doc, url: item.url });
+  }
   let filled = 0;
   for (const model of models) {
     if (model.provider !== "google-vertex") continue;
@@ -193,17 +204,22 @@ async function enrichMistral(models: SpecModel[], checked: string): Promise<numb
   } catch (error) {
     console.error(error instanceof Error ? error.message : error);
   }
-  let filled = 0;
-  await mapPool([...urls], 3, async (url) => {
+  const found: { url: string; doc: NonNullable<ReturnType<typeof parseMistralModelDoc>> }[] = [];
+  await mapPool([...urls].sort((a, b) => a.localeCompare(b)), 3, async (url) => {
     const html = await fetchText(url);
     if (!html) return;
     const doc = parseMistralModelDoc(html);
     if (!doc) return;
-    for (const model of models) {
-      if (model.provider !== "mistral" || model.id !== doc.id) continue;
-      filled += fill(model, { input: null, output: null, cached: null, context: doc.context, maxOutput: null }, url, "Mistral model docs", checked, doc.excerpt);
-    }
+    found.push({ url, doc });
   });
+  found.sort((a, b) => a.url.localeCompare(b.url));
+  let filled = 0;
+  for (const item of found) {
+    for (const model of models) {
+      if (model.provider !== "mistral" || model.id !== item.doc.id) continue;
+      filled += fill(model, { input: null, output: null, cached: null, context: item.doc.context, maxOutput: null }, item.url, "Mistral model docs", checked, item.doc.excerpt);
+    }
+  }
   return filled;
 }
 
@@ -215,27 +231,31 @@ async function applyDocs(
   label: string,
   parse: (body: string) => PublishedSpec | null,
 ): Promise<number> {
-  let filled = 0;
-  await mapPool(urls, 4, async (url) => {
+  const found: { url: string; spec: PublishedSpec }[] = [];
+  await mapPool([...urls].sort((a, b) => a.localeCompare(b)), 4, async (url) => {
     const body = await fetchText(url);
     if (!body) return;
     const spec = parse(body);
     if (!spec) return;
-    const clean = url.split("?")[0];
-    filled += applyToIds(models, provider, spec, clean, label, checked);
-    for (const id of spec.limitIds) {
-      const model = models.find((item) => item.provider === provider && item.id === id);
+    found.push({ url: url.split("?")[0], spec });
+  });
+  found.sort((a, b) => a.url.localeCompare(b.url) || a.spec.ids.join(",").localeCompare(b.spec.ids.join(",")));
+  let filled = 0;
+  for (const item of found) {
+    filled += applyToIds(models, provider, item.spec, item.url, label, checked);
+    for (const id of item.spec.limitIds) {
+      const model = models.find((row) => row.provider === provider && row.id === id);
       if (!model) continue;
       filled += fill(
         model,
-        { input: null, output: null, cached: null, context: spec.context, maxOutput: spec.maxOutput },
-        clean,
+        { input: null, output: null, cached: null, context: item.spec.context, maxOutput: item.spec.maxOutput },
+        item.url,
         label,
         checked,
-        excerpt([spec.excerpt, `Default snapshot ${id}`]),
+        excerpt([item.spec.excerpt, `Default snapshot ${id}`]),
       );
     }
-  });
+  }
   console.log(`${label}: checked ${urls.length} pages`);
   return filled;
 }

@@ -218,6 +218,7 @@ function defaultSnippets(from: ModelRecord, to: ModelRecord): SnippetSet {
   if (from.provider === "anthropic") return anthropic(from.id, to.id);
   if (from.provider === "google-gemini-api" || from.provider === "google-vertex") return gemini(from.id, to.id);
   if (from.provider === "aws-bedrock") return bedrock(from.id, to.id);
+  if (from.provider === "deepseek") return deepseek(from.id, to.id);
   return openaiStyle(from.id, to.id);
 }
 
@@ -466,6 +467,24 @@ function geminiImageSample(id: string) {
     python: `from google import genai\nclient = genai.Client()\ninteraction = client.interactions.create(\n    model="${id}",\n    input="Create a picture of a nano banana dish in a fancy restaurant with a Gemini theme",\n)\n`,
     typescript: `import { GoogleGenAI } from "@google/genai";\nconst ai = new GoogleGenAI({});\nconst interaction = await ai.interactions.create({\n  model: "${id}",\n  input: "Create a picture of a nano banana dish in a fancy restaurant with a Gemini theme",\n});\n`,
     curl: `curl -s -X POST \\\n  "https://generativelanguage.googleapis.com/v1beta/interactions" \\\n  -H "x-goog-api-key: $GEMINI_API_KEY" \\\n  -H "Content-Type: application/json" \\\n  -d '{"model":"${id}","input":[{"type":"text","text":"Create a picture of a nano banana dish in a fancy restaurant with a Gemini theme"}]}'\n`,
+  };
+}
+
+function deepseek(fromId: string, toId: string) {
+  const thinking = fromId === "deepseek-chat" ? "disabled" : "enabled";
+  return {
+    python: {
+      before: `from openai import OpenAI\nclient = OpenAI(base_url="https://api.deepseek.com")\nresponse = client.chat.completions.create(\n    model="${fromId}",\n    messages=[{"role": "user", "content": "Hello"}],\n)\n`,
+      after: `from openai import OpenAI\nclient = OpenAI(base_url="https://api.deepseek.com")\nresponse = client.chat.completions.create(\n    model="${toId}",\n    messages=[{"role": "user", "content": "Hello"}],\n    extra_body={"thinking": {"type": "${thinking}"}},\n)\n`,
+    },
+    typescript: {
+      before: `import OpenAI from "openai";\nconst client = new OpenAI({ baseURL: "https://api.deepseek.com" });\nconst response = await client.chat.completions.create({\n  model: "${fromId}",\n  messages: [{ role: "user", content: "Hello" }],\n});\n`,
+      after: `import OpenAI from "openai";\nconst client = new OpenAI({ baseURL: "https://api.deepseek.com" });\nconst response = await client.chat.completions.create({\n  model: "${toId}",\n  messages: [{ role: "user", content: "Hello" }],\n});\n`,
+    },
+    curl: {
+      before: `curl https://api.deepseek.com/chat/completions \\\n  -H "Content-Type: application/json" \\\n  -d '{"model":"${fromId}","messages":[{"role":"user","content":"Hello"}]}'\n`,
+      after: `curl https://api.deepseek.com/chat/completions \\\n  -H "Content-Type: application/json" \\\n  -d '{"model":"${toId}","messages":[{"role":"user","content":"Hello"}],"thinking":{"type":"${thinking}"}}'\n`,
+    },
   };
 }
 

@@ -114,7 +114,7 @@ describe("guides", () => {
     const guide = guides.find((item) => item.slug === "silent-failures-after-model-shutdown");
     expect(guide).toBeTruthy();
     if (!guide) return;
-    expect(guideChecked(guide)).toBe("2026-10-24");
+    expect(guideChecked(guide)).toBe("2026-10-25");
     const blob = JSON.stringify(guide);
     expect(blob).toContain("404 model_not_found");
     expect(blob).toContain("Unsupported parameter: 'temperature' is not supported with this model.");
@@ -129,6 +129,8 @@ describe("guides", () => {
     expect(blob).toContain("/errors/openai-temperature-is-not-supported-with-this-model/");
     expect(blob).toContain("/errors/gemini-2-5-flash-no-longer-available-to-new-users/");
     expect(blob).toContain("/errors/azure-openai-retired-model-410-gone/");
+    expect(blob).toContain("/errors/deepseek-model-not-found/");
+    expect(blob).toContain("/models/deepseek/deepseek-reasoner/");
     expect(blob).toContain("/api/v1/lookup/gpt-4.1-nano.json");
     expect(blob.toLowerCase()).not.toContain("deepseek-chat retired on 2026-07-24 in sunsetdiff");
   });

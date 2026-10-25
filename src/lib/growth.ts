@@ -1,4 +1,5 @@
 import type { ChangeRecord, MigrationRecord, ModelRecord, Provider } from "../schema.ts";
+import { compareChanges } from "./stable-export.ts";
 import { addDays, answerSentence, formatWhen, isSoon, officialReplacement, replacementSentence, shutdownSentence, visibleName, type FaqItem } from "./format.ts";
 
 const MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -245,7 +246,7 @@ export function changelogDocument(changes: ChangeRecord[]) {
     .sort((a, b) => a[0].localeCompare(b[0]))
     .map(([version, entries]) => ({
       version,
-      changes: entries.map((change) => ({
+      changes: [...entries].sort(compareChanges).map((change) => ({
         provider: change.provider,
         model_id: change.model_id,
         field: change.field,

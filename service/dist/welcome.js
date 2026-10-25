@@ -11,6 +11,7 @@ const PROVIDER_NAMES = {
     "aws-bedrock": "AWS Bedrock",
     "azure-openai": "Azure OpenAI",
     mistral: "Mistral",
+    deepseek: "DeepSeek",
 };
 let cache = null;
 export function resetWelcomeCache() {

@@ -28,6 +28,8 @@ export function llmsTxt(
     shutdowns?: { title: string; path: string }[];
     schedule?: { title: string; path: string }[];
     statusPages?: { title: string; path: string }[];
+    /** Model pages whose shutdown date is already past, so they are not in the soon list. */
+    modelPages?: ModelRecord[];
   } = {},
 ): string {
   const origin = site.replace(/\/+$/, "");
@@ -52,6 +54,9 @@ export function llmsTxt(
     .join("\n");
   const statusLinks = (extra.statusPages ?? [])
     .map((page) => `- [${page.title}](${origin}${page.path})`)
+    .join("\n");
+  const modelPageLinks = (extra.modelPages ?? [])
+    .map((model) => `- [${model.id}](${origin}/models/${model.provider}/${model.slug}/)`)
     .join("\n");
   return `# SunsetDiff
 
@@ -92,7 +97,7 @@ export function llmsTxt(
 - [Pro](${origin}/pro/) is free until launch, then $19 a month. You won't be charged until Pro launches.
 
 ## Request errors
-[All request errors](${origin}${REQUEST_ERRORS_INDEX}). Each page names the failure, the model change, and the source. Check dates are on the pages (${REQUEST_ERRORS_CHECKED}, 2026-10-21 for the thinking budget page, 2026-10-22 for the API version 2026-10-21 sampling page, and 2026-10-24 for the temperature, Gemini 2.5 new-user, and Azure 410 pages). A code block is a quoted error only when the linked source prints that sentence.
+[All request errors](${origin}${REQUEST_ERRORS_INDEX}). Each page names the failure, the model change, and the source. Check dates are on the pages (${REQUEST_ERRORS_CHECKED}, 2026-10-21 for the thinking budget page, 2026-10-22 for the API version 2026-10-21 sampling page, 2026-10-24 for the temperature, Gemini 2.5 new-user, and Azure 410 pages, and 2026-10-25 for the DeepSeek model_not_found page). A code block is a quoted error only when the linked source prints that sentence.
 ${requestErrors.map((page) => `- [${page.h1}](${origin}${requestErrorPath(page.slug)})`).join("\n")}
 
 ## Request breaking changes
@@ -144,6 +149,7 @@ ${hubLinks}
 ## Providers
 [All providers](${origin}/providers/).
 ${providerLinks}
+${modelPageLinks ? `\n## DeepSeek model pages\nThese ids are not in Soonest shutdowns. deepseek-chat and deepseek-reasoner already shut down. The other ids have no published shutdown date.\n${modelPageLinks}` : ""}
 
 ## Status lists
 Deprecated means the stored status is deprecated. Retired means the stored status is retired. Dates come from the model records.
@@ -195,6 +201,7 @@ export function llmsFull(site: string, models: ModelRecord[], providers: Provide
       model.specs.max_output_tokens ?? "",
       source?.url ?? "",
       source?.last_checked ?? "",
+      `${origin}/models/${model.provider}/${model.slug}/`,
     ].join("\t");
   });
   return [
@@ -234,7 +241,7 @@ export function llmsFull(site: string, models: ModelRecord[], providers: Provide
     `Code scan: ${origin}/scan/`,
     `Data page: ${origin}/data/`,
     `${BADGES_NAV}: ${origin}${BADGES_PATH}`,
-    "Blank cells were not published on the official page. Columns: id, provider, status, shutdown date, official replacement, input price per 1M, output price per 1M, context tokens, max output tokens, source, last checked.",
+    "Blank cells were not published on the official page. Columns: id, provider, status, shutdown date, official replacement, input price per 1M, output price per 1M, context tokens, max output tokens, source, last checked, model page.",
     ...lines,
     "",
   ].join("\n");

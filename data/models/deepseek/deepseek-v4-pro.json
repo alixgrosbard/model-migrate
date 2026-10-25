@@ -1,0 +1,86 @@
+{
+  "id": "deepseek-v4-pro",
+  "slug": "deepseek-v4-pro",
+  "provider": "deepseek",
+  "display_name": "deepseek-v4-pro (DeepSeek-V4-Pro-0813)",
+  "family": null,
+  "status": "active",
+  "announced_date": "2026-04-24",
+  "deprecation_date": null,
+  "shutdown_date": null,
+  "shutdown_date_kind": "none",
+  "region_or_platform_notes": "Model version on the pricing page: DeepSeek-V4-Pro-0813. The 2026-09-10 changelog says API service for DeepSeek V4 Pro continues after September 14, 2026, with the same billing. No shutdown date is published. Stored prices are the peak cache-miss input, peak cache-hit cached input, and peak output from the pricing table. That page says off-peak rates are half of the peak rates. Peak hours are 01:00-04:00 and 06:00-10:00 UTC, Monday through Friday, excluding Chinese public holidays.",
+  "replacements": [],
+  "sources": [
+    {
+      "url": "https://api-docs.deepseek.com/quick_start/pricing",
+      "label": "DeepSeek models and pricing",
+      "last_checked": "2026-10-25",
+      "excerpt": "deepseek-v4-pro | DeepSeek-V4-Pro-0813 | context 1000000 | max output 384000 | peak cache miss $1.32 | peak output $3.96"
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": 1.32,
+    "output_price_per_mtok": 3.96,
+    "cached_input_price_per_mtok": 0.044,
+    "batch_discount_pct": null,
+    "currency": "USD",
+    "context_window_tokens": 1000000,
+    "max_output_tokens": 384000,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": true,
+    "supports_json_schema": true,
+    "supports_vision": false,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": true,
+    "reasoning": "optional",
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {
+      "cached_input_price_per_mtok": {
+        "url": "https://api-docs.deepseek.com/quick_start/pricing",
+        "last_checked": "2026-10-25"
+      },
+      "context_window_tokens": {
+        "url": "https://api-docs.deepseek.com/quick_start/pricing",
+        "last_checked": "2026-10-25"
+      },
+      "input_price_per_mtok": {
+        "url": "https://api-docs.deepseek.com/quick_start/pricing",
+        "last_checked": "2026-10-25"
+      },
+      "max_output_tokens": {
+        "url": "https://api-docs.deepseek.com/quick_start/pricing",
+        "last_checked": "2026-10-25"
+      },
+      "output_price_per_mtok": {
+        "url": "https://api-docs.deepseek.com/quick_start/pricing",
+        "last_checked": "2026-10-25"
+      },
+      "reasoning": {
+        "url": "https://api-docs.deepseek.com/quick_start/pricing",
+        "last_checked": "2026-10-25"
+      },
+      "supports_json_schema": {
+        "url": "https://api-docs.deepseek.com/quick_start/pricing",
+        "last_checked": "2026-10-25"
+      },
+      "supports_prompt_caching": {
+        "url": "https://api-docs.deepseek.com/quick_start/pricing",
+        "last_checked": "2026-10-25"
+      },
+      "supports_tools": {
+        "url": "https://api-docs.deepseek.com/quick_start/pricing",
+        "last_checked": "2026-10-25"
+      },
+      "supports_vision": {
+        "url": "https://api-docs.deepseek.com/quick_start/pricing",
+        "last_checked": "2026-10-25"
+      }
+    }
+  },
+  "first_seen": "2026-10-25T12:00:00.000Z",
+  "updated_at": "2026-10-25T12:00:00.000Z"
+}

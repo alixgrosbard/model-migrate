@@ -1,14 +1,14 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { z } from "zod";
 import { loadMigrations, loadModelRows } from "./data.js";
+import { MCP_SERVER_NAME, MCP_SERVER_VERSION, MCP_TOOL_DESCRIPTIONS, checkModelInput, migrationDiffInput, scanTextInput, upcomingShutdownsInput, } from "./mcp-tools.js";
 function text(value) {
     return { content: [{ type: "text", text: JSON.stringify(value, null, 2) }] };
 }
 export function createMcpServer() {
-    const server = new McpServer({ name: "sunsetdiff", version: "1.0.0" });
+    const server = new McpServer({ name: MCP_SERVER_NAME, version: MCP_SERVER_VERSION });
     server.registerTool("check_model", {
-        description: "Look up status, dates, replacement, and source for a model id.",
-        inputSchema: { model_id: z.string(), provider: z.string().optional() },
+        description: MCP_TOOL_DESCRIPTIONS.check_model,
+        inputSchema: checkModelInput,
     }, async ({ model_id, provider }) => {
         const models = await loadModelRows();
         const matches = models.filter((model) => model.id === model_id && (!provider || model.provider === provider));
@@ -17,8 +17,8 @@ export function createMcpServer() {
         return text(matches.map(summary));
     });
     server.registerTool("upcoming_shutdowns", {
-        description: "List models with an exact shutdown date inside the next N days.",
-        inputSchema: { days: z.number().optional(), provider: z.string().optional() },
+        description: MCP_TOOL_DESCRIPTIONS.upcoming_shutdowns,
+        inputSchema: upcomingShutdownsInput,
     }, async ({ days, provider }) => {
         const window = days ?? 90;
         const today = new Date().toISOString().slice(0, 10);
@@ -33,8 +33,8 @@ export function createMcpServer() {
         return text(rows);
     });
     server.registerTool("migration_diff", {
-        description: "Return the migration diff for a model. Defaults to the official replacement.",
-        inputSchema: { from_model_id: z.string(), to_model_id: z.string().optional() },
+        description: MCP_TOOL_DESCRIPTIONS.migration_diff,
+        inputSchema: migrationDiffInput,
     }, async ({ from_model_id, to_model_id }) => {
         const models = await loadModelRows();
         const from = models.find((model) => model.id === from_model_id);
@@ -46,8 +46,8 @@ export function createMcpServer() {
         return text(diff ?? { found: false, from_model_id, to_model_id: targetId ?? null });
     });
     server.registerTool("scan_text", {
-        description: "Find known model ids in text that are deprecated or shutting down.",
-        inputSchema: { text: z.string() },
+        description: MCP_TOOL_DESCRIPTIONS.scan_text,
+        inputSchema: scanTextInput,
     }, async ({ text: source }) => {
         const models = await loadModelRows();
         const hits = findIds(source, models).filter((model) => model.status === "deprecated" || model.status === "retired" || model.status === "legacy");

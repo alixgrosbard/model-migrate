@@ -23,6 +23,7 @@ import { openApiDocument } from "../src/lib/openapi.ts";
 import { statusLlmsEntries } from "../src/lib/status-hubs.ts";
 import { SHORTCUT_MARKER, contentAliasFiles, shortcutFiles } from "../src/lib/shortcuts.ts";
 import { replacementApiFields } from "../src/lib/replacement-chain.ts";
+import { canonicalizeModel } from "../src/lib/stable-export.ts";
 
 const site = siteOrigin();
 const publicDir = path.join(process.cwd(), "public");
@@ -139,6 +140,7 @@ async function main() {
     shutdowns: shutdownLinks,
     schedule: scheduleIndexLinks(models),
     statusPages: statusLlmsEntries(models, providers).filter((page) => page.path.startsWith("/providers/")),
+    modelPages: models.filter((model) => model.provider === "deepseek"),
   }));
   await writeJson(path.join(publicDir, "openapi.json"), openApiDocument(datasetVersion(changes)));
   await copyFile(path.join(process.cwd(), "server.json"), path.join(publicDir, "server.json"));
@@ -150,7 +152,7 @@ async function main() {
     publisher: "SunsetDiff",
     license: "https://creativecommons.org/licenses/by/4.0/",
     version: changelog.version,
-    models,
+    models: models.map((model) => canonicalizeModel(model)),
   });
   await writeFile(path.join(publicDir, "data/deprecations.csv"), deprecationsCsv(models));
   await writeJson(path.join(publicDir, "data/changelog.json"), changelog);
