@@ -125,4 +125,44 @@ describe("undated alias snapshots", () => {
     expect(models.some((model) => model.slug === "gpt-4-1-2")).toBe(false);
     expect(missingAliasModels(models, "2026-10-25T00:00:00.000Z")).toEqual([]);
   });
+
+  it("creates the alias only after a model page names the snapshot", () => {
+    const now = "2026-10-25T00:00:00.000Z";
+    const snap = row({
+      id: "gpt-4.1-mini-2025-04-14",
+      provider: "openai",
+      status: "deprecated",
+      shutdown_date: "2027-01-14",
+      shutdown_date_kind: "exact",
+      replacements: [{ model_id: "gpt-6-luna", provider: "openai", kind: "official", source_url: "https://developers.openai.com/api/docs/deprecations" }],
+      sources: [{
+        url: "https://developers.openai.com/api/docs/deprecations",
+        label: "OpenAI deprecations",
+        last_checked: "2026-10-25",
+        excerpt: "January 14, 2027 | GPT-4.1 mini (gpt-4.1-mini-2025-04-14) | gpt-6-luna",
+      }],
+    });
+    expect(missingAliasModels([snap], now)).toEqual([]);
+    const named = {
+      ...snap,
+      sources: [
+        ...snap.sources,
+        {
+          url: "https://developers.openai.com/api/docs/models/gpt-4.1-mini.md",
+          label: "OpenAI model docs",
+          last_checked: "2026-10-25",
+          excerpt: "Model ID: gpt-4.1-mini | context window 1047576 | max output 32768 | input $0.4 | output $1.6 | Default snapshot gpt-4.1-mini-2025-04-14",
+        },
+      ],
+    };
+    const created = missingAliasModels([named], now);
+    expect(created.map((model) => model.id)).toEqual(["gpt-4.1-mini"]);
+    expect(created[0]?.shutdown_date).toBeNull();
+    expect(created[0]?.shutdown_date_kind).toBe("none");
+    const view = aliasSnapshotView(created[0]!, [named, created[0]!]);
+    expect(view?.label).toBe(shared);
+    expect(view?.badgeMessage).toBe("snapshots retire 2027-01-14");
+    expect(view?.replacementIds).toEqual(["gpt-6-luna"]);
+    expect(view?.defaultSnapshot?.id).toBe("gpt-4.1-mini-2025-04-14");
+  });
 });

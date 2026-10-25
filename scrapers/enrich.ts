@@ -246,14 +246,22 @@ async function applyDocs(
     for (const id of item.spec.limitIds) {
       const model = models.find((row) => row.provider === provider && row.id === id);
       if (!model) continue;
+      const note = item.spec.excerpt.includes(id)
+        ? item.spec.excerpt
+        : excerpt([item.spec.excerpt, `Default snapshot ${id}`]);
       filled += fill(
         model,
         { input: null, output: null, cached: null, context: item.spec.context, maxOutput: item.spec.maxOutput },
         item.url,
         label,
         checked,
-        excerpt([item.spec.excerpt, `Default snapshot ${id}`]),
+        note,
       );
+      // The alias step reads this source. A snapshot that already has token
+      // limits would otherwise keep the page off its sources and lose the alias.
+      if (!model.sources.some((source) => source.url === item.url)) {
+        model.sources.push({ url: item.url, label, last_checked: checked, excerpt: note });
+      }
     }
   }
   console.log(`${label}: checked ${urls.length} pages`);

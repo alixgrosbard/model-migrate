@@ -255,6 +255,16 @@ describe("official snapshots", () => {
   });
 });
 
+describe("refresh pipeline", () => {
+  it("builds undated aliases after model docs are attached", () => {
+    const source = readFileSync("scrapers/run.ts", "utf8");
+    const enrich = source.indexOf("await enrichSpecs");
+    const stubs = source.indexOf("addUndatedAliasStubs(groups, checked)");
+    expect(enrich).toBeGreaterThan(0);
+    expect(stubs).toBeGreaterThan(enrich);
+  });
+});
+
 describe("sanity gate", () => {
   it("does not accept an empty scrape", () => {
     expect(sanityCheck("openai", 0, 100).ok).toBe(false);
