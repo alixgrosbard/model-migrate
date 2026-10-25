@@ -19,6 +19,11 @@ export function swapGuideLinks(): IntegrationLink[] {
       label: "How to swap a deprecated model",
       detail: "One guide covers LiteLLM, OpenRouter, the Vercel AI SDK, and LangChain.",
     },
+    {
+      href: "/frameworks/",
+      label: "Framework pages",
+      detail: "One page per library for where the model id lives, including Pipecat, n8n, LlamaIndex, and Langflow.",
+    },
     ...SWAP_STACKS.map((heading) => ({
       href: `${path}#${guideHeadingId(heading)}`,
       label: heading,
@@ -86,7 +91,7 @@ export const integrationFaqs: FaqItem[] = [
   {
     question: "Where do I change a model id in LiteLLM, OpenRouter, the Vercel AI SDK, or LangChain?",
     answer:
-      "In the guide [How to swap a deprecated model](/guides/swap-a-deprecated-model/). That page has a section for each of those four. It links the official page each fact came from.",
+      "In the guide [How to swap a deprecated model](/guides/swap-a-deprecated-model/), and on the [framework pages](/frameworks/). The guide has a section for LiteLLM, OpenRouter, the Vercel AI SDK, and LangChain. The framework pages add Pipecat, n8n, LlamaIndex, and Langflow, and list shutdown rows from this dataset.",
   },
   {
     question: "Does SunsetDiff charge for the API or the MCP server?",

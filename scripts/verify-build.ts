@@ -9,6 +9,7 @@ import { HUBS } from "../src/lib/hubs.ts";
 import { today } from "../src/lib/format.ts";
 import { isPastShutdown, shutdownEventPath, shutdownEvents } from "../src/lib/shutdowns.ts";
 import { GUIDES_CHECKED, guideChecked, guidePath, guides } from "../src/lib/guides.ts";
+import { FRAMEWORKS_CHECKED, FRAMEWORKS_INDEX, frameworkChatShutdowns, frameworkPath, frameworks } from "../src/lib/frameworks.ts";
 import { GLOSSARY_CHECKED, GLOSSARY_INDEX, glossaryPath, glossaryTerms } from "../src/lib/glossary.ts";
 import {
   BREAKING_CHANGES_CSV,
@@ -331,6 +332,8 @@ async function main() {
   if (sitemap.includes("/custom-gpts/")) throw new Error("Sitemap includes the custom GPTs alias");
   if (!sitemap.includes("/guides/")) throw new Error("Sitemap is missing /guides/");
   if (!llms.includes("/guides/")) throw new Error("llms.txt is missing /guides/");
+  if (!homeNav.includes('href="/frameworks/"')) throw new Error("Navigation is missing /frameworks/");
+  await checkFrameworks(sitemap, llms, llmsFull);
   if (!homeNav.includes('href="/glossary/"')) throw new Error("Footer is missing /glossary/");
   if (!guideHub.includes('href="/glossary/"')) throw new Error("Guides hub is missing /glossary/");
   const faqPage = await readFile(path.join(dist, "faq/index.html"), "utf8");
@@ -692,6 +695,57 @@ function visibleText(html: string): string {
     .replace(/&quot;/g, '"')
     .replace(/&amp;/g, "&")
     .replace(/<[^>]+>/g, " ");
+}
+
+async function checkFrameworks(sitemap: string, llms: string, llmsFull: string) {
+  const dist = path.join(process.cwd(), "dist");
+  const hub = await readFile(path.join(dist, "frameworks/index.html"), "utf8");
+  if (!hub.includes('"CollectionPage"') || !hub.includes('"ItemList"') || !hub.includes('"BreadcrumbList"')) {
+    throw new Error("Frameworks hub JSON-LD is missing CollectionPage, ItemList, or BreadcrumbList");
+  }
+  if (!hub.includes(FRAMEWORKS_CHECKED)) throw new Error("Frameworks hub is missing the review date");
+  if (hub.includes("—") || hub.includes("–")) throw new Error("Em dash on /frameworks/");
+  if (!sitemap.includes(`${FRAMEWORKS_INDEX}</loc>`) && !sitemap.includes(FRAMEWORKS_INDEX)) {
+    throw new Error("Sitemap is missing /frameworks/");
+  }
+  if (!llms.includes(FRAMEWORKS_INDEX) || !llmsFull.includes(FRAMEWORKS_INDEX)) {
+    throw new Error("llms files are missing /frameworks/");
+  }
+  const models = await loadModels();
+  const rows = frameworkChatShutdowns(models, today());
+  if (!rows.length) throw new Error("Framework shutdown table has no rows");
+  const sample = rows[0];
+  const swap = await readFile(path.join(dist, "guides/swap-a-deprecated-model/index.html"), "utf8");
+  if (!swap.includes('href="/frameworks/"')) throw new Error("Swap guide is missing /frameworks/");
+  for (const page of frameworks) {
+    const rel = frameworkPath(page.slug);
+    if (!hub.includes(rel)) throw new Error(`Frameworks hub is missing ${page.slug}`);
+    if (!sitemap.includes(rel)) throw new Error(`Sitemap is missing ${rel}`);
+    if (!llms.includes(rel) || !llmsFull.includes(rel)) throw new Error(`llms files are missing ${rel}`);
+    if (!swap.includes(rel)) throw new Error(`Swap guide is missing ${rel}`);
+    const html = await readFile(path.join(dist, rel.slice(1), "index.html"), "utf8");
+    if (!html.includes('"Article"') || !html.includes('"HowTo"') || !html.includes('"FAQPage"')) {
+      throw new Error(`Framework JSON-LD missing Article, HowTo, or FAQPage in ${rel}`);
+    }
+    if (!html.includes('"BreadcrumbList"')) throw new Error(`Framework JSON-LD missing BreadcrumbList in ${rel}`);
+    if (!html.includes(FRAMEWORKS_CHECKED)) throw new Error(`Framework is missing the review date: ${rel}`);
+    if (!html.includes(sample.id) || !html.includes(sample.shutdown_date ?? "")) {
+      throw new Error(`${rel} is missing the dataset shutdown ${sample.id}`);
+    }
+    if (!html.includes("/errors/gpt-6-1-sol-function-tools-chat-completions/")) {
+      throw new Error(`${rel} is missing the GPT-6 function tools error`);
+    }
+    if (!html.includes("/guides/move-function-calling-to-responses-api/")) {
+      throw new Error(`${rel} is missing the Responses API guide`);
+    }
+    if (!html.includes("/mcp/") || !html.includes("/badges/") || !html.includes("/api/v1/upcoming.json")) {
+      throw new Error(`${rel} is missing detection links`);
+    }
+    for (const citation of page.citations) {
+      if (!html.includes(citation)) throw new Error(`${rel} is missing citation ${citation}`);
+    }
+    if (html.includes("—") || html.includes("–")) throw new Error(`Em dash on ${rel}`);
+  }
 }
 
 async function sitemapText(dir: string): Promise<string> {

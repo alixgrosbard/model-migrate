@@ -3,6 +3,7 @@ import { BADGES_DESCRIPTION, BADGES_NAV, BADGES_PATH } from "./badges.ts";
 import { publicName } from "./growth.ts";
 import { scheduleIndexLinks } from "./schedule.ts";
 import { GUIDES_INDEX, guidePath, guides } from "./guides.ts";
+import { FRAMEWORKS_CHECKED, FRAMEWORKS_INDEX, frameworkPath, frameworks } from "./frameworks.ts";
 import { GLOSSARY_CHECKED, GLOSSARY_INDEX, glossaryPath, glossaryTerms } from "./glossary.ts";
 import { HUBS } from "./hubs.ts";
 import { OPENAPI_PATH } from "./openapi.ts";
@@ -86,6 +87,7 @@ export function llmsTxt(
 - [Code scan](${origin}/scan/)
 - [Deprecation questions](${origin}/questions/)
 - [Guides](${origin}${GUIDES_INDEX})
+- [Frameworks](${origin}${FRAMEWORKS_INDEX}): where LangChain, LiteLLM, the Vercel AI SDK, LlamaIndex, OpenRouter, Pipecat, n8n, and Langflow store a model id. Checked ${FRAMEWORKS_CHECKED}.
 - [Glossary](${origin}${GLOSSARY_INDEX}): definitions for deprecated, retired, legacy, snapshot, alias, and the other shutdown words. Checked ${GLOSSARY_CHECKED}.
 - [RSS](${origin}/rss.xml) is the same deprecations feed as /feed.xml.
 - [Changes](${origin}/changes/)
@@ -131,6 +133,10 @@ ${scheduleLinks || "- None published."}
 ## Guides
 [All guides](${origin}${GUIDES_INDEX}). Each guide has a direct answer and links the official page for a provider fact.
 ${guides.map((guide) => `- [${guide.h1}](${origin}${guidePath(guide.slug)})`).join("\n")}
+
+## Frameworks
+[All frameworks](${origin}${FRAMEWORKS_INDEX}). Each page says where that library stores the model id. Shutdown dates in the table come from the model records. Checked ${FRAMEWORKS_CHECKED}.
+${frameworks.map((page) => `- [${page.h1}](${origin}${frameworkPath(page.slug)}): ${page.summary}`).join("\n")}
 
 ## Glossary
 [All terms](${origin}${GLOSSARY_INDEX}). Each term has a short definition and the provider page the wording came from. Checked ${GLOSSARY_CHECKED}. /rss.xml is the same feed as /feed.xml.
@@ -234,6 +240,8 @@ export function llmsFull(site: string, models: ModelRecord[], providers: Provide
     `Deprecations feed: ${origin}/feed.xml`,
     `Guides: ${origin}${GUIDES_INDEX}`,
     ...guides.map((guide) => `Guide: ${origin}${guidePath(guide.slug)}`),
+    `Frameworks: ${origin}${FRAMEWORKS_INDEX}`,
+    ...frameworks.map((page) => `Framework: ${origin}${frameworkPath(page.slug)}`),
     `Glossary: ${origin}${GLOSSARY_INDEX}`,
     ...glossaryTerms.map((term) => `Glossary: ${origin}${glossaryPath(term.slug)}`),
     `RSS alias: ${origin}/rss.xml`,
