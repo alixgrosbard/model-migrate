@@ -809,7 +809,7 @@ export const guides: GuidePage[] = [
     h1: "How to swap a deprecated model in LiteLLM, OpenRouter, the AI SDK, and LangChain",
     summary: "Change the model string. Add a fallback only where the library documents one.",
     answer:
-      "Point the model argument at the replacement id from the provider's deprecation page. LiteLLM and OpenRouter document a fallback list. The Vercel AI SDK OpenAI guide and LangChain's ChatOpenAI page document the model string, not a fallback list.",
+      "Point the model argument at the replacement id from the provider's deprecation page. LiteLLM and OpenRouter document a fallback list. The Vercel AI SDK OpenAI guide and LangChain's ChatOpenAI page document the model string, not a fallback list. Each library also has a page on [Frameworks](/frameworks/), including Pipecat, n8n, LlamaIndex, and Langflow.",
     steps: [
       { name: "Copy the replacement id", text: "Take it from the provider deprecation page or the SunsetDiff model page. Do not invent a short name." },
       { name: "Change the model argument", text: "LiteLLM uses the model string. OpenRouter uses model plus an optional models list. The AI SDK uses openai('model-id'). LangChain uses init_chat_model or the provider class model argument." },
@@ -920,6 +920,15 @@ model = init_chat_model("gpt-5.5")
       },
     ],
     related: [
+      { href: "/frameworks/", label: "Framework pages" },
+      { href: "/frameworks/langchain/", label: "LangChain model id" },
+      { href: "/frameworks/litellm/", label: "LiteLLM model id" },
+      { href: "/frameworks/vercel-ai-sdk/", label: "Vercel AI SDK model id" },
+      { href: "/frameworks/llamaindex/", label: "LlamaIndex model id" },
+      { href: "/frameworks/openrouter/", label: "OpenRouter model slug" },
+      { href: "/frameworks/pipecat/", label: "Pipecat model id" },
+      { href: "/frameworks/n8n/", label: "n8n OpenAI model field" },
+      { href: "/frameworks/langflow/", label: "Langflow model name" },
       { href: "/errors/", label: "Request errors after a model change" },
       { href: "/replace/openai/gpt-4o-2024-05-13/", label: "gpt-4o-2024-05-13 diff" },
       { href: "/migrate/anthropic__claude-sonnet-4-5-20250929__to__anthropic__claude-sonnet-5-5/", label: "Sonnet 4.5 migration diff" },
@@ -931,6 +940,11 @@ model = init_chat_model("gpt-5.5")
         question: "Does the AI SDK openai() helper have a fallback argument?",
         answer:
           "The OpenAI guide shows openai('model-id') and does not document a fallback list. Use LiteLLM fallbacks or OpenRouter's models array when you want a documented backup.",
+      },
+      {
+        question: "Where are the Pipecat, n8n, LlamaIndex, and Langflow pages?",
+        answer:
+          "On [Frameworks](/frameworks/). LiteLLM, OpenRouter, the Vercel AI SDK, and LangChain have pages there too. This guide keeps the fallback samples.",
       },
       {
         question: "Should I put an API key in the model config this page shows?",
@@ -1801,6 +1815,7 @@ llm = OpenAIResponsesLLMService(
       { href: "/models/openai/gpt-6-astra/", label: "gpt-6-astra" },
       { href: "/models/openai/gpt-6-luna/", label: "gpt-6-luna" },
       { href: "/models/openai/gpt-6-sol/", label: "gpt-6-sol" },
+      { href: "/frameworks/", label: "Where each framework stores the model id" },
       { href: "/migrate/openai__gpt-4o-2024-08-06__to__openai__gpt-6-luna/", label: "gpt-4o-2024-08-06 to gpt-6-luna" },
       { href: "/migrate/openai__gpt-5-1__to__openai__gpt-6-sol/", label: "gpt-5.1 to gpt-6-sol" },
     ],

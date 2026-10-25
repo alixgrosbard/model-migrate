@@ -3,6 +3,7 @@ import { BADGES_DESCRIPTION, BADGES_PATH } from "./lib/badges.ts";
 import { modelFaqs, replaceFaqs, type FaqItem } from "./lib/format.ts";
 import { deprecatedFaqs, publicName, questionPath, shutdownFaqs } from "./lib/growth.ts";
 import { GUIDES_CHECKED, GUIDES_INDEX, guideChecked, guidePath, type GuidePage } from "./lib/guides.ts";
+import { FRAMEWORKS_CHECKED, FRAMEWORKS_INDEX, frameworkPath, type FrameworkPage } from "./lib/frameworks.ts";
 import { GLOSSARY_CHECKED, GLOSSARY_INDEX, glossaryPath, glossaryTerms, type GlossaryTerm } from "./lib/glossary.ts";
 import { BREAKING_CHANGES_PATH, breakingChangesChecked, breakingChangesDatasetGraph } from "./lib/breaking-changes.ts";
 import { INTEGRATIONS_PATH, MCP_DOCS_CHECKED, MCP_ENDPOINT, MCP_PATH, MCP_SERVER_VERSION } from "./lib/mcp-docs.ts";
@@ -657,6 +658,68 @@ export function guidesIndexGraph(site: string, items: { name: string; path: stri
     },
     faqNode(faqs),
   ];
+}
+
+export function frameworksIndexGraph(site: string, items: { name: string; path: string }[], faqs: FaqItem[]) {
+  const url = new URL(FRAMEWORKS_INDEX, site).href;
+  return [
+    {
+      "@type": "CollectionPage",
+      name: "Frameworks",
+      description: "Where LangChain, LiteLLM, the Vercel AI SDK, LlamaIndex, OpenRouter, Pipecat, n8n, and Langflow store a model id.",
+      url,
+      dateModified: FRAMEWORKS_CHECKED,
+      inLanguage: "en",
+      isPartOf: { "@id": `${siteRoot(site)}/#website` },
+      publisher: { "@type": "Organization", name: "SunsetDiff" },
+    },
+    {
+      "@type": "ItemList",
+      name: "Frameworks",
+      numberOfItems: items.length,
+      itemListElement: items.map((item, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        name: item.name,
+        url: new URL(item.path, site).href,
+      })),
+    },
+    faqNode(faqs),
+  ];
+}
+
+export function frameworkGraph(site: string, page: FrameworkPage, faqs: FaqItem[]) {
+  const url = new URL(frameworkPath(page.slug), site).href;
+  const nodes: Record<string, unknown>[] = [
+    {
+      "@type": "Article",
+      headline: page.h1,
+      description: page.description,
+      datePublished: FRAMEWORKS_CHECKED,
+      dateModified: FRAMEWORKS_CHECKED,
+      url,
+      mainEntityOfPage: url,
+      inLanguage: "en",
+      author: { "@type": "Organization", name: "SunsetDiff" },
+      publisher: { "@type": "Organization", name: "SunsetDiff" },
+      citation: page.citations,
+    },
+  ];
+  if (page.steps.length) {
+    nodes.push({
+      "@type": "HowTo",
+      name: page.h1,
+      description: plainFaq(page.answer),
+      step: page.steps.map((step, index) => ({
+        "@type": "HowToStep",
+        position: index + 1,
+        name: step.name,
+        text: step.text,
+      })),
+    });
+  }
+  if (faqs.length) nodes.push(faqNode(faqs));
+  return nodes;
 }
 
 export function guideGraph(site: string, page: GuidePage) {
