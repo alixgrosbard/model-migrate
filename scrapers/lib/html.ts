@@ -44,8 +44,13 @@ export function tableRows($: cheerio.CheerioAPI, table: AnyNode): string[][] {
   return rows;
 }
 
+/** A trailing * on a deprecations cell is a wildcard, not part of the model id. */
+export function normalizeModelId(value: string): string {
+  return value.trim().replace(/^\*+|\*+$/g, "");
+}
+
 export function isModelId(value: string): boolean {
-  const text = value.trim().replace(/^\*|\*$/g, "");
+  const text = normalizeModelId(value);
   if (!text || text.length < 2 || text.length > 120) return false;
   if (/\s/.test(text)) return false;
   if (!/^[A-Za-z0-9][A-Za-z0-9._:/-]*$/.test(text)) return false;
@@ -57,15 +62,15 @@ export function isModelId(value: string): boolean {
 export function idsFromCell($: cheerio.CheerioAPI, cell: AnyNode): string[] {
   const codes = $(cell)
     .find("code")
-    .map((_, node) => $(node).text().trim())
+    .map((_, node) => normalizeModelId($(node).text()))
     .get()
     .filter(isModelId);
   if (codes.length) return unique(codes);
-  const text = cellText($(cell).text()).replace(/\*/g, "");
+  const text = normalizeModelId(cellText($(cell).text()).replace(/\*/g, ""));
   if (isModelId(text)) return [text];
   const pieces = text
     .split(/\s+or\s+|,/i)
-    .map((piece) => piece.trim().replace(/^\*|\*$/g, ""))
+    .map((piece) => normalizeModelId(piece))
     .filter(isModelId);
   return unique(pieces);
 }

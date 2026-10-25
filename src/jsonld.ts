@@ -48,7 +48,13 @@ export function breadcrumb(site: string, crumbs: { name: string; path: string }[
   };
 }
 
-export function modelGraph(site: string, model: ModelRecord, provider: Provider, migration?: MigrationRecord | null) {
+export function modelGraph(
+  site: string,
+  model: ModelRecord,
+  provider: Provider,
+  migration?: MigrationRecord | null,
+  catalog?: ModelRecord[],
+) {
   const path = `/models/${model.provider}/${model.slug}/`;
   const url = new URL(path, site).href;
   const checked = model.sources[0]?.last_checked;
@@ -66,7 +72,7 @@ export function modelGraph(site: string, model: ModelRecord, provider: Provider,
         provider: { "@type": "Organization", name: provider.name },
       },
     },
-    faqNode(modelFaqs(model, provider, migration)),
+    faqNode(modelFaqs(model, provider, migration, catalog)),
   ];
 }
 

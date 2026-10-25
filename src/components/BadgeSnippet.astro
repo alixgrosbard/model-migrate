@@ -6,12 +6,13 @@ import type { ModelRecord } from "../schema.ts";
 interface Props {
   model: ModelRecord;
   origin: string;
+  models?: ModelRecord[];
 }
-const { model, origin } = Astro.props;
+const { model, origin, models = [] } = Astro.props;
 const day = today();
-const alt = badgeAlt(model, day);
-const markdown = badgeMarkdown(origin, model, day);
-const html = badgeHtml(origin, model, day);
+const alt = badgeAlt(model, day, models);
+const markdown = badgeMarkdown(origin, model, day, models);
+const html = badgeHtml(origin, model, day, models);
 ---
 <section class="card">
   <h2>Add this badge to your README</h2>

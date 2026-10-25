@@ -18,7 +18,10 @@ export default defineConfig({
       filter(page) {
         try {
           const pathname = new URL(page).pathname;
-          return pathname !== "/google/" && !pathname.startsWith("/.well-known/");
+          return pathname !== "/google/"
+            && pathname !== "/models/openai/gpt-4-1-2/"
+            && pathname !== "/migrate/openai__gpt-4-5-preview__to__openai__gpt-4-1-2/"
+            && !pathname.startsWith("/.well-known/");
         } catch {
           return true;
         }

@@ -4,6 +4,7 @@ import { changeSchema, modelSchema, type ChangeRecord, type ModelRecord, type Pr
 import { emptySpecs } from "../src/schema.ts";
 import { nowISO, todayISO } from "./lib/dates.ts";
 import { politeFetch, readSnapshot, saveSnapshot } from "./lib/fetch.ts";
+import { missingAliasModels } from "../src/lib/aliases.ts";
 import { slugify } from "./lib/html.ts";
 import { applyPrice, baseModel } from "./lib/model.ts";
 import type { ScrapedModel } from "./lib/types.ts";
@@ -113,6 +114,7 @@ async function scrapeAll(): Promise<Map<string, ScrapedModel[]>> {
     ["deepseek", deepseek],
   ]);
   addReplacementStubs(groups, checked);
+  addUndatedAliasStubs(groups, checked);
   attachStubPrices(groups, openaiPricing, anthropicPricing, geminiPricing, checked);
   if (!fromSnapshots) {
     const flat = [...groups.values()].flat();
@@ -141,6 +143,23 @@ function addReplacementStubs(groups: Map<string, ScrapedModel[]>, checkedOn: str
           }),
         );
       }
+    }
+  }
+}
+
+function addUndatedAliasStubs(groups: Map<string, ScrapedModel[]>, checkedOn: string) {
+  const now = `${checkedOn}T00:00:00.000Z`;
+  for (const [provider, list] of groups) {
+    const present = new Set(list.map((model) => model.id));
+    const added = missingAliasModels(
+      list.map((model) => ({ ...model, slug: model.slug || slugify(model.id) })),
+      now,
+    ).filter((model) => model.provider === provider && !present.has(model.id));
+    for (const model of added) {
+      const { first_seen, updated_at, ...scraped } = model;
+      void first_seen;
+      void updated_at;
+      list.push(scraped);
     }
   }
 }

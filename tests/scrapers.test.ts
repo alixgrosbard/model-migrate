@@ -71,6 +71,8 @@ describe("official snapshots", () => {
     expect(gpt?.replacements[0]?.model_id).toBe("gpt-6-luna");
     expect(gpt?.sources[0]?.last_checked).toBe(checked);
     expect(models.find((model) => model.id === "gpt-4")?.display_name).toBe("gpt-4");
+    const ids = models.flatMap((model) => [model.id, ...model.replacements.map((item) => item.model_id)]);
+    expect(ids.some((id) => id.includes("*"))).toBe(false);
   });
 
   it("parses Anthropic status and not-sooner-than dates", () => {
