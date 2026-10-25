@@ -417,6 +417,24 @@ describe("deepseek", () => {
   it("does not invent deepseek-chat when the discontinuation sentence is absent", () => {
     expect(parseDeepSeek("<html></html>", "<html></html>", "", "2026-10-25")).toEqual([]);
   });
+
+  it("splits two model ids that share one summary-table cell", () => {
+    const summary = read(fixture("deepseek", "pricing-summary-2026-10-25.html"));
+    const models = parseDeepSeek(updates, summary, news, "2026-10-25");
+    const ids = models.map((model) => model.id);
+    expect(ids.filter((id) => id.startsWith("deepseek"))).toEqual([
+      "deepseek-flash",
+      "deepseek-v4-pro",
+      "deepseek-chat",
+      "deepseek-reasoner",
+      "deepseek-v4-flash",
+      "deepseek-v4-flash-vision-exp",
+    ]);
+    const pro = models.find((model) => model.id === "deepseek-v4-pro");
+    expect(pro?.status).toBe("active");
+    expect(pro?.shutdown_date).toBeNull();
+    expect(pro?.region_or_platform_notes).toContain("No shutdown date is published");
+  });
 });
 
 describe("dates", () => {

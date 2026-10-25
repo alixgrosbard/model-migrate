@@ -1,3 +1,4 @@
+import type { AnyNode } from "domhandler";
 import { compareDate, normalizeDashes, parseDate } from "./lib/dates.ts";
 import { excerpt, isModelId, loadHtml } from "./lib/html.ts";
 import { applyPrice, baseModel } from "./lib/model.ts";
@@ -242,25 +243,28 @@ function newsDateOf(sentence: string): string | null {
 function parsePricingTable(html: string): ListedModel[] {
   if (!html) return [];
   const $ = loadHtml(html);
-  let ids: string[] = [];
-  const rows: string[][] = [];
-  $("table")
-    .first()
-    .find("tr")
-    .each((_, tr) => {
-      const cells = $(tr)
-        .find("td, th")
-        .map((__, cell) => normalizeDashes($(cell).text()).replace(/\s+/g, " ").trim())
-        .get()
-        .filter((cell) => cell.length > 0);
-      if (cells.length) rows.push(cells);
-    });
-  const header = rows.find((row) => row[0]?.replace(/\(\d+\)/g, "").trim().toUpperCase() === "MODEL");
-  if (!header) return [];
-  ids = header
-    .slice(1)
-    .map(cleanId)
-    .filter(isModelId);
+  const found: { ids: string[]; rows: string[][] }[] = [];
+  $("table").each((_, table) => {
+    const rows: string[][] = [];
+    let ids: string[] = [];
+    $(table)
+      .find("tr")
+      .each((__, tr) => {
+        const cells = $(tr)
+          .find("td, th")
+          .map((___, cell) => normalizeDashes($(cell).text()).replace(/\s+/g, " ").trim())
+          .get()
+          .filter((cell) => cell.length > 0);
+        if (!cells.length) return;
+        rows.push(cells);
+        if (!ids.length && cells[0]?.replace(/\(\d+\)/g, "").trim().toUpperCase() === "MODEL") ids = modelIdsFromRow($, tr);
+      });
+    if (ids.length) found.push({ ids, rows });
+  });
+  found.sort((a, b) => tableRank(b.ids, b.rows) - tableRank(a.ids, a.rows));
+  const best = found[0];
+  if (!best) return [];
+  const { ids, rows } = best;
   if (!ids.length) return [];
   const listed = new Map<string, ListedModel>(
     ids.map((id) => [
@@ -344,6 +348,45 @@ function flagCells(row: string[]): Array<boolean | null> {
   return row
     .filter((cell) => cell === "✓" || /not supported/i.test(cell) || cell === "✗")
     .map((cell) => (cell === "✓" ? true : /not supported/i.test(cell) || cell === "✗" ? false : null));
+}
+
+function tableRank(ids: string[], rows: string[][]): number {
+  const joined = rows.map((row) => row.join(" ")).join("\n");
+  return (/MODEL VERSION|CACHE MISS|1M OUTPUT/i.test(joined) ? 100 : 0) + ids.length;
+}
+
+function modelIdsFromRow($: ReturnType<typeof loadHtml>, tr: AnyNode): string[] {
+  const ids: string[] = [];
+  let labelSeen = false;
+  $(tr)
+    .find("td, th")
+    .each((_, cell) => {
+      const text = normalizeDashes($(cell).text()).replace(/\s+/g, " ").trim();
+      if (!text) return;
+      if (!labelSeen && text.replace(/\(\d+\)/g, "").trim().toUpperCase() === "MODEL") {
+        labelSeen = true;
+        return;
+      }
+      // Some fetches render both ids in one cell:
+      // <code>deepseek-flash</code><sup>(1)</sup><br><code>deepseek-v4-pro</code>
+      // Cell text glues them into deepseek-flashdeepseek-v4-pro.
+      const codes = $(cell)
+        .find("code")
+        .toArray()
+        .map((node) => cleanId($(node).text()))
+        .filter(isModelId);
+      if (codes.length) {
+        ids.push(...codes);
+        return;
+      }
+      const broken = ($(cell).html() ?? "").replace(/<br\s*\/?>/gi, "\n");
+      const parts = normalizeDashes(loadHtml(`<div>${broken}</div>`).root().text())
+        .split(/\s+/)
+        .map(cleanId)
+        .filter(isModelId);
+      ids.push(...parts);
+    });
+  return ids;
 }
 
 function cleanId(value: string): string {
