@@ -114,12 +114,16 @@ async function scrapeAll(): Promise<Map<string, ScrapedModel[]>> {
     ["deepseek", deepseek],
   ]);
   addReplacementStubs(groups, checked);
-  addUndatedAliasStubs(groups, checked);
   attachStubPrices(groups, openaiPricing, anthropicPricing, geminiPricing, checked);
   if (!fromSnapshots) {
     const flat = [...groups.values()].flat();
     await enrichSpecs(flat, checked);
   }
+  // A dated snapshot starts with only its deprecations row. The model-doc
+  // page that names the undated alias is attached by enrichSpecs. Building
+  // the alias before that page is attached drops it, and the next refresh
+  // deletes the saved alias record.
+  addUndatedAliasStubs(groups, checked);
   return groups;
 }
 
