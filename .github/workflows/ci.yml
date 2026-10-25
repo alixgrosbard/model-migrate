@@ -12,5 +12,7 @@ jobs:
           node-version: "20"
           cache: npm
       - run: npm ci
+      - name: Probe DeepSeek pricing from this runner
+        run: npx tsx scripts/probe-deepseek.ts
       - run: npm test
       - run: npm run build
