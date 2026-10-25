@@ -16,6 +16,7 @@ const ALLOWED_HOSTS = new Set([
   "docs.litellm.ai",
   "ai-sdk.dev",
   "docs.langchain.com",
+  "docs.pipecat.ai",
   "openrouter.ai",
   "sunsetdiff.com",
   "creativecommons.org",
@@ -133,5 +134,26 @@ describe("guides", () => {
     expect(blob).toContain("/models/deepseek/deepseek-reasoner/");
     expect(blob).toContain("/api/v1/lookup/gpt-4.1-nano.json");
     expect(blob.toLowerCase()).not.toContain("deepseek-chat retired on 2026-07-24 in sunsetdiff");
+  });
+
+  it("sources the Responses API function-calling guide from the official pages", () => {
+    const guide = guides.find((item) => item.slug === "move-function-calling-to-responses-api");
+    expect(guide).toBeTruthy();
+    if (!guide) return;
+    expect(guideChecked(guide)).toBe("2026-10-25");
+    const blob = JSON.stringify(guide);
+    expect(blob).toContain("Function tools with reasoning_effort are not supported for gpt-6.1-sol in /v1/chat/completions");
+    expect(blob).toContain("function_call_output");
+    expect(blob).toContain("response.function_call_arguments.delta");
+    expect(blob).toContain("https://developers.openai.com/api/docs/guides/migrate-to-responses");
+    expect(blob).toContain("https://developers.openai.com/api/docs/models/gpt-6.1-sol");
+    expect(blob).toContain("https://developers.openai.com/api/docs/models/gpt-6-astra");
+    expect(blob).toContain("https://docs.litellm.ai/docs/providers/openai");
+    expect(blob).toContain("https://ai-sdk.dev/docs/guides/openai");
+    expect(blob).toContain("https://docs.langchain.com/oss/python/integrations/chat/openai");
+    expect(blob).toContain("https://docs.pipecat.ai/api-reference/server/services/llm/openai-responses");
+    expect(blob).toContain("/errors/gpt-6-1-sol-function-tools-chat-completions/");
+    expect(blob).toContain("use_responses_api=True");
+    expect(blob).not.toContain('reasoning_effort="none"');
   });
 });

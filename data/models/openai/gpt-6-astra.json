@@ -1,0 +1,120 @@
+{
+  "id": "gpt-6-astra",
+  "slug": "gpt-6-astra",
+  "provider": "openai",
+  "display_name": "gpt-6-astra",
+  "family": null,
+  "status": "active",
+  "announced_date": null,
+  "deprecation_date": null,
+  "shutdown_date": null,
+  "shutdown_date_kind": "none",
+  "region_or_platform_notes": null,
+  "replacements": [],
+  "sources": [
+    {
+      "url": "https://developers.openai.com/api/docs/models/gpt-6-astra",
+      "label": "OpenAI model docs",
+      "last_checked": "2026-10-25",
+      "excerpt": "Model ID: gpt-6-astra. reasoning.effort supports low, medium, high, xhigh, and max. Context 1050000. Max output 128000. Input $10. Cached input $1. Output $50. Knowledge cutoff Apr 30, 2026."
+    },
+    {
+      "url": "https://developers.openai.com/api/docs/guides/latest-model",
+      "label": "Using GPT-6",
+      "last_checked": "2026-10-25",
+      "excerpt": "GPT-6 Astra supports Chat Completions, but tool calling requires the Responses API. GPT-6 Astra does not support reasoning effort none."
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": 10,
+    "output_price_per_mtok": 50,
+    "cached_input_price_per_mtok": 1,
+    "batch_discount_pct": 50,
+    "currency": "USD",
+    "context_window_tokens": 1050000,
+    "max_output_tokens": 128000,
+    "modalities_in": ["text", "image"],
+    "modalities_out": ["text"],
+    "supports_tools": true,
+    "supports_json_schema": true,
+    "supports_vision": true,
+    "supports_streaming": true,
+    "supports_batch": true,
+    "supports_prompt_caching": true,
+    "reasoning": "always",
+    "knowledge_cutoff": "Apr 30, 2026",
+    "endpoints": ["v1/chat/completions", "v1/responses", "v1/batch"],
+    "specs_sources": {
+      "input_price_per_mtok": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-6-astra",
+        "last_checked": "2026-10-25"
+      },
+      "output_price_per_mtok": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-6-astra",
+        "last_checked": "2026-10-25"
+      },
+      "cached_input_price_per_mtok": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-6-astra",
+        "last_checked": "2026-10-25"
+      },
+      "batch_discount_pct": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-6-astra",
+        "last_checked": "2026-10-25"
+      },
+      "context_window_tokens": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-6-astra",
+        "last_checked": "2026-10-25"
+      },
+      "max_output_tokens": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-6-astra",
+        "last_checked": "2026-10-25"
+      },
+      "modalities_in": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-6-astra",
+        "last_checked": "2026-10-25"
+      },
+      "modalities_out": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-6-astra",
+        "last_checked": "2026-10-25"
+      },
+      "supports_tools": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-6-astra",
+        "last_checked": "2026-10-25"
+      },
+      "supports_json_schema": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-6-astra",
+        "last_checked": "2026-10-25"
+      },
+      "supports_vision": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-6-astra",
+        "last_checked": "2026-10-25"
+      },
+      "supports_streaming": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-6-astra",
+        "last_checked": "2026-10-25"
+      },
+      "supports_batch": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-6-astra",
+        "last_checked": "2026-10-25"
+      },
+      "supports_prompt_caching": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-6-astra",
+        "last_checked": "2026-10-25"
+      },
+      "reasoning": {
+        "url": "https://developers.openai.com/api/docs/guides/latest-model",
+        "last_checked": "2026-10-25"
+      },
+      "knowledge_cutoff": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-6-astra",
+        "last_checked": "2026-10-25"
+      },
+      "endpoints": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-6-astra",
+        "last_checked": "2026-10-25"
+      }
+    }
+  },
+  "first_seen": "2026-10-25T12:10:00.000Z",
+  "updated_at": "2026-10-25T12:10:00.000Z"
+}

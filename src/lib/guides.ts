@@ -11,6 +11,16 @@ const OPENAI_CHAT_LATEST = "https://developers.openai.com/api/docs/models/chat-l
 const OPENAI_COMPAT = "https://developers.openai.com/api/reference/llms-full.txt";
 const OPENAI_EVALS = "https://developers.openai.com/api/docs/guides/evals";
 const OPENAI_TOOLS = "https://developers.openai.com/api/docs/guides/function-calling";
+const OPENAI_MIGRATE = "https://developers.openai.com/api/docs/guides/migrate-to-responses";
+const OPENAI_REASONING = "https://developers.openai.com/api/docs/guides/reasoning";
+const OPENAI_SOL_61 = "https://developers.openai.com/api/docs/models/gpt-6.1-sol";
+const OPENAI_ASTRA = "https://developers.openai.com/api/docs/models/gpt-6-astra";
+const OPENAI_LUNA = "https://developers.openai.com/api/docs/models/gpt-6-luna";
+const LITELLM_OPENAI = "https://docs.litellm.ai/docs/providers/openai";
+const LANGCHAIN_OPENAI = "https://docs.langchain.com/oss/python/integrations/chat/openai";
+const PIPECAT_CHAT = "https://docs.pipecat.ai/api-reference/server/services/llm/openai";
+const PIPECAT_RESPONSES = "https://docs.pipecat.ai/api-reference/server/services/llm/openai-responses";
+const ISSUE_SOL_TOOLS = "https://github.com/langflow-ai/openrag/issues/2534";
 const OPENAI_PRICING = "https://developers.openai.com/api/docs/pricing";
 const CLAUDE_IDS = "https://platform.claude.com/docs/en/about-claude/models/model-ids-and-versions";
 const CLAUDE_DEPRECATIONS = "https://platform.claude.com/docs/en/about-claude/model-deprecations";
@@ -1396,6 +1406,435 @@ curl -fsSL https://sunsetdiff.com/api/v1/lookup/gpt-4.1-nano.json
       AZURE_RETIREMENTS,
       BEDROCK_LEGACY,
       "https://sunsetdiff.com/api/",
+    ],
+  },
+  {
+    slug: "move-function-calling-to-responses-api",
+    title: "Move function calling to the Responses API | SunsetDiff",
+    description:
+      "How to move OpenAI function tools from Chat Completions to the Responses API: tool shape, tool results, streaming, and the GPT-6 models that reject Chat Completions tools.",
+    h1: "Move function calling to the Responses API",
+    summary: "Change the endpoint, flatten the tool object, and send results with call_id.",
+    answer:
+      "GPT-6 Astra and GPT-6.1 Sol require the Responses API for tool calling. Chat Completions still accepts those models for requests that do not call tools. GPT-6 Sol and GPT-6 Luna can keep function tools on Chat Completions only when reasoning_effort is none. The move is three changes: post to /v1/responses, use a flat function tool, and send the tool result as a function_call_output item with the same call_id.",
+    checked: "2026-10-25",
+    steps: [
+      {
+        name: "Call responses.create",
+        text: "Replace client.chat.completions.create with client.responses.create. Send input instead of messages. Read output_text, or walk response.output, instead of choices[0].message.",
+      },
+      {
+        name: "Flatten the function tool",
+        text: "Put name, description, and parameters next to type. Do not nest them under function. If you omit strict, Responses tries strict mode. Set strict to false to keep the old best-effort behavior.",
+      },
+      {
+        name: "Return the tool result with call_id",
+        text: "A function call is an output item with type function_call. Send the result back as an input item with type function_call_output and the same call_id. Keep the reasoning items from that turn.",
+      },
+      {
+        name: "Update the stream reader",
+        text: "Responses streams typed events. Text arrives on response.output_text.delta. Function arguments arrive on response.function_call_arguments.delta and response.function_call_arguments.done.",
+      },
+    ],
+    sections: [
+      {
+        heading: "Which models reject Chat Completions tools",
+        paragraphs: [
+          "The Using GPT-6 guide says GPT-6 Astra and GPT-6.1 Sol support Chat Completions, but tool calling requires the Responses API. The same guide says GPT-6 Sol and GPT-6 Luna support function calling in Chat Completions only with reasoning_effort set to none.",
+          "The GPT-6.1 Sol model page says to use the Responses API for tool calling, that Chat Completions is supported without tool calling, and that none and minimal are not supported. The reasoning guide says setting reasoning effort to none on GPT-6 Astra returns HTTP 400, and that GPT-6.1 Sol does not support none or minimal and defaults to medium.",
+          "GitHub issue langflow-ai/openrag#2534 records this sentence for gpt-6.1-sol: Function tools with reasoning_effort are not supported for gpt-6.1-sol in /v1/chat/completions. To use function tools, use /v1/responses or set reasoning_effort to 'none'. That second option is not valid for gpt-6.1-sol or gpt-6-astra. It is valid for [gpt-6-luna](/errors/gpt-6-luna-function-tools-reasoning-effort/). The full write-up is [the gpt-6.1-sol error page](/errors/gpt-6-1-sol-function-tools-chat-completions/).",
+        ],
+        table: {
+          caption: "Function tools on Chat Completions, from the Using GPT-6 guide and the model pages.",
+          headers: ["Model", "Chat Completions function tools", "reasoning effort none"],
+          rows: [
+            ["gpt-6-astra", "Not supported. Use /v1/responses.", "Not supported. none returns HTTP 400."],
+            ["gpt-6.1-sol", "Not supported. Chat Completions works without tool calling.", "Not supported. minimal is not supported either. Default is medium."],
+            ["gpt-6-sol", "Only with reasoning_effort none.", "Supported."],
+            ["gpt-6-luna", "Only with reasoning_effort none.", "Supported. Default is medium."],
+          ],
+        },
+        sources: [
+          { label: "Using GPT-6", url: OPENAI_GPT6 },
+          { label: "GPT-6.1 Sol model page", url: OPENAI_SOL_61 },
+          { label: "GPT-6 Astra model page", url: OPENAI_ASTRA },
+          { label: "GPT-6 Luna model page", url: OPENAI_LUNA },
+          { label: "Reasoning guide", url: OPENAI_REASONING },
+          { label: "GitHub issue langflow-ai/openrag#2534", url: ISSUE_SOL_TOOLS },
+        ],
+      },
+      {
+        heading: "Request shape",
+        paragraphs: [
+          "The migration guide says Chat Completions function definitions are externally tagged, and Responses function definitions are internally tagged. In Chat Completions the name sits inside a function object. In Responses, name, description, and parameters sit next to type.",
+          "Chat Completions functions are non-strict by default. If you omit strict on Responses, the API tries to make the schema strict. When it cannot, it falls back to non-strict and returns the tool with strict set to false. Set strict to false when you want that behavior on purpose.",
+          "Text-only messages can be passed as input. A system message in that list still works for a text call. Tool calls are a different item type, so a tool loop cannot keep using the Chat Completions message array as-is.",
+        ],
+        table: {
+          caption: "Fields the migration guide maps from Chat Completions to Responses.",
+          headers: ["Chat Completions", "Responses"],
+          rows: [
+            ["POST /v1/chat/completions", "POST /v1/responses"],
+            ["messages", "input, a string or a list of items"],
+            ["tools[].function.name", "tools[].name, next to type function"],
+            ["assistant message tool_calls", "output item type function_call"],
+            ["tool result message", "input item type function_call_output, with call_id"],
+            ["choices[0].message.content", "output_text, or a message item in output"],
+            ["response_format", "text.format"],
+          ],
+        },
+        codes: [
+          {
+            caption: "Before, Python",
+            code: `response = client.chat.completions.create(
+    model="gpt-6.1-sol",
+    messages=[{"role": "user", "content": "What is the weather in Paris?"}],
+    tools=[{
+        "type": "function",
+        "function": {
+            "name": "get_weather",
+            "description": "Get the weather for a city.",
+            "parameters": {
+                "type": "object",
+                "properties": {"location": {"type": "string"}},
+                "required": ["location"],
+            },
+        },
+    }],
+)
+`,
+          },
+          {
+            caption: "After, Python",
+            code: `response = client.responses.create(
+    model="gpt-6.1-sol",
+    input=[{"role": "user", "content": "What is the weather in Paris?"}],
+    tools=[{
+        "type": "function",
+        "name": "get_weather",
+        "description": "Get the weather for a city.",
+        "parameters": {
+            "type": "object",
+            "properties": {"location": {"type": "string"}},
+            "required": ["location"],
+        },
+    }],
+)
+`,
+          },
+          {
+            caption: "Before, Node",
+            code: `const response = await client.chat.completions.create({
+  model: "gpt-6.1-sol",
+  messages: [{ role: "user", content: "What is the weather in Paris?" }],
+  tools: [{
+    type: "function",
+    function: {
+      name: "get_weather",
+      description: "Get the weather for a city.",
+      parameters: {
+        type: "object",
+        properties: { location: { type: "string" } },
+        required: ["location"],
+      },
+    },
+  }],
+});
+`,
+          },
+          {
+            caption: "After, Node",
+            code: `const response = await client.responses.create({
+  model: "gpt-6.1-sol",
+  input: [{ role: "user", content: "What is the weather in Paris?" }],
+  tools: [{
+    type: "function",
+    name: "get_weather",
+    description: "Get the weather for a city.",
+    parameters: {
+      type: "object",
+      properties: { location: { type: "string" } },
+      required: ["location"],
+    },
+  }],
+});
+`,
+          },
+        ],
+        sources: [
+          { label: "Migrate to the Responses API", url: OPENAI_MIGRATE },
+          { label: "Function calling", url: OPENAI_TOOLS },
+        ],
+      },
+      {
+        heading: "Tool results",
+        paragraphs: [
+          "The function calling guide says a function call is an output item whose type is function_call. It has a call_id, a name, and JSON-encoded arguments. Your application runs the function. The next request appends a function_call_output item with that call_id and the output string.",
+          "The reasoning guide says to pass back the reasoning items returned with the function call, plus the function call items and the function call output items, since the last user message. Dropping those items is one of the migration errors the migration guide lists.",
+          "Responses are stored by default. Set store to false when you do not want that. If the flow must stay stateless, the migration guide says to preserve each returned reasoning item, which includes encrypted_content by default, and send those items on the next request.",
+        ],
+        codes: [
+          {
+            caption: "Python, send the tool result",
+            code: `input_list += response.output
+for item in response.output:
+    if item.type == "function_call" and item.name == "get_weather":
+        input_list.append({
+            "type": "function_call_output",
+            "call_id": item.call_id,
+            "output": "15 C",
+        })
+response = client.responses.create(
+    model="gpt-6.1-sol",
+    tools=tools,
+    input=input_list,
+)
+print(response.output_text)
+`,
+          },
+          {
+            caption: "Node, send the tool result",
+            code: `import { toResponseInputItems } from "openai/lib/responses/ResponseInputItems";
+
+const toolCall = response.output.find((item) => item.type === "function_call");
+input.push(...toResponseInputItems(response.output));
+input.push({
+  type: "function_call_output",
+  call_id: toolCall.call_id,
+  output: "15 C",
+});
+response = await client.responses.create({
+  model: "gpt-6.1-sol",
+  tools,
+  input,
+});
+console.log(response.output_text);
+`,
+          },
+        ],
+        sources: [
+          { label: "Function calling", url: OPENAI_TOOLS },
+          { label: "Reasoning guide", url: OPENAI_REASONING },
+          { label: "Migrate to the Responses API", url: OPENAI_MIGRATE },
+        ],
+      },
+      {
+        heading: "Streaming",
+        paragraphs: [
+          "The migration guide says Chat Completions streaming returns chunks with a delta field. Responses streaming uses typed server-sent events. A text stream includes response.created, response.output_text.delta, response.completed, and error.",
+          "A function-calling stream also emits response.function_call_arguments.delta and response.function_call_arguments.done. The function calling guide accumulates arguments by listening for response.output_item.added when the item type is function_call, then appending each delta onto that item's arguments.",
+        ],
+        codes: [
+          {
+            caption: "Python",
+            code: `final_tool_calls = {}
+stream = client.responses.create(
+    model="gpt-6.1-sol",
+    input=[{"role": "user", "content": "What is the weather in Paris?"}],
+    tools=tools,
+    stream=True,
+)
+for event in stream:
+    if event.type == "response.output_item.added":
+        final_tool_calls[event.output_index] = event.item
+    elif event.type == "response.function_call_arguments.delta":
+        index = event.output_index
+        if final_tool_calls[index]:
+            final_tool_calls[index].arguments += event.delta
+`,
+          },
+          {
+            caption: "Node",
+            code: `const finalToolCalls = {};
+const stream = await client.responses.create({
+  model: "gpt-6.1-sol",
+  input: [{ role: "user", content: "What is the weather in Paris?" }],
+  tools,
+  stream: true,
+});
+for await (const event of stream) {
+  if (event.type === "response.output_item.added" && event.item.type === "function_call") {
+    finalToolCalls[event.output_index] = event.item;
+  } else if (event.type === "response.function_call_arguments.delta" && finalToolCalls[event.output_index]) {
+    finalToolCalls[event.output_index].arguments += event.delta;
+  }
+}
+`,
+          },
+        ],
+        sources: [
+          { label: "Migrate to the Responses API", url: OPENAI_MIGRATE },
+          { label: "Function calling", url: OPENAI_TOOLS },
+        ],
+      },
+      {
+        heading: "Gotchas",
+        paragraphs: [
+          "The migration guide lists these mistakes when a Chat Completions client is pointed at Responses.",
+        ],
+        bullets: [
+          "Reading choices[0].message.content instead of output_text or output.",
+          "Treating every output entry as a message. Reasoning items, function calls, and function results are separate item types.",
+          "Dropping reasoning items, function call items, or function call output items when you build the next input yourself.",
+          "Sending a function result without the matching call_id.",
+          "Sending response_format. Responses uses text.format.",
+          "Reusing a Chat Completions stream handler that only reads delta chunks.",
+          "Assuming previous_response_id makes earlier turns free. Previous input tokens in the chain are still billed as input tokens.",
+          "Setting reasoning_effort to none on gpt-6.1-sol or gpt-6-astra because the Chat Completions error mentions it. Those models do not support none.",
+        ],
+        sources: [
+          { label: "Migrate to the Responses API", url: OPENAI_MIGRATE },
+          { label: "Using GPT-6", url: OPENAI_GPT6 },
+          { label: "GPT-6.1 Sol model page", url: OPENAI_SOL_61 },
+        ],
+      },
+      {
+        heading: "LiteLLM",
+        paragraphs: [
+          "LiteLLM's OpenAI provider says a model string with the openai/ prefix calls Chat Completions. Prefix one call with openai/responses/ to send that call to the Responses API. The page shows openai/responses/gpt-6.1-sol for a request that includes tools and reasoning_effort.",
+          "The same page says gpt-6.1-sol without that prefix uses Chat Completions, and that a built-in tool such as web_search_preview fails on that path. It says LiteLLM drops reasoning_effort on tool calls for gpt-5.4, gpt-5.5, and future 5.x releases, because that pair is only supported on the Responses API. The sample on that page uses openai/responses/gpt-6.1-sol and says LiteLLM also routes a call to /v1/responses when both tools and reasoning_effort are set. Do not send none. The GPT-6.1 Sol model page says none is not supported.",
+        ],
+        codes: [
+          {
+            caption: "Python",
+            code: `import litellm
+response = litellm.completion(
+    model="openai/responses/gpt-6.1-sol",
+    messages=[{"role": "user", "content": "What is the weather in Paris?"}],
+    reasoning_effort="low",
+    tools=[{
+        "type": "function",
+        "function": {
+            "name": "get_weather",
+            "parameters": {
+                "type": "object",
+                "properties": {"location": {"type": "string"}},
+                "required": ["location"],
+            },
+        },
+    }],
+)
+`,
+          },
+        ],
+        sources: [
+          { label: "LiteLLM OpenAI provider", url: LITELLM_OPENAI },
+          { label: "GPT-6.1 Sol model page", url: OPENAI_SOL_61 },
+        ],
+      },
+      {
+        heading: "Vercel AI SDK",
+        paragraphs: [
+          "The AI SDK OpenAI guide says openai('model-id') uses the Responses API, and that this has been the default since AI SDK 5. openai.chat('model-id') calls Chat Completions. Use that factory when a custom base URL implements Chat Completions and not Responses.",
+          "The same guide says to use the Responses API for GPT-6 tool calling. GPT-6 Astra and GPT-6.1 Sol do not support reasoningEffort none. GPT-6 Sol and GPT-6 Luna do.",
+        ],
+        codes: [
+          {
+            caption: "Responses",
+            code: `import { openai } from "@ai-sdk/openai";
+import { generateText, tool } from "ai";
+import { z } from "zod";
+
+const result = await generateText({
+  model: openai("gpt-6.1-sol"),
+  prompt: "What is the weather in Paris?",
+  tools: {
+    get_weather: tool({
+      description: "Get the weather for a city.",
+      inputSchema: z.object({ city: z.string() }),
+    }),
+  },
+});
+`,
+          },
+        ],
+        sources: [{ label: "AI SDK OpenAI guide", url: AI_SDK_OPENAI }],
+      },
+      {
+        heading: "LangChain",
+        paragraphs: [
+          "The ChatOpenAI page says ChatOpenAI routes to the Responses API when you use a feature that requires it, such as the built-in web search tool. You can also set use_responses_api to True. The gpt-6-astra examples on that page set that flag.",
+          "The page says async tools are only supported via the Responses API, and that an additional_tools content block requires it. On Chat Completions, ChatOpenAI raises ValueError for that block. A bind_tools example on the same page uses ChatOpenAI without use_responses_api. The Using GPT-6 guide says gpt-6.1-sol and gpt-6-astra tool calling requires Responses, so set use_responses_api to True for those function tools.",
+        ],
+        codes: [
+          {
+            caption: "Python",
+            code: `from langchain_openai import ChatOpenAI
+
+llm = ChatOpenAI(model="gpt-6.1-sol", use_responses_api=True)
+`,
+          },
+        ],
+        sources: [
+          { label: "LangChain ChatOpenAI", url: LANGCHAIN_OPENAI },
+          { label: "Using GPT-6", url: OPENAI_GPT6 },
+        ],
+      },
+      {
+        heading: "Pipecat",
+        paragraphs: [
+          "Pipecat documents two OpenAI text services. OpenAILLMService is the chat completions service. OpenAIResponsesLLMService and OpenAIResponsesHttpLLMService call the Responses API. The Responses page says to use OpenAILLMService for Chat Completions and the Responses classes for the Responses API.",
+          "Both services document function calling through register_function. The Responses page does not name gpt-6.1-sol or gpt-6-astra. The model setting is the OpenAI model id. A pipeline that still constructs OpenAILLMService is still on Chat Completions, which is the endpoint OpenAI says cannot run function tools for those two models.",
+        ],
+        codes: [
+          {
+            caption: "Responses service",
+            code: `from pipecat.services.openai.responses.llm import OpenAIResponsesLLMService
+
+llm = OpenAIResponsesLLMService(
+    settings=OpenAIResponsesLLMService.Settings(model="gpt-6.1-sol"),
+)
+`,
+          },
+        ],
+        sources: [
+          { label: "Pipecat OpenAI LLM", url: PIPECAT_CHAT },
+          { label: "Pipecat OpenAI Responses LLM", url: PIPECAT_RESPONSES },
+          { label: "Using GPT-6", url: OPENAI_GPT6 },
+        ],
+      },
+    ],
+    related: [
+      { href: "/errors/gpt-6-1-sol-function-tools-chat-completions/", label: "gpt-6.1-sol function tools error" },
+      { href: "/errors/gpt-6-luna-function-tools-reasoning-effort/", label: "gpt-6-luna function tools error" },
+      { href: "/models/openai/gpt-6-1-sol/", label: "gpt-6.1-sol" },
+      { href: "/models/openai/gpt-6-astra/", label: "gpt-6-astra" },
+      { href: "/models/openai/gpt-6-luna/", label: "gpt-6-luna" },
+      { href: "/models/openai/gpt-6-sol/", label: "gpt-6-sol" },
+      { href: "/migrate/openai__gpt-4o-2024-08-06__to__openai__gpt-6-luna/", label: "gpt-4o-2024-08-06 to gpt-6-luna" },
+      { href: "/migrate/openai__gpt-5-1__to__openai__gpt-6-sol/", label: "gpt-5.1 to gpt-6-sol" },
+    ],
+    faqs: [
+      {
+        question: "Does the error's none option work on gpt-6.1-sol?",
+        answer:
+          "No. The [GPT-6.1 Sol model page](https://developers.openai.com/api/docs/models/gpt-6.1-sol) says none and minimal are not supported. The [reasoning guide](https://developers.openai.com/api/docs/guides/reasoning) says none on GPT-6 Astra returns HTTP 400. Use the Responses API for function tools on both models.",
+      },
+      {
+        question: "Can gpt-6-luna stay on Chat Completions?",
+        answer:
+          "Yes, for function tools, only when reasoning_effort is none. The [GPT-6 Luna model page](https://developers.openai.com/api/docs/models/gpt-6-luna) says that. The same limit applies to gpt-6-sol, from the [Using GPT-6](https://developers.openai.com/api/docs/guides/latest-model) guide. The Luna error is [here](/errors/gpt-6-luna-function-tools-reasoning-effort/).",
+      },
+      {
+        question: "Does the AI SDK already call Responses?",
+        answer:
+          "openai('gpt-6.1-sol') does. The [AI SDK OpenAI guide](https://ai-sdk.dev/docs/guides/openai) says that factory uses the Responses API, and that openai.chat() stays on Chat Completions.",
+      },
+    ],
+    citations: [
+      OPENAI_GPT6,
+      OPENAI_SOL_61,
+      OPENAI_ASTRA,
+      OPENAI_LUNA,
+      OPENAI_REASONING,
+      OPENAI_MIGRATE,
+      OPENAI_TOOLS,
+      ISSUE_SOL_TOOLS,
+      LITELLM_OPENAI,
+      AI_SDK_OPENAI,
+      LANGCHAIN_OPENAI,
+      PIPECAT_CHAT,
+      PIPECAT_RESPONSES,
     ],
   },
 ];
