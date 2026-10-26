@@ -55,30 +55,30 @@
     "Ship the change before the published shutdown date."
   ],
   "confidence": "official",
-  "last_checked": "2026-10-25",
+  "last_checked": "2026-10-26",
   "sources": [
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "OpenAI deprecations",
-      "last_checked": "2026-10-25",
+      "last_checked": "2026-10-26",
       "excerpt": "October 23, 2026 | gpt-4.1-nano | gpt-4.1-nano-2025-04-14 | gpt-5.6-luna"
     },
     {
       "url": "https://developers.openai.com/api/docs/models/gpt-4.1-nano.md",
       "label": "OpenAI model docs",
-      "last_checked": "2026-10-25",
+      "last_checked": "2026-10-26",
       "excerpt": "Model ID: gpt-4.1-nano | context window 1047576 | max output 32768 | input $0.1 | output $0.4 | Default snapshot gpt-4.1-nano-2025-04-14"
     },
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "Named as an official replacement",
-      "last_checked": "2026-10-25",
+      "last_checked": "2026-10-26",
       "excerpt": "Named as an official replacement for gpt-5-nano. No shutdown date was published for this id on that page."
     },
     {
       "url": "https://developers.openai.com/api/docs/models/gpt-5.6-luna.md",
       "label": "OpenAI model docs",
-      "last_checked": "2026-10-25",
+      "last_checked": "2026-10-26",
       "excerpt": "Model ID: gpt-5.6-luna | context window 1050000 | max output 128000 | input $0.2 | output $1.2"
     }
   ]

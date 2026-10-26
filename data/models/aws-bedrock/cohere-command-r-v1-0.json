@@ -15,7 +15,7 @@
     {
       "url": "https://docs.aws.amazon.com/bedrock/latest/userguide/model-lifecycle-legacy.html",
       "label": "Amazon Bedrock model lifecycle (legacy)",
-      "last_checked": "2026-10-25",
+      "last_checked": "2026-10-26",
       "excerpt": "Policy page https://docs.aws.amazon.com/bedrock/latest/userguide/model-lifecycle.html | Cohere | Command R | cohere.command-r-v1:0 | us-east-1, us-west-2 | February 19, 2026 | August 19, 2026 | May 19, 2026"
     }
   ],

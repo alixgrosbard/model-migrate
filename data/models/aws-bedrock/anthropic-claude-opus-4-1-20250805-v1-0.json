@@ -15,7 +15,7 @@
     {
       "url": "https://docs.aws.amazon.com/bedrock/latest/userguide/model-lifecycle-legacy.html",
       "label": "Amazon Bedrock model lifecycle (legacy)",
-      "last_checked": "2026-10-25",
+      "last_checked": "2026-10-26",
       "excerpt": "Policy page https://docs.aws.amazon.com/bedrock/latest/userguide/model-lifecycle.html | Anthropic | Claude Opus 4.1 | anthropic.claude-opus-4-1-20250805-v1:0 | us-east-1, us-east-2, us-west-2 | July 8, 2026 | January 8, 2027 | October 8, 2026"
     }
   ],

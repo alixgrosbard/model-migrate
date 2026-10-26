@@ -15,19 +15,19 @@
     {
       "url": "https://cloud.google.com/gemini-enterprise-agent-platform/generative-ai/pricing",
       "label": "Vertex pricing",
-      "last_checked": "2026-10-25",
+      "last_checked": "2026-10-26",
       "excerpt": "Gemini 3.1 Flash-Lite Image (Nano Banana 2 Lite) Input (text, image, video) [3] $0.25 per 1M tokens for the <= 200K column"
     },
     {
       "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/gemini/3-1-flash-lite-image",
       "label": "Vertex model docs",
-      "last_checked": "2026-10-25",
+      "last_checked": "2026-10-26",
       "excerpt": "Gemini 3.1 Flash-Lite Image (Nano Banana 2 Lite) | gemini-3.1-flash-lite-image | context window 65536 | maximum output tokens 4096"
     },
     {
       "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/model-versions",
       "label": "Vertex AI model versions",
-      "last_checked": "2026-10-25",
+      "last_checked": "2026-10-26",
       "excerpt": "gemini-3.1-flash-lite-image | June 23, 2026 | June 28, 2027 or later"
     }
   ],
@@ -53,19 +53,19 @@
     "specs_sources": {
       "context_window_tokens": {
         "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/gemini/3-1-flash-lite-image",
-        "last_checked": "2026-10-25"
+        "last_checked": "2026-10-26"
       },
       "input_price_per_mtok": {
         "url": "https://cloud.google.com/gemini-enterprise-agent-platform/generative-ai/pricing",
-        "last_checked": "2026-10-25"
+        "last_checked": "2026-10-26"
       },
       "max_output_tokens": {
         "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/gemini/3-1-flash-lite-image",
-        "last_checked": "2026-10-25"
+        "last_checked": "2026-10-26"
       },
       "output_price_per_mtok": {
         "url": "https://cloud.google.com/gemini-enterprise-agent-platform/generative-ai/pricing",
-        "last_checked": "2026-10-25"
+        "last_checked": "2026-10-26"
       }
     }
   },

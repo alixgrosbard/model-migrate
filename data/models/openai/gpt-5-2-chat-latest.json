@@ -22,13 +22,13 @@
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "OpenAI deprecations",
-      "last_checked": "2026-10-25",
+      "last_checked": "2026-10-26",
       "excerpt": "Aug 10, 2026 | gpt-5.2-chat-latest | gpt-5.6-sol"
     },
     {
       "url": "https://developers.openai.com/api/docs/models/gpt-5.2-chat-latest.md",
       "label": "OpenAI model docs",
-      "last_checked": "2026-10-25",
+      "last_checked": "2026-10-26",
       "excerpt": "Model ID: gpt-5.2-chat-latest | context window 128000 | max output 16384 | input $1.75 | output $14"
     }
   ],
@@ -54,23 +54,23 @@
     "specs_sources": {
       "cached_input_price_per_mtok": {
         "url": "https://developers.openai.com/api/docs/models/gpt-5.2-chat-latest.md",
-        "last_checked": "2026-10-25"
+        "last_checked": "2026-10-26"
       },
       "context_window_tokens": {
         "url": "https://developers.openai.com/api/docs/models/gpt-5.2-chat-latest.md",
-        "last_checked": "2026-10-25"
+        "last_checked": "2026-10-26"
       },
       "input_price_per_mtok": {
         "url": "https://developers.openai.com/api/docs/models/gpt-5.2-chat-latest.md",
-        "last_checked": "2026-10-25"
+        "last_checked": "2026-10-26"
       },
       "max_output_tokens": {
         "url": "https://developers.openai.com/api/docs/models/gpt-5.2-chat-latest.md",
-        "last_checked": "2026-10-25"
+        "last_checked": "2026-10-26"
       },
       "output_price_per_mtok": {
         "url": "https://developers.openai.com/api/docs/models/gpt-5.2-chat-latest.md",
-        "last_checked": "2026-10-25"
+        "last_checked": "2026-10-26"
       }
     }
   },
