@@ -5,7 +5,8 @@ import MigrationCard from "../../../components/MigrationCard.astro";
 import NewsletterForm from "../../../components/NewsletterForm.astro";
 import SponsorSlot from "../../../components/SponsorSlot.astro";
 import { loadMigrations, loadModels, loadProviders, migrationKey } from "../../../lib/load.ts";
-import { clipMeta, relatedModels, replaceFaqs, replacementAnswer, visibleName } from "../../../lib/format.ts";
+import { clipMeta, relatedModels, replaceFaqs, replacePageTitle, replacementAnswer, uniqueVisibleName, visibleName } from "../../../lib/format.ts";
+import { isThinReplace } from "../../../lib/indexability.ts";
 import { replaceHub } from "../../../lib/hubs.ts";
 import { migrateGraph } from "../../../jsonld.ts";
 import { DEFAULT_SITE_URL } from "../../../lib/site.ts";
@@ -31,11 +32,13 @@ const answer = replacementAnswer(model, provider, migration);
 const faqs = replaceFaqs(model, provider, migration);
 const related = relatedModels(model, models);
 const description = clipMeta(answer);
+const pageName = uniqueVisibleName(model, models, provider.name);
 const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
 ---
 <Base
-  title={`Replacement for ${visibleName(model)}: price, context, and code | SunsetDiff`}
+  title={replacePageTitle(model, models, provider.name)}
   description={description}
+  robots={isThinReplace(model) ? "noindex" : undefined}
   image={`/og/models/${model.provider}/${model.slug}.svg`}
   crumbs={[
     { name: "Home", path: "/" },
@@ -43,9 +46,9 @@ const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
     { name: provider.name, path: `/providers/${provider.id}/` },
     { name: visibleName(model), path: `/replace/${model.provider}/${model.slug}/` },
   ]}
-  extraGraph={migrateGraph(site, model, cards[0]?.migration, provider)}
+  extraGraph={migrateGraph(site, model, cards[0]?.migration, provider, `/replace/${model.provider}/${model.slug}/`, models)}
 >
-  <h1>Replacement for {visibleName(model)}: what changes when you switch</h1>
+  <h1>Replacement for {pageName}: what changes when you switch</h1>
   <p class="answer">{answer}</p>
   <p><a href={`/models/${model.provider}/${model.slug}/`}>{visibleName(model)} model page</a> · <a href={`/providers/${provider.id}/`}>{provider.name}</a></p>
   {cards.length ? cards.map((card) => (
@@ -56,7 +59,7 @@ const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
   )) : <p>A migration diff is not published because the official page did not name a replacement model id.</p>}
   <h2>Related models</h2>
   <ul>
-    {related.map((item) => <li><a href={`/replace/${item.provider}/${item.slug}/`}>{visibleName(item)} replacement</a></li>)}
+    {related.map((item) => <li><a href={isThinReplace(item) ? `/models/${item.provider}/${item.slug}/` : `/replace/${item.provider}/${item.slug}/`}>{visibleName(item)}{isThinReplace(item) ? " model page" : " replacement"}</a></li>)}
   </ul>
   <FaqList items={faqs} />
   <h2>Sources</h2>

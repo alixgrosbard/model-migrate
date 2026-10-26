@@ -1,3 +1,5 @@
+import type { ModelRecord } from "../schema.ts";
+import { aliasSnapshotView } from "./aliases.ts";
 import type { FaqItem } from "./format.ts";
 
 /** Day the official pages linked from the guides were read. */
@@ -1982,4 +1984,42 @@ llm = OpenAIResponsesLLMService(
 
 export function guideBySlug(slug: string | undefined): GuidePage | undefined {
   return guides.find((guide) => guide.slug === slug);
+}
+
+export interface ModelGuideLink {
+  href: string;
+  label: string;
+}
+
+/** A few guides that match this model. Not the whole guide index. */
+export function guidesForModel(model: ModelRecord, catalog: ModelRecord[]): ModelGuideLink[] {
+  const links: ModelGuideLink[] = [];
+  const seen = new Set<string>();
+  const add = (slug: string) => {
+    if (seen.has(slug)) return;
+    const guide = guideBySlug(slug);
+    if (!guide) return;
+    seen.add(slug);
+    links.push({ href: guidePath(slug), label: guide.h1 });
+  };
+  if (aliasSnapshotView(model, catalog)) add("model-aliases-vs-pinned-snapshots");
+  if (model.shutdown_date && model.shutdown_date_kind !== "none") {
+    add("what-happens-on-model-shutdown-day");
+    add("how-much-notice-before-an-ai-model-shuts-down");
+    add("silent-failures-after-model-shutdown");
+  }
+  if (
+    model.provider === "azure-openai"
+    || model.provider === "aws-bedrock"
+    || model.provider === "google-vertex"
+    || model.provider === "google-gemini-api"
+  ) {
+    add("why-shutdown-dates-differ-by-platform");
+  }
+  if (model.replacements.length) add("pre-migration-test-checklist");
+  if (!links.length) {
+    add("find-model-ids-in-your-codebase");
+    add("swap-a-deprecated-model");
+  }
+  return links.slice(0, 4);
 }

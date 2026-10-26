@@ -1,6 +1,8 @@
 ---
 import Base from "../../layouts/Base.astro";
 import { loadModels, loadProviders, providerName } from "../../lib/load.ts";
+import { featuredModelLinks } from "../../lib/featured.ts";
+import { requestErrorPath, requestErrorsForProvider } from "../../lib/request-errors.ts";
 import { formatWhen, isUpcomingShutdown, today } from "../../lib/format.ts";
 import { publicName } from "../../lib/growth.ts";
 import { providersHub } from "../../lib/hubs.ts";
@@ -16,7 +18,10 @@ const providers = await loadProviders();
 const provider = providers.find((item) => item.id === providerId);
 if (!provider) throw new Error("Missing provider");
 const day = today();
-const models = (await loadModels()).filter((model) => model.provider === provider.id);
+const allModels = await loadModels();
+const models = allModels.filter((model) => model.provider === provider.id);
+const featured = featuredModelLinks(allModels).filter((item) => item.provider === provider.id);
+const errorPages = requestErrorsForProvider(provider.id);
 const soonest = models
   .filter((model) => isUpcomingShutdown(model, day))
   .sort((a, b) => (a.shutdown_date ?? "").localeCompare(b.shutdown_date ?? ""))
@@ -39,6 +44,22 @@ const description = `${provider.name} model shutdown dates, grouped by status.`;
     })}
     <a href="/deprecated/">All deprecated models</a> · <a href="/retired/">All retired models</a>
   </p>
+  {featured.length ? (
+    <>
+      <h2>Often looked up</h2>
+      <ul>
+        {featured.map((item) => <li><a href={item.href}>{item.label}</a></li>)}
+      </ul>
+    </>
+  ) : null}
+  {errorPages.length ? (
+    <>
+      <h2>Request errors</h2>
+      <ul>
+        {errorPages.map((page) => <li><a href={requestErrorPath(page.slug)}>{page.h1}</a></li>)}
+      </ul>
+    </>
+  ) : null}
   <h2>Soonest shutdowns</h2>
   <ul>
     {soonest.length ? soonest.map((model) => (

@@ -191,13 +191,48 @@ export function contextAnswer(migration?: MigrationRecord | null): string {
   return `The context window stays ${oldTokens.toLocaleString("en-US")} tokens.`;
 }
 
-export function modelTitle(model: ModelRecord, catalog?: ModelRecord[]): string {
-  const alias = catalog?.length ? aliasSnapshotView(model, catalog) : null;
+/** Add the provider, or the slug, only when another record uses the same display name. */
+export function uniqueVisibleName(model: ModelRecord, catalog: ModelRecord[] | undefined, providerName?: string): string {
   const name = visibleName(model);
+  if (!catalog?.length) return name;
+  const peers = catalog.filter((item) => (item.provider !== model.provider || item.slug !== model.slug) && visibleName(item) === name);
+  if (!peers.length) return name;
+  if (peers.some((item) => item.provider === model.provider)) return `${name} (${model.slug})`;
+  return `${name} (${providerName || model.provider})`;
+}
+
+export function modelTitle(model: ModelRecord, catalog?: ModelRecord[], providerName?: string): string {
+  const alias = catalog?.length ? aliasSnapshotView(model, catalog) : null;
+  const name = uniqueVisibleName(model, catalog, providerName);
   if (alias) return `${name} snapshots retire ${alias.badgeDate} | SunsetDiff`;
   const when = formatWhen(model);
   if (when === "Not published") return `${name} shutdown status | SunsetDiff`;
   return `${name} shuts down ${when} | SunsetDiff`;
+}
+
+export function replacePageTitle(model: ModelRecord, catalog: ModelRecord[] | undefined, providerName: string): string {
+  return `Replacement for ${uniqueVisibleName(model, catalog, providerName)}: price, context, and code | SunsetDiff`;
+}
+
+export function migratePageTitle(
+  from: ModelRecord,
+  to: ModelRecord,
+  catalog: ModelRecord[] | undefined,
+  fromProvider: string,
+  toProvider: string,
+): string {
+  return `${uniqueVisibleName(from, catalog, fromProvider)} to ${uniqueVisibleName(to, catalog, toProvider)}: price, context, and code | SunsetDiff`;
+}
+
+export function questionPageTitle(
+  model: ModelRecord,
+  kind: "deprecated" | "shutdown-date",
+  catalog: ModelRecord[] | undefined,
+  providerName: string,
+): string {
+  const name = uniqueVisibleName(model, catalog, providerName);
+  const title = kind === "deprecated" ? `Is ${name} being deprecated?` : `${name} shutdown date`;
+  return `${title} | SunsetDiff`;
 }
 
 export function clipMeta(text: string, max = 160): string {
@@ -208,15 +243,56 @@ export function clipMeta(text: string, max = 160): string {
   return `${(space > 80 ? cut.slice(0, space) : cut).trim()}…`;
 }
 
+/** Keep the visible answer, and put the page name first when the clipped text would hide it. */
+export function metaDescription(name: string, answer: string): string {
+  const clipped = clipMeta(answer);
+  if (clipped.includes(name)) return clipped;
+  return clipMeta(`${name}. ${answer}`);
+}
+
 export function officialReplacement(model: ModelRecord) {
   return model.replacements.find((item) => item.kind === "official") ?? model.replacements[0];
 }
 
+function lineScore(id: string, other: string): number {
+  const stem = (value: string) => value.replace(/-\d{4}-\d{2}-\d{2}$/, "");
+  const a = stem(id);
+  const b = stem(other);
+  if (a === b) return 80;
+  if (a.startsWith(`${b}-`) || b.startsWith(`${a}-`)) return 70;
+  let index = 0;
+  const limit = Math.min(a.length, b.length);
+  while (index < limit && a[index] === b[index]) index += 1;
+  const cut = a.slice(0, index).lastIndexOf("-");
+  return cut >= 6 ? 30 : 0;
+}
+
+/** Same provider, preferring the same model line and named replacements over unrelated early shutdowns. */
 export function relatedModels(model: ModelRecord, models: ModelRecord[]): ModelRecord[] {
-  return models
-    .filter((item) => item.provider === model.provider && item.id !== model.id)
-    .sort((a, b) => (a.shutdown_date ?? "9999-99-99").localeCompare(b.shutdown_date ?? "9999-99-99"))
-    .slice(0, 6);
+  const others = models.filter((item) => item.provider === model.provider && item.id !== model.id);
+  const scored = others.map((item) => {
+    let score = lineScore(model.id, item.id);
+    if (model.family && item.family === model.family) score += 100;
+    if (model.replacements.some((link) => link.provider === item.provider && link.model_id === item.id)) score += 40;
+    if (item.replacements.some((link) => link.provider === model.provider && link.model_id === model.id)) score += 35;
+    return { item, score };
+  });
+  scored.sort((a, b) => {
+    if (b.score !== a.score) return b.score - a.score;
+    const byDate = (a.item.shutdown_date ?? "9999-99-99").localeCompare(b.item.shutdown_date ?? "9999-99-99");
+    if (byDate !== 0) return byDate;
+    return a.item.id.localeCompare(b.item.id);
+  });
+  const picked = scored.filter((row) => row.score > 0).slice(0, 8).map((row) => row.item);
+  if (picked.length >= 4) return picked;
+  const seen = new Set(picked.map((item) => item.slug));
+  for (const row of scored) {
+    if (picked.length >= 6) break;
+    if (seen.has(row.item.slug)) continue;
+    picked.push(row.item);
+    seen.add(row.item.slug);
+  }
+  return picked;
 }
 
 export function money(value: number | null): string {

@@ -9,14 +9,15 @@ import { loadChanges, loadMigrations, loadModels, loadProviders } from "../../..
 import { GEMINI_25_ACCESS_CHECKED, GEMINI_25_ACCESS_QUOTE, GEMINI_25_ACCESS_SOURCE, gemini25Restricted } from "../../../lib/access.ts";
 import { CONFLICTS_PATH, disagreementNote, noteWithoutDisagreement } from "../../../lib/conflicts.ts";
 import { aliasSnapshotView } from "../../../lib/aliases.ts";
-import { answerSentence, autoRouteStatusText, clipMeta, formatWhen, modelFaqs, modelTitle, money, relatedModels, tokens } from "../../../lib/format.ts";
+import { answerSentence, autoRouteStatusText, formatWhen, metaDescription, modelFaqs, modelTitle, money, relatedModels, tokens, uniqueVisibleName } from "../../../lib/format.ts";
 import { publicName } from "../../../lib/growth.ts";
 import { modelsHub } from "../../../lib/hubs.ts";
 import { modelGraph } from "../../../jsonld.ts";
 import { DEFAULT_SITE_URL } from "../../../lib/site.ts";
 import BreakingRules from "../../../components/BreakingRules.astro";
 import { breakingChangesForModel } from "../../../lib/breaking-changes.ts";
-import { requestErrorPath, requestErrorsForModel } from "../../../lib/request-errors.ts";
+import { REQUEST_ERRORS_INDEX, requestErrorPath, requestErrorsForModel } from "../../../lib/request-errors.ts";
+import { guidesForModel } from "../../../lib/guides.ts";
 import { replacementRetirement } from "../../../lib/replacement-chain.ts";
 
 export async function getStaticPaths() {
@@ -34,8 +35,10 @@ const alias = aliasSnapshotView(model, models);
 const answer = answerSentence(model, provider, migration, models);
 const faqs = modelFaqs(model, provider, migration, models);
 const related = relatedModels(model, models);
+const guideLinks = guidesForModel(model, models);
+const pageName = uniqueVisibleName(model, models, provider.name);
 const changes = (await loadChanges()).filter((change) => change.provider === model.provider && change.model_id === model.id).slice(-20).reverse();
-const description = clipMeta(answer);
+const description = metaDescription(pageName, answer);
 const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
 const relatedErrors = requestErrorsForModel(model.provider, model.id);
 const breakingRules = breakingChangesForModel(model.provider, model.id);
@@ -56,7 +59,7 @@ const specRows: [string, string, string][] = [
 ];
 ---
 <Base
-  title={modelTitle(model, models)}
+  title={modelTitle(model, models, provider.name)}
   description={description}
   image={`/og/models/${model.provider}/${model.slug}.svg`}
   crumbs={[
@@ -67,7 +70,7 @@ const specRows: [string, string, string][] = [
   ]}
   extraGraph={modelGraph(site, model, provider, migration, models)}
 >
-  <h1>When is {publicName(model)} shut down?</h1>
+  <h1>When is {pageName} shut down?</h1>
   <p class="answer">{answer}</p>
   {disagree ? (
     <p class="answer">
@@ -197,16 +200,15 @@ const specRows: [string, string, string][] = [
     {" · "}<a href="/deprecated/">All deprecated models</a>
     {" · "}<a href="/retired/">All retired models</a>
   </p>
+  <h2>Request errors</h2>
   {relatedErrors.length ? (
-    <>
-      <h2>Request errors</h2>
-      <ul>
-        {relatedErrors.map((item) => (
-          <li><a href={requestErrorPath(item.slug)}>{item.h1}</a>. {item.cause}</li>
-        ))}
-      </ul>
-    </>
-  ) : null}
+    <ul>
+      {relatedErrors.map((item) => (
+        <li><a href={requestErrorPath(item.slug)}>{item.h1}</a>. {item.cause}</li>
+      ))}
+    </ul>
+  ) : <p>No request-error page names this model id.</p>}
+  <p><a href={REQUEST_ERRORS_INDEX}>All request errors</a></p>
   <BreakingRules rules={breakingRules} />
   <h2>Specs</h2>
   <table>
@@ -232,6 +234,11 @@ const specRows: [string, string, string][] = [
       <li><a href={`/models/${item.provider}/${item.slug}/`}>{publicName(item)}</a>: {formatWhen(item)}</li>
     ))}
   </ul>
+  <h2>Guides</h2>
+  <ul>
+    {guideLinks.map((item) => <li><a href={item.href}>{item.label}</a></li>)}
+  </ul>
+  <p><a href="/guides/">All guides</a></p>
   <FaqList items={faqs} />
   <h2>Sources</h2>
   <ul>

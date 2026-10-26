@@ -3,7 +3,7 @@ import Base from "../../layouts/Base.astro";
 import FaqList from "../../components/FaqList.astro";
 import MigrationCard from "../../components/MigrationCard.astro";
 import { loadMigrations, loadModels, loadProviders } from "../../lib/load.ts";
-import { clipMeta, replaceFaqs, replacementAnswer } from "../../lib/format.ts";
+import { clipMeta, migratePageTitle, replaceFaqs, replacementAnswer } from "../../lib/format.ts";
 import { migrateHub } from "../../lib/hubs.ts";
 import { migrateGraph } from "../../jsonld.ts";
 import { DEFAULT_SITE_URL } from "../../lib/site.ts";
@@ -26,6 +26,7 @@ const from = models.find((model) => model.provider === migration.from.provider &
 const to = models.find((model) => model.provider === migration.to.provider && model.slug === migration.to.slug);
 if (!from || !to) throw new Error("Missing model for migration");
 const provider = providers.find((item) => item.id === from.provider)!;
+const toProvider = providers.find((item) => item.id === to.provider);
 const answer = replacementAnswer(from, provider, migration);
 const faqs = replaceFaqs(from, provider, migration);
 const description = clipMeta(answer);
@@ -34,7 +35,7 @@ const relatedErrors = requestErrorsForMigration(Astro.params.pair ?? "");
 const breakingRules = breakingChangesForMigration(Astro.params.pair ?? "");
 ---
 <Base
-  title={`${from.display_name} to ${to.display_name}: price, context, and code | SunsetDiff`}
+  title={migratePageTitle(from, to, models, provider.name, toProvider?.name ?? to.provider)}
   description={description}
   image={`/og/models/${from.provider}/${from.slug}.svg`}
   crumbs={[
@@ -43,7 +44,7 @@ const breakingRules = breakingChangesForMigration(Astro.params.pair ?? "");
     { name: from.display_name, path: `/models/${from.provider}/${from.slug}/` },
     { name: "Migration", path: `/migrate/${Astro.params.pair}/` },
   ]}
-  extraGraph={migrateGraph(site, from, migration, provider)}
+  extraGraph={migrateGraph(site, from, migration, provider, `/migrate/${Astro.params.pair}/`, models)}
 >
   <h1>Replacement for {from.display_name}: what changes when you switch</h1>
   <p class="answer">{answer}</p>

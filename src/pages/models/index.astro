@@ -7,6 +7,7 @@ import { publicName } from "../../lib/growth.ts";
 import { filterText, modelPath, modelsForProvider, modelsHub, providersHub, replaceHub, replacePath, replacementLinkText } from "../../lib/hubs.ts";
 import { STATUS_HUBS } from "../../lib/status-hubs.ts";
 import { loadModels, loadProviders } from "../../lib/load.ts";
+import { featuredModelLinks } from "../../lib/featured.ts";
 import { DEFAULT_SITE_URL } from "../../lib/site.ts";
 
 const providers = await loadProviders();
@@ -15,6 +16,7 @@ const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
 const groups = providers
   .map((provider) => ({ provider, models: modelsForProvider(models, provider.id) }))
   .filter((group) => group.models.length);
+const featured = featuredModelLinks(models);
 const items = groups.flatMap((group) =>
   group.models.map((model) => ({ name: `${group.provider.name}: ${publicName(model)}`, path: modelPath(model) })),
 );
@@ -33,9 +35,24 @@ const items = groups.flatMap((group) =>
     The replacement link goes to that model's replacement page.
     The filter hides rows in the browser and does not change the data.
     <a href={providersHub.path}>{providersHub.nav}</a> · <a href={replaceHub.path}>{replaceHub.nav}</a>
+    {" · "}
+    <a href="/upcoming/">Upcoming shutdowns</a>
+    {" · "}
+    <a href="/errors/">Request errors</a>
+    {" · "}
+    <a href="/guides/">Guides</a>
     {STATUS_HUBS.map((hub) => <> · <a href={hub.path}>{hub.nav} models</a></>)}
   </p>
   <p>{models.length} model records.</p>
+  <p>
+    Often looked up:
+    {featured.map((item, index) => (
+      <>
+        {index ? " · " : " "}
+        <a href={item.href}>{item.label}</a>
+      </>
+    ))}
+  </p>
   <HubFilter status />
   <ul>
     {groups.map((group) => (
