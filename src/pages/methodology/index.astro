@@ -1,0 +1,67 @@
+---
+import Base from "../../layouts/Base.astro";
+import InlineText from "../../components/InlineText.astro";
+import { methodologyGraph } from "../../jsonld.ts";
+import { loadModels } from "../../lib/load.ts";
+import {
+  ENRICH_PAGES,
+  METHODOLOGY_DESCRIPTION,
+  METHODOLOGY_PATH,
+  METHODOLOGY_SECTIONS,
+  METHODOLOGY_TITLE,
+  SCRAPE_TARGETS,
+  awsPriceSentence,
+  collectionFacts,
+} from "../../lib/methodology.ts";
+import { DEFAULT_SITE_URL } from "../../lib/site.ts";
+
+const models = await loadModels();
+const facts = collectionFacts(models);
+const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
+const citations = [...new Set(SCRAPE_TARGETS.map((target) => target.url))];
+---
+<Base
+  title={METHODOLOGY_TITLE}
+  description={METHODOLOGY_DESCRIPTION}
+  crumbs={[{ name: "Home", path: "/" }, { name: "Methodology", path: METHODOLOGY_PATH }]}
+  extraGraph={methodologyGraph(site, facts.newestCheck, citations)}
+>
+  <h1>How SunsetDiff collects shutdown dates</h1>
+  <p class="answer">
+    SunsetDiff reads public provider documentation, parses the tables, and stores a source URL and a last_checked day on each model.
+    The newest last_checked day in the dataset is <time datetime={facts.newestCheck}>{facts.newestCheck}</time>.
+    Publisher: SunsetDiff.
+  </p>
+  {METHODOLOGY_SECTIONS.slice(0, 1).map((section) => (
+    <section>
+      <h2>{section.heading}</h2>
+      {section.paragraphs.map((paragraph) => <p><InlineText text={paragraph} /></p>)}
+      <table>
+        <caption>Pages the refresh fetches.</caption>
+        <thead>
+          <tr><th>Provider</th><th>URL</th><th>What the code does</th></tr>
+        </thead>
+        <tbody>
+          {SCRAPE_TARGETS.map((target) => (
+            <tr>
+              <td>{target.provider}</td>
+              <td><a href={target.url}>{target.url}</a></td>
+              <td>{target.role}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <h3>Model-doc pages</h3>
+      <ul>
+        {ENRICH_PAGES.map((page) => <li><strong>{page.label}.</strong> {page.detail}</li>)}
+      </ul>
+      <p>{awsPriceSentence(facts)}</p>
+    </section>
+  ))}
+  {METHODOLOGY_SECTIONS.slice(1).map((section) => (
+    <section>
+      <h2>{section.heading}</h2>
+      {section.paragraphs.map((paragraph) => <p><InlineText text={paragraph} /></p>)}
+    </section>
+  ))}
+</Base>

@@ -62,11 +62,11 @@ const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
   <p>The Node service exposes a read-only MCP endpoint at <code>/mcp</code>. Tools: <code>check_model</code>, <code>upcoming_shutdowns</code>, <code>migration_diff</code>, <code>scan_text</code>. Client setup is on the <a href="/mcp/">MCP page</a>.</p>
   <pre><code>npx github:alixgrosbard/model-migrate mcp</code></pre>
   <h2 id="github-action">GitHub Action</h2>
-  <pre><code>- uses: alixgrosbard/model-migrate/action@main
+  <pre><code>- uses: alixgrosbard/model-migrate/action@cursor/sunsetdiff-v1-3cab
   with:
     warn-days: "60"
     fail-days: "14"</code></pre>
-  <p>It scans files for known model ids and writes warnings. If the API is down, it uses a bundled snapshot. Marketplace publishing is a later manual step.</p>
+  <p>It scans files for known model ids and writes warnings. If the API is down, it uses a bundled snapshot. The action files are on the branch this site deploys from. Inputs and a full workflow are on the <a href="/github-action/">GitHub Action page</a>. Marketplace publishing is a later manual step.</p>
   <h2>Other machine files</h2>
   <ul>
     <li><a href="/llms.txt">llms.txt</a> and <a href="/llms-full.txt">llms-full.txt</a></li>

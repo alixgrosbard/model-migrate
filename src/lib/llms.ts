@@ -17,6 +17,7 @@ import {
 } from "./breaking-changes.ts";
 import { INTEGRATIONS_PATH, MCP_ENDPOINT, MCP_PATH, MCP_REGISTRY_NAME, MCP_SERVER_JSON_PATH } from "./mcp-docs.ts";
 import { CONFLICTS_PATH } from "./conflicts.ts";
+import { ALERTS_PATH, GITHUB_ACTION_PATH, METHODOLOGY_PATH, SOURCES_PATH } from "./trust-pages.ts";
 import { REQUEST_ERRORS_CHECKED, REQUEST_ERRORS_INDEX, requestErrorPath, requestErrors } from "./request-errors.ts";
 
 export function llmsTxt(
@@ -96,6 +97,10 @@ export function llmsTxt(
 - [Static API docs](${origin}/api/)
 - [Compare trackers](${origin}/alternatives/)
 - [About](${origin}/about/)
+- [Methodology](${origin}${METHODOLOGY_PATH}): which official pages are scraped, the 6-hour refresh, the sanity gate, last_checked, and how a conflicting shutdown date is stored.
+- [Sources](${origin}${SOURCES_PATH}): every URL stored on a model record, grouped by provider, with the model count and the latest last_checked day.
+- [Shutdown alerts](${origin}${ALERTS_PATH}): what the free signup stores and the one welcome email it can send. RSS, the calendar, the JSON API, the MCP server, and badges need no signup.
+- [GitHub Action](${origin}${GITHUB_ACTION_PATH}): inputs and a workflow for action/action.yml. It flags deprecated, legacy, and retiring model ids.
 - [Pro](${origin}/pro/) is free until launch, then $19 a month. You won't be charged until Pro launches.
 
 ## Request errors
@@ -176,6 +181,10 @@ ${statusLinks || ""}
 - [Full model records](${origin}/data/models.json)
 - [Full model list](${origin}/llms-full.txt)
 - [How we check](${origin}/about/)
+- [Methodology](${origin}${METHODOLOGY_PATH})
+- [Sources cited by the dataset](${origin}${SOURCES_PATH})
+- [Shutdown alerts](${origin}${ALERTS_PATH})
+- [GitHub Action](${origin}${GITHUB_ACTION_PATH})
 
 ## Deprecation trackers
 SunsetDiff compared with other public trackers. Competitor facts are quoted from the pages linked on each comparison, with the day they were checked.
@@ -248,6 +257,10 @@ export function llmsFull(site: string, models: ModelRecord[], providers: Provide
     `Questions: ${origin}/questions/`,
     `Code scan: ${origin}/scan/`,
     `Data page: ${origin}/data/`,
+    `Methodology: ${origin}${METHODOLOGY_PATH}`,
+    `Sources: ${origin}${SOURCES_PATH}`,
+    `Shutdown alerts: ${origin}${ALERTS_PATH}`,
+    `GitHub Action: ${origin}${GITHUB_ACTION_PATH}`,
     `${BADGES_NAV}: ${origin}${BADGES_PATH}`,
     "Blank cells were not published on the official page. Columns: id, provider, status, shutdown date, official replacement, input price per 1M, output price per 1M, context tokens, max output tokens, source, last checked, model page.",
     ...lines,

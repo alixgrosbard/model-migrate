@@ -1,0 +1,56 @@
+---
+import Base from "../../layouts/Base.astro";
+import { sourcesGraph } from "../../jsonld.ts";
+import { citedSourceUrls, citedSources, newestSourceCheck } from "../../lib/cited-sources.ts";
+import { loadModels, loadProviders } from "../../lib/load.ts";
+import { DEFAULT_SITE_URL } from "../../lib/site.ts";
+import { SOURCES_PATH } from "../../lib/trust-pages.ts";
+
+const models = await loadModels();
+const providers = await loadProviders();
+const groups = citedSources(models, providers);
+const urls = citedSourceUrls(groups);
+const modified = newestSourceCheck(models) ?? "";
+const total = groups.reduce((sum, group) => sum + group.sources.length, 0);
+const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
+---
+<Base
+  title="Official sources cited by SunsetDiff | SunsetDiff"
+  description="Every URL stored on a SunsetDiff model record, grouped by provider, with the number of models and the latest last_checked date."
+  crumbs={[{ name: "Home", path: "/" }, { name: "Sources", path: SOURCES_PATH }]}
+  extraGraph={sourcesGraph(site, modified, urls)}
+>
+  <h1>Sources cited by the dataset</h1>
+  <p class="answer">
+    This list is built from the model files when the site is built.
+    A URL is included when a model stores it in sources, or on a spec field under specs_sources.
+    The model count is the number of models in that provider that cite the URL.
+    last_checked is the newest of those dates.
+    How the pages are fetched is on <a href="/methodology/">Methodology</a>.
+    Publisher: SunsetDiff.
+  </p>
+  <p>{total} URLs across {groups.length} providers. Newest last_checked day: <time datetime={modified}>{modified}</time>.</p>
+  {groups.map((group) => (
+    <section>
+      <h2>{group.name}</h2>
+      <table>
+        <caption>{group.sources.length === 1 ? `1 URL cited by ${group.name}.` : `${group.sources.length} URLs cited by ${group.name}.`}</caption>
+        <thead>
+          <tr><th>Source</th><th>Models</th><th>Latest last_checked</th></tr>
+        </thead>
+        <tbody>
+          {group.sources.map((source) => (
+            <tr>
+              <td>
+                <a href={source.url}>{source.url}</a>
+                {source.label ? <><br />{source.label}</> : <><br />Spec field</>}
+              </td>
+              <td>{source.modelCount}</td>
+              <td><time datetime={source.lastChecked}>{source.lastChecked}</time></td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </section>
+  ))}
+</Base>

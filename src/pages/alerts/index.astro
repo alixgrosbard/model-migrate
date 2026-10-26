@@ -1,0 +1,34 @@
+---
+import Base from "../../layouts/Base.astro";
+import InlineText from "../../components/InlineText.astro";
+import NewsletterForm from "../../components/NewsletterForm.astro";
+import { alertsGraph } from "../../jsonld.ts";
+import { ALERT_ALTERNATIVES, ALERT_SECTIONS, ALERTS_ANSWER, ALERTS_DESCRIPTION, ALERTS_PATH, ALERTS_TITLE } from "../../lib/alerts-page.ts";
+import { loadProviders } from "../../lib/load.ts";
+import { DEFAULT_SITE_URL } from "../../lib/site.ts";
+
+const providers = await loadProviders();
+const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
+---
+<Base
+  title={ALERTS_TITLE}
+  description={ALERTS_DESCRIPTION}
+  crumbs={[{ name: "Home", path: "/" }, { name: "Alerts", path: ALERTS_PATH }]}
+  extraGraph={alertsGraph(site)}
+>
+  <h1>Shutdown alerts</h1>
+  <p class="answer">{ALERTS_ANSWER} Publisher: SunsetDiff.</p>
+  {ALERT_SECTIONS.map((section) => (
+    <section>
+      <h2>{section.heading}</h2>
+      {section.paragraphs.map((paragraph) => <p><InlineText text={paragraph} /></p>)}
+    </section>
+  ))}
+  <h2>Free updates with no signup</h2>
+  <ul>
+    {ALERT_ALTERNATIVES.map((item) => (
+      <li><a href={item.href}>{item.label}</a>. {item.detail}</li>
+    ))}
+  </ul>
+  <NewsletterForm providers={providers} sourcePage={ALERTS_PATH} />
+</Base>

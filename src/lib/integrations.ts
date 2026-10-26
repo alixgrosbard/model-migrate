@@ -74,9 +74,9 @@ export function integrationGroups(): { heading: string; links: IntegrationLink[]
       heading: "GitHub Action",
       links: [
         {
-          href: "/data/#github-action",
+          href: "/github-action/",
           label: "GitHub Action",
-          detail: "The action in action/ flags model ids that are deprecated or shutting down. The workflow step is on the data page.",
+          detail: "The action in action/ flags model ids that are deprecated or shutting down. Inputs and a workflow example are on the GitHub Action page.",
         },
       ],
     },
