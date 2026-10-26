@@ -17,6 +17,7 @@ import { DEPRECATIONS_URL as GEMINI_URL, parseGemini, parseGeminiPricing, PRICIN
 import { DEPRECATIONS_URL as VERTEX_URL, parseVertex } from "./google-vertex.ts";
 import { MODELS_URL as MISTRAL_URL, parseMistral, PRICING_URL as MISTRAL_PRICING } from "./mistral.ts";
 import { NEWS_URL as DEEPSEEK_NEWS, PRICING_URL as DEEPSEEK_PRICING, UPDATES_URL as DEEPSEEK_UPDATES, parseDeepSeek } from "./deepseek.ts";
+import { DEPRECATIONS_MD_URL as GROQ_DEPRECATIONS, MODELS_MD_URL as GROQ_MODELS, parseGroq } from "./groq.ts";
 import { DEPRECATIONS_URL as OPENAI_URL, parseOpenAI, parseOpenAIPricing, PRICING_URL as OPENAI_PRICING } from "./openai.ts";
 import { addDocumentedOpenAIModels, applyCodexPlatformNotes, OPENAI_MODELS_INDEX_URL } from "./openai-catalog.ts";
 import { canonicalizeModel, realContentKey, recordIdentity } from "../src/lib/stable-export.ts";
@@ -75,6 +76,15 @@ async function loadOpenAIModelIndex(): Promise<string> {
   }
 }
 
+async function loadGroq(url: string, fixture: string, name: "deprecations" | "models"): Promise<string> {
+  if (fromSnapshots) return readSnapshot(path.join(root, fixture));
+  const body = await politeFetch(url);
+  const { mkdir: mk, writeFile: wf } = await import("node:fs/promises");
+  await mk(path.join(root, "snapshots", "groq"), { recursive: true });
+  await wf(path.join(root, "snapshots", "groq", `${name}-${checked}.md`), body);
+  return body;
+}
+
 async function loadText(url: string, snapshot: string, provider: string, suffix = ""): Promise<string> {
   if (fromSnapshots) return readSnapshot(path.join(root, snapshot));
   const body = await politeFetch(url);
@@ -114,6 +124,8 @@ async function scrapeAll(): Promise<Map<string, ScrapedModel[]>> {
   const deepseekUpdates = await loadText(DEEPSEEK_UPDATES, "snapshots/fixtures/deepseek/updates-2026-10-25.html", "deepseek");
   const deepseekPricing = await loadText(DEEPSEEK_PRICING, "snapshots/fixtures/deepseek/pricing-2026-10-25.html", "deepseek", "-pricing");
   const deepseekNews = await loadText(DEEPSEEK_NEWS, "snapshots/fixtures/deepseek/news-2026-04-24.html", "deepseek", "-news");
+  const groqDeprecations = await loadGroq(GROQ_DEPRECATIONS, "snapshots/fixtures/groq/deprecations-2026-10-26.md", "deprecations");
+  const groqModels = await loadGroq(GROQ_MODELS, "snapshots/fixtures/groq/models-2026-10-26.md", "models");
 
   const openai = parseOpenAI(openaiHtml, openaiPricing, checked);
   const anthropic = parseAnthropic(anthropicHtml, anthropicPricing, checked);
@@ -124,6 +136,7 @@ async function scrapeAll(): Promise<Map<string, ScrapedModel[]>> {
   const azure = parseAzure(azureSchedule, azurePolicy, checked);
   const mistral = parseMistral(mistralHtml, mistralPricing, checked);
   const deepseek = parseDeepSeek(deepseekUpdates, deepseekPricing, deepseekNews, checked);
+  const groq = parseGroq(groqDeprecations, groqModels, checked);
 
   const groups = new Map<string, ScrapedModel[]>([
     ["openai", openai],
@@ -134,6 +147,7 @@ async function scrapeAll(): Promise<Map<string, ScrapedModel[]>> {
     ["azure-openai", azure],
     ["mistral", mistral],
     ["deepseek", deepseek],
+    ["groq", groq],
   ]);
   addReplacementStubs(groups, checked);
   attachStubPrices(groups, openaiPricing, anthropicPricing, geminiPricing, checked);

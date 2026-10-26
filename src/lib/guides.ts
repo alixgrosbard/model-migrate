@@ -58,6 +58,10 @@ const ISSUE_TEMPERATURE = "https://github.com/neondatabase/neon-pkgs/issues/937"
 const ISSUE_NANO_SHUTDOWN = "https://github.com/maxswaine/game-repository/issues/110";
 const ISSUE_DEEPSEEK = "https://github.com/aaif-goose/goose/issues/13114";
 const ISSUE_GEMINI_25 = "https://github.com/LebgaaAbderrahmane/ecomAssistant/issues/92";
+const CODEX_MODELS = "https://developers.openai.com/codex/models";
+const CODEX_MODELS_GPT55 = "https://developers.openai.com/codex/models#gpt-55-retirement";
+const CODEX_CHANGELOG_OCT14 = "https://developers.openai.com/codex/changelog#codex-2026-10-14-gpt-55-retirement";
+const CODEX_CHANGELOG_SEP14 = "https://developers.openai.com/codex/changelog#codex-2026-09-14-gpt-55-retirement";
 
 export interface GuideSource {
   label: string;
@@ -1851,6 +1855,128 @@ llm = OpenAIResponsesLLMService(
       PIPECAT_CHAT,
       PIPECAT_RESPONSES,
     ],
+  },
+  {
+    slug: "codex-chatgpt-sign-in-model-retirements",
+    title: "Codex ChatGPT sign-in model retirements | SunsetDiff",
+    description:
+      "GPT-5.5 retired from Codex for ChatGPT sign-in on October 14, 2026. The OpenAI API and Codex sessions that use an API key are not affected.",
+    h1: "Codex ChatGPT sign-in model retirements",
+    summary: "GPT-5.5 left Codex for people signed in with ChatGPT on October 14, 2026. API-key sessions can still use it.",
+    answer:
+      "OpenAI's Codex models page and the October 14, 2026 Codex changelog say: Effective October 14, 2026, at noon PDT (19:00 UTC), GPT-5.5 retires from Codex for users signed in with ChatGPT. The OpenAI API and Codex sessions authenticated with an API key aren't affected.",
+    checked: "2026-10-26",
+    steps: [
+      {
+        name: "Find the pinned model",
+        text: "The models page says to replace gpt-5.5 in workspace defaults, saved model settings, managed configurations, custom agents, scheduled tasks, and scripts that select a model. A tool built on Codex that still sends gpt-5.5 for a ChatGPT sign-in session is the thing that breaks.",
+      },
+      {
+        name: "Pick a model your plan still offers",
+        text: "For Codex with ChatGPT sign-in, the models page says Plus, Pro, Business, Enterprise, and Edu choose GPT-6.1 Sol (gpt-6.1-sol) when available. Free and Go choose GPT-6 Luna (gpt-6-luna) in the desktop app when available.",
+      },
+      {
+        name: "Or keep GPT-5.5 with an API key",
+        text: "The models page says that with API-key authentication, model availability follows your API organization and project. GPT-5.5 remains available through the OpenAI API and in Codex sessions authenticated with an API key.",
+      },
+    ],
+    sections: [
+      {
+        heading: "What OpenAI wrote",
+        paragraphs: [
+          "The Codex models page and the October 14, 2026 changelog entry say: Effective October 14, 2026, at noon PDT (19:00 UTC), GPT-5.5 retires from Codex for users signed in with ChatGPT. The OpenAI API and Codex sessions authenticated with an API key aren't affected.",
+          "The October 14 changelog also says: Use GPT-6.1 Sol (gpt-6.1-sol) when available to your plan and client. Update workspace defaults, saved model settings, managed configurations, custom agents, scheduled tasks, and scripts that still select gpt-5.5.",
+          "An earlier changelog entry, dated September 14, 2026, says: On October 14, 2026, GPT-5.5 will retire from ChatGPT, ChatGPT Work, and Codex on all plans, including consumer, Business, Enterprise, and Edu plans. This retirement does not apply to the OpenAI API. The October 14 entry and the models page are the later text. They say Codex sessions authenticated with an API key are not affected.",
+        ],
+        sources: [
+          { label: "Codex models, GPT-5.5 retirement", url: CODEX_MODELS_GPT55 },
+          { label: "Codex changelog, October 14, 2026", url: CODEX_CHANGELOG_OCT14 },
+          { label: "Codex changelog, September 14, 2026", url: CODEX_CHANGELOG_SEP14 },
+        ],
+      },
+      {
+        heading: "What breaks",
+        paragraphs: [
+          "The models page says to replace gpt-5.5 in workspace defaults, saved model settings, managed configurations, custom agents, scheduled tasks, and scripts that select a model. That is the pinned config in a tool built on Codex.",
+          "The same page says the ChatGPT desktop app, Codex CLI, and IDE extension share config.toml. If you do not set model, the client uses a recommended model. A file that still sets gpt-5.5 is the pin.",
+        ],
+        codes: [
+          {
+            caption: "config.toml, from the Codex models page",
+            code: `model = "gpt-6.1-sol"\n`,
+          },
+        ],
+        sources: [{ label: "Codex models", url: CODEX_MODELS }],
+      },
+      {
+        heading: "How to fix it",
+        paragraphs: [
+          "For Codex with ChatGPT sign-in, the models page says: On Plus, Pro, Business, Enterprise, and Edu plans, choose GPT-6.1 Sol (gpt-6.1-sol) when available. On Free and Go plans, choose GPT-6 Luna (gpt-6-luna) in the desktop app when available.",
+          "The same page shows these commands for the CLI. The second one is for a non-interactive run.",
+          "The other fix on that page is an API key. It says: With API-key authentication, model availability follows your API organization and project. GPT-5.5 remains available through the OpenAI API and in Codex sessions authenticated with an API key.",
+        ],
+        table: {
+          caption: "Replacements named on the Codex models page for ChatGPT sign-in.",
+          headers: ["Sign-in", "What the models page says to choose"],
+          rows: [
+            ["Plus, Pro, Business, Enterprise, and Edu", "GPT-6.1 Sol (gpt-6.1-sol) when available."],
+            ["Free and Go", "GPT-6 Luna (gpt-6-luna) in the desktop app when available."],
+            ["API key", "GPT-5.5 remains available in the API and in Codex sessions that use an API key."],
+          ],
+        },
+        codes: [
+          {
+            caption: "CLI",
+            code: `codex --model gpt-6.1-sol\n`,
+          },
+          {
+            caption: "Non-interactive run",
+            code: `codex exec -m gpt-6.1-sol "Review the current changes"\n`,
+          },
+        ],
+        sources: [
+          { label: "Codex models, GPT-5.5 retirement", url: CODEX_MODELS_GPT55 },
+          { label: "Codex changelog, October 14, 2026", url: CODEX_CHANGELOG_OCT14 },
+        ],
+      },
+      {
+        heading: "Other Codex models on the same page",
+        paragraphs: [
+          "The models page also says the gpt-5.4 and gpt-5.4-mini models retired from Codex with ChatGPT sign-in on August 31, 2026. Replace gpt-5.4 with gpt-6-sol and gpt-5.4-mini with gpt-6-luna when available to your plan and client. It says the OpenAI API and Codex authenticated with your own API key aren't affected by the GPT-5.4 retirement.",
+          "The same section says the gpt-5.2 and gpt-5.3-codex models are already deprecated in Codex when you sign in with ChatGPT. Update scripts, configuration files, and codex exec --model commands that still reference those models.",
+          "Those sentences are about Codex with ChatGPT sign-in. They do not change the shutdown dates stored on the OpenAI API model pages linked below.",
+        ],
+        sources: [{ label: "Codex models", url: CODEX_MODELS }],
+      },
+    ],
+    related: [
+      { href: "/models/openai/gpt-5-5/", label: "gpt-5.5" },
+      { href: "/models/openai/gpt-6-1-sol/", label: "gpt-6.1-sol" },
+      { href: "/models/openai/gpt-6-luna/", label: "gpt-6-luna" },
+      { href: "/models/openai/gpt-6-sol/", label: "gpt-6-sol" },
+      { href: "/models/openai/gpt-5-4/", label: "gpt-5.4" },
+      { href: "/models/openai/gpt-5-4-mini/", label: "gpt-5.4-mini" },
+      { href: "/models/openai/gpt-5-2/", label: "gpt-5.2" },
+      { href: "/models/openai/gpt-5-3-codex/", label: "gpt-5.3-codex" },
+    ],
+    faqs: [
+      {
+        question: "Did GPT-5.5 leave the OpenAI API on October 14, 2026?",
+        answer:
+          "No. The [Codex models page](https://developers.openai.com/codex/models#gpt-55-retirement) and the [October 14 changelog](https://developers.openai.com/codex/changelog#codex-2026-10-14-gpt-55-retirement) say the OpenAI API and Codex sessions authenticated with an API key aren't affected. The [September 14 changelog](https://developers.openai.com/codex/changelog#codex-2026-09-14-gpt-55-retirement) says this retirement does not apply to the OpenAI API.",
+      },
+      {
+        question: "Which model do I pick in Codex if I sign in with ChatGPT?",
+        answer:
+          "The [models page](https://developers.openai.com/codex/models#gpt-55-retirement) says Plus, Pro, Business, Enterprise, and Edu choose gpt-6.1-sol when available. Free and Go choose gpt-6-luna in the desktop app when available. See [gpt-6.1-sol](/models/openai/gpt-6-1-sol/) and [gpt-6-luna](/models/openai/gpt-6-luna/).",
+      },
+      {
+        question: "What breaks if a tool still pins gpt-5.5?",
+        answer:
+          "The models page says to replace gpt-5.5 in workspace defaults, saved model settings, managed configurations, custom agents, scheduled tasks, and scripts that select a model. Set model to gpt-6.1-sol in config.toml, or pass codex --model gpt-6.1-sol. Or use an API key, which the same page says can still use GPT-5.5.",
+      },
+    ],
+    citations: [CODEX_MODELS, CODEX_MODELS_GPT55, CODEX_CHANGELOG_OCT14, CODEX_CHANGELOG_SEP14],
   },
 ];
 

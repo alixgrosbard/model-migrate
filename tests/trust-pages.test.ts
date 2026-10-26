@@ -4,6 +4,7 @@ import { DEPRECATIONS_URL as ANTHROPIC_URL, PRICING_URL as ANTHROPIC_PRICING } f
 import { LEGACY_URL as AWS_LEGACY, POLICY_URL as AWS_POLICY } from "../scrapers/aws-bedrock.ts";
 import { POLICY_URL as AZURE_POLICY, SCHEDULE_URL as AZURE_SCHEDULE } from "../scrapers/azure-openai.ts";
 import { NEWS_URL as DEEPSEEK_NEWS, PRICING_URL as DEEPSEEK_PRICING, UPDATES_URL as DEEPSEEK_UPDATES } from "../scrapers/deepseek.ts";
+import { DEPRECATIONS_MD_URL as GROQ_DEPRECATIONS, MODELS_MD_URL as GROQ_MODELS } from "../scrapers/groq.ts";
 import { DEPRECATIONS_URL as GEMINI_URL, PRICING_URL as GEMINI_PRICING } from "../scrapers/google-gemini-api.ts";
 import { DEPRECATIONS_URL as VERTEX_URL } from "../scrapers/google-vertex.ts";
 import { MODELS_URL as MISTRAL_URL, PRICING_URL as MISTRAL_PRICING } from "../scrapers/mistral.ts";
@@ -92,6 +93,8 @@ describe("methodology facts", () => {
       DEEPSEEK_UPDATES,
       DEEPSEEK_PRICING,
       DEEPSEEK_NEWS,
+      GROQ_DEPRECATIONS,
+      GROQ_MODELS,
     ]) {
       expect(urls).toContain(url);
     }

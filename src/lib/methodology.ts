@@ -101,6 +101,16 @@ export const SCRAPE_TARGETS: ScrapeTarget[] = [
     url: "https://api-docs.deepseek.com/news/news260424/",
     role: "Parsed for the V4 preview retirement sentence.",
   },
+  {
+    provider: "Groq",
+    url: "https://console.groq.com/docs/deprecations.md",
+    role: "Parsed for deprecation-table rows. A stored source uses https://console.groq.com/docs/deprecations without the .md suffix.",
+  },
+  {
+    provider: "Groq",
+    url: "https://console.groq.com/docs/models.md",
+    role: "Parsed for production and preview model rows, token prices, context, and max completion. A stored source uses https://console.groq.com/docs/models without the .md suffix.",
+  },
 ];
 
 export const ENRICH_PAGES: { label: string; detail: string }[] = [
@@ -185,6 +195,7 @@ export const METHODOLOGY_SECTIONS: MethodologySection[] = [
       "Azure schedule rows map the lifecycle word: generally available and preview become active, and deprecated, legacy, and retired stay those words. An exact retirement date before the check day is then stored as retired. A fine-tune row on the schedule is stored as retired when its deployment date is before the check day, and active otherwise. A fine-tune id that exists only on the retirements policy page is stored as retired when that deployment date is before the check day, and deprecated otherwise.",
       "Mistral stores a row with no retirement date, or a date kind of none, as legacy. A retirement date before the check day is stored as retired. A later date is stored as deprecated.",
       "DeepSeek stores deepseek-chat and deepseek-reasoner from the changelog discontinuation date: retired when that date is before the check day, and deprecated otherwise. The v4-flash names the changelog or the pricing page calls retired are stored as retired, with no shutdown day. Other ids parsed from the pricing table are stored as active.",
+      "Groq stores a deprecations-table row as retired when its shutdown date is before the check day, and deprecated otherwise. The shutdown date is the table's shutdown column. An id that is only on the models page is stored as active, with no shutdown date. A price that the models page gives per hour or per million characters is not stored as a per-token price.",
       "An active model with no shutdown date whose source is a model-doc page, and not a deprecations page, is kept when a later scrape does not emit it. Deprecation-table rows that disappear are not kept. After model-doc pages are attached, the scrape also adds an undated alias when a dated snapshot id matches that alias plus -YYYY-MM-DD and a model-doc page names the alias. The alias is stored as active with no shutdown date. The shutdown dates stay on the snapshot records.",
     ],
   },

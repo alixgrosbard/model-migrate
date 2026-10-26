@@ -114,6 +114,7 @@ const FILE_TRANSCRIPTION_OR = new Set([
 export function officialMigrationTargets(model: ModelRecord) {
   const official = model.replacements.filter((item) => item.kind === "official");
   if (model.provider === "openai" && FILE_TRANSCRIPTION_OR.has(model.id)) return official;
+  if (model.provider === "groq") return official;
   return official.slice(0, 1);
 }
 
@@ -172,10 +173,12 @@ function callKind(provider: string, id: string): CallKind | null {
 }
 
 function codeSnippets(from: ModelRecord, to: ModelRecord) {
+  if (from.provider === "groq" && to.provider === "groq") return groqSnippets(from.id, to.id);
   return specialized(from, to)?.snippets ?? defaultSnippets(from, to);
 }
 
 function apiChanges(from: ModelRecord, to: ModelRecord): ApiChange[] {
+  if (from.provider === "groq" && to.provider === "groq") return groqApiChanges(from.id, to.id);
   return specialized(from, to)?.apiChanges ?? [];
 }
 
@@ -212,6 +215,106 @@ export function mergeCuratedMigration(previous: MigrationRecord | undefined, fre
       ? previous.migration_checklist
       : fresh.migration_checklist;
   return { ...fresh, api_changes, code_change, sources, migration_checklist };
+}
+
+const GROQ_API = "https://console.groq.com/docs/api-reference";
+
+function groqFamily(id: string): "transcription" | "speech" | "chat" {
+  if (id.includes("whisper")) return "transcription";
+  if (id.includes("orpheus") || id.includes("playai") || id.includes("tts")) return "speech";
+  return "chat";
+}
+
+function groqSnippets(fromId: string, toId: string): SnippetSet {
+  const fromFamily = groqFamily(fromId);
+  const toFamily = groqFamily(toId);
+  if (fromFamily === "transcription" && toFamily === "transcription") return groqTranscription(fromId, toId);
+  if (fromFamily === "speech" && toFamily === "speech") return groqSpeech(fromId, toId);
+  return groqChat(fromId, toId);
+}
+
+function groqApiChanges(fromId: string, toId: string): ApiChange[] {
+  const fromFamily = groqFamily(fromId);
+  const toFamily = groqFamily(toId);
+  if (fromFamily === "transcription" && toFamily === "transcription") {
+    return [
+      {
+        kind: "endpoint_change",
+        detail:
+          "The Groq API reference says transcriptions are POST https://api.groq.com/openai/v1/audio/transcriptions. It names whisper-large-v3 and whisper-large-v3-turbo as the model ids currently available. The sample only changes the model field.",
+        source_url: GROQ_API,
+      },
+    ];
+  }
+  if (fromFamily === "speech" && toFamily === "speech") {
+    return [
+      {
+        kind: "endpoint_change",
+        detail:
+          "The Groq API reference says speech is POST https://api.groq.com/openai/v1/audio/speech. The printed sample uses model playai-tts and voice Fritz-PlayAI. Voice is required. This sample keeps that voice value and only changes the model field. The reference does not say the replacement accepts Fritz-PlayAI.",
+        source_url: GROQ_API,
+      },
+    ];
+  }
+  return [
+    {
+      kind: "endpoint_change",
+      detail:
+        "The Groq API reference says chat completions are POST https://api.groq.com/openai/v1/chat/completions. The sample only changes the model field.",
+      source_url: GROQ_API,
+    },
+  ];
+}
+
+function groqChat(fromId: string, toId: string): SnippetSet {
+  return {
+    python: {
+      before: `from groq import Groq\nclient = Groq()\nchat_completion = client.chat.completions.create(\n    messages=[{"role": "user", "content": "Hello"}],\n    model="${fromId}",\n)\n`,
+      after: `from groq import Groq\nclient = Groq()\nchat_completion = client.chat.completions.create(\n    messages=[{"role": "user", "content": "Hello"}],\n    model="${toId}",\n)\n`,
+    },
+    typescript: {
+      before: `import Groq from "groq-sdk";\nconst groq = new Groq();\nconst completion = await groq.chat.completions.create({\n  messages: [{ role: "user", content: "Hello" }],\n  model: "${fromId}",\n});\n`,
+      after: `import Groq from "groq-sdk";\nconst groq = new Groq();\nconst completion = await groq.chat.completions.create({\n  messages: [{ role: "user", content: "Hello" }],\n  model: "${toId}",\n});\n`,
+    },
+    curl: {
+      before: `curl https://api.groq.com/openai/v1/chat/completions \\\n  -H "Content-Type: application/json" \\\n  -d '{"model":"${fromId}","messages":[{"role":"user","content":"Hello"}]}'\n`,
+      after: `curl https://api.groq.com/openai/v1/chat/completions \\\n  -H "Content-Type: application/json" \\\n  -d '{"model":"${toId}","messages":[{"role":"user","content":"Hello"}]}'\n`,
+    },
+  };
+}
+
+function groqTranscription(fromId: string, toId: string): SnippetSet {
+  return {
+    python: {
+      before: `from groq import Groq\nclient = Groq()\ntranscription = client.audio.transcriptions.create(\n    file=("sample_audio.m4a", open("sample_audio.m4a", "rb").read()),\n    model="${fromId}",\n)\n`,
+      after: `from groq import Groq\nclient = Groq()\ntranscription = client.audio.transcriptions.create(\n    file=("sample_audio.m4a", open("sample_audio.m4a", "rb").read()),\n    model="${toId}",\n)\n`,
+    },
+    typescript: {
+      before: `import fs from "fs";\nimport Groq from "groq-sdk";\nconst groq = new Groq();\nconst transcription = await groq.audio.transcriptions.create({\n  file: fs.createReadStream("sample_audio.m4a"),\n  model: "${fromId}",\n});\n`,
+      after: `import fs from "fs";\nimport Groq from "groq-sdk";\nconst groq = new Groq();\nconst transcription = await groq.audio.transcriptions.create({\n  file: fs.createReadStream("sample_audio.m4a"),\n  model: "${toId}",\n});\n`,
+    },
+    curl: {
+      before: `curl https://api.groq.com/openai/v1/audio/transcriptions \\\n  -F file="@./sample_audio.m4a" \\\n  -F model="${fromId}"\n`,
+      after: `curl https://api.groq.com/openai/v1/audio/transcriptions \\\n  -F file="@./sample_audio.m4a" \\\n  -F model="${toId}"\n`,
+    },
+  };
+}
+
+function groqSpeech(fromId: string, toId: string): SnippetSet {
+  return {
+    python: {
+      before: `from groq import Groq\nclient = Groq()\nspeech = client.audio.speech.create(\n    model="${fromId}",\n    voice="Fritz-PlayAI",\n    input="Hello",\n    response_format="wav",\n)\n`,
+      after: `from groq import Groq\nclient = Groq()\nspeech = client.audio.speech.create(\n    model="${toId}",\n    voice="Fritz-PlayAI",\n    input="Hello",\n    response_format="wav",\n)\n`,
+    },
+    typescript: {
+      before: `import Groq from "groq-sdk";\nconst groq = new Groq();\nconst response = await groq.audio.speech.create({\n  model: "${fromId}",\n  voice: "Fritz-PlayAI",\n  input: "Hello",\n  response_format: "wav",\n});\n`,
+      after: `import Groq from "groq-sdk";\nconst groq = new Groq();\nconst response = await groq.audio.speech.create({\n  model: "${toId}",\n  voice: "Fritz-PlayAI",\n  input: "Hello",\n  response_format: "wav",\n});\n`,
+    },
+    curl: {
+      before: `curl https://api.groq.com/openai/v1/audio/speech \\\n  -H "Content-Type: application/json" \\\n  -d '{"model":"${fromId}","input":"Hello","voice":"Fritz-PlayAI","response_format":"wav"}'\n`,
+      after: `curl https://api.groq.com/openai/v1/audio/speech \\\n  -H "Content-Type: application/json" \\\n  -d '{"model":"${toId}","input":"Hello","voice":"Fritz-PlayAI","response_format":"wav"}'\n`,
+    },
+  };
 }
 
 function defaultSnippets(from: ModelRecord, to: ModelRecord): SnippetSet {

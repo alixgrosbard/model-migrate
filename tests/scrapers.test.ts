@@ -6,6 +6,9 @@ import { parseAzure } from "../scrapers/azure-openai.ts";
 import { parseBedrock } from "../scrapers/aws-bedrock.ts";
 import { DEPRECATIONS_URL, parseGemini } from "../scrapers/google-gemini-api.ts";
 import { parseDeepSeek, UPDATES_URL as DEEPSEEK_UPDATES } from "../scrapers/deepseek.ts";
+import { DEPRECATIONS_URL as GROQ_DEPRECATIONS, MODELS_URL as GROQ_MODELS, parseGroq } from "../scrapers/groq.ts";
+import { buildMigration } from "../scrapers/migrations.ts";
+import { modelSchema } from "../src/schema.ts";
 import { parseMistral } from "../scrapers/mistral.ts";
 import { parseOpenAI } from "../scrapers/openai.ts";
 import { parseVertex } from "../scrapers/google-vertex.ts";
@@ -517,6 +520,103 @@ describe("deepseek", () => {
     expect(pro?.status).toBe("active");
     expect(pro?.shutdown_date).toBeNull();
     expect(pro?.region_or_platform_notes).toContain("No shutdown date is published");
+  });
+});
+
+describe("groq", () => {
+  const deprecations = read(fixture("groq", "deprecations-2026-10-26.md"));
+  const modelsPage = read(fixture("groq", "models-2026-10-26.md"));
+
+  it("retires llama-3.3-70b-versatile after the shutdown day and keeps both official replacements", () => {
+    const models = parseGroq(deprecations, modelsPage, "2026-10-26");
+    const llama = models.find((model) => model.id === "llama-3.3-70b-versatile");
+    expect(llama?.status).toBe("retired");
+    expect(llama?.shutdown_date).toBe("2026-08-16");
+    expect(llama?.announced_date).toBe("2026-06-17");
+    expect(llama?.shutdown_date_kind).toBe("exact");
+    expect(llama?.replacements.map((item) => item.model_id)).toEqual(["openai/gpt-oss-120b", "qwen/qwen3.6-27b"]);
+    expect(llama?.replacements.every((item) => item.source_url === GROQ_DEPRECATIONS)).toBe(true);
+    expect(llama?.region_or_platform_notes).toContain("enterprise customers with a committed-spend contract are not affected");
+    expect(llama?.region_or_platform_notes).toContain("Production Models");
+    expect(llama?.specs.context_window_tokens).toBe(131072);
+    expect(llama?.specs.max_output_tokens).toBe(32768);
+    expect(llama?.specs.input_price_per_mtok).toBeNull();
+    expect(llama?.sources[0]?.url).toBe(GROQ_DEPRECATIONS);
+    expect(parseGroq(deprecations, modelsPage, "2026-08-16").find((model) => model.id === "llama-3.3-70b-versatile")?.status).toBe("deprecated");
+  });
+
+  it("keeps listed production ids active and does not store hourly speech prices as token prices", () => {
+    const models = parseGroq(deprecations, modelsPage, "2026-10-26");
+    const oss = models.find((model) => model.id === "openai/gpt-oss-120b");
+    const small = models.find((model) => model.id === "llama-3.1-8b-instant");
+    const whisper = models.find((model) => model.id === "whisper-large-v3");
+    const qwen = models.find((model) => model.id === "qwen/qwen3.8-27b");
+    expect(oss?.status).toBe("active");
+    expect(oss?.shutdown_date).toBeNull();
+    expect(oss?.specs.input_price_per_mtok).toBe(0.15);
+    expect(oss?.specs.output_price_per_mtok).toBe(0.6);
+    expect(oss?.specs.context_window_tokens).toBe(131072);
+    expect(oss?.specs.max_output_tokens).toBe(65536);
+    expect(oss?.sources[0]?.url).toBe(GROQ_MODELS);
+    expect(small?.replacements.map((item) => item.model_id)).toEqual(["openai/gpt-oss-20b"]);
+    expect(small?.shutdown_date).toBe("2026-08-16");
+    expect(whisper?.status).toBe("active");
+    expect(whisper?.specs.input_price_per_mtok).toBeNull();
+    expect(whisper?.region_or_platform_notes).toContain("$0.111 per hour");
+    expect(qwen?.status).toBe("active");
+    expect(qwen?.specs.input_price_per_mtok).toBe(0.8);
+    expect(qwen?.specs.output_price_per_mtok).toBe(4);
+    expect(qwen?.specs.supports_tools).toBe(true);
+    expect(qwen?.specs.supports_json_schema).toBe(true);
+    expect(qwen?.region_or_platform_notes).toContain("Preview Models");
+    expect(qwen?.region_or_platform_notes).toContain("No shutdown date is published");
+  });
+
+  it("keeps the first shutdown date when a later section repeats an id", () => {
+    const models = parseGroq(deprecations, modelsPage, "2026-10-26");
+    const specdec = models.find((model) => model.id === "deepseek-r1-distill-llama-70b-specdec");
+    const kimi = models.find((model) => model.id === "moonshotai/kimi-k2-instruct");
+    const compound = models.find((model) => model.id === "groq/compound");
+    const llava = models.find((model) => model.id === "llava-v1.5-7b-4096-preview");
+    const playai = models.find((model) => model.id === "playai-tts");
+    const tool = models.find((model) => model.id === "llama3-groq-70b-8192-tool-use-preview");
+    expect(specdec?.shutdown_date).toBe("2025-04-14");
+    expect(specdec?.region_or_platform_notes).toContain("2025-03-24");
+    expect(kimi?.replacements.map((item) => item.model_id)).toEqual(["openai/gpt-oss-120b", "moonshotai/kimi-k2-instruct-0905"]);
+    expect(kimi?.region_or_platform_notes).toContain("in favor of moonshotai/kimi-k2-instruct-0905");
+    expect(compound?.shutdown_date).toBe("2026-09-21");
+    expect(compound?.announced_date).toBe("2026-08-24");
+    expect(compound?.replacements).toEqual([]);
+    expect(compound?.status).toBe("retired");
+    expect(llava?.shutdown_date).toBe("2024-10-28");
+    expect(llava?.announced_date).toBeNull();
+    expect(playai?.announced_date).toBe("2025-12-23");
+    expect(playai?.shutdown_date).toBe("2025-12-31");
+    expect(playai?.replacements[0]?.model_id).toBe("canopylabs/orpheus-v1-english");
+    expect(tool?.announced_date).toBeNull();
+    expect(tool?.region_or_platform_notes).toContain("llama-3.30-70b-versatile");
+    expect(models.some((model) => model.id === "llama-3.30-70b-versatile")).toBe(false);
+    expect(parseGroq("", "", "2026-10-26")).toEqual([]);
+  });
+
+  it("writes a Groq chat migration that only changes the model field", () => {
+    const models = parseGroq(deprecations, modelsPage, "2026-10-26").map((model) =>
+      modelSchema.parse({ ...model, first_seen: "2026-10-26T12:00:00.000Z", updated_at: "2026-10-26T12:00:00.000Z" }),
+    );
+    const from = models.find((model) => model.id === "llama-3.3-70b-versatile");
+    const to = models.find((model) => model.id === "openai/gpt-oss-120b");
+    const speechFrom = models.find((model) => model.id === "playai-tts");
+    const speechTo = models.find((model) => model.id === "canopylabs/orpheus-v1-english");
+    const audioFrom = models.find((model) => model.id === "distil-whisper-large-v3-en");
+    const audioTo = models.find((model) => model.id === "whisper-large-v3-turbo");
+    if (!from || !to || !speechFrom || !speechTo || !audioFrom || !audioTo) throw new Error("missing groq pair");
+    const chat = buildMigration(from, to, "2026-10-26");
+    expect(chat.code_change.snippets.curl.after).toContain("https://api.groq.com/openai/v1/chat/completions");
+    expect(chat.code_change.snippets.python.after).toContain('model="openai/gpt-oss-120b"');
+    expect(JSON.stringify(chat)).not.toContain("Bearer");
+    expect(chat.api_changes[0]?.source_url).toBe("https://console.groq.com/docs/api-reference");
+    expect(buildMigration(speechFrom, speechTo, "2026-10-26").code_change.snippets.curl.after).toContain("/audio/speech");
+    expect(buildMigration(audioFrom, audioTo, "2026-10-26").code_change.snippets.curl.after).toContain("/audio/transcriptions");
   });
 });
 

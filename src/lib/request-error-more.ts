@@ -90,6 +90,10 @@ const GEMINI_NEW_USERS =
 
 const MAX_TOKENS =
   "Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.";
+const OPENAI_RESPONSES = "https://developers.openai.com/api/reference/resources/responses/methods/create/";
+const OPENAI_CHANGELOG = "https://developers.openai.com/api/docs/changelog";
+const USER_FIELD_REPLACED =
+  "This field is being replaced by safety_identifier and prompt_cache_key. Use prompt_cache_key instead to maintain caching optimizations.";
 
 export const moreRequestErrors: RequestErrorPage[] = [
   {
@@ -1863,5 +1867,124 @@ const response = await client.chat.completions.create({
       ISSUE_DEEPSEEK_ASTRBOT,
       ISSUE_DEEPSEEK_GOOSE,
     ],
+  },
+  {
+    slug: "openai-user-parameter-deprecated",
+    provider: "openai",
+    checked: "2026-10-26",
+    cause: "Chat Completions labels the user field Deprecated. Responses says the same field is being replaced.",
+    title: "OpenAI user parameter deprecated | SunsetDiff",
+    description:
+      "OpenAI's Chat Completions create reference labels user as Deprecated. Use safety_identifier and prompt_cache_key. No removal date is on the deprecations page.",
+    h1: "Deprecated user field",
+    lead: "The Chat Completions create method labels user as Deprecated. The Responses create method says the same field is being replaced. Neither page gives a day when user stops working.",
+    errorQuoted: true,
+    errorText: USER_FIELD_REPLACED,
+    quoteSourceLabel: "Create chat completion",
+    quoteSourceUrl: OPENAI_CHAT,
+    rule: "The Chat Completions create reference prints Deprecated user, then this sentence: This field is being replaced by safety_identifier and prompt_cache_key. Use prompt_cache_key instead to maintain caching optimizations. On that page, prompt_cache_key says it is used by OpenAI to cache responses for similar requests to optimize cache hit rates, and that it replaces the user field. safety_identifier says it is a stable identifier used to help detect users of your application that may be violating OpenAI's usage policies. The IDs should uniquely identify each user, with a maximum length of 64 characters. The page recommends hashing their username or email address, in order to avoid sending identifying information. The Responses create reference prints the same replacement sentence for user. It does not print the word Deprecated on that field. Its prompt_cache_key line also says the field replaces the user field. Its safety_identifier line says the maximum length is 128 characters, and it also recommends hashing a username or email address. The deprecations page, checked 2026-10-26, does not list the user field and does not give a removal date. The API changelog mentions safety_identifier for the Safety Usage Dashboard. It does not say the user field is deprecated and it does not give a removal date. The row below is a current model id whose create method documents the field. It is not a shutdown of that model.",
+    ruleSourceLabel: "Create chat completion",
+    ruleSourceUrl: OPENAI_CHAT,
+    modelsCaption: "A current model id. The field is on the create method, not a shutdown of this id.",
+    models: [
+      {
+        id: "gpt-5.5",
+        provider: "openai",
+        slug: "gpt-5-5",
+        note: "The Chat Completions and Responses create methods document user on the request. This row is not a gpt-5.5 shutdown.",
+      },
+    ],
+    fixes: [
+      {
+        heading: "Raw SDK",
+        text: [
+          "Send safety_identifier and prompt_cache_key instead of user. The Chat Completions page says to use prompt_cache_key to maintain caching optimizations, and safety_identifier to identify an end user. Hash the username or email. Chat Completions says the safety identifier maximum length is 64 characters. Responses says 128 characters. These samples do not include a key.",
+        ],
+        samples: [
+          {
+            caption: "Chat Completions, Python",
+            code: `from openai import OpenAI
+client = OpenAI()
+response = client.chat.completions.create(
+    model="gpt-5.5",
+    messages=[{"role": "user", "content": "Hello"}],
+    safety_identifier="hashed-user-id",
+    prompt_cache_key="cache-group",
+)
+`,
+          },
+          {
+            caption: "Responses, Python",
+            code: `from openai import OpenAI
+client = OpenAI()
+response = client.responses.create(
+    model="gpt-5.5",
+    input="Hello",
+    safety_identifier="hashed-user-id",
+    prompt_cache_key="cache-group",
+)
+`,
+          },
+          {
+            caption: "Chat Completions, Node",
+            code: `import OpenAI from "openai";
+const client = new OpenAI();
+const response = await client.chat.completions.create({
+  model: "gpt-5.5",
+  messages: [{ role: "user", content: "Hello" }],
+  safety_identifier: "hashed-user-id",
+  prompt_cache_key: "cache-group",
+});
+`,
+          },
+        ],
+        sourceLabel: "Create chat completion",
+        sourceUrl: OPENAI_CHAT,
+      },
+      {
+        heading: "LiteLLM",
+        text: [
+          "This page does not show a LiteLLM call. The Chat Completions create reference says to send safety_identifier and prompt_cache_key instead of user.",
+        ],
+        samples: [],
+        sourceLabel: "Create chat completion",
+        sourceUrl: OPENAI_CHAT,
+      },
+      {
+        heading: "Vercel AI SDK",
+        text: [
+          "This page does not show an AI SDK call. The Chat Completions and Responses create references say to send safety_identifier and prompt_cache_key instead of user.",
+        ],
+        samples: [],
+        sourceLabel: "Create a model response",
+        sourceUrl: OPENAI_RESPONSES,
+      },
+    ],
+    guides: [],
+    seeAlso: [
+      { href: OPENAI_CHAT, label: "Create chat completion" },
+      { href: OPENAI_RESPONSES, label: "Create a model response" },
+      { href: OPENAI_DEPRECATIONS, label: "OpenAI deprecations" },
+      { href: OPENAI_CHANGELOG, label: "OpenAI API changelog" },
+      { href: "/models/openai/gpt-5-5/", label: "gpt-5.5" },
+    ],
+    faqs: [
+      {
+        question: "What should I send instead of user?",
+        answer:
+          "safety_identifier and prompt_cache_key. The [Chat Completions create reference](https://developers.openai.com/api/reference/resources/chat/subresources/completions/methods/create/) says user is being replaced by those two fields, and to use prompt_cache_key to maintain caching optimizations. safety_identifier is the stable id for abuse detection. Hash the username or email.",
+      },
+      {
+        question: "When does user stop working?",
+        answer:
+          "The [deprecations page](https://developers.openai.com/api/docs/deprecations), checked 2026-10-26, does not list this field and does not give a removal date. The [API changelog](https://developers.openai.com/api/docs/changelog) does not give one either.",
+      },
+      {
+        question: "Does Responses use the same replacement?",
+        answer:
+          "The [Responses create reference](https://developers.openai.com/api/reference/resources/responses/methods/create/) prints the same replacement sentence. It does not print the word Deprecated on user. Its safety_identifier maximum length is 128 characters. Chat Completions says 64 characters.",
+      },
+    ],
+    citations: [OPENAI_CHAT, OPENAI_RESPONSES, OPENAI_DEPRECATIONS, OPENAI_CHANGELOG],
   },
 ];

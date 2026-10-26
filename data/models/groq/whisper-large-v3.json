@@ -1,0 +1,45 @@
+{
+  "id": "whisper-large-v3",
+  "slug": "whisper-large-v3",
+  "provider": "groq",
+  "display_name": "whisper-large-v3",
+  "family": null,
+  "status": "active",
+  "announced_date": null,
+  "deprecation_date": null,
+  "shutdown_date": null,
+  "shutdown_date_kind": "none",
+  "region_or_platform_notes": "The models page lists this id under Production Models. The deprecations page does not give this id a shutdown date. The models page lists the price as $0.111 per hour, not per million tokens.",
+  "replacements": [],
+  "sources": [
+    {
+      "url": "https://console.groq.com/docs/models",
+      "label": "Groq supported models",
+      "last_checked": "2026-10-26",
+      "excerpt": "whisper-large-v3 | production"
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": null,
+    "output_price_per_mtok": null,
+    "cached_input_price_per_mtok": null,
+    "batch_discount_pct": null,
+    "currency": null,
+    "context_window_tokens": null,
+    "max_output_tokens": null,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {}
+  },
+  "first_seen": "2026-10-26T12:00:00.000Z",
+  "updated_at": "2026-10-26T12:00:00.000Z"
+}

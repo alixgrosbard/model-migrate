@@ -56,7 +56,7 @@ export const requestErrorHubFaqs: FaqItem[] = [
   {
     question: "Which shutdowns do these pages cover?",
     answer:
-      "The OpenAI pages cover the October 23, 2026 batch, max_tokens on o-series models, temperature when reasoning effort is not none, and function tools on Chat Completions for gpt-6-luna, gpt-6.1-sol, and gpt-6-astra. The Gemini API pages cover the October 22, 2026 batch, the new-user 404 recorded for gemini-2.5-flash, and the thinking budget 400 recorded for gemini-4-argon on Vertex. The Claude pages cover claude-sonnet-5-5 request settings and API version 2026-10-21, which returns a 400 for temperature, top_p, and top_k on every model. The Azure OpenAI page covers 410 Gone after retirement, including the November 19, 2026 o-series rows stored on this site. The DeepSeek page covers a missing model id after deepseek-chat and deepseek-reasoner were discontinued on 2026-07-24.",
+      "The OpenAI pages cover the October 23, 2026 batch, max_tokens on o-series models, temperature when reasoning effort is not none, function tools on Chat Completions for gpt-6-luna, gpt-6.1-sol, and gpt-6-astra, and the Chat Completions and Responses user field. The Gemini API pages cover the October 22, 2026 batch, the new-user 404 recorded for gemini-2.5-flash, and the thinking budget 400 recorded for gemini-4-argon on Vertex. The Claude pages cover claude-sonnet-5-5 request settings and API version 2026-10-21, which returns a 400 for temperature, top_p, and top_k on every model. The Azure OpenAI page covers 410 Gone after retirement, including the November 19, 2026 o-series rows stored on this site. The DeepSeek page covers a missing model id after deepseek-chat and deepseek-reasoner were discontinued on 2026-07-24.",
   },
 ];
 

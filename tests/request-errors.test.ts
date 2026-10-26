@@ -97,7 +97,7 @@ describe("request error pages", () => {
   it("lists both pages in llms.txt, lastmod, and JSON-LD", () => {
     const text = llmsTxt("https://sunsetdiff.com", [], []);
     const full = llmsFull("https://sunsetdiff.com", []);
-    expect(requestErrors.length).toBe(17);
+    expect(requestErrors.length).toBe(18);
     expect(text).toContain(REQUEST_ERRORS_INDEX);
     expect(full).toContain(REQUEST_ERRORS_INDEX);
     expect(lastmodForUrl(`https://sunsetdiff.com${REQUEST_ERRORS_INDEX}`)).toBe(requestErrorsIndexChecked());
@@ -197,5 +197,22 @@ describe("request error pages", () => {
     expect(solTools?.seeAlso?.map((item) => item.href)).toContain("/guides/move-function-calling-to-responses-api/");
     const lunaTools = requestErrors.find((page) => page.slug === "gpt-6-luna-function-tools-reasoning-effort");
     expect(lunaTools?.seeAlso?.map((item) => item.href)).toContain("/errors/gpt-6-1-sol-function-tools-chat-completions/");
+    const userField = requestErrors.find((page) => page.slug === "openai-user-parameter-deprecated");
+    expect(userField?.checked).toBe("2026-10-26");
+    expect(userField?.errorQuoted).toBe(true);
+    expect(userField?.errorText).toBe(
+      "This field is being replaced by safety_identifier and prompt_cache_key. Use prompt_cache_key instead to maintain caching optimizations.",
+    );
+    expect(userField?.quoteSourceUrl).toBe(
+      "https://developers.openai.com/api/reference/resources/chat/subresources/completions/methods/create/",
+    );
+    expect(userField?.rule).toContain("maximum length of 64 characters");
+    expect(userField?.rule).toContain("maximum length is 128 characters");
+    expect(userField?.rule).toContain("does not list the user field");
+    expect(userField?.models.map((item) => item.id)).toEqual(["gpt-5.5"]);
+    expect(userField?.guides).toEqual([]);
+    expect(JSON.stringify(userField)).not.toContain("sk-");
+    expect(JSON.stringify(userField)).not.toContain("api_key");
+    expect(JSON.stringify(userField)).not.toContain("Bearer");
   });
 });

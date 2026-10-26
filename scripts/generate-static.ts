@@ -141,6 +141,7 @@ async function main() {
     schedule: scheduleIndexLinks(models),
     statusPages: statusLlmsEntries(models, providers).filter((page) => page.path.startsWith("/providers/")),
     modelPages: models.filter((model) => model.provider === "deepseek"),
+    groqPages: models.filter((model) => model.provider === "groq").sort((a, b) => a.id.localeCompare(b.id)),
   }));
   await writeJson(path.join(publicDir, "openapi.json"), openApiDocument(datasetVersion(changes)));
   await copyFile(path.join(process.cwd(), "server.json"), path.join(publicDir, "server.json"));
