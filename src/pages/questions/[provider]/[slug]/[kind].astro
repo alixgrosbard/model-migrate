@@ -2,8 +2,8 @@
 import Base from "../../../../layouts/Base.astro";
 import FaqList from "../../../../components/FaqList.astro";
 import { loadMigrations, loadModels, loadProviders } from "../../../../lib/load.ts";
-import { clipMeta, today } from "../../../../lib/format.ts";
-import { deprecatedFaqs, publicName, questionPath, shutdownFaqs, topRetiringModels } from "../../../../lib/growth.ts";
+import { clipMeta, questionPageTitle, today } from "../../../../lib/format.ts";
+import { deprecatedFaqs, questionPath, shutdownFaqs, topRetiringModels } from "../../../../lib/growth.ts";
 import { questionGraph } from "../../../../jsonld.ts";
 import { DEFAULT_SITE_URL } from "../../../../lib/site.ts";
 
@@ -23,28 +23,27 @@ if (!model) throw new Error("Missing model");
 const provider = (await loadProviders()).find((item) => item.id === model.provider);
 if (!provider) throw new Error("Missing provider");
 const migration = (await loadMigrations()).find((item) => item.from.provider === model.provider && item.from.slug === model.slug);
-const name = publicName(model);
 const faqs = kind === "deprecated" ? deprecatedFaqs(model, provider) : shutdownFaqs(model, provider, migration);
-const title = kind === "deprecated" ? `Is ${name} being deprecated?` : `${name} shutdown date`;
+const title = questionPageTitle(model, kind, models, provider.name).replace(/ \| SunsetDiff$/, "");
 const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
 const other = kind === "deprecated" ? "shutdown-date" : "deprecated";
 ---
 <Base
-  title={`${title} | SunsetDiff`}
+  title={questionPageTitle(model, kind, models, provider.name)}
   description={clipMeta(faqs[0]?.answer ?? title)}
   crumbs={[
     { name: "Home", path: "/" },
     { name: "Questions", path: "/questions/" },
     { name: title, path: questionPath(model, kind) },
   ]}
-  extraGraph={questionGraph(site, model, provider, kind, migration)}
+  extraGraph={questionGraph(site, model, provider, kind, migration, models)}
 >
   <h1>{title}</h1>
   <p class="answer">{faqs[0]?.answer}</p>
   <p>
     <a href={`/models/${model.provider}/${model.slug}/`}>Model page</a>
     {" · "}
-    <a href={questionPath(model, other)}>{other === "deprecated" ? `Is ${name} being deprecated?` : `${name} shutdown date`}</a>
+    <a href={questionPath(model, other)}>{questionPageTitle(model, other, models, provider.name).replace(/ \| SunsetDiff$/, "")}</a>
     {" · "}
     <a href={`/providers/${provider.id}/`}>{provider.name}</a>
     {" · "}

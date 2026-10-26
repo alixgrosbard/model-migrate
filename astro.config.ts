@@ -1,11 +1,13 @@
-import { copyFile, cp, rm } from "node:fs/promises";
+import { cp } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { defineConfig } from "astro/config";
 import sitemap from "@astrojs/sitemap";
 import { lastmodForUrl } from "./src/lib/lastmod.ts";
+import { excludeFromSitemap } from "./src/lib/indexability.ts";
 import { OPENAPI_PATH } from "./src/lib/openapi.ts";
 import { siteOrigin } from "./src/lib/site.ts";
+import { writeSectionSitemaps } from "./src/lib/sitemaps.ts";
 
 const site = siteOrigin();
 
@@ -21,7 +23,8 @@ export default defineConfig({
           return pathname !== "/google/"
             && pathname !== "/models/openai/gpt-4-1-2/"
             && pathname !== "/migrate/openai__gpt-4-5-preview__to__openai__gpt-4-1-2/"
-            && !pathname.startsWith("/.well-known/");
+            && !pathname.startsWith("/.well-known/")
+            && !excludeFromSitemap(page);
         } catch {
           return true;
         }
@@ -50,10 +53,7 @@ export default defineConfig({
       hooks: {
         "astro:build:done": async ({ dir }) => {
           const out = fileURLToPath(dir);
-          const source = path.join(out, "sitemap-index.xml");
-          const target = path.join(out, "sitemap.xml");
-          await rm(target, { recursive: true, force: true });
-          await copyFile(source, target);
+          await writeSectionSitemaps(out, site, (pathname) => !excludeFromSitemap(`${site}${pathname}`));
           // Vite's public copy uses readdir, which includes dot directories.
           // Copy again so a bundler that skips them cannot drop this file.
           await cp(path.join(process.cwd(), "public", ".well-known"), path.join(out, ".well-known"), {

@@ -19,6 +19,7 @@ import { INTEGRATIONS_PATH, MCP_ENDPOINT, MCP_PATH, MCP_REGISTRY_NAME, MCP_SERVE
 import { CONFLICTS_PATH } from "./conflicts.ts";
 import { ALERTS_PATH, GITHUB_ACTION_PATH, METHODOLOGY_PATH, SOURCES_PATH } from "./trust-pages.ts";
 import { REQUEST_ERRORS_CHECKED, REQUEST_ERRORS_INDEX, requestErrorPath, requestErrors } from "./request-errors.ts";
+import { featuredModelLinks } from "./featured.ts";
 
 export function llmsTxt(
   site: string,
@@ -33,6 +34,7 @@ export function llmsTxt(
     /** Model pages whose shutdown date is already past, so they are not in the soon list. */
     modelPages?: ModelRecord[];
     groqPages?: ModelRecord[];
+    featured?: { label: string; path: string }[];
   } = {},
 ): string {
   const origin = site.replace(/\/+$/, "");
@@ -60,6 +62,9 @@ export function llmsTxt(
     .join("\n");
   const modelPageLinks = (extra.modelPages ?? [])
     .map((model) => `- [${model.id}](${origin}/models/${model.provider}/${model.slug}/)`)
+    .join("\n");
+  const featuredLinks = (extra.featured ?? [])
+    .map((page) => `- [${page.label}](${origin}${page.path})`)
     .join("\n");
   const groqPageLinks = (extra.groqPages ?? [])
     .map((model) => `- [${model.id}](${origin}/models/${model.provider}/${model.slug}/)`)
@@ -106,7 +111,7 @@ export function llmsTxt(
 - [Shutdown alerts](${origin}${ALERTS_PATH}): what the free signup stores and the one welcome email it can send. RSS, the calendar, the JSON API, the MCP server, and badges need no signup.
 - [GitHub Action](${origin}${GITHUB_ACTION_PATH}): inputs and a workflow for action/action.yml. It flags deprecated, legacy, and retiring model ids.
 - [Pro](${origin}/pro/) is free until launch, then $19 a month. You won't be charged until Pro launches.
-
+${featuredLinks ? `\n## Models people look up\nLinked from the homepage. Each row is a model page with the shutdown date, the official replacement, and the sources.\n${featuredLinks}\n` : ""}
 ## Request errors
 [All request errors](${origin}${REQUEST_ERRORS_INDEX}). Each page names the failure, the model change, and the source. Check dates are on the pages (${REQUEST_ERRORS_CHECKED}, 2026-10-21 for the thinking budget page, 2026-10-22 for the API version 2026-10-21 sampling page, 2026-10-24 for the temperature, Gemini 2.5 new-user, and Azure 410 pages, 2026-10-25 for the DeepSeek model_not_found page and the gpt-6.1-sol function tools page, and 2026-10-26 for the Chat Completions user field page). A code block is a quoted error only when the linked source prints that sentence.
 ${requestErrors.map((page) => `- [${page.h1}](${origin}${requestErrorPath(page.slug)})`).join("\n")}
@@ -252,6 +257,7 @@ export function llmsFull(site: string, models: ModelRecord[], providers: Provide
     ...scheduleIndexLinks(models).map((page) => `${page.title}: ${origin}${page.path}`),
     `iCal: ${origin}/deadlines.ics`,
     `Deprecations feed: ${origin}/feed.xml`,
+    ...featuredModelLinks(models).map((link) => `Featured model: ${origin}${link.href}`),
     `Guides: ${origin}${GUIDES_INDEX}`,
     ...guides.map((guide) => `Guide: ${origin}${guidePath(guide.slug)}`),
     `Frameworks: ${origin}${FRAMEWORKS_INDEX}`,

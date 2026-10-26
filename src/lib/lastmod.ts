@@ -23,7 +23,6 @@ import {
   datedShutdowns,
   FAQ_PATH,
   monthKeyPath,
-  newestUpdated,
   shutdownMonthList,
   shutdownsInMonth,
   shutdownsInYear,
@@ -46,6 +45,9 @@ function build(): Map<string, string> {
   const root = process.cwd();
   const modelsDir = path.join(root, "data/models");
   const all: ModelRecord[] = [];
+  const changes = changeDays(root);
+  const contentDay = (model: ModelRecord): string | undefined =>
+    changes.get(`${model.provider}/${model.id}`) ?? dateOf(model.first_seen);
   if (!existsSync(modelsDir)) return map;
   for (const provider of readdirSync(modelsDir)) {
     const folder = path.join(modelsDir, provider);
@@ -54,7 +56,7 @@ function build(): Map<string, string> {
       if (!file.endsWith(".json")) continue;
       const model = JSON.parse(readFileSync(path.join(folder, file), "utf8")) as ModelRecord;
       all.push(model);
-      const day = dateOf(model.updated_at);
+      const day = contentDay(model);
       if (!day) continue;
       map.set(`/models/${provider}/${model.slug}/`, day);
       map.set(`/replace/${provider}/${model.slug}/`, day);
@@ -62,7 +64,8 @@ function build(): Map<string, string> {
     }
     if (newest) map.set(`/providers/${provider}/`, newest);
   }
-  const newestModel = newestDate(all.map((model) => model.updated_at));
+  const bySlug = new Map(all.map((model) => [`${model.provider}/${model.slug}`, model]));
+  const newestModel = newestDate(all.map(contentDay));
   map.set(MCP_PATH, MCP_DOCS_CHECKED);
   map.set(INTEGRATIONS_PATH, MCP_DOCS_CHECKED);
   map.set(MCP_SERVER_JSON_PATH, MCP_DOCS_CHECKED);
@@ -91,6 +94,7 @@ function build(): Map<string, string> {
     map.set(GITHUB_ACTION_PATH, sourceCheck);
   }
   if (newestModel) {
+    map.set("/", newestModel);
     map.set(modelsHub.path, newestModel);
     map.set(replaceHub.path, newestModel);
     map.set(providersHub.path, newestModel);
@@ -104,34 +108,34 @@ function build(): Map<string, string> {
     map.set(BADGES_PATH, newestModel);
   }
   for (const month of shutdownMonths(all)) {
-    const newest = newestDate(modelsInMonth(all, month).map((model) => model.updated_at));
+    const newest = newestDate(modelsInMonth(all, month).map(contentDay));
     if (newest) map.set(`/deadlines/${month}/`, newest);
   }
   const dated = datedShutdowns(all);
-  const datedModified = newestUpdated(dated);
+  const datedModified = newestDate(dated.map(contentDay));
   if (datedModified) {
     map.set(TIMELINE_PATH, datedModified);
     map.set(FAQ_PATH, datedModified);
   }
-  const upcomingModified = newestUpdated(upcomingShutdowns(all, today()));
+  const upcomingModified = newestDate(upcomingShutdowns(all, today()).map(contentDay));
   if (upcomingModified) map.set(UPCOMING_PATH, upcomingModified);
   for (const year of shutdownYearList(all)) {
-    const newest = newestUpdated(shutdownsInYear(all, year));
+    const newest = newestDate(shutdownsInYear(all, year).map(contentDay));
     if (newest) map.set(yearPath(year), newest);
   }
   for (const month of shutdownMonthList(all)) {
-    const newest = newestUpdated(shutdownsInMonth(all, month));
+    const newest = newestDate(shutdownsInMonth(all, month).map(contentDay));
     if (newest) map.set(monthKeyPath(month), newest);
   }
   const events = shutdownEvents(all);
-  const newestEvent = newestDate(events.flatMap((event) => event.models.map((model) => model.updated_at)));
+  const newestEvent = newestDate(events.flatMap((event) => event.models.map(contentDay)));
   if (newestEvent) map.set("/shutdowns/", newestEvent);
   for (const event of events) {
-    const newest = newestDate(event.models.map((model) => model.updated_at));
+    const newest = newestDate(event.models.map(contentDay));
     if (newest) map.set(shutdownEventPath(event), newest);
   }
   for (const model of topRetiringModels(all, today(), 40)) {
-    const day = dateOf(model.updated_at);
+    const day = contentDay(model);
     if (!day) continue;
     map.set(questionPath(model, "deprecated"), day);
     map.set(questionPath(model, "shutdown-date"), day);
@@ -158,8 +162,14 @@ function build(): Map<string, string> {
   if (existsSync(migrations)) {
     for (const file of readdirSync(migrations)) {
       if (!file.endsWith(".json")) continue;
-      const row = JSON.parse(readFileSync(path.join(migrations, file), "utf8")) as { last_checked?: string };
-      const day = dateOf(row.last_checked);
+      const row = JSON.parse(readFileSync(path.join(migrations, file), "utf8")) as {
+        last_checked?: string;
+        from?: { provider?: string; slug?: string };
+        to?: { provider?: string; slug?: string };
+      };
+      const from = row.from?.provider && row.from.slug ? bySlug.get(`${row.from.provider}/${row.from.slug}`) : undefined;
+      const to = row.to?.provider && row.to.slug ? bySlug.get(`${row.to.provider}/${row.to.slug}`) : undefined;
+      const day = newestDate([from ? contentDay(from) : undefined, to ? contentDay(to) : undefined]) ?? dateOf(row.last_checked);
       if (!day) continue;
       map.set(`/migrate/${file.replace(/\.json$/, "")}/`, day);
       if (day > newestMigration) newestMigration = day;
@@ -176,6 +186,24 @@ function newestDate(values: Array<string | undefined>): string | undefined {
     if (day && day > newest) newest = day;
   }
   return newest || undefined;
+}
+
+/** Newest changelog day for a model, else the day the record was first stored. Not the scrape rewrite time. */
+function changeDays(root: string): Map<string, string> {
+  const map = new Map<string, string>();
+  const file = path.join(root, "data/changes.jsonl");
+  if (!existsSync(file)) return map;
+  for (const line of readFileSync(file, "utf8").split("\n")) {
+    if (!line.trim()) continue;
+    const row = JSON.parse(line) as { date?: string; provider?: string; model_id?: string };
+    if (!row.provider || !row.model_id) continue;
+    const day = dateOf(row.date);
+    if (!day) continue;
+    const key = `${row.provider}/${row.model_id}`;
+    const previous = map.get(key);
+    if (!previous || day > previous) map.set(key, day);
+  }
+  return map;
 }
 
 function latestChangeDate(root: string): string | undefined {

@@ -6,6 +6,7 @@ import { formatWhen } from "../../lib/format.ts";
 import { publicName } from "../../lib/growth.ts";
 import { filterText, modelPath, modelsForProvider, modelsHub, replaceHub, replacePath, replacementLinkText } from "../../lib/hubs.ts";
 import { loadModels, loadProviders } from "../../lib/load.ts";
+import { featuredModelLinks } from "../../lib/featured.ts";
 import { DEFAULT_SITE_URL } from "../../lib/site.ts";
 
 const providers = await loadProviders();
@@ -14,6 +15,7 @@ const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
 const groups = providers
   .map((provider) => ({ provider, models: modelsForProvider(models, provider.id) }))
   .filter((group) => group.models.length);
+const featured = featuredModelLinks(models);
 const items = groups.flatMap((group) =>
   group.models.map((model) => ({ name: `Replacement for ${publicName(model)}`, path: replacePath(model) })),
 );
@@ -31,8 +33,23 @@ const items = groups.flatMap((group) =>
     Editorial suggestion means the model record marks the replacement as editorial.
     Not published means the record lists no replacement.
     <a href={modelsHub.path}>{modelsHub.nav}</a>
+    {" · "}
+    <a href="/upcoming/">Upcoming shutdowns</a>
+    {" · "}
+    <a href="/errors/">Request errors</a>
+    {" · "}
+    <a href="/guides/">Guides</a>
   </p>
   <p>{models.length} replacement pages.</p>
+  <p>
+    Often looked up:
+    {featured.map((item, index) => (
+      <>
+        {index ? " · " : " "}
+        <a href={item.href}>{item.label}</a>
+      </>
+    ))}
+  </p>
   <HubFilter />
   <ul>
     {groups.map((group) => (

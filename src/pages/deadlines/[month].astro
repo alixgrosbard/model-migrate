@@ -17,6 +17,7 @@ const label = monthLabel(month);
 <Base
   title={`AI model shutdowns in ${label} | SunsetDiff`}
   description={`Models with a published shutdown date in ${label}. Dates come from official provider pages.`}
+  robots={rows.length < 2 ? "noindex" : undefined}
   crumbs={[{ name: "Home", path: "/" }, { name: "Deadlines", path: "/deadlines/" }, { name: label, path: `/deadlines/${month}/` }]}
 >
   <h1>Shutdowns in {label}</h1>

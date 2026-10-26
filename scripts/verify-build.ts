@@ -43,6 +43,9 @@ import SwaggerParser from "@apidevtools/swagger-parser";
 import { ENDPOINTS } from "../src/lib/endpoints.ts";
 import { OPENAPI_PATH, OPENAPI_SERVER, openApiPath } from "../src/lib/openapi.ts";
 import { providerStatusTargets } from "../src/lib/status-hubs.ts";
+import { excludedPaths, isThinReplace } from "../src/lib/indexability.ts";
+import { SITEMAP_SECTION_FILES } from "../src/lib/sitemaps.ts";
+import { modelsInMonth, shutdownMonths } from "../src/lib/growth.ts";
 
 const dist = path.join(process.cwd(), "dist");
 const required = [
@@ -192,6 +195,31 @@ async function main() {
   if (sitemapAlias.includes("<html") || sitemapAlias.includes("http-equiv")) {
     throw new Error("dist/sitemap.xml is an HTML redirect, not a sitemap");
   }
+  if (!sitemapAlias.includes("<sitemapindex")) throw new Error("dist/sitemap.xml must be a sitemap index");
+  for (const name of SITEMAP_SECTION_FILES) {
+    if (!sitemapAlias.includes(`/${name}`)) throw new Error(`Sitemap index is missing ${name}`);
+    const sectionStat = await stat(path.join(dist, name));
+    if (!sectionStat.isFile()) throw new Error(`dist/${name} must be a file`);
+  }
+  const numbered = (await readdir(dist)).filter((name) => /^sitemap-\d+\.xml$/.test(name));
+  if (numbered.length) throw new Error(`Numbered sitemap files should be replaced: ${numbered.join(", ")}`);
+  const homeFeatured = await readFile(path.join(dist, "index.html"), "utf8");
+  for (const token of [
+    "Models people look up",
+    "/models/openai/gpt-4o/",
+    "/models/openai/gpt-4-1/",
+    "/models/openai/gpt-image-1/",
+    "/models/anthropic/claude-sonnet-4-6/",
+    "/models/anthropic/claude-sonnet-5-5/",
+    "/models/google-gemini-api/gemini-2-5-pro/",
+    "/models/google-gemini-api/gemini-2-5-flash/",
+    "/errors/openai-model-has-been-deprecated/",
+    "/errors/gemini-model-no-longer-available/",
+    "/errors/azure-openai-retired-model-410-gone/",
+  ]) {
+    if (!homeFeatured.includes(token)) throw new Error(`Homepage is missing ${token}`);
+  }
+  if (!llms.includes("/models/openai/gpt-4o/")) throw new Error("llms.txt is missing gpt-4o");
   const sitemap = await sitemapText(dist);
   const events = shutdownEvents(await loadModels());
   const day = today();
@@ -571,6 +599,51 @@ async function checkHubs(sitemap: string, llms: string, llmsFull: string) {
     throw new Error("Models hub is missing the filter");
   }
   if (!modelsHub.includes(`/models/${sample.provider}/${sample.slug}/`)) throw new Error("Models hub is missing a model link");
+  for (const model of models) {
+    const rel = path.join("replace", model.provider, model.slug, "index.html");
+    const html = await readFile(path.join(dist, rel), "utf8");
+    const thin = isThinReplace(model);
+    const loc = `/replace/${model.provider}/${model.slug}/</loc>`;
+    if (thin) {
+      if (!html.includes('name="robots" content="noindex"')) throw new Error(`Thin replace page is indexable: ${rel}`);
+      if (sitemap.includes(loc)) throw new Error(`Sitemap includes thin replace page /replace/${model.provider}/${model.slug}/`);
+    } else if (html.includes('name="robots" content="noindex"')) {
+      throw new Error(`Replace page with a successor is noindex: ${rel}`);
+    } else if (!sitemap.includes(loc)) {
+      throw new Error(`Sitemap is missing /replace/${model.provider}/${model.slug}/`);
+    }
+  }
+  const thinPaths = excludedPaths(models);
+  for (const month of shutdownMonths(models)) {
+    const deadline = `/deadlines/${month}/`;
+    const html = await readFile(path.join(dist, "deadlines", month, "index.html"), "utf8");
+    const thin = modelsInMonth(models, month).length < 2;
+    if (thin !== thinPaths.has(deadline)) throw new Error(`Deadline thin flag mismatch for ${deadline}`);
+    if (thin && !html.includes('name="robots" content="noindex"')) throw new Error(`${deadline} should be noindex`);
+    if (!thin && html.includes('name="robots" content="noindex"')) throw new Error(`${deadline} should stay indexable`);
+    if (thin && sitemap.includes(`${deadline}</loc>`)) throw new Error(`Sitemap includes thin deadline ${deadline}`);
+    if (!thin && !sitemap.includes(`${deadline}</loc>`)) throw new Error(`Sitemap is missing ${deadline}`);
+  }
+  for (const month of shutdownMonthList(models)) {
+    const page = monthKeyPath(month);
+    const html = await readFile(path.join(dist, page.slice(1), "index.html"), "utf8");
+    const thin = shutdownsInMonth(models, month).length < 2;
+    if (thin !== thinPaths.has(page)) throw new Error(`Month thin flag mismatch for ${page}`);
+    if (thin && !html.includes('name="robots" content="noindex"')) throw new Error(`${page} should be noindex`);
+    if (!thin && html.includes('name="robots" content="noindex"')) throw new Error(`${page} should stay indexable`);
+    if (thin && sitemap.includes(`${page}</loc>`)) throw new Error(`Sitemap includes thin month ${page}`);
+  }
+  const gpt4o = await readFile(path.join(dist, "models/openai/gpt-4o/index.html"), "utf8");
+  if (!gpt4o.includes("/guides/") || !gpt4o.includes("/errors/")) throw new Error("gpt-4o page is missing guide or error links");
+  if (!gpt4o.includes("/models/openai/gpt-4o-2024-08-06/")) throw new Error("gpt-4o page is missing the dated snapshot cross-link");
+  const migrateSample = migrations.find((row) => row.from.provider === "openai" && row.from.slug === "gpt-4o-2024-08-06");
+  if (migrateSample) {
+    const pair = `${migrateSample.from.provider}__${migrateSample.from.slug}__to__${migrateSample.to.provider}__${migrateSample.to.slug}`;
+    const migratePage = await readFile(path.join(dist, "migrate", pair, "index.html"), "utf8");
+    if (!migratePage.includes(`"url":"${siteOrigin()}/migrate/${pair}/"`)) {
+      throw new Error("Migration JSON-LD url does not match the migration page");
+    }
+  }
 }
 
 async function checkStatusPages(sitemap: string, llms: string, llmsFull: string) {

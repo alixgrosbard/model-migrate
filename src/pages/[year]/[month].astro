@@ -53,6 +53,7 @@ const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
 <Base
   title={`${name} | SunsetDiff`}
   description={description}
+  robots={selected.length < 2 ? "noindex" : undefined}
   crumbs={[
     { name: "Home", path: "/" },
     { name: "Timeline", path: TIMELINE_PATH },

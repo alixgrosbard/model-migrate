@@ -8,6 +8,7 @@ import { formatWhen, isSoon, officialReplacement, today } from "../lib/format.ts
 import { HUBS } from "../lib/hubs.ts";
 import { STATUS_HUBS } from "../lib/status-hubs.ts";
 import { publicName } from "../lib/growth.ts";
+import { featuredErrorLinks, featuredModelLinks } from "../lib/featured.ts";
 import { batchHeadline, eventCountLabel, orderShutdownEvents, providerDisplayName, shutdownEventPath, shutdownEvents } from "../lib/shutdowns.ts";
 
 const providers = await loadProviders();
@@ -22,6 +23,8 @@ const recent = models
   .slice(0, 12);
 const description = "When an AI model shuts down, what replaces it, and what changes in price, context, and code.";
 const batches = orderShutdownEvents(shutdownEvents(models), day).filter((event) => event.date >= day).slice(0, 6);
+const featured = featuredModelLinks(models);
+const featuredErrors = featuredErrorLinks();
 function replacementModel(model: (typeof models)[number]) {
   const replacement = officialReplacement(model);
   if (!replacement) return null;
@@ -43,6 +46,30 @@ function replacementModel(model: (typeof models)[number]) {
     <a href="/frameworks/">Frameworks</a>
   </p>
   <SearchBox />
+  <h2>Models people look up</h2>
+  <ul>
+    {featured.map((item) => {
+      const model = models.find((row) => `/models/${row.provider}/${row.slug}/` === item.href);
+      const when = model ? formatWhen(model) : "";
+      return (
+        <li>
+          <a href={item.href}>{item.label}</a>
+          {when && when !== "Not published" ? <> ({when})</> : null}
+          {" · "}
+          <a href={`/providers/${item.provider}/`}>{providerName(providers, item.provider)}</a>
+        </li>
+      );
+    })}
+  </ul>
+  <h2>Request errors</h2>
+  <p>
+    These pages quote the failure developers see after a model change, with the official source.
+    <a href="/errors/">All request errors</a>.
+    <a href="/guides/">Guides</a> cover shutdown day, notices, and finding model ids in code.
+  </p>
+  <ul>
+    {featuredErrors.map((item) => <li><a href={item.href}>{item.label}</a></li>)}
+  </ul>
   <h2 id="soonest">Shutting down in the next 30 days</h2>
   <table>
     <caption>Models with a published shutdown date in the next 30 days. Floors that say "not sooner than" are not included.</caption>

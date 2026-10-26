@@ -1,6 +1,6 @@
 import type { MigrationRecord, ModelRecord, Provider } from "./schema.ts";
 import { BADGES_DESCRIPTION, BADGES_PATH } from "./lib/badges.ts";
-import { modelFaqs, replaceFaqs, type FaqItem } from "./lib/format.ts";
+import { modelFaqs, replaceFaqs, uniqueVisibleName, type FaqItem } from "./lib/format.ts";
 import { deprecatedFaqs, publicName, questionPath, shutdownFaqs } from "./lib/growth.ts";
 import { GUIDES_CHECKED, GUIDES_INDEX, guideChecked, guidePath, type GuidePage } from "./lib/guides.ts";
 import { FRAMEWORKS_CHECKED, FRAMEWORKS_INDEX, frameworkPath, type FrameworkPage } from "./lib/frameworks.ts";
@@ -63,7 +63,7 @@ export function modelGraph(
   return [
     {
       "@type": "TechArticle",
-      headline: `When is ${publicName(model)} shut down?`,
+      headline: `When is ${uniqueVisibleName(model, catalog, provider.name)} shut down?`,
       dateModified: checked,
       url,
       citation: model.sources.map((source) => source.url),
@@ -78,18 +78,27 @@ export function modelGraph(
   ];
 }
 
-export function migrateGraph(site: string, model: ModelRecord, migration: MigrationRecord | undefined, provider: Provider) {
+export function migrateGraph(
+  site: string,
+  model: ModelRecord,
+  migration: MigrationRecord | undefined,
+  provider: Provider,
+  pagePath?: string,
+  catalog?: ModelRecord[],
+) {
   const steps = (migration?.migration_checklist ?? ["Read the official deprecation page."]).map((text, index) => ({
     "@type": "HowToStep",
     position: index + 1,
     text,
   }));
+  const path = pagePath ?? `/replace/${model.provider}/${model.slug}/`;
+  const name = uniqueVisibleName(model, catalog, provider.name);
   return [
     {
       "@type": "TechArticle",
-      headline: `Replacement for ${publicName(model)}: what changes when you switch`,
+      headline: `Replacement for ${name}: what changes when you switch`,
       dateModified: migration?.last_checked ?? model.sources[0]?.last_checked,
-      url: new URL(`/replace/${model.provider}/${model.slug}/`, site).href,
+      url: new URL(path, site).href,
       citation: (migration?.sources ?? model.sources).map((source) => source.url),
     },
     { "@type": "HowTo", name: `Switch from ${model.id}`, step: steps },
@@ -136,10 +145,18 @@ export function datasetGraph(site: string, modified: string) {
   ];
 }
 
-export function questionGraph(site: string, model: ModelRecord, provider: Provider, kind: "deprecated" | "shutdown-date", migration?: MigrationRecord | null) {
+export function questionGraph(
+  site: string,
+  model: ModelRecord,
+  provider: Provider,
+  kind: "deprecated" | "shutdown-date",
+  migration?: MigrationRecord | null,
+  catalog?: ModelRecord[],
+) {
   const items = kind === "deprecated" ? deprecatedFaqs(model, provider) : shutdownFaqs(model, provider, migration);
   const path = questionPath(model, kind);
-  const headline = kind === "deprecated" ? `Is ${publicName(model)} being deprecated?` : `${publicName(model)} shutdown date`;
+  const name = uniqueVisibleName(model, catalog, provider.name);
+  const headline = kind === "deprecated" ? `Is ${name} being deprecated?` : `${name} shutdown date`;
   return [
     {
       "@type": "TechArticle",
