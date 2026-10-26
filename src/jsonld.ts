@@ -8,6 +8,7 @@ import { GLOSSARY_CHECKED, GLOSSARY_INDEX, glossaryPath, glossaryTerms, type Glo
 import { BREAKING_CHANGES_PATH, breakingChangesChecked, breakingChangesDatasetGraph } from "./lib/breaking-changes.ts";
 import { INTEGRATIONS_PATH, MCP_DOCS_CHECKED, MCP_ENDPOINT, MCP_PATH, MCP_SERVER_VERSION } from "./lib/mcp-docs.ts";
 import { REQUEST_ERRORS_INDEX, requestErrorChecked, requestErrorPath, requestErrorsIndexChecked, type RequestErrorPage } from "./lib/request-errors.ts";
+import { ALERTS_PATH, GITHUB_ACTION_PATH, METHODOLOGY_PATH, SOURCES_PATH } from "./lib/trust-pages.ts";
 
 function siteRoot(site: string): string {
   return site.replace(/\/+$/, "");
@@ -824,4 +825,93 @@ function definedTermNode(site: string, term: GlossaryTerm) {
 
 export function graph(nodes: unknown[]) {
   return { "@context": "https://schema.org", "@graph": nodes };
+}
+
+export function methodologyGraph(site: string, modified: string, citations: string[]) {
+  const url = new URL(METHODOLOGY_PATH, site).href;
+  const root = siteRoot(site);
+  return [
+    {
+      "@type": ["AboutPage", "WebPage"],
+      "@id": `${url}#page`,
+      name: "How SunsetDiff collects shutdown dates",
+      url,
+      dateModified: modified || undefined,
+      inLanguage: "en",
+      isPartOf: { "@id": `${root}/#website` },
+      publisher: { "@type": "Organization", name: "SunsetDiff" },
+      about: {
+        "@type": "Dataset",
+        name: "SunsetDiff model retirement dataset",
+        url: new URL("/data/", site).href,
+      },
+      citation: citations,
+    },
+  ];
+}
+
+export function sourcesGraph(site: string, modified: string, urls: string[]) {
+  const url = new URL(SOURCES_PATH, site).href;
+  const root = siteRoot(site);
+  const works = urls.map((href) => ({ "@type": "WebPage", url: href }));
+  return [
+    {
+      "@type": "Dataset",
+      "@id": `${url}#dataset`,
+      name: "Official pages cited by the SunsetDiff model retirement dataset",
+      description: "Every URL stored on a SunsetDiff model record, with the models that cite it and the latest last_checked date.",
+      url,
+      dateModified: modified || undefined,
+      inLanguage: "en",
+      license: "https://creativecommons.org/licenses/by/4.0/",
+      creator: { "@type": "Organization", name: "SunsetDiff" },
+      publisher: { "@type": "Organization", name: "SunsetDiff" },
+      isPartOf: { "@id": `${root}/#website` },
+      isBasedOn: works,
+      citation: urls,
+    },
+  ];
+}
+
+export function alertsGraph(site: string) {
+  const url = new URL(ALERTS_PATH, site).href;
+  const root = siteRoot(site);
+  return [
+    {
+      "@type": "WebPage",
+      "@id": `${url}#page`,
+      name: "Shutdown alerts",
+      url,
+      inLanguage: "en",
+      isPartOf: { "@id": `${root}/#website` },
+      publisher: { "@type": "Organization", name: "SunsetDiff" },
+    },
+  ];
+}
+
+export function githubActionGraph(site: string, repositoryUrl: string) {
+  const url = new URL(GITHUB_ACTION_PATH, site).href;
+  const root = siteRoot(site);
+  return [
+    {
+      "@type": "WebPage",
+      "@id": `${url}#page`,
+      name: "SunsetDiff GitHub Action",
+      url,
+      inLanguage: "en",
+      isPartOf: { "@id": `${root}/#website` },
+      publisher: { "@type": "Organization", name: "SunsetDiff" },
+      mainEntity: { "@id": `${url}#action` },
+    },
+    {
+      "@type": "SoftwareSourceCode",
+      "@id": `${url}#action`,
+      name: "SunsetDiff",
+      description: "Flag AI model ids that are deprecated or shutting down.",
+      codeRepository: repositoryUrl,
+      runtimePlatform: "node20",
+      programmingLanguage: "TypeScript",
+      publisher: { "@type": "Organization", name: "SunsetDiff" },
+    },
+  ];
 }

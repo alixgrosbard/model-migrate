@@ -10,6 +10,8 @@ import { BREAKING_CHANGES_CSV, BREAKING_CHANGES_JSON, BREAKING_CHANGES_PATH, bre
 import { REQUEST_ERRORS_INDEX, requestErrorChecked, requestErrorPath, requestErrors, requestErrorsIndexChecked } from "./request-errors.ts";
 import { BADGES_PATH } from "./badges.ts";
 import { CONFLICTS_PATH, disagreementNote } from "./conflicts.ts";
+import { newestSourceCheck } from "./cited-sources.ts";
+import { ALERTS_PATH, GITHUB_ACTION_PATH, METHODOLOGY_PATH, SOURCES_PATH } from "./trust-pages.ts";
 import { modelsInMonth, questionPath, shutdownMonths, topRetiringModels } from "./growth.ts";
 import { migrateHub, modelsHub, providersHub, replaceHub } from "./hubs.ts";
 import { INTEGRATIONS_PATH, MCP_DOCS_CHECKED, MCP_PATH, MCP_SERVER_JSON_PATH } from "./mcp-docs.ts";
@@ -81,6 +83,13 @@ function build(): Map<string, string> {
     all.filter((model) => disagreementNote(model.region_or_platform_notes)).map((model) => model.updated_at),
   );
   if (conflictStamp) map.set(CONFLICTS_PATH, conflictStamp);
+  const sourceCheck = newestSourceCheck(all);
+  if (sourceCheck) {
+    map.set(METHODOLOGY_PATH, sourceCheck);
+    map.set(SOURCES_PATH, sourceCheck);
+    map.set(ALERTS_PATH, sourceCheck);
+    map.set(GITHUB_ACTION_PATH, sourceCheck);
+  }
   if (newestModel) {
     map.set(modelsHub.path, newestModel);
     map.set(replaceHub.path, newestModel);

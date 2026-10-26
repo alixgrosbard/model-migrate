@@ -149,7 +149,7 @@ describe("MCP docs", () => {
     expect(hrefs).toContain("/badges/");
     expect(hrefs).toContain("/feed.xml");
     expect(hrefs).toContain("/deadlines.ics");
-    expect(hrefs).toContain("/data/#github-action");
+    expect(hrefs).toContain("/github-action/");
   });
 
   it("serves the registry HTTP auth file as one public-key line", () => {

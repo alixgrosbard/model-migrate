@@ -3,6 +3,10 @@ import path from "node:path";
 import { aliasSnapshotView } from "../src/lib/aliases.ts";
 import { BADGES_DESCRIPTION, BADGES_TITLE, badgeSvgPath, badgeView } from "../src/lib/badges.ts";
 import { htmlContainsOwnerPlaceholder } from "../src/lib/public-copy.ts";
+import { citedSources } from "../src/lib/cited-sources.ts";
+import { ACTION_INPUTS, ACTION_USES } from "../src/lib/github-action-page.ts";
+import { SCRAPE_TARGETS } from "../src/lib/methodology.ts";
+import { ALERTS_PATH, GITHUB_ACTION_PATH, METHODOLOGY_PATH, SOURCES_PATH } from "../src/lib/trust-pages.ts";
 import { loadModels, loadProviders } from "../src/lib/load.ts";
 import { siteOrigin } from "../src/lib/site.ts";
 import { HUBS } from "../src/lib/hubs.ts";
@@ -444,6 +448,7 @@ async function main() {
   }
   await checkBadges(sitemap, llms, llmsFull);
   await checkDiscovery(sitemap, llms, llmsFull);
+  await checkTrustPages(sitemap, llms, llmsFull);
   console.log(`Verified ${checked} HTML files and required static outputs.`);
 }
 
@@ -748,6 +753,81 @@ async function checkFrameworks(sitemap: string, llms: string, llmsFull: string) 
   }
 }
 
+async function checkTrustPages(sitemap: string, llms: string, llmsFull: string) {
+  const models = await loadModels();
+  const providers = await loadProviders();
+  const groups = citedSources(models, providers);
+  const pages = [
+    { path: METHODOLOGY_PATH, file: "methodology/index.html" },
+    { path: SOURCES_PATH, file: "sources/index.html" },
+    { path: ALERTS_PATH, file: "alerts/index.html" },
+    { path: GITHUB_ACTION_PATH, file: "github-action/index.html" },
+  ];
+  for (const page of pages) {
+    const html = await readFile(path.join(dist, page.file), "utf8");
+    if (html.includes("—") || html.includes("–")) throw new Error(`Em dash on ${page.path}`);
+    if (!html.includes("SunsetDiff")) throw new Error(`${page.path} is missing the publisher`);
+    if (!sitemap.includes(`${page.path}</loc>`) && !sitemap.includes(page.path)) {
+      throw new Error(`Sitemap is missing ${page.path}`);
+    }
+    if (!llms.includes(page.path)) throw new Error(`llms.txt is missing ${page.path}`);
+    if (!llmsFull.includes(page.path)) throw new Error(`llms-full.txt is missing ${page.path}`);
+    const home = await readFile(path.join(dist, "index.html"), "utf8");
+    if (!home.includes(`href="${page.path}"`)) throw new Error(`Nav or home is missing ${page.path}`);
+  }
+  const methodology = await readFile(path.join(dist, "methodology/index.html"), "utf8");
+  if (methodology.toLowerCase().includes("alix")) throw new Error("Personal name on /methodology/");
+  if (!methodology.includes('"AboutPage"') || !methodology.includes('"WebPage"')) {
+    throw new Error("/methodology/ is missing AboutPage or WebPage JSON-LD");
+  }
+  if (!methodology.includes("/conflicts/") || !methodology.includes("/glossary/deprecated/") || !methodology.includes("/glossary/retired/")) {
+    throw new Error("/methodology/ is missing the conflict or glossary links");
+  }
+  for (const target of SCRAPE_TARGETS) {
+    if (!methodology.includes(target.url)) throw new Error(`/methodology/ is missing ${target.url}`);
+  }
+  const sources = await readFile(path.join(dist, "sources/index.html"), "utf8");
+  if (sources.toLowerCase().includes("alix")) throw new Error("Personal name on /sources/");
+  if (!sources.includes('"Dataset"') || !sources.includes('"isBasedOn"') || !sources.includes('"citation"')) {
+    throw new Error("/sources/ is missing Dataset isBasedOn or citation JSON-LD");
+  }
+  for (const group of groups) {
+    for (const source of group.sources) {
+      if (!sources.includes(source.url)) throw new Error(`/sources/ is missing ${source.url}`);
+      if (!sources.includes(`>${source.modelCount}<`)) throw new Error(`/sources/ is missing the model count ${source.modelCount}`);
+      if (!sources.includes(source.lastChecked)) throw new Error(`/sources/ is missing last_checked ${source.lastChecked}`);
+    }
+  }
+  const alerts = await readFile(path.join(dist, "alerts/index.html"), "utf8");
+  if (alerts.toLowerCase().includes("alix")) throw new Error("Personal name on /alerts/");
+  if (!alerts.includes('data-subscribe') || !alerts.includes('name="email"')) {
+    throw new Error("/alerts/ is missing the signup form");
+  }
+  if (!alerts.includes("one welcome email")) throw new Error("/alerts/ does not describe the welcome email");
+  if (!alerts.includes("does not read them")) throw new Error("/alerts/ does not say the provider checkboxes are unused");
+  if (!alerts.includes("no scheduled job")) throw new Error("/alerts/ claims a schedule the repo does not have");
+  for (const href of ["/feed.xml", "/rss.xml", "/calendar/", "/deadlines.ics", "/api/", "/mcp/", "/badges/"]) {
+    if (!alerts.includes(href)) throw new Error(`/alerts/ is missing ${href}`);
+  }
+  const action = await readFile(path.join(dist, "github-action/index.html"), "utf8");
+  if (!action.includes('"SoftwareSourceCode"') || !action.includes('"WebPage"')) {
+    throw new Error("/github-action/ is missing WebPage or SoftwareSourceCode JSON-LD");
+  }
+  if (!action.includes(ACTION_USES)) throw new Error("/github-action/ is missing the uses line");
+  for (const input of ACTION_INPUTS) {
+    if (!action.includes(input.name) || !action.includes(input.defaultValue)) {
+      throw new Error(`/github-action/ is missing input ${input.name}`);
+    }
+  }
+  const about = await readFile(path.join(dist, "about/index.html"), "utf8");
+  const api = await readFile(path.join(dist, "api/index.html"), "utf8");
+  for (const page of [about, api]) {
+    for (const href of [METHODOLOGY_PATH, SOURCES_PATH, ALERTS_PATH, GITHUB_ACTION_PATH]) {
+      if (!page.includes(href)) throw new Error(`About or API page is missing ${href}`);
+    }
+  }
+}
+
 async function sitemapText(dir: string): Promise<string> {
   const names = (await readdir(dir, { withFileTypes: true }))
     .filter((entry) => entry.isFile() && entry.name.startsWith("sitemap") && entry.name.endsWith(".xml"))
@@ -809,7 +889,7 @@ async function checkDiscovery(sitemap: string, llms: string, llmsFull: string) {
     "/badges/",
     "/feed.xml",
     "/deadlines.ics",
-    "/data/#github-action",
+    "/github-action/",
   ]) {
     if (!integrations.includes(href)) throw new Error(`Integrations page is missing ${href}`);
   }
