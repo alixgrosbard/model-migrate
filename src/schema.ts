@@ -12,6 +12,7 @@ export const providerIds = [
   "azure-openai",
   "mistral",
   "deepseek",
+  "groq",
 ] as const;
 
 export const providerIdSchema = z.enum(providerIds);

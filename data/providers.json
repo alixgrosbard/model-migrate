@@ -54,5 +54,12 @@
     "deprecations_url": "https://api-docs.deepseek.com/updates/",
     "pricing_url": "https://api-docs.deepseek.com/quick_start/pricing",
     "models_url": "https://api-docs.deepseek.com/quick_start/pricing"
+  },
+  {
+    "id": "groq",
+    "name": "Groq",
+    "deprecations_url": "https://console.groq.com/docs/deprecations",
+    "pricing_url": "https://console.groq.com/docs/models",
+    "models_url": "https://console.groq.com/docs/models"
   }
 ]

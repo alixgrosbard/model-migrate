@@ -156,4 +156,30 @@ describe("guides", () => {
     expect(blob).toContain("use_responses_api=True");
     expect(blob).not.toContain('reasoning_effort="none"');
   });
+
+  it("sources the Codex ChatGPT sign-in retirement from the Codex models page and changelog", () => {
+    const guide = guides.find((item) => item.slug === "codex-chatgpt-sign-in-model-retirements");
+    expect(guide).toBeTruthy();
+    if (!guide) return;
+    expect(guideChecked(guide)).toBe("2026-10-26");
+    expect(guidePath(guide.slug)).toBe("/guides/codex-chatgpt-sign-in-model-retirements/");
+    const blob = JSON.stringify(guide);
+    expect(blob).toContain("Effective October 14, 2026, at noon PDT (19:00 UTC), GPT-5.5 retires from Codex for users signed in with ChatGPT.");
+    expect(blob).toContain("The OpenAI API and Codex sessions authenticated with an API key aren't affected.");
+    expect(blob).toContain("On October 14, 2026, GPT-5.5 will retire from ChatGPT, ChatGPT Work, and Codex on all plans");
+    expect(blob).toContain("This retirement does not apply to the OpenAI API.");
+    expect(blob).toContain("gpt-6.1-sol");
+    expect(blob).toContain("gpt-6-luna");
+    expect(blob).toContain('model = \\"gpt-6.1-sol\\"');
+    expect(blob).toContain("codex --model gpt-6.1-sol");
+    expect(blob).toContain("/models/openai/gpt-5-5/");
+    expect(blob).toContain("/models/openai/gpt-6-1-sol/");
+    expect(blob).toContain("/models/openai/gpt-6-luna/");
+    expect(blob).toContain("https://developers.openai.com/codex/models");
+    expect(blob).toContain("https://developers.openai.com/codex/changelog#codex-2026-10-14-gpt-55-retirement");
+    expect(blob).toContain("https://developers.openai.com/codex/changelog#codex-2026-09-14-gpt-55-retirement");
+    expect(blob).toContain("August 31, 2026");
+    const graph = guideGraph("https://sunsetdiff.com/", guide);
+    expect(graph.some((node) => node["@type"] === "FAQPage")).toBe(true);
+  });
 });
