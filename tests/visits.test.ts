@@ -1,13 +1,14 @@
 import { readFile } from "node:fs/promises";
 import { afterEach, describe, expect, it } from "vitest";
 import { app, setVisitStore } from "../service/src/index.ts";
-import { databaseSsl } from "../service/src/visit-db.ts";
+import { databaseSsl, visitDatabaseUrl } from "../service/src/visit-db.ts";
 import {
   cleanPath,
   cleanReferrer,
   cleanSource,
   isCountableBrowser,
   memoryVisitStore,
+  personHash,
   resetDailySalt,
   utcDay,
   visitorHash,
@@ -21,6 +22,9 @@ const SAFARI =
 
 afterEach(() => {
   delete process.env.STATS_TOKEN;
+  delete process.env.SUNSETDIFF_VISITOR_SALT;
+  delete process.env.SUNSETDIFF_STATS_DATABASE_URL;
+  delete process.env.DATABASE_URL;
   resetDailySalt();
   setVisitStore(memoryVisitStore());
 });
@@ -78,6 +82,8 @@ describe("browser filter", () => {
     expect(first).toBe(same);
     expect(next).not.toBe(first);
     expect(first).not.toContain("203.0.113.10");
+    expect(personHash("203.0.113.10", CHROME)).toBe(personHash("203.0.113.10", CHROME));
+    expect(personHash("203.0.113.10", CHROME)).not.toBe(first);
   });
 });
 
@@ -118,6 +124,16 @@ describe("POST /api/hit and GET /api/stats", () => {
     const body = await stats.json();
     expect(body.days).toHaveLength(30);
     expect(body.days.at(-1)).toMatchObject({ day: utcDay(), pageviews: 3, uniques: 2 });
+    expect(body.week).toEqual({
+      visitors: 2,
+      pageviews: 3,
+      topPages: [
+        { path: "/", views: 1 },
+        { path: "/guides/", views: 1 },
+        { path: "/models/openai/gpt-4o/", views: 1 },
+      ],
+      topReferrers: [{ host: "news.ycombinator.com", views: 2 }],
+    });
     expect(body.topPages).toEqual([
       { path: "/", views: 1 },
       { path: "/guides/", views: 1 },
@@ -174,6 +190,10 @@ describe("POST /api/hit and GET /api/stats", () => {
     const health = await app.request("/health");
     expect(health.status).toBe(200);
     expect(await health.json()).toMatchObject({ ok: true, service: "sunsetdiff", visits: "memory" });
+
+    process.env.SUNSETDIFF_STATS_DATABASE_URL = "postgres://stats.example/db";
+    const configured = await app.request("/health");
+    expect(await configured.json()).toMatchObject({ visits: "postgres" });
   });
 });
 
@@ -190,7 +210,52 @@ describe("page beacon", () => {
   });
 });
 
+describe("week of real visitors", () => {
+  it("counts one browser once across two days", async () => {
+    const stored = memoryVisitStore();
+    const person = personHash("203.0.113.10", CHROME);
+    await stored.record({
+      day: "2026-10-25",
+      visitorHash: visitorHash("203.0.113.10", CHROME, new Date("2026-10-25T12:00:00Z")),
+      personHash: person,
+      path: "/",
+      referrer: "news.ycombinator.com",
+      source: "",
+    });
+    await stored.record({
+      day: "2026-10-26",
+      visitorHash: visitorHash("203.0.113.10", CHROME, new Date("2026-10-26T12:00:00Z")),
+      personHash: person,
+      path: "/guides/",
+      referrer: "",
+      source: "newsletter",
+    });
+    const stats = await stored.stats("2026-10-26");
+    expect(stats.week.visitors).toBe(1);
+    expect(stats.week.pageviews).toBe(2);
+    expect(stats.week.topPages).toEqual([
+      { path: "/", views: 1 },
+      { path: "/guides/", views: 1 },
+    ]);
+    expect(stats.week.topReferrers).toEqual([{ host: "news.ycombinator.com", views: 1 }]);
+    expect(stats.days.at(-1)).toMatchObject({ day: "2026-10-26", pageviews: 1, uniques: 1 });
+    expect(stats.days.at(-2)).toMatchObject({ day: "2026-10-25", pageviews: 1, uniques: 1 });
+    expect(JSON.stringify(stats)).not.toContain(person);
+  });
+});
+
 describe("database url", () => {
+  it("prefers the stats database url and does not print it", () => {
+    expect(visitDatabaseUrl({})).toBe("");
+    expect(visitDatabaseUrl({ DATABASE_URL: "postgres://fallback.example/db" })).toBe("postgres://fallback.example/db");
+    expect(
+      visitDatabaseUrl({
+        SUNSETDIFF_STATS_DATABASE_URL: "postgres://stats.example/db",
+        DATABASE_URL: "postgres://fallback.example/db",
+      }),
+    ).toBe("postgres://stats.example/db");
+  });
+
   it("uses TLS only for the external Render hostname", () => {
     expect(databaseSsl("postgres://user:secret@dpg-abc-a/sunsetdiff_stats")).toBe(false);
     expect(databaseSsl("postgres://user:secret@dpg-abc-a.ohio-postgres.render.com/sunsetdiff_stats")).toEqual({
