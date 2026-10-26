@@ -1,0 +1,54 @@
+{
+  "id": "gpt-realtime-translate",
+  "slug": "gpt-realtime-translate",
+  "provider": "openai",
+  "display_name": "gpt-realtime-translate",
+  "family": null,
+  "status": "active",
+  "announced_date": null,
+  "deprecation_date": null,
+  "shutdown_date": null,
+  "shutdown_date_kind": "none",
+  "region_or_platform_notes": null,
+  "replacements": [],
+  "sources": [
+    {
+      "url": "https://developers.openai.com/api/docs/models/gpt-realtime-translate.md",
+      "label": "OpenAI model docs",
+      "last_checked": "2026-10-26",
+      "excerpt": "Model ID: gpt-realtime-translate | Streaming speech-to-speech translation model"
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": null,
+    "output_price_per_mtok": null,
+    "cached_input_price_per_mtok": null,
+    "batch_discount_pct": null,
+    "currency": null,
+    "context_window_tokens": 16000,
+    "max_output_tokens": 2000,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {
+      "context_window_tokens": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-realtime-translate.md",
+        "last_checked": "2026-10-26"
+      },
+      "max_output_tokens": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-realtime-translate.md",
+        "last_checked": "2026-10-26"
+      }
+    }
+  },
+  "first_seen": "2026-10-26T05:20:22.098Z",
+  "updated_at": "2026-10-26T05:20:22.098Z"
+}

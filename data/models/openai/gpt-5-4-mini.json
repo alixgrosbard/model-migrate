@@ -1,0 +1,78 @@
+{
+  "id": "gpt-5.4-mini",
+  "slug": "gpt-5-4-mini",
+  "provider": "openai",
+  "display_name": "gpt-5.4-mini",
+  "family": null,
+  "status": "active",
+  "announced_date": null,
+  "deprecation_date": null,
+  "shutdown_date": null,
+  "shutdown_date_kind": "none",
+  "region_or_platform_notes": "The OpenAI API still serves gpt-5.4-mini. Codex retired gpt-5.4-mini for ChatGPT sign-in on August 31, 2026. Codex sessions authenticated with an API key are not affected. The Codex models page says to replace gpt-5.4-mini with gpt-6-luna when it is available. In Enterprise and Edu, an administrator must enable Luna first.",
+  "replacements": [],
+  "sources": [
+    {
+      "url": "https://developers.openai.com/api/docs/models/gpt-5.4-mini.md",
+      "label": "OpenAI model docs",
+      "last_checked": "2026-10-26",
+      "excerpt": "Model ID: gpt-5.4-mini | Our strongest mini model yet for coding, computer use, and subagents"
+    },
+    {
+      "url": "https://developers.openai.com/codex/changelog#codex-2026-07-31",
+      "label": "Codex changelog",
+      "last_checked": "2026-10-26",
+      "excerpt": "On August 31, 2026, GPT-5.4 and GPT-5.4 mini will no longer be available in Codex for users signed in with ChatGPT. GPT-5.4 and GPT-5.4 mini will remain available on the OpenAI API and Codex sessions authenticated with an API key."
+    },
+    {
+      "url": "https://developers.openai.com/codex/models",
+      "label": "Codex models",
+      "last_checked": "2026-10-26",
+      "excerpt": "The gpt-5.4 and gpt-5.4-mini models retired from Codex with ChatGPT sign-in on August 31, 2026. Replace gpt-5.4-mini with gpt-6-luna when available to your plan and client. The OpenAI API and Codex authenticated with your own API key aren't affected by the GPT-5.4 retirement."
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": 0.75,
+    "output_price_per_mtok": 4.5,
+    "cached_input_price_per_mtok": 0.075,
+    "batch_discount_pct": null,
+    "currency": "USD",
+    "context_window_tokens": 400000,
+    "max_output_tokens": 128000,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {
+      "cached_input_price_per_mtok": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-5.4-mini.md",
+        "last_checked": "2026-10-26"
+      },
+      "context_window_tokens": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-5.4-mini.md",
+        "last_checked": "2026-10-26"
+      },
+      "input_price_per_mtok": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-5.4-mini.md",
+        "last_checked": "2026-10-26"
+      },
+      "max_output_tokens": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-5.4-mini.md",
+        "last_checked": "2026-10-26"
+      },
+      "output_price_per_mtok": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-5.4-mini.md",
+        "last_checked": "2026-10-26"
+      }
+    }
+  },
+  "first_seen": "2026-10-26T05:20:22.098Z",
+  "updated_at": "2026-10-26T05:20:22.098Z"
+}

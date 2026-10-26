@@ -1,0 +1,54 @@
+{
+  "id": "gpt-daybreak-red-latest",
+  "slug": "gpt-daybreak-red-latest",
+  "provider": "openai",
+  "display_name": "gpt-daybreak-red-latest",
+  "family": null,
+  "status": "active",
+  "announced_date": null,
+  "deprecation_date": null,
+  "shutdown_date": null,
+  "shutdown_date_kind": "none",
+  "region_or_platform_notes": null,
+  "replacements": [],
+  "sources": [
+    {
+      "url": "https://developers.openai.com/api/docs/models/gpt-daybreak-red-latest.md",
+      "label": "OpenAI model docs",
+      "last_checked": "2026-10-26",
+      "excerpt": "Model ID: gpt-daybreak-red-latest | An alias for advanced cybersecurity models for authorized vulnerability research and security testing."
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": null,
+    "output_price_per_mtok": null,
+    "cached_input_price_per_mtok": null,
+    "batch_discount_pct": null,
+    "currency": null,
+    "context_window_tokens": 400000,
+    "max_output_tokens": 128000,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {
+      "context_window_tokens": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-daybreak-red-latest.md",
+        "last_checked": "2026-10-26"
+      },
+      "max_output_tokens": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-daybreak-red-latest.md",
+        "last_checked": "2026-10-26"
+      }
+    }
+  },
+  "first_seen": "2026-10-26T05:20:22.098Z",
+  "updated_at": "2026-10-26T05:20:22.098Z"
+}

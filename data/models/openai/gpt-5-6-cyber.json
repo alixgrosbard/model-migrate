@@ -1,0 +1,66 @@
+{
+  "id": "gpt-5.6-cyber",
+  "slug": "gpt-5-6-cyber",
+  "provider": "openai",
+  "display_name": "gpt-5.6-cyber",
+  "family": null,
+  "status": "active",
+  "announced_date": null,
+  "deprecation_date": null,
+  "shutdown_date": null,
+  "shutdown_date_kind": "none",
+  "region_or_platform_notes": null,
+  "replacements": [],
+  "sources": [
+    {
+      "url": "https://developers.openai.com/api/docs/models/gpt-5.6-cyber.md",
+      "label": "OpenAI model docs",
+      "last_checked": "2026-10-26",
+      "excerpt": "Model ID: gpt-5.6-cyber | Our most advanced cybersecurity model for authorized vulnerability research and security testing."
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": 12.5,
+    "output_price_per_mtok": 75,
+    "cached_input_price_per_mtok": 1.25,
+    "batch_discount_pct": null,
+    "currency": "USD",
+    "context_window_tokens": 400000,
+    "max_output_tokens": 128000,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {
+      "cached_input_price_per_mtok": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-5.6-cyber.md",
+        "last_checked": "2026-10-26"
+      },
+      "context_window_tokens": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-5.6-cyber.md",
+        "last_checked": "2026-10-26"
+      },
+      "input_price_per_mtok": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-5.6-cyber.md",
+        "last_checked": "2026-10-26"
+      },
+      "max_output_tokens": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-5.6-cyber.md",
+        "last_checked": "2026-10-26"
+      },
+      "output_price_per_mtok": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-5.6-cyber.md",
+        "last_checked": "2026-10-26"
+      }
+    }
+  },
+  "first_seen": "2026-10-26T05:20:22.098Z",
+  "updated_at": "2026-10-26T05:20:22.098Z"
+}
