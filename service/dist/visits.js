@@ -1,14 +1,13 @@
-import { createHash, randomBytes, timingSafeEqual } from "node:crypto";
+import { createHash, timingSafeEqual } from "node:crypto";
 const SPAN = 30;
+const WEEK = 7;
 const TOP = 10;
+const FALLBACK_SALT = "sunsetdiff-v1";
 const BOT = /googlebot|adsbot-google|mediapartners-google|apis-google|bingbot|curl|python|aiohttp|go-http-client|headlesschrome|headless|spider|crawler|\bcrawl\b|slurp|wget|scrapy|httpie|postman|insomnia|ahrefs|semrush|petalbot|bytespider|gptbot|claudebot|amazonbot|facebookexternalhit|uptimerobot|pingdom|datadog|newrelic|kube-probe|phantomjs|selenium|puppeteer|playwright|node-fetch|undici|axios|libwww|okhttp|java\/|monitoring|lighthouse|pagespeed|applebot|duckduckbot|baiduspider|yandexbot|embedly|whatsapp|telegrambot|slackbot|discordbot|ia_archiver|mj12bot|dotbot|\bbot\b/i;
 const BROWSER = /Mozilla\/5\.0[\s\S]{0,360}(Chrome|CriOS|Safari|Firefox|FxiOS|Edg|EdgiOS|OPR|SamsungBrowser)\//;
 export const SITE_ORIGIN = "https://sunsetdiff.com";
-let saltDay = "";
-let saltValue = "";
 export function resetDailySalt() {
-    saltDay = "";
-    saltValue = "";
+    // The salt comes from the environment so a restart keeps the same visitor ids.
 }
 export function utcDay(now = new Date()) {
     return now.toISOString().slice(0, 10);
@@ -68,13 +67,14 @@ export function cleanSource(value) {
         return "";
     return source;
 }
+export function visitorSalt() {
+    return process.env.SUNSETDIFF_VISITOR_SALT || process.env.STATS_TOKEN || FALLBACK_SALT;
+}
 export function dailySalt(now = new Date()) {
-    const day = utcDay(now);
-    if (day !== saltDay || !saltValue) {
-        saltDay = day;
-        saltValue = randomBytes(32).toString("hex");
-    }
-    return saltValue;
+    return `${visitorSalt()}\n${utcDay(now)}`;
+}
+export function personHash(ip, userAgent) {
+    return createHash("sha256").update(`${visitorSalt()}\n${ip}\n${userAgent.slice(0, 400)}`).digest("hex");
 }
 export function visitorHash(ip, userAgent, now = new Date()) {
     return createHash("sha256").update(`${dailySalt(now)}\n${ip}\n${userAgent.slice(0, 400)}`).digest("hex");
@@ -107,10 +107,12 @@ export function fillDaily(today, rows) {
 export function memoryVisitStore() {
     const days = new Map();
     return {
+        kind: "memory",
         async record(visit) {
             const bucket = days.get(visit.day) ?? emptyBucket();
             bucket.pageviews += 1;
             bucket.visitors.add(visit.visitorHash);
+            bucket.people.add(visit.personHash || visit.visitorHash);
             addCount(bucket.pages, visit.path);
             if (visit.referrer)
                 addCount(bucket.referrers, visit.referrer);
@@ -124,30 +126,53 @@ export function memoryVisitStore() {
             }
         },
         async stats(today) {
-            const start = daysAgo(today, SPAN - 1);
-            const pages = new Map();
-            const referrers = new Map();
-            const sources = new Map();
-            const rows = [];
-            for (const [day, bucket] of days) {
-                if (day < start || day > today)
-                    continue;
-                rows.push({ day, pageviews: bucket.pageviews, uniques: bucket.visitors.size });
-                mergeCounts(pages, bucket.pages);
-                mergeCounts(referrers, bucket.referrers);
-                mergeCounts(sources, bucket.sources);
-            }
+            const full = collect(days, today, SPAN);
+            const week = collect(days, today, WEEK);
             return {
-                days: fillDaily(today, rows),
-                topPages: ranked(pages, "path"),
-                topReferrers: ranked(referrers, "host"),
-                topSources: ranked(sources, "source"),
+                week: {
+                    visitors: week.people,
+                    pageviews: week.pageviews,
+                    topPages: ranked(week.pages, "path"),
+                    topReferrers: ranked(week.referrers, "host"),
+                },
+                days: fillDaily(today, full.rows),
+                topPages: ranked(full.pages, "path"),
+                topReferrers: ranked(full.referrers, "host"),
+                topSources: ranked(full.sources, "source"),
             };
         },
     };
 }
+function collect(days, today, span) {
+    const start = daysAgo(today, span - 1);
+    const pages = new Map();
+    const referrers = new Map();
+    const sources = new Map();
+    const people = new Set();
+    const rows = [];
+    let pageviews = 0;
+    for (const [day, bucket] of days) {
+        if (day < start || day > today)
+            continue;
+        rows.push({ day, pageviews: bucket.pageviews, uniques: bucket.visitors.size });
+        pageviews += bucket.pageviews;
+        for (const person of bucket.people)
+            people.add(person);
+        mergeCounts(pages, bucket.pages);
+        mergeCounts(referrers, bucket.referrers);
+        mergeCounts(sources, bucket.sources);
+    }
+    return { rows, pageviews, people: people.size, pages, referrers, sources };
+}
 function emptyBucket() {
-    return { pageviews: 0, visitors: new Set(), pages: new Map(), referrers: new Map(), sources: new Map() };
+    return {
+        pageviews: 0,
+        visitors: new Set(),
+        people: new Set(),
+        pages: new Map(),
+        referrers: new Map(),
+        sources: new Map(),
+    };
 }
 function addCount(map, key) {
     map.set(key, (map.get(key) ?? 0) + 1);

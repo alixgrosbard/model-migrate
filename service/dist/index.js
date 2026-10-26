@@ -5,14 +5,18 @@ import { cors } from "hono/cors";
 import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js";
 import { createMcpServer } from "./mcp.js";
 import { THANK_YOU, hashIp, rateLimited, validEmail } from "./subscribe.js";
-import { postgresVisitStore } from "./visit-db.js";
-import { SITE_ORIGIN, bearerMatches, cleanPath, cleanReferrer, cleanSource, clientIp, isCountableBrowser, memoryVisitStore, utcDay, visitorHash, } from "./visits.js";
+import { postgresVisitStore, visitDatabaseUrl } from "./visit-db.js";
+import { SITE_ORIGIN, bearerMatches, cleanPath, cleanReferrer, cleanSource, clientIp, isCountableBrowser, memoryVisitStore, personHash, utcDay, visitorHash, } from "./visits.js";
 import { readUnsubscribeToken, sendWelcomeEmail, unsubscribeSecret } from "./welcome.js";
 const CONTACTS_URL = "https://api.resend.com/contacts";
 const GENERIC_FAILURE = "Signup could not be saved.";
 const SUBSCRIBE_ORIGINS = [SITE_ORIGIN, "https://sunsetdiff.onrender.com"];
 export const app = new Hono();
-let visits = process.env.DATABASE_URL ? postgresVisitStore(process.env.DATABASE_URL) : memoryVisitStore();
+let visits = openVisitStore();
+function openVisitStore() {
+    const databaseUrl = visitDatabaseUrl();
+    return databaseUrl ? postgresVisitStore(databaseUrl) : memoryVisitStore();
+}
 export function setVisitStore(store) {
     visits = store;
 }
@@ -35,7 +39,7 @@ app.get("/health", (c) => c.json({
     ok: true,
     resend: Boolean(process.env.RESEND_API_KEY && process.env.RESEND_SEGMENT_ID),
     service: "sunsetdiff",
-    visits: process.env.DATABASE_URL ? "postgres" : "memory",
+    visits: visitDatabaseUrl() ? "postgres" : "memory",
 }));
 app.post("/api/hit", async (c) => {
     const origin = c.req.header("origin");
@@ -58,10 +62,12 @@ app.post("/api/hit", async (c) => {
     if (!page)
         return c.json({ ok: false, counted: false }, 400);
     const userAgent = c.req.header("user-agent") ?? "";
+    const ip = clientIp(c.req.header("x-forwarded-for"));
     try {
         await visits.record({
             day: utcDay(),
-            visitorHash: visitorHash(clientIp(c.req.header("x-forwarded-for")), userAgent),
+            visitorHash: visitorHash(ip, userAgent),
+            personHash: personHash(ip, userAgent),
             path: page,
             referrer: cleanReferrer(record.referrer),
             source: cleanSource(record.utm_source),
@@ -187,8 +193,8 @@ function page(message, extra = "") {
 }
 const calledDirectly = process.argv[1] ? path.resolve(process.argv[1]).includes(`${path.sep}index.`) : false;
 if (calledDirectly) {
-    if (!process.env.DATABASE_URL) {
-        console.error("DATABASE_URL is unset. Visit counts stay in memory and reset when the service restarts.");
+    if (!visitDatabaseUrl()) {
+        console.error("SUNSETDIFF_STATS_DATABASE_URL is unset. Visit counts stay in memory and reset when the service restarts.");
     }
     if (!process.env.STATS_TOKEN) {
         console.error("STATS_TOKEN is unset. GET /api/stats returns 503 until it is set.");

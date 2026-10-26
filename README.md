@@ -42,11 +42,13 @@ The Node service needs `RESEND_API_KEY` and `RESEND_SEGMENT_ID`. If either is mi
 
 Every HTML page sends one beacon to `POST /api/hit` on page load. The body is the path, the referrer hostname, and `utm_source` when it is a short label. The browser script uses `navigator.sendBeacon`, then `fetch` with `keepalive`. It does not set a cookie, use localStorage, or build a fingerprint.
 
-The service drops known crawler and monitor user agents, and any request without a browser user agent. A visitor is a daily hash of IP plus user agent. The salt stays in process memory and changes each UTC day. Raw IPs are not stored. Counts older than 30 days are deleted.
+The service drops known crawler and monitor user agents, and any request without a browser user agent. A visitor is a hash of IP plus user agent. The same browser stays one visitor across restarts. A new UTC day still makes a new daily hash. Raw IPs are not stored. Counts older than 30 days are deleted.
 
-`GET /api/stats` returns those 30 days, plus top pages, referrer hosts, and utm sources. Send `Authorization: Bearer $STATS_TOKEN`. If `STATS_TOKEN` is missing, the route returns 503. Set it on the Render service `sunsetdiff-api`. Do not commit it.
+`GET /api/stats` needs `Authorization: Bearer` and the `STATS_TOKEN` on the Render service `sunsetdiff-api`. If `STATS_TOKEN` is missing, the route returns 503. Do not commit it.
 
-Counts are stored in the free Render Postgres database `sunsetdiff-stats`. The service reads `DATABASE_URL` (the internal connection string). That free database expires 30 days after it was created. A persistent disk or paid database was not added.
+The JSON has a `week` object for the last 7 UTC days: `visitors` (one real browser, counted once), `pageviews`, `topPages`, and `topReferrers`. It also has the 30-day series, plus top pages, referrer hosts, and utm sources for those 30 days.
+
+Counts are stored in the free Render Postgres database `sunsetdiff-stats`. That database expires on 2026-11-20. The service reads `SUNSETDIFF_STATS_DATABASE_URL` first, then `DATABASE_URL`. Use the internal connection string for `sunsetdiff-stats` on the service `sunsetdiff-api`. If neither variable is set, counts stay in memory and a restart clears them. A persistent disk or paid database was not added.
 
 ## Machine access
 
@@ -65,7 +67,7 @@ Counts are stored in the free Render Postgres database `sunsetdiff-stats`. The s
 
 ## Hosting
 
-`render.yaml` describes a free static site and a free Node service. There is no database. Render cron jobs are paid, so the refresh stays on GitHub Actions.
+`render.yaml` describes a free static site and a free Node service. Visit counts use the existing free Postgres database `sunsetdiff-stats`. Render cron jobs are paid, so the refresh stays on GitHub Actions.
 
 ## Cite the dataset
 

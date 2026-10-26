@@ -1,7 +1,9 @@
-import { createHash, randomBytes, timingSafeEqual } from "node:crypto";
+import { createHash, timingSafeEqual } from "node:crypto";
 
 const SPAN = 30;
+const WEEK = 7;
 const TOP = 10;
+const FALLBACK_SALT = "sunsetdiff-v1";
 
 const BOT =
   /googlebot|adsbot-google|mediapartners-google|apis-google|bingbot|curl|python|aiohttp|go-http-client|headlesschrome|headless|spider|crawler|\bcrawl\b|slurp|wget|scrapy|httpie|postman|insomnia|ahrefs|semrush|petalbot|bytespider|gptbot|claudebot|amazonbot|facebookexternalhit|uptimerobot|pingdom|datadog|newrelic|kube-probe|phantomjs|selenium|puppeteer|playwright|node-fetch|undici|axios|libwww|okhttp|java\/|monitoring|lighthouse|pagespeed|applebot|duckduckbot|baiduspider|yandexbot|embedly|whatsapp|telegrambot|slackbot|discordbot|ia_archiver|mj12bot|dotbot|\bbot\b/i;
@@ -13,6 +15,7 @@ export const SITE_ORIGIN = "https://sunsetdiff.com";
 export interface VisitRecord {
   day: string;
   visitorHash: string;
+  personHash: string;
   path: string;
   referrer: string;
   source: string;
@@ -24,32 +27,41 @@ export interface DailyCount {
   uniques: number;
 }
 
+export interface WeekReport {
+  visitors: number;
+  pageviews: number;
+  topPages: { path: string; views: number }[];
+  topReferrers: { host: string; views: number }[];
+}
+
 export interface VisitStats {
+  week: WeekReport;
   days: DailyCount[];
   topPages: { path: string; views: number }[];
   topReferrers: { host: string; views: number }[];
   topSources: { source: string; views: number }[];
 }
 
+export type VisitStorage = "postgres" | "memory";
+
 export interface VisitStore {
+  kind: VisitStorage;
   record(visit: VisitRecord): Promise<void>;
   stats(today: string): Promise<VisitStats>;
+  close?(): Promise<void>;
 }
 
 interface DayBucket {
   pageviews: number;
   visitors: Set<string>;
+  people: Set<string>;
   pages: Map<string, number>;
   referrers: Map<string, number>;
   sources: Map<string, number>;
 }
 
-let saltDay = "";
-let saltValue = "";
-
 export function resetDailySalt(): void {
-  saltDay = "";
-  saltValue = "";
+  // The salt comes from the environment so a restart keeps the same visitor ids.
 }
 
 export function utcDay(now = new Date()): string {
@@ -105,13 +117,16 @@ export function cleanSource(value: unknown): string {
   return source;
 }
 
+export function visitorSalt(): string {
+  return process.env.SUNSETDIFF_VISITOR_SALT || process.env.STATS_TOKEN || FALLBACK_SALT;
+}
+
 export function dailySalt(now = new Date()): string {
-  const day = utcDay(now);
-  if (day !== saltDay || !saltValue) {
-    saltDay = day;
-    saltValue = randomBytes(32).toString("hex");
-  }
-  return saltValue;
+  return `${visitorSalt()}\n${utcDay(now)}`;
+}
+
+export function personHash(ip: string, userAgent: string): string {
+  return createHash("sha256").update(`${visitorSalt()}\n${ip}\n${userAgent.slice(0, 400)}`).digest("hex");
 }
 
 export function visitorHash(ip: string, userAgent: string, now = new Date()): string {
@@ -148,10 +163,12 @@ export function fillDaily(today: string, rows: DailyCount[]): DailyCount[] {
 export function memoryVisitStore(): VisitStore {
   const days = new Map<string, DayBucket>();
   return {
+    kind: "memory",
     async record(visit) {
       const bucket = days.get(visit.day) ?? emptyBucket();
       bucket.pageviews += 1;
       bucket.visitors.add(visit.visitorHash);
+      bucket.people.add(visit.personHash || visit.visitorHash);
       addCount(bucket.pages, visit.path);
       if (visit.referrer) addCount(bucket.referrers, visit.referrer);
       if (visit.source) addCount(bucket.sources, visit.source);
@@ -162,30 +179,53 @@ export function memoryVisitStore(): VisitStore {
       }
     },
     async stats(today) {
-      const start = daysAgo(today, SPAN - 1);
-      const pages = new Map<string, number>();
-      const referrers = new Map<string, number>();
-      const sources = new Map<string, number>();
-      const rows: DailyCount[] = [];
-      for (const [day, bucket] of days) {
-        if (day < start || day > today) continue;
-        rows.push({ day, pageviews: bucket.pageviews, uniques: bucket.visitors.size });
-        mergeCounts(pages, bucket.pages);
-        mergeCounts(referrers, bucket.referrers);
-        mergeCounts(sources, bucket.sources);
-      }
+      const full = collect(days, today, SPAN);
+      const week = collect(days, today, WEEK);
       return {
-        days: fillDaily(today, rows),
-        topPages: ranked(pages, "path"),
-        topReferrers: ranked(referrers, "host"),
-        topSources: ranked(sources, "source"),
+        week: {
+          visitors: week.people,
+          pageviews: week.pageviews,
+          topPages: ranked(week.pages, "path"),
+          topReferrers: ranked(week.referrers, "host"),
+        },
+        days: fillDaily(today, full.rows),
+        topPages: ranked(full.pages, "path"),
+        topReferrers: ranked(full.referrers, "host"),
+        topSources: ranked(full.sources, "source"),
       };
     },
   };
 }
 
+function collect(days: Map<string, DayBucket>, today: string, span: number) {
+  const start = daysAgo(today, span - 1);
+  const pages = new Map<string, number>();
+  const referrers = new Map<string, number>();
+  const sources = new Map<string, number>();
+  const people = new Set<string>();
+  const rows: DailyCount[] = [];
+  let pageviews = 0;
+  for (const [day, bucket] of days) {
+    if (day < start || day > today) continue;
+    rows.push({ day, pageviews: bucket.pageviews, uniques: bucket.visitors.size });
+    pageviews += bucket.pageviews;
+    for (const person of bucket.people) people.add(person);
+    mergeCounts(pages, bucket.pages);
+    mergeCounts(referrers, bucket.referrers);
+    mergeCounts(sources, bucket.sources);
+  }
+  return { rows, pageviews, people: people.size, pages, referrers, sources };
+}
+
 function emptyBucket(): DayBucket {
-  return { pageviews: 0, visitors: new Set(), pages: new Map(), referrers: new Map(), sources: new Map() };
+  return {
+    pageviews: 0,
+    visitors: new Set(),
+    people: new Set(),
+    pages: new Map(),
+    referrers: new Map(),
+    sources: new Map(),
+  };
 }
 
 function addCount(map: Map<string, number>, key: string): void {
