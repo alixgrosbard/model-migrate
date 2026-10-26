@@ -11,6 +11,8 @@ import { parseOpenAI } from "../scrapers/openai.ts";
 import { parseVertex } from "../scrapers/google-vertex.ts";
 import { sanityCheck } from "../scrapers/sanity.ts";
 import { carryForwardDocumentedModels } from "../scrapers/carry.ts";
+import { addDocumentedOpenAIModels, applyCodexPlatformNotes, documentedOpenAIIds } from "../scrapers/openai-catalog.ts";
+import { baseModel } from "../scrapers/lib/model.ts";
 import { loadModels } from "../src/lib/load.ts";
 import { parseDate } from "../scrapers/lib/dates.ts";
 import { isModelId, loadHtml } from "../scrapers/lib/html.ts";
@@ -276,6 +278,87 @@ describe("refresh pipeline", () => {
       models.filter((model) => model.id !== snapshotId),
     );
     expect(withoutSnapshot.some((model) => model.id === snapshotId)).toBe(false);
+  });
+
+  it("keeps a documented OpenAI id that has no dated snapshot", () => {
+    const index = [
+      "- [GPT-4o](/api/docs/models/gpt-4o.md): Existing alias. Status stays on the deprecations record.",
+      "- [GPT-5.5](/api/docs/models/gpt-5.5.md): A new class of intelligence for coding and professional work.",
+      "- [Chat Latest](/api/docs/models/chat-latest.md): Latest Instant model used in ChatGPT",
+      "Chat Latest is mentioned here with no model link and must not be invented twice.",
+    ].join("\n");
+    const present = baseModel({
+      id: "gpt-4o",
+      provider: "openai",
+      status: "active",
+      kind: "none",
+      sourceUrl: "https://developers.openai.com/api/docs/deprecations",
+      sourceLabel: "OpenAI deprecations",
+      checked: "2026-10-26",
+      excerpt: "gpt-4o alias already in the scrape",
+    });
+    const retired = baseModel({
+      id: "gpt-4",
+      provider: "openai",
+      status: "retired",
+      shutdown: "2026-10-23",
+      kind: "exact",
+      sourceUrl: "https://developers.openai.com/api/docs/deprecations",
+      sourceLabel: "OpenAI deprecations",
+      checked: "2026-10-26",
+      excerpt: "gpt-4 shutdown row",
+    });
+    const models = addDocumentedOpenAIModels([present, retired], index, "2026-10-26");
+    const added = models.find((model) => model.id === "gpt-5.5");
+    expect(added?.status).toBe("active");
+    expect(added?.shutdown_date).toBeNull();
+    expect(added?.shutdown_date_kind).toBe("none");
+    expect(added?.replacements).toEqual([]);
+    expect(added?.sources[0]?.url).toBe("https://developers.openai.com/api/docs/models/gpt-5.5.md");
+    expect(models.some((model) => /^gpt-5\.5-\d{4}-\d{2}-\d{2}$/.test(model.id))).toBe(false);
+    expect(models.filter((model) => model.id === "gpt-4o")).toHaveLength(1);
+    expect(models.find((model) => model.id === "gpt-4o")?.status).toBe("active");
+    expect(models.find((model) => model.id === "gpt-4")?.status).toBe("retired");
+    expect(models.find((model) => model.id === "gpt-4")?.shutdown_date).toBe("2026-10-23");
+    expect(models.filter((model) => model.id === "chat-latest")).toHaveLength(1);
+
+    applyCodexPlatformNotes(models, "2026-10-26");
+    expect(added?.status).toBe("active");
+    expect(added?.replacements).toEqual([]);
+    expect(added?.region_or_platform_notes).toContain("OpenAI API still serves gpt-5.5");
+    expect(added?.region_or_platform_notes).toContain("ChatGPT sign-in");
+    expect(added?.region_or_platform_notes).toContain("19:00 UTC");
+    expect(added?.sources.some((source) => source.url === "https://developers.openai.com/codex/models")).toBe(true);
+    const mini = baseModel({
+      id: "gpt-5.4-mini",
+      provider: "openai",
+      status: "deprecated",
+      kind: "none",
+      sourceUrl: "https://developers.openai.com/api/docs/deprecations",
+      sourceLabel: "OpenAI deprecations",
+      checked: "2026-10-26",
+      excerpt: "would stay deprecated",
+    });
+    applyCodexPlatformNotes([mini], "2026-10-26");
+    expect(mini.status).toBe("deprecated");
+    expect(mini.region_or_platform_notes).toContain("OpenAI API still serves gpt-5.4-mini");
+    expect(mini.replacements).toEqual([]);
+
+    const proseOnly = documentedOpenAIIds("Chat Latest is a heading, not a link.");
+    expect(proseOnly).toEqual([]);
+    const saved = readFileSync("snapshots/fixtures/openai/models-2026-10-26.md", "utf8");
+    const ids = documentedOpenAIIds(saved).map((entry) => entry.id);
+    for (const id of ["gpt-5.5", "gpt-5.4", "gpt-5.4-mini", "gpt-5.2", "text-embedding-3-large", "gpt-oss-120b", "omni-moderation-latest"]) {
+      expect(ids).toContain(id);
+    }
+  });
+
+  it("adds documented OpenAI models before enrich copies the provider list", () => {
+    const source = readFileSync("scrapers/run.ts", "utf8");
+    const add = source.indexOf("addDocumentedOpenAIModels(openaiModels, index, checked)");
+    const flat = source.indexOf("const flat = [...groups.values()].flat()");
+    expect(add).toBeGreaterThan(0);
+    expect(flat).toBeGreaterThan(add);
   });
 
   it("builds undated aliases after model docs are attached", () => {

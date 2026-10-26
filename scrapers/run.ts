@@ -18,6 +18,7 @@ import { DEPRECATIONS_URL as VERTEX_URL, parseVertex } from "./google-vertex.ts"
 import { MODELS_URL as MISTRAL_URL, parseMistral, PRICING_URL as MISTRAL_PRICING } from "./mistral.ts";
 import { NEWS_URL as DEEPSEEK_NEWS, PRICING_URL as DEEPSEEK_PRICING, UPDATES_URL as DEEPSEEK_UPDATES, parseDeepSeek } from "./deepseek.ts";
 import { DEPRECATIONS_URL as OPENAI_URL, parseOpenAI, parseOpenAIPricing, PRICING_URL as OPENAI_PRICING } from "./openai.ts";
+import { addDocumentedOpenAIModels, applyCodexPlatformNotes, OPENAI_MODELS_INDEX_URL } from "./openai-catalog.ts";
 import { canonicalizeModel, realContentKey, recordIdentity } from "../src/lib/stable-export.ts";
 import { writeMigrations } from "./write-migrations.ts";
 import { sanityCheck } from "./sanity.ts";
@@ -52,6 +53,26 @@ async function main() {
   await writeMigrations(merged.models, checked);
   await writeChanges(merged.changes);
   console.log(`Wrote ${merged.models.length} models and ${merged.changeCount} new change rows.`);
+}
+
+async function loadOpenAIModelIndex(): Promise<string> {
+  const fixture = path.join(root, "snapshots/fixtures/openai/models-2026-10-26.md");
+  if (!fromSnapshots) {
+    try {
+      const body = await politeFetch(OPENAI_MODELS_INDEX_URL);
+      await mkdir(path.join(root, "snapshots", "openai"), { recursive: true });
+      await writeFile(path.join(root, "snapshots", "openai", `models-index-${checked}.md`), body);
+      return body;
+    } catch (error) {
+      console.error(error instanceof Error ? error.message : error);
+    }
+  }
+  try {
+    return await readFile(fixture, "utf8");
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : error);
+    return "";
+  }
 }
 
 async function loadText(url: string, snapshot: string, provider: string, suffix = ""): Promise<string> {
@@ -116,6 +137,15 @@ async function scrapeAll(): Promise<Map<string, ScrapedModel[]>> {
   ]);
   addReplacementStubs(groups, checked);
   attachStubPrices(groups, openaiPricing, anthropicPricing, geminiPricing, checked);
+  // The deprecations tables skip ids that have no shutdown row. The models
+  // index is the list that names them. Add those ids to this array before
+  // enrichSpecs copies it, or the copy cannot put them in the group merge writes.
+  const openaiModels = groups.get("openai");
+  if (openaiModels) {
+    const index = await loadOpenAIModelIndex();
+    addDocumentedOpenAIModels(openaiModels, index, checked);
+    applyCodexPlatformNotes(openaiModels, checked);
+  }
   if (!fromSnapshots) {
     const flat = [...groups.values()].flat();
     await enrichSpecs(flat, checked);
