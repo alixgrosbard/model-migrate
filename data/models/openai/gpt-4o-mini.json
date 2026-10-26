@@ -22,7 +22,7 @@
       "url": "https://developers.openai.com/api/docs/models/gpt-4o-mini.md",
       "label": "OpenAI model docs",
       "last_checked": "2026-10-26",
-      "excerpt": "Model ID: gpt-4o-mini | context window 128000 | max output 16384 | input $0.15 | output $0.6 | Default snapshot gpt-4o-mini-2024-07-18"
+      "excerpt": "Model ID: gpt-4o-mini | Fast, affordable small model for focused tasks"
     }
   ],
   "specs": {
@@ -47,7 +47,7 @@
     "specs_sources": {
       "cached_input_price_per_mtok": {
         "url": "https://developers.openai.com/api/docs/models/gpt-4o-mini.md",
-        "last_checked": "2026-10-25"
+        "last_checked": "2026-10-26"
       },
       "context_window_tokens": {
         "url": "https://developers.openai.com/api/docs/models/gpt-4o-mini.md",
@@ -68,5 +68,5 @@
     }
   },
   "first_seen": "2026-10-25T05:21:11.935Z",
-  "updated_at": "2026-10-25T20:53:11.768Z"
+  "updated_at": "2026-10-26T13:07:04.899Z"
 }

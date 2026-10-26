@@ -22,7 +22,7 @@
       "url": "https://developers.openai.com/api/docs/models/gpt-4o-mini-search-preview.md",
       "label": "OpenAI model docs",
       "last_checked": "2026-10-26",
-      "excerpt": "Model ID: gpt-4o-mini-search-preview | context window 128000 | max output 16384 | input $0.15 | output $0.6 | Default snapshot gpt-4o-mini-search-preview-2025-03-11"
+      "excerpt": "Model ID: gpt-4o-mini-search-preview | Fast, affordable small model for web search"
     }
   ],
   "specs": {
@@ -64,5 +64,5 @@
     }
   },
   "first_seen": "2026-10-25T05:21:11.935Z",
-  "updated_at": "2026-10-25T05:21:11.935Z"
+  "updated_at": "2026-10-26T13:07:04.899Z"
 }

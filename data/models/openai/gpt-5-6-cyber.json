@@ -17,6 +17,12 @@
       "label": "OpenAI model docs",
       "last_checked": "2026-10-26",
       "excerpt": "Model ID: gpt-5.6-cyber | Our most advanced cybersecurity model for authorized vulnerability research and security testing."
+    },
+    {
+      "url": "https://developers.openai.com/api/docs/models/gpt-daybreak-red-latest.md",
+      "label": "OpenAI model docs",
+      "last_checked": "2026-10-26",
+      "excerpt": "Model ID: gpt-daybreak-red-latest | context window 400000 | max output 128000 | Default snapshot gpt-5.6-cyber"
     }
   ],
   "specs": {
@@ -62,5 +68,5 @@
     }
   },
   "first_seen": "2026-10-26T05:20:22.098Z",
-  "updated_at": "2026-10-26T05:20:22.098Z"
+  "updated_at": "2026-10-26T13:07:04.899Z"
 }
