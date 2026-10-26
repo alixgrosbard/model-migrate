@@ -28,7 +28,7 @@
       "url": "https://developers.openai.com/api/docs/models/gpt-6-astra.md",
       "label": "OpenAI model docs",
       "last_checked": "2026-10-26",
-      "excerpt": "Model ID: gpt-6-astra | Start here for complex reasoning and coding."
+      "excerpt": "Model ID: gpt-6-astra | Our most capable model for the most demanding work."
     }
   ],
   "specs": {
@@ -74,5 +74,5 @@
     }
   },
   "first_seen": "2026-10-25T12:10:00.000Z",
-  "updated_at": "2026-10-26T13:07:04.899Z"
+  "updated_at": "2026-10-26T22:41:37.763Z"
 }

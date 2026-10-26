@@ -28,7 +28,7 @@
       "url": "https://developers.openai.com/api/docs/models/gpt-6.1-sol.md",
       "label": "OpenAI model docs",
       "last_checked": "2026-10-26",
-      "excerpt": "Model ID: gpt-6.1-sol | Balance intelligence and cost."
+      "excerpt": "Model ID: gpt-6.1-sol | Near-Astra performance for complex work at a lower cost."
     }
   ],
   "specs": {
@@ -74,5 +74,5 @@
     }
   },
   "first_seen": "2026-10-25T12:10:00.000Z",
-  "updated_at": "2026-10-26T13:07:04.899Z"
+  "updated_at": "2026-10-26T22:41:37.763Z"
 }
