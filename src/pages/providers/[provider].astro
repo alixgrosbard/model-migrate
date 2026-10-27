@@ -36,7 +36,18 @@ const description = `${provider.name} model shutdown dates, grouped by status.`;
   crumbs={[{ name: "Home", path: "/" }, { name: providersHub.nav, path: providersHub.path }, { name: provider.name, path: `/providers/${provider.id}/` }]}
 >
   <h1>{provider.name}</h1>
-  <p>Official source: <a href={provider.deprecations_url}>{provider.deprecations_url}</a>. <a href="/#soonest">Soonest shutdowns on the homepage</a>.</p>
+  {provider.id === "nvidia" ? (
+    <p>
+      Hosted catalog: <a href={provider.models_url}>{provider.models_url}</a>.
+      A row is here when a build.nvidia.com model page says the hosted NIM endpoint is deprecated, or when an NVIDIA GitHub notice states the shutdown.
+      Pages that do not print a day are stored with no shutdown date.
+      The <a href="https://docs.nvidia.com/ai-enterprise/lifecycle/latest/eol-notices.html">NVIDIA AI Enterprise lifecycle notices</a> are a different list: self-hosted NIM containers and other enterprise components.
+      <a href="/guides/nvidia-hosted-api-vs-nim-containers/">Hosted API vs NIM containers</a>.
+      <a href="/#soonest">Soonest shutdowns on the homepage</a>.
+    </p>
+  ) : (
+    <p>Official source: <a href={provider.deprecations_url}>{provider.deprecations_url}</a>. <a href="/#soonest">Soonest shutdowns on the homepage</a>.</p>
+  )}
   <p>
     {STATUS_HUBS.map((hub) => {
       const count = models.filter((model) => model.status === hub.kind).length;

@@ -143,6 +143,7 @@ async function main() {
     statusPages: statusLlmsEntries(models, providers).filter((page) => page.path.startsWith("/providers/")),
     modelPages: models.filter((model) => model.provider === "deepseek"),
     groqPages: models.filter((model) => model.provider === "groq").sort((a, b) => a.id.localeCompare(b.id)),
+    nvidiaPages: models.filter((model) => model.provider === "nvidia").sort((a, b) => a.id.localeCompare(b.id)),
     featured: featuredModelLinks(models).map((link) => ({ label: link.label, path: link.href })),
   }));
   await writeJson(path.join(publicDir, "openapi.json"), openApiDocument(datasetVersion(changes)));

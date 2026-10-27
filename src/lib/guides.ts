@@ -1980,6 +1980,129 @@ llm = OpenAIResponsesLLMService(
     ],
     citations: [CODEX_MODELS, CODEX_MODELS_GPT55, CODEX_CHANGELOG_OCT14, CODEX_CHANGELOG_SEP14],
   },
+  {
+    slug: "nvidia-hosted-api-vs-nim-containers",
+    title: "NVIDIA hosted API vs NIM containers | SunsetDiff",
+    description:
+      "NVIDIA's free hosted API retires models on build.nvidia.com. The AI Enterprise lifecycle page is the self-hosted NIM container list, not that calendar.",
+    h1: "NVIDIA hosted API vs NIM containers",
+    summary: "A 410 from integrate.api.nvidia.com is a hosted model. The AI Enterprise EOL page is a different list.",
+    answer:
+      "build.nvidia.com model pages say when a hosted NIM endpoint is deprecated. They do not print a shutdown day. Dated hosted shutdowns on SunsetDiff come from NVIDIA GitHub notices. The AI Enterprise lifecycle page lists self-hosted NIM containers and other enterprise components. Do not use that page as the hosted API calendar.",
+    checked: "2026-10-27",
+    steps: [
+      {
+        name: "Read the model id in the error",
+        text: "A public log of the hosted API prints 410 Gone and the words has reached its end of life, plus a timestamp. That id is a hosted slug, such as the one in the log.",
+      },
+      {
+        name: "Open the hosted model page",
+        text: "The page is on build.nvidia.com. If it says the NIM endpoint has been deprecated, the hosted endpoint is deprecated. The pages checked on 2026-10-27 do not print a day.",
+      },
+      {
+        name: "Do not copy the container date",
+        text: "docs.nvidia.com AI Enterprise end-of-life notices are for NIM containers and other enterprise components you run yourself. A date there is not the hosted API shutdown.",
+      },
+    ],
+    sections: [
+      {
+        heading: "Hosted API",
+        paragraphs: [
+          "The hosted API is the catalog at build.nvidia.com. Calls go to integrate.api.nvidia.com. The nemotron-4-340b-reward model page OpenAPI lists server https://integrate.api.nvidia.com/v1/ and POST /chat/completions. It says the API is compatible with OpenAI.",
+          "On 2026-10-27, model pages such as nvidia/nv-embedqa-e5-v5 and nvidia/nemotron-4-340b-reward showed the heading This NIM Endpoint has been deprecated, then: Please transition to another model to avoid any service interruptions. Those pages do not name a successor and do not print a shutdown day. SunsetDiff stores them as deprecated with no shutdown date.",
+          "Two NVIDIA GitHub notices do print a day. NVIDIA/NemoClaw issue 2120 says the full API shutdown for kimi-k2.5 is May 20, 2026, and names moonshotai/kimi-k2.6 as the successor. Issue 1744 says GLM-5 fully shuts down on May 9, 2026. The commit that cites it prints the ids z-ai/glm5 and z-ai/glm-5.1.",
+        ],
+        sources: [
+          { label: "NVIDIA hosted model catalog", url: "https://build.nvidia.com/models" },
+          { label: "nemotron-4-340b-reward model page", url: "https://build.nvidia.com/nvidia/nemotron-4-340b-reward" },
+          { label: "nv-embedqa-e5-v5 model page", url: "https://build.nvidia.com/nvidia/nv-embedqa-e5-v5" },
+          { label: "NVIDIA NemoClaw kimi-k2.5 notice", url: "https://github.com/NVIDIA/NemoClaw/issues/2120" },
+          { label: "NVIDIA NemoClaw GLM-5 notice", url: "https://github.com/NVIDIA/NemoClaw/issues/1744" },
+          { label: "NVIDIA NemoClaw GLM-5 commit", url: "https://github.com/NVIDIA/NemoClaw/commit/db665834691ecf35c55deaa6f64c9227463ef080" },
+        ],
+      },
+      {
+        heading: "Self-hosted NIM containers",
+        paragraphs: [
+          "The AI Enterprise lifecycle page is titled End of Life Notices. It says the page lists NVIDIA AI Enterprise components that have reached or are approaching Deprecated or End of Life. The rows are hardware, container images, and model-specific NIM microservices in a Production Branch.",
+          "One row is NVIDIA NIM Llama-3.1-8B-Instruct. The page says its current state is Deprecated and its end of support date is January 2027. The migration path on that page is the model-free NIM, or another supported model-specific NIM. That date is for the container in Production Branch 6. It is not a shutdown date for a slug on integrate.api.nvidia.com.",
+          "Another row is NVIDIA NIM Retrieval QA E5 Embedding v5. The page says it is Deprecated and reaches end of support in January 2027, when Production Branch 6 reaches end of life. The hosted model page for nvidia/nv-embedqa-e5-v5 is a separate page. It says the hosted endpoint is deprecated and does not print January 2027.",
+        ],
+        sources: [
+          { label: "NVIDIA AI Enterprise end-of-life notices", url: "https://docs.nvidia.com/ai-enterprise/lifecycle/latest/eol-notices.html" },
+          { label: "nv-embedqa-e5-v5 hosted model page", url: "https://build.nvidia.com/nvidia/nv-embedqa-e5-v5" },
+        ],
+      },
+      {
+        heading: "What a 410 means",
+        paragraphs: [
+          "GitHub issue Lee-Dongwook/E2E-Self-Heal#402 prints this hosted API body: 410 Gone: The model 'openai/gpt-oss-120b' has reached its end of life on 2026-09-03T08:00:00Z and is no longer available.",
+          "GitHub issue omatheusmesmo/Qlawkus#357 prints: 410 Gone: The model 'nvidia/nv-embedqa-e5-v5' has reached its end of life on 2026-08-25T09:00:00Z. The hosted model page for that id says the endpoint is deprecated and does not print that timestamp, so SunsetDiff does not store 2026-08-25 as the shutdown date.",
+          "GitHub issue chimeranext/better-toolkits#127 reports HTTP 410 and the words reached its end of life on 2026-07-02 for z-ai/glm-5.1, and on 2026-08-07 for deepseek-ai/deepseek-v4-pro. It does not print the full error sentence. Those days are not stored. No NVIDIA page or NVIDIA repository notice found on 2026-10-27 states them.",
+        ],
+        sources: [
+          { label: "E2E-Self-Heal issue 402", url: "https://github.com/Lee-Dongwook/E2E-Self-Heal/issues/402" },
+          { label: "Qlawkus issue 357", url: "https://github.com/omatheusmesmo/Qlawkus/issues/357" },
+          { label: "better-toolkits issue 127", url: "https://github.com/chimeranext/better-toolkits/issues/127" },
+        ],
+      },
+      {
+        heading: "Do not hardcode the slug",
+        paragraphs: [
+          "Put the hosted model id in config, not in source. When the call returns 410, stop retrying that id. A fallback list should drop an id after 410, because the body says the model is gone.",
+          "Before you ship a slug, read SunsetDiff's JSON. Filter provider nvidia. shutdown_date is set only when an NVIDIA notice printed a day. An empty shutdown_date with status deprecated means the model page says deprecated and did not print a day.",
+        ],
+        codes: [
+          {
+            caption: "Read the NVIDIA rows",
+            code: `curl -fsSL https://sunsetdiff.com/data/models.json\n`,
+          },
+        ],
+        sources: [
+          { label: "SunsetDiff models.json", url: "https://sunsetdiff.com/data/models.json" },
+          { label: "NVIDIA provider page", url: "https://sunsetdiff.com/providers/nvidia/" },
+        ],
+      },
+    ],
+    related: [
+      { href: "/providers/nvidia/", label: "NVIDIA provider" },
+      { href: "/errors/nvidia-hosted-model-410-gone/", label: "NVIDIA hosted 410 Gone" },
+      { href: "/models/nvidia/moonshotai-kimi-k2-5/", label: "moonshotai/kimi-k2.5" },
+      { href: "/models/nvidia/nvidia-nv-embedqa-e5-v5/", label: "nvidia/nv-embedqa-e5-v5" },
+      { href: "/guides/check-model-shutdown-dates-programmatically/", label: "Check dates programmatically" },
+    ],
+    faqs: [
+      {
+        question: "Is the AI Enterprise EOL page the hosted API calendar?",
+        answer:
+          "No. The [AI Enterprise end-of-life notices](https://docs.nvidia.com/ai-enterprise/lifecycle/latest/eol-notices.html) list components you run yourself, including NIM containers. Hosted rows are on [NVIDIA](/providers/nvidia/), from build.nvidia.com model pages and NVIDIA GitHub notices.",
+      },
+      {
+        question: "Why do most NVIDIA rows have no shutdown date?",
+        answer:
+          "The hosted model pages checked on 2026-10-27 say the NIM endpoint has been deprecated and do not print a day. SunsetDiff leaves shutdown_date empty. Dated rows are the ones whose NVIDIA GitHub notice prints a day, such as [moonshotai/kimi-k2.5](/models/nvidia/moonshotai-kimi-k2-5/) on May 20, 2026.",
+      },
+      {
+        question: "What should I do when the API returns 410?",
+        answer:
+          "Read the model id in the body. Open its build.nvidia.com page and the [NVIDIA provider page](/providers/nvidia/). The error page quotes the public logs: [NVIDIA hosted 410 Gone](/errors/nvidia-hosted-model-410-gone/). Put the next id in config, and check [models.json](/data/models.json) before you hardcode a slug.",
+      },
+    ],
+    citations: [
+      "https://build.nvidia.com/models",
+      "https://build.nvidia.com/nvidia/nemotron-4-340b-reward",
+      "https://build.nvidia.com/nvidia/nv-embedqa-e5-v5",
+      "https://github.com/NVIDIA/NemoClaw/issues/2120",
+      "https://github.com/NVIDIA/NemoClaw/issues/1744",
+      "https://github.com/NVIDIA/NemoClaw/commit/db665834691ecf35c55deaa6f64c9227463ef080",
+      "https://docs.nvidia.com/ai-enterprise/lifecycle/latest/eol-notices.html",
+      "https://github.com/Lee-Dongwook/E2E-Self-Heal/issues/402",
+      "https://github.com/omatheusmesmo/Qlawkus/issues/357",
+      "https://github.com/chimeranext/better-toolkits/issues/127",
+      "https://sunsetdiff.com/data/models.json",
+      "https://sunsetdiff.com/providers/nvidia/",
+    ],
+  },
 ];
 
 export function guideBySlug(slug: string | undefined): GuidePage | undefined {
@@ -2002,6 +2125,7 @@ export function guidesForModel(model: ModelRecord, catalog: ModelRecord[]): Mode
     seen.add(slug);
     links.push({ href: guidePath(slug), label: guide.h1 });
   };
+  if (model.provider === "nvidia") add("nvidia-hosted-api-vs-nim-containers");
   if (aliasSnapshotView(model, catalog)) add("model-aliases-vs-pinned-snapshots");
   if (model.shutdown_date && model.shutdown_date_kind !== "none") {
     add("what-happens-on-model-shutdown-day");

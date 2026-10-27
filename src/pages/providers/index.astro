@@ -51,7 +51,11 @@ const items = rows.map((row) => ({ name: row.provider.name, path: `/providers/${
           <td>
             <a href={`/providers/${row.provider.id}/`}>{row.provider.name}</a>
             <br />
-            <a href={row.provider.deprecations_url}>Official deprecations page</a>
+            {row.provider.id === "nvidia" ? (
+              <a href={row.provider.models_url}>Hosted model catalog</a>
+            ) : (
+              <a href={row.provider.deprecations_url}>Official deprecations page</a>
+            )}
           </td>
           <td>
             {row.models.length ? (

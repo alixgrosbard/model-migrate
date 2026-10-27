@@ -13,6 +13,7 @@ export const providerIds = [
   "mistral",
   "deepseek",
   "groq",
+  "nvidia",
 ] as const;
 
 export const providerIdSchema = z.enum(providerIds);

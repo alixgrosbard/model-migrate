@@ -34,6 +34,7 @@ export function llmsTxt(
     /** Model pages whose shutdown date is already past, so they are not in the soon list. */
     modelPages?: ModelRecord[];
     groqPages?: ModelRecord[];
+    nvidiaPages?: ModelRecord[];
     featured?: { label: string; path: string }[];
   } = {},
 ): string {
@@ -67,6 +68,9 @@ export function llmsTxt(
     .map((page) => `- [${page.label}](${origin}${page.path})`)
     .join("\n");
   const groqPageLinks = (extra.groqPages ?? [])
+    .map((model) => `- [${model.id}](${origin}/models/${model.provider}/${model.slug}/)`)
+    .join("\n");
+  const nvidiaPageLinks = (extra.nvidiaPages ?? [])
     .map((model) => `- [${model.id}](${origin}/models/${model.provider}/${model.slug}/)`)
     .join("\n");
   return `# SunsetDiff
@@ -113,7 +117,7 @@ export function llmsTxt(
 - [Pro](${origin}/pro/) is free until launch, then $19 a month. You won't be charged until Pro launches.
 ${featuredLinks ? `\n## Models people look up\nLinked from the homepage. Each row is a model page with the shutdown date, the official replacement, and the sources.\n${featuredLinks}\n` : ""}
 ## Request errors
-[All request errors](${origin}${REQUEST_ERRORS_INDEX}). Each page names the failure, the model change, and the source. Check dates are on the pages (${REQUEST_ERRORS_CHECKED}, 2026-10-21 for the thinking budget page, 2026-10-22 for the API version 2026-10-21 sampling page, 2026-10-24 for the temperature, Gemini 2.5 new-user, and Azure 410 pages, 2026-10-25 for the DeepSeek model_not_found page and the gpt-6.1-sol function tools page, and 2026-10-26 for the Chat Completions user field page). A code block is a quoted error only when the linked source prints that sentence.
+[All request errors](${origin}${REQUEST_ERRORS_INDEX}). Each page names the failure, the model change, and the source. Check dates are on the pages (${REQUEST_ERRORS_CHECKED}, 2026-10-21 for the thinking budget page, 2026-10-22 for the API version 2026-10-21 sampling page, 2026-10-24 for the temperature, Gemini 2.5 new-user, and Azure 410 pages, 2026-10-25 for the DeepSeek model_not_found page and the gpt-6.1-sol function tools page, 2026-10-26 for the Chat Completions user field page, and 2026-10-27 for the NVIDIA hosted 410 page). A code block is a quoted error only when the linked source prints that sentence.
 ${requestErrors.map((page) => `- [${page.h1}](${origin}${requestErrorPath(page.slug)})`).join("\n")}
 
 ## Request breaking changes
@@ -171,6 +175,7 @@ ${hubLinks}
 ${providerLinks}
 ${modelPageLinks ? `\n## DeepSeek model pages\nThese ids are not in Soonest shutdowns. deepseek-chat and deepseek-reasoner already shut down. The other ids have no published shutdown date.\n${modelPageLinks}` : ""}
 ${groqPageLinks ? `\n## Groq model pages\nShutdown dates are the shutdown column on Groq's deprecations page. Ids with no shutdown date are listed on Groq's models page.\n${groqPageLinks}` : ""}
+${nvidiaPageLinks ? `\n## NVIDIA hosted model pages\nRows come from a build.nvidia.com model page that says the hosted endpoint is deprecated, or from an NVIDIA GitHub notice that states the shutdown. A page that does not print a day has no shutdown date. The AI Enterprise NIM container lifecycle page is a different list.\n${nvidiaPageLinks}` : ""}
 
 ## Status lists
 Deprecated means the stored status is deprecated. Retired means the stored status is retired. Dates come from the model records.

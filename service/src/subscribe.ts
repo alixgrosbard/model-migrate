@@ -9,6 +9,7 @@ const providerIds = [
   "azure-openai",
   "mistral",
   "deepseek",
+  "nvidia",
 ] as const;
 
 const hits = new Map<string, number[]>();
