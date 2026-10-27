@@ -6,7 +6,7 @@ export const USER_AGENT = "SunsetDiffBot/1.0 (+https://sunsetdiff.onrender.com)"
 
 const robotsCache = new Map<string, string>();
 
-export async function politeFetch(url: string): Promise<string> {
+export async function politeFetch(url: string, options?: { markdown?: boolean }): Promise<string> {
   const allowed = await robotsAllows(url);
   if (!allowed) {
     throw new Error(`robots.txt disallows ${url}`);
@@ -14,7 +14,9 @@ export async function politeFetch(url: string): Promise<string> {
   let lastError: unknown;
   for (let attempt = 1; attempt <= 3; attempt++) {
     try {
-      const wantsMarkdown = /\.md(?:$|\?)/.test(url);
+      // docs.x.ai serves markdown for the page URL when Accept is text/markdown.
+      // A URL that ends in .md on that host is a 404. Other docs use the .md suffix.
+      const wantsMarkdown = options?.markdown === true || /\.md(?:$|\?)/.test(url);
       const response = await undiciFetch(url, {
         headers: {
           "user-agent": USER_AGENT,

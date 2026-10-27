@@ -10,6 +10,8 @@ const providerIds = [
   "mistral",
   "deepseek",
   "nvidia",
+  "xai",
+  "cohere",
 ] as const;
 
 const hits = new Map<string, number[]>();

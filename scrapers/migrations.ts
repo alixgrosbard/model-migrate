@@ -49,12 +49,7 @@ export function buildMigration(from: ModelRecord, to: ModelRecord, checked: stri
       after: snippets.python.after,
       snippets,
     },
-    migration_checklist: [
-      `Read the shutdown date for ${from.id} on the linked official page.`,
-      `Point your requests at ${to.id}.`,
-      "Re-check price, context, and parameters on the provider pages linked here.",
-      "Ship the change before the published shutdown date.",
-    ],
+    migration_checklist: migrationChecklist(from, to),
     confidence: missing ? "partial" : "official",
     last_checked: checked,
     sources: [...from.sources, ...to.sources].slice(0, 8),
@@ -114,7 +109,7 @@ const FILE_TRANSCRIPTION_OR = new Set([
 export function officialMigrationTargets(model: ModelRecord) {
   const official = model.replacements.filter((item) => item.kind === "official");
   if (model.provider === "openai" && FILE_TRANSCRIPTION_OR.has(model.id)) return official;
-  if (model.provider === "groq") return official;
+  if (model.provider === "groq" || model.provider === "xai" || model.provider === "cohere") return official;
   return official.slice(0, 1);
 }
 
@@ -172,15 +167,37 @@ function callKind(provider: string, id: string): CallKind | null {
   return null;
 }
 
+function migrationChecklist(from: ModelRecord, to: ModelRecord): string[] {
+  const undated = (from.provider === "xai" || from.provider === "cohere") && !from.shutdown_date;
+  if (undated) {
+    return [
+      `Read the official page for ${from.id}. It does not publish a shutdown date.`,
+      `Point your requests at ${to.id}.`,
+      "Re-check price, context, and parameters on the provider pages linked here.",
+      "The official page did not publish a shutdown date for this id.",
+    ];
+  }
+  return [
+    `Read the shutdown date for ${from.id} on the linked official page.`,
+    `Point your requests at ${to.id}.`,
+    "Re-check price, context, and parameters on the provider pages linked here.",
+    "Ship the change before the published shutdown date.",
+  ];
+}
+
 function codeSnippets(from: ModelRecord, to: ModelRecord) {
   if (from.provider === "groq" && to.provider === "groq") return groqSnippets(from.id, to.id);
   if (from.provider === "nvidia" && to.provider === "nvidia") return nvidiaSnippets(from.id, to.id);
+  if (from.provider === "xai" && to.provider === "xai") return xaiSnippets(from.id, to.id);
+  if (from.provider === "cohere" && to.provider === "cohere") return cohereSnippets(from.id, to.id);
   return specialized(from, to)?.snippets ?? defaultSnippets(from, to);
 }
 
 function apiChanges(from: ModelRecord, to: ModelRecord): ApiChange[] {
   if (from.provider === "groq" && to.provider === "groq") return groqApiChanges(from.id, to.id);
   if (from.provider === "nvidia" && to.provider === "nvidia") return nvidiaApiChanges();
+  if (from.provider === "xai" && to.provider === "xai") return xaiApiChanges(from.id);
+  if (from.provider === "cohere" && to.provider === "cohere") return cohereApiChanges(from.id);
   return specialized(from, to)?.apiChanges ?? [];
 }
 
@@ -247,6 +264,180 @@ function nvidiaSnippets(fromId: string, toId: string): SnippetSet {
       before: `curl https://integrate.api.nvidia.com/v1/chat/completions \\\n  -H "Content-Type: application/json" \\\n  -d '{"model":"${fromId}","messages":[{"role":"user","content":"Hello"}]}'\n`,
       after: `curl https://integrate.api.nvidia.com/v1/chat/completions \\\n  -H "Content-Type: application/json" \\\n  -d '{"model":"${toId}","messages":[{"role":"user","content":"Hello"}]}'\n`,
     },
+  };
+}
+
+const XAI_TEXT = "https://docs.x.ai/developers/model-capabilities/text/generate-text";
+const XAI_IMAGES = "https://docs.x.ai/developers/migration/imagine-image-quality-nov-2";
+const XAI_STT = "https://docs.x.ai/developers/model-capabilities/audio/speech-to-text";
+const XAI_VOICE = "https://docs.x.ai/developers/model-capabilities/audio/speech-to-speech";
+const COHERE_CHAT = "https://docs.cohere.com/reference/chat";
+const COHERE_EMBED = "https://docs.cohere.com/reference/embed";
+const COHERE_RERANK = "https://docs.cohere.com/reference/rerank";
+
+function xaiKind(id: string): "image" | "stt" | "voice" | "text" {
+  if (id.includes("imagine-image")) return "image";
+  if (id.includes("transcribe")) return "stt";
+  if (id.includes("voice")) return "voice";
+  return "text";
+}
+
+function xaiApiChanges(fromId: string): ApiChange[] {
+  const kind = xaiKind(fromId);
+  if (kind === "image") {
+    return [
+      {
+        kind: "endpoint_change",
+        detail:
+          "The November 2 migration guide shows image generation as POST https://api.x.ai/v1/images/generations with an OpenAI client base_url of https://api.x.ai/v1. This sample only changes the model field.",
+        source_url: XAI_IMAGES,
+      },
+    ];
+  }
+  if (kind === "stt") {
+    return [
+      {
+        kind: "endpoint_change",
+        detail:
+          "The speech-to-text page shows POST https://api.x.ai/v1/stt with a model field. This sample only changes the model field.",
+        source_url: XAI_STT,
+      },
+    ];
+  }
+  if (kind === "voice") {
+    return [
+      {
+        kind: "endpoint_change",
+        detail:
+          "The speech-to-speech page shows a realtime websocket at wss://api.x.ai/v1/realtime with the model in the query string. This sample only changes that model value.",
+        source_url: XAI_VOICE,
+      },
+    ];
+  }
+  return [
+    {
+      kind: "endpoint_change",
+      detail:
+        "The generate-text page shows the Responses API as POST https://api.x.ai/v1/responses and an OpenAI client base_url of https://api.x.ai/v1. This sample only changes the model field.",
+      source_url: XAI_TEXT,
+    },
+  ];
+}
+
+function xaiSnippets(fromId: string, toId: string): SnippetSet {
+  const kind = xaiKind(fromId);
+  if (kind === "image") return pairSnippets(xaiImage(fromId), xaiImage(toId));
+  if (kind === "stt") return pairSnippets(xaiStt(fromId), xaiStt(toId));
+  if (kind === "voice") return pairSnippets(xaiVoice(fromId), xaiVoice(toId));
+  return pairSnippets(xaiText(fromId), xaiText(toId));
+}
+
+function pairSnippets(before: { python: string; typescript: string; curl: string }, after: { python: string; typescript: string; curl: string }): SnippetSet {
+  return {
+    python: { before: before.python, after: after.python },
+    typescript: { before: before.typescript, after: after.typescript },
+    curl: { before: before.curl, after: after.curl },
+  };
+}
+
+function xaiText(id: string) {
+  return {
+    python: `from openai import OpenAI\nclient = OpenAI(base_url="https://api.x.ai/v1")\nresponse = client.responses.create(\n    model="${id}",\n    input="Hello",\n)\n`,
+    typescript: `import OpenAI from "openai";\nconst client = new OpenAI({ baseURL: "https://api.x.ai/v1" });\nconst response = await client.responses.create({\n  model: "${id}",\n  input: "Hello",\n});\n`,
+    curl: `curl https://api.x.ai/v1/responses \\\n  -H "Content-Type: application/json" \\\n  -d '{"model":"${id}","input":"Hello"}'\n`,
+  };
+}
+
+function xaiImage(id: string) {
+  return {
+    python: `from openai import OpenAI\nclient = OpenAI(base_url="https://api.x.ai/v1")\nresponse = client.images.generate(\n    model="${id}",\n    prompt="A lighthouse",\n)\n`,
+    typescript: `import OpenAI from "openai";\nconst client = new OpenAI({ baseURL: "https://api.x.ai/v1" });\nconst response = await client.images.generate({\n  model: "${id}",\n  prompt: "A lighthouse",\n});\n`,
+    curl: `curl -X POST https://api.x.ai/v1/images/generations \\\n  -H "Content-Type: application/json" \\\n  -d '{"model":"${id}","prompt":"A lighthouse"}'\n`,
+  };
+}
+
+function xaiStt(id: string) {
+  return {
+    python: `import requests\nrequests.post(\n    "https://api.x.ai/v1/stt",\n    files={"file": open("sample.wav", "rb")},\n    data={"model": "${id}"},\n)\n`,
+    typescript: `const body = new FormData();\nbody.set("model", "${id}");\nawait fetch("https://api.x.ai/v1/stt", { method: "POST", body });\n`,
+    curl: `curl https://api.x.ai/v1/stt \\\n  -F model="${id}" \\\n  -F file=@sample.wav\n`,
+  };
+}
+
+function xaiVoice(id: string) {
+  return {
+    python: `url = "wss://api.x.ai/v1/realtime?model=${id}"\n`,
+    typescript: `const url = "wss://api.x.ai/v1/realtime?model=${id}";\n`,
+    curl: `wss://api.x.ai/v1/realtime?model=${id}\n`,
+  };
+}
+
+function cohereKind(id: string): "embed" | "rerank" | "chat" {
+  if (id.startsWith("embed-")) return "embed";
+  if (id.startsWith("rerank-")) return "rerank";
+  return "chat";
+}
+
+function cohereApiChanges(fromId: string): ApiChange[] {
+  const kind = cohereKind(fromId);
+  if (kind === "embed") {
+    return [
+      {
+        kind: "endpoint_change",
+        detail:
+          "The embed reference shows POST https://api.cohere.com/v2/embed with model, input_type, and texts. This sample only changes the model field.",
+        source_url: COHERE_EMBED,
+      },
+    ];
+  }
+  if (kind === "rerank") {
+    return [
+      {
+        kind: "endpoint_change",
+        detail:
+          "The rerank reference shows POST https://api.cohere.com/v2/rerank with model, query, and documents. This sample only changes the model field.",
+        source_url: COHERE_RERANK,
+      },
+    ];
+  }
+  return [
+    {
+      kind: "endpoint_change",
+      detail:
+        "The chat reference shows POST https://api.cohere.com/v2/chat with model and messages. This sample only changes the model field.",
+      source_url: COHERE_CHAT,
+    },
+  ];
+}
+
+function cohereSnippets(fromId: string, toId: string): SnippetSet {
+  const kind = cohereKind(fromId);
+  if (kind === "embed") return pairSnippets(cohereEmbed(fromId), cohereEmbed(toId));
+  if (kind === "rerank") return pairSnippets(cohereRerank(fromId), cohereRerank(toId));
+  return pairSnippets(cohereChat(fromId), cohereChat(toId));
+}
+
+function cohereChat(id: string) {
+  return {
+    python: `import json\nimport urllib.request\nbody = json.dumps({"model": "${id}", "messages": [{"role": "user", "content": "Hello"}]}).encode()\nrequest = urllib.request.Request("https://api.cohere.com/v2/chat", data=body, headers={"Content-Type": "application/json"})\n`,
+    typescript: `await fetch("https://api.cohere.com/v2/chat", {\n  method: "POST",\n  headers: { "Content-Type": "application/json" },\n  body: JSON.stringify({ model: "${id}", messages: [{ role: "user", content: "Hello" }] }),\n});\n`,
+    curl: `curl https://api.cohere.com/v2/chat \\\n  -H "Content-Type: application/json" \\\n  -d '{"model":"${id}","messages":[{"role":"user","content":"Hello"}]}'\n`,
+  };
+}
+
+function cohereEmbed(id: string) {
+  return {
+    python: `import json\nimport urllib.request\nbody = json.dumps({"model": "${id}", "input_type": "search_document", "texts": ["Hello"]}).encode()\nrequest = urllib.request.Request("https://api.cohere.com/v2/embed", data=body, headers={"Content-Type": "application/json"})\n`,
+    typescript: `await fetch("https://api.cohere.com/v2/embed", {\n  method: "POST",\n  headers: { "Content-Type": "application/json" },\n  body: JSON.stringify({ model: "${id}", input_type: "search_document", texts: ["Hello"] }),\n});\n`,
+    curl: `curl https://api.cohere.com/v2/embed \\\n  -H "Content-Type: application/json" \\\n  -d '{"model":"${id}","input_type":"search_document","texts":["Hello"]}'\n`,
+  };
+}
+
+function cohereRerank(id: string) {
+  return {
+    python: `import json\nimport urllib.request\nbody = json.dumps({"model": "${id}", "query": "Hello", "documents": ["Hello"]}).encode()\nrequest = urllib.request.Request("https://api.cohere.com/v2/rerank", data=body, headers={"Content-Type": "application/json"})\n`,
+    typescript: `await fetch("https://api.cohere.com/v2/rerank", {\n  method: "POST",\n  headers: { "Content-Type": "application/json" },\n  body: JSON.stringify({ model: "${id}", query: "Hello", documents: ["Hello"] }),\n});\n`,
+    curl: `curl https://api.cohere.com/v2/rerank \\\n  -H "Content-Type: application/json" \\\n  -d '{"model":"${id}","query":"Hello","documents":["Hello"]}'\n`,
   };
 }
 

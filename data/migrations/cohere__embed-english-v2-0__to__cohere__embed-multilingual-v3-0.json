@@ -1,0 +1,79 @@
+{
+  "from": {
+    "provider": "cohere",
+    "model_id": "embed-english-v2.0",
+    "slug": "embed-english-v2-0"
+  },
+  "to": {
+    "provider": "cohere",
+    "model_id": "embed-multilingual-v3.0",
+    "slug": "embed-multilingual-v3-0"
+  },
+  "price_diff": {
+    "input_pct_change": null,
+    "output_pct_change": null,
+    "example_monthly_cost_old": null,
+    "example_monthly_cost_new": null,
+    "currency": "USD",
+    "example_label": "Example monthly cost for 10M input tokens and 2M output tokens. Labeled example, not a bill."
+  },
+  "context_diff": {
+    "old_tokens": null,
+    "new_tokens": 512,
+    "change_pct": null
+  },
+  "max_output_diff": {
+    "old_tokens": null,
+    "new_tokens": null,
+    "change_pct": null
+  },
+  "capability_changes": [],
+  "api_changes": [
+    {
+      "kind": "endpoint_change",
+      "detail": "The embed reference shows POST https://api.cohere.com/v2/embed with model, input_type, and texts. This sample only changes the model field.",
+      "source_url": "https://docs.cohere.com/reference/embed"
+    }
+  ],
+  "code_change": {
+    "language": "python",
+    "before": "import json\nimport urllib.request\nbody = json.dumps({\"model\": \"embed-english-v2.0\", \"input_type\": \"search_document\", \"texts\": [\"Hello\"]}).encode()\nrequest = urllib.request.Request(\"https://api.cohere.com/v2/embed\", data=body, headers={\"Content-Type\": \"application/json\"})\n",
+    "after": "import json\nimport urllib.request\nbody = json.dumps({\"model\": \"embed-multilingual-v3.0\", \"input_type\": \"search_document\", \"texts\": [\"Hello\"]}).encode()\nrequest = urllib.request.Request(\"https://api.cohere.com/v2/embed\", data=body, headers={\"Content-Type\": \"application/json\"})\n",
+    "snippets": {
+      "python": {
+        "before": "import json\nimport urllib.request\nbody = json.dumps({\"model\": \"embed-english-v2.0\", \"input_type\": \"search_document\", \"texts\": [\"Hello\"]}).encode()\nrequest = urllib.request.Request(\"https://api.cohere.com/v2/embed\", data=body, headers={\"Content-Type\": \"application/json\"})\n",
+        "after": "import json\nimport urllib.request\nbody = json.dumps({\"model\": \"embed-multilingual-v3.0\", \"input_type\": \"search_document\", \"texts\": [\"Hello\"]}).encode()\nrequest = urllib.request.Request(\"https://api.cohere.com/v2/embed\", data=body, headers={\"Content-Type\": \"application/json\"})\n"
+      },
+      "typescript": {
+        "before": "await fetch(\"https://api.cohere.com/v2/embed\", {\n  method: \"POST\",\n  headers: { \"Content-Type\": \"application/json\" },\n  body: JSON.stringify({ model: \"embed-english-v2.0\", input_type: \"search_document\", texts: [\"Hello\"] }),\n});\n",
+        "after": "await fetch(\"https://api.cohere.com/v2/embed\", {\n  method: \"POST\",\n  headers: { \"Content-Type\": \"application/json\" },\n  body: JSON.stringify({ model: \"embed-multilingual-v3.0\", input_type: \"search_document\", texts: [\"Hello\"] }),\n});\n"
+      },
+      "curl": {
+        "before": "curl https://api.cohere.com/v2/embed \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"model\":\"embed-english-v2.0\",\"input_type\":\"search_document\",\"texts\":[\"Hello\"]}'\n",
+        "after": "curl https://api.cohere.com/v2/embed \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"model\":\"embed-multilingual-v3.0\",\"input_type\":\"search_document\",\"texts\":[\"Hello\"]}'\n"
+      }
+    }
+  },
+  "migration_checklist": [
+    "Read the shutdown date for embed-english-v2.0 on the linked official page.",
+    "Point your requests at embed-multilingual-v3.0.",
+    "Re-check price, context, and parameters on the provider pages linked here.",
+    "Ship the change before the published shutdown date."
+  ],
+  "confidence": "partial",
+  "last_checked": "2026-10-27",
+  "sources": [
+    {
+      "url": "https://docs.cohere.com/docs/deprecations",
+      "label": "Cohere model deprecations",
+      "last_checked": "2026-10-27",
+      "excerpt": "ng models will be retired: * `embed-english-v2.0` * `embed-english-light-v2.0` * `embed-multilingual-v2.0` * `c4ai-aya-expanse-8b` * `c4ai-aya-vision-8b`"
+    },
+    {
+      "url": "https://docs.cohere.com/docs/models",
+      "label": "Cohere model docs",
+      "last_checked": "2026-10-27",
+      "excerpt": "embed-multilingual-v3.0 Provides multilingual classification and embedding support. [See supported languages here.](/docs/supported-languages) Text, Images 512"
+    }
+  ]
+}
