@@ -15,13 +15,13 @@
     {
       "url": "https://docs.mistral.ai/models",
       "label": "Mistral models",
-      "last_checked": "2026-10-26",
+      "last_checked": "2026-10-27",
       "excerpt": "Mistral Nemo 12B | 24.07 | open-mistral-nemo-2407 | 5/22/2026 7/31/2026 | Ministral 3 8B"
     },
     {
       "url": "https://docs.mistral.ai/models/mistral-nemo-12b-24-07",
       "label": "Mistral model docs",
-      "last_checked": "2026-10-26",
+      "last_checked": "2026-10-27",
       "excerpt": "open-mistral-nemo-2407 | Context 128k"
     }
   ],
@@ -47,7 +47,7 @@
     "specs_sources": {
       "context_window_tokens": {
         "url": "https://docs.mistral.ai/models/mistral-nemo-12b-24-07",
-        "last_checked": "2026-10-26"
+        "last_checked": "2026-10-27"
       }
     }
   },

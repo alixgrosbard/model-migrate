@@ -15,7 +15,7 @@
     {
       "url": "https://docs.aws.amazon.com/bedrock/latest/userguide/model-lifecycle-legacy.html",
       "label": "Amazon Bedrock model lifecycle (legacy)",
-      "last_checked": "2026-10-26",
+      "last_checked": "2026-10-27",
       "excerpt": "Policy page https://docs.aws.amazon.com/bedrock/latest/userguide/model-lifecycle.html | Writer | Palmyra X4 | writer.palmyra-x4-v1:0 | us-east-1, us-east-2, us-west-1, us-west-2 | September 9, 2026 | March 9, 2027 | —"
     }
   ],

@@ -15,7 +15,7 @@
     {
       "url": "https://docs.aws.amazon.com/bedrock/latest/userguide/model-lifecycle-legacy.html",
       "label": "Amazon Bedrock model lifecycle (legacy)",
-      "last_checked": "2026-10-26",
+      "last_checked": "2026-10-27",
       "excerpt": "Policy page https://docs.aws.amazon.com/bedrock/latest/userguide/model-lifecycle.html | Meta | Llama 3.2 3B Instruct | meta.llama3-2-3b-instruct-v1:0 | eu-central-1, eu-west-1, eu-west-3, us-east-1, us-east-2, us-west-2 | January 7, 2026 | July 7, 2026 | April 7, 2026"
     }
   ],

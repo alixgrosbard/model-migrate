@@ -22,13 +22,13 @@
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "OpenAI deprecations",
-      "last_checked": "2026-10-26",
+      "last_checked": "2026-10-27",
       "excerpt": "July 23, 2026 | o4-mini-deep-research-2025-06-26 | o4-mini-deep-research | gpt-5.6-sol"
     },
     {
       "url": "https://developers.openai.com/api/docs/models/o4-mini-deep-research.md",
       "label": "OpenAI model docs",
-      "last_checked": "2026-10-26",
+      "last_checked": "2026-10-27",
       "excerpt": "Model ID: o4-mini-deep-research | context window 200000 | max output 100000 | input $2 | output $8 | Default snapshot o4-mini-deep-research-2025-06-26"
     }
   ],
@@ -54,23 +54,23 @@
     "specs_sources": {
       "cached_input_price_per_mtok": {
         "url": "https://developers.openai.com/api/docs/models/o4-mini-deep-research.md",
-        "last_checked": "2026-10-26"
+        "last_checked": "2026-10-27"
       },
       "context_window_tokens": {
         "url": "https://developers.openai.com/api/docs/models/o4-mini-deep-research.md",
-        "last_checked": "2026-10-26"
+        "last_checked": "2026-10-27"
       },
       "input_price_per_mtok": {
         "url": "https://developers.openai.com/api/docs/models/o4-mini-deep-research.md",
-        "last_checked": "2026-10-26"
+        "last_checked": "2026-10-27"
       },
       "max_output_tokens": {
         "url": "https://developers.openai.com/api/docs/models/o4-mini-deep-research.md",
-        "last_checked": "2026-10-26"
+        "last_checked": "2026-10-27"
       },
       "output_price_per_mtok": {
         "url": "https://developers.openai.com/api/docs/models/o4-mini-deep-research.md",
-        "last_checked": "2026-10-26"
+        "last_checked": "2026-10-27"
       }
     }
   },

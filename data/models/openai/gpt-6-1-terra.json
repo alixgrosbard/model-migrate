@@ -15,7 +15,7 @@
     {
       "url": "https://developers.openai.com/api/docs/models/gpt-6.1-terra.md",
       "label": "OpenAI model docs",
-      "last_checked": "2026-10-26",
+      "last_checked": "2026-10-27",
       "excerpt": "Model ID: gpt-6.1-terra | A fast, efficient model for visual reasoning, precise computer use, and clear, natural writing."
     }
   ],
@@ -41,23 +41,23 @@
     "specs_sources": {
       "cached_input_price_per_mtok": {
         "url": "https://developers.openai.com/api/docs/models/gpt-6.1-terra.md",
-        "last_checked": "2026-10-26"
+        "last_checked": "2026-10-27"
       },
       "context_window_tokens": {
         "url": "https://developers.openai.com/api/docs/models/gpt-6.1-terra.md",
-        "last_checked": "2026-10-26"
+        "last_checked": "2026-10-27"
       },
       "input_price_per_mtok": {
         "url": "https://developers.openai.com/api/docs/models/gpt-6.1-terra.md",
-        "last_checked": "2026-10-26"
+        "last_checked": "2026-10-27"
       },
       "max_output_tokens": {
         "url": "https://developers.openai.com/api/docs/models/gpt-6.1-terra.md",
-        "last_checked": "2026-10-26"
+        "last_checked": "2026-10-27"
       },
       "output_price_per_mtok": {
         "url": "https://developers.openai.com/api/docs/models/gpt-6.1-terra.md",
-        "last_checked": "2026-10-26"
+        "last_checked": "2026-10-27"
       }
     }
   },

@@ -15,7 +15,7 @@
     {
       "url": "https://docs.aws.amazon.com/bedrock/latest/userguide/model-lifecycle-legacy.html",
       "label": "Amazon Bedrock model lifecycle (legacy)",
-      "last_checked": "2026-10-26",
+      "last_checked": "2026-10-27",
       "excerpt": "Policy page https://docs.aws.amazon.com/bedrock/latest/userguide/model-lifecycle.html | AI21 Labs | Jamba 1.5 Mini | ai21.jamba-1-5-mini-v1:0 | us-east-1 | May 26, 2026 | November 26, 2026 | August 26, 2026"
     }
   ],

@@ -22,13 +22,13 @@
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "OpenAI deprecations",
-      "last_checked": "2026-10-26",
+      "last_checked": "2026-10-27",
       "excerpt": "October 23, 2026 | gpt-4-0613 | gpt-4, gpt-4-0613-completions, gpt-4-completions | gpt-5.6-sol"
     },
     {
       "url": "https://developers.openai.com/api/docs/models/gpt-4.md",
       "label": "OpenAI model docs",
-      "last_checked": "2026-10-26",
+      "last_checked": "2026-10-27",
       "excerpt": "Model ID: gpt-4 | context window 8192 | max output 8192 | input $30 | output $60 | Default snapshot gpt-4-0613"
     }
   ],
@@ -54,7 +54,7 @@
     "specs_sources": {
       "context_window_tokens": {
         "url": "https://developers.openai.com/api/docs/models/gpt-4.md",
-        "last_checked": "2026-10-26"
+        "last_checked": "2026-10-27"
       },
       "input_price_per_mtok": {
         "url": "https://developers.openai.com/api/docs/pricing",
@@ -62,7 +62,7 @@
       },
       "max_output_tokens": {
         "url": "https://developers.openai.com/api/docs/models/gpt-4.md",
-        "last_checked": "2026-10-26"
+        "last_checked": "2026-10-27"
       },
       "output_price_per_mtok": {
         "url": "https://developers.openai.com/api/docs/pricing",
