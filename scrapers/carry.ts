@@ -7,8 +7,27 @@ function isDeprecationsSource(source: { url: string; label: string }): boolean {
   return /deprecat/i.test(source.url) || /deprecat/i.test(source.label);
 }
 
+function isXaiOrCohereDoc(url: string): boolean {
+  try {
+    const host = new URL(url).hostname;
+    return host === "docs.x.ai" || host === "docs.cohere.com";
+  } catch {
+    return false;
+  }
+}
+
+function isCatalogSource(source: { url: string; label: string }): boolean {
+  return /\/models\//i.test(source.url) || /model docs/i.test(source.label) || isXaiOrCohereDoc(source.url);
+}
+
 function isOfficialSource(source: { url: string; label: string }): boolean {
-  return isDeprecationsSource(source) || /\/models\//i.test(source.url) || /model docs/i.test(source.label);
+  return isDeprecationsSource(source) || isCatalogSource(source);
+}
+
+/** Stored xAI and Cohere rows come from those hosts. A later scrape that omits one puts it back. */
+function isKeptProviderRecord(model: CarryModel): boolean {
+  if (model.provider !== "xai" && model.provider !== "cohere") return false;
+  return model.sources.some((source) => isXaiOrCohereDoc(source.url));
 }
 
 /**
@@ -19,7 +38,7 @@ export function isDocumentedActiveModel(model: CarryModel): boolean {
   if (model.status !== "active") return false;
   if (model.shutdown_date || model.shutdown_date_kind !== "none") return false;
   if (model.sources.some(isDeprecationsSource)) return false;
-  return model.sources.some((source) => /\/models\//i.test(source.url) || /model docs/i.test(source.label));
+  return model.sources.some(isCatalogSource);
 }
 
 /**
@@ -36,7 +55,11 @@ export function isRetiredOfficialRecord(model: CarryModel, today: string): boole
 export function carryForwardDocumentedModels<T extends CarryModel>(previous: T[], scraped: T[], today = todayISO()): T[] {
   const have = new Set(scraped.map((model) => `${model.provider}:${model.id}`));
   const extra = previous
-    .filter((model) => !have.has(`${model.provider}:${model.id}`) && (isDocumentedActiveModel(model) || isRetiredOfficialRecord(model, today)))
+    .filter(
+      (model) =>
+        !have.has(`${model.provider}:${model.id}`) &&
+        (isDocumentedActiveModel(model) || isRetiredOfficialRecord(model, today) || isKeptProviderRecord(model)),
+    )
     .sort((a, b) => a.provider.localeCompare(b.provider) || a.id.localeCompare(b.id));
   return [...scraped, ...extra];
 }

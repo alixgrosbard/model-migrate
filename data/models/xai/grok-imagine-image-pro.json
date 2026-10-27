@@ -1,0 +1,61 @@
+{
+  "id": "grok-imagine-image-pro",
+  "slug": "grok-imagine-image-pro",
+  "provider": "xai",
+  "display_name": "grok-imagine-image-pro",
+  "family": null,
+  "status": "retired",
+  "announced_date": null,
+  "deprecation_date": null,
+  "shutdown_date": "2026-05-15",
+  "shutdown_date_kind": "exact",
+  "region_or_platform_notes": "Effective 2026-05-15 at 12:00 PM PT. The page does not say when the retirement was announced. The redirect table says `grok-imagine-image-quality`. The caution says requests to the retired slugs redirect to grok-4.3. The redirect table names a different target, and that table is the stored replacement. The same page says that on November 2, 2026, grok-imagine-image-quality is itself retired in favor of grok-imagine-image-2.0. The stored replacement is the May 15 table target. The pricing page says image and video generation are supported in the Batch API but are billed at standard rates.",
+  "replacements": [
+    {
+      "model_id": "grok-imagine-image-quality",
+      "provider": "xai",
+      "kind": "official",
+      "source_url": "https://docs.x.ai/developers/migration/may-15-retirement"
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://docs.x.ai/developers/migration/may-15-retirement",
+      "label": "xAI model deprecations",
+      "last_checked": "2026-10-27",
+      "excerpt": "st-1` * `grok-3` * `grok-imagine-image-pro` > [!CAUTION] > > After **May 15, 2026 at 12:00 PM PT**, requests to the retired model slugs above will automatically redirect to `grok-4.3`. The slugs themselves continue to reso"
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": null,
+    "output_price_per_mtok": null,
+    "cached_input_price_per_mtok": null,
+    "batch_discount_pct": 0,
+    "currency": null,
+    "context_window_tokens": null,
+    "max_output_tokens": null,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": true,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {
+      "supports_batch": {
+        "url": "https://docs.x.ai/developers/pricing",
+        "last_checked": "2026-10-27"
+      },
+      "batch_discount_pct": {
+        "url": "https://docs.x.ai/developers/pricing",
+        "last_checked": "2026-10-27"
+      }
+    }
+  },
+  "first_seen": "2026-10-27T12:00:00.000Z",
+  "updated_at": "2026-10-27T12:00:00.000Z"
+}

@@ -35,6 +35,8 @@ export function llmsTxt(
     modelPages?: ModelRecord[];
     groqPages?: ModelRecord[];
     nvidiaPages?: ModelRecord[];
+    xaiPages?: ModelRecord[];
+    coherePages?: ModelRecord[];
     featured?: { label: string; path: string }[];
   } = {},
 ): string {
@@ -71,6 +73,12 @@ export function llmsTxt(
     .map((model) => `- [${model.id}](${origin}/models/${model.provider}/${model.slug}/)`)
     .join("\n");
   const nvidiaPageLinks = (extra.nvidiaPages ?? [])
+    .map((model) => `- [${model.id}](${origin}/models/${model.provider}/${model.slug}/)`)
+    .join("\n");
+  const xaiPageLinks = (extra.xaiPages ?? [])
+    .map((model) => `- [${model.id}](${origin}/models/${model.provider}/${model.slug}/)`)
+    .join("\n");
+  const coherePageLinks = (extra.coherePages ?? [])
     .map((model) => `- [${model.id}](${origin}/models/${model.provider}/${model.slug}/)`)
     .join("\n");
   return `# SunsetDiff
@@ -176,6 +184,8 @@ ${providerLinks}
 ${modelPageLinks ? `\n## DeepSeek model pages\nThese ids are not in Soonest shutdowns. deepseek-chat and deepseek-reasoner already shut down. The other ids have no published shutdown date.\n${modelPageLinks}` : ""}
 ${groqPageLinks ? `\n## Groq model pages\nShutdown dates are the shutdown column on Groq's deprecations page. Ids with no shutdown date are listed on Groq's models page.\n${groqPageLinks}` : ""}
 ${nvidiaPageLinks ? `\n## NVIDIA hosted model pages\nRows come from a build.nvidia.com model page that says the hosted endpoint is deprecated, or from an NVIDIA GitHub notice that states the shutdown. A page that does not print a day has no shutdown date. The AI Enterprise NIM container lifecycle page is a different list.\n${nvidiaPageLinks}` : ""}
+${xaiPageLinks ? `\n## xAI model pages\nRows come from docs.x.ai. A model with no retirement sentence is active and has no shutdown date. Image, video, and voice rates are not stored as per-token prices.\n${xaiPageLinks}` : ""}
+${coherePageLinks ? `\n## Cohere model pages\nRows come from docs.cohere.com. A model with no retirement sentence is active and has no shutdown date. The docs pages parsed here do not print per-token prices.\n${coherePageLinks}` : ""}
 
 ## Status lists
 Deprecated means the stored status is deprecated. Retired means the stored status is retired. Dates come from the model records.

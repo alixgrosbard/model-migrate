@@ -1,0 +1,77 @@
+{
+  "id": "grok-voice-2.0",
+  "slug": "grok-voice-2-0",
+  "provider": "xai",
+  "display_name": "grok-voice-2.0",
+  "family": null,
+  "status": "deprecated",
+  "announced_date": null,
+  "deprecation_date": null,
+  "shutdown_date": null,
+  "shutdown_date_kind": "none",
+  "region_or_platform_notes": "The models page lists Speech to Speech (grok-voice-2.0) as Deprecated at $0.08 / min ($4.80 / hr) $0.004 / text input. Those prices are not per million tokens. The models page does not print a shutdown date for this id. The release notes say grok-voice-2.0 is deprecated and to set model to grok-voice-3.0 or grok-voice-latest. They do not print a shutdown date.",
+  "replacements": [
+    {
+      "model_id": "grok-voice-3.0",
+      "provider": "xai",
+      "kind": "official",
+      "source_url": "https://docs.x.ai/developers/release-notes"
+    },
+    {
+      "model_id": "grok-voice-latest",
+      "provider": "xai",
+      "kind": "official",
+      "source_url": "https://docs.x.ai/developers/release-notes"
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://docs.x.ai/developers/release-notes",
+      "label": "xAI model deprecations",
+      "last_checked": "2026-10-27",
+      "excerpt": "ice 2.0 deprecation `grok-voice-2.0` is deprecated. To upgrade, set `model` to `grok-voice-3.0` or `grok-voice-latest`, at the same price. See [Upgrading from Grok Voice 2.0](/developers/model-capabilities/audio/speech-to-speech#u"
+    },
+    {
+      "url": "https://docs.x.ai/developers/models",
+      "label": "xAI model docs",
+      "last_checked": "2026-10-27",
+      "excerpt": "g Mode Cost --- --- Speech to Speech (grok-voice-2.0) - Deprecated $0.08 / min ($4.80 / hr)<br />$0.004 / text input Speech to Speech (grok-voice-3.0) $0.08 / min ($4.80 / hr)<br />$0.004 / text input Speech to Text $0.10 / hr (REST), $0.20 / hr"
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": null,
+    "output_price_per_mtok": null,
+    "cached_input_price_per_mtok": null,
+    "batch_discount_pct": null,
+    "currency": null,
+    "context_window_tokens": null,
+    "max_output_tokens": null,
+    "modalities_in": [
+      "audio"
+    ],
+    "modalities_out": [
+      "audio"
+    ],
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {
+      "modalities_in": {
+        "url": "https://docs.x.ai/developers/models",
+        "last_checked": "2026-10-27"
+      },
+      "modalities_out": {
+        "url": "https://docs.x.ai/developers/models",
+        "last_checked": "2026-10-27"
+      }
+    }
+  },
+  "first_seen": "2026-10-27T12:00:00.000Z",
+  "updated_at": "2026-10-27T12:00:00.000Z"
+}

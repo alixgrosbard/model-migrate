@@ -1,0 +1,101 @@
+{
+  "id": "grok-4.6",
+  "slug": "grok-4-6",
+  "provider": "xai",
+  "display_name": "grok-4.6",
+  "family": null,
+  "status": "active",
+  "announced_date": null,
+  "deprecation_date": null,
+  "shutdown_date": null,
+  "shutdown_date_kind": "none",
+  "region_or_platform_notes": "The models page lists this id. The deprecations pages checked for this scrape do not give it a shutdown date. The models page lists a second rate when the prompt reaches 200k tokens: input $4, cached input $1, output $12 per million tokens. The release notes say this id has text and image inputs with text-only output, and no text output limit. The pricing page says the US regional endpoint https://us.api.x.ai/v1 bills token usage at 1.1x the global token rates, and currently lists this id.",
+  "replacements": [],
+  "sources": [
+    {
+      "url": "https://docs.x.ai/developers/models",
+      "label": "xAI model docs",
+      "last_checked": "2026-10-27",
+      "excerpt": "$4.00 $1.00 $12.00 grok-4.6 (< 200k prompt tokens) 500k $2.00 $0.50 $6.00 grok-4.6 (≥ 200k prompt tokens) 500k $4.00 $1.00 $12.00 grok-4.5 (< 200k prompt tokens) 500k $2.00 $0.30 $6.00 grok-4.5 (≥ 200k prompt tokens) 500k $4.00 $0"
+    },
+    {
+      "url": "https://docs.x.ai/developers/release-notes",
+      "label": "xAI release notes",
+      "last_checked": "2026-10-27",
+      "excerpt": "00k context window, text and image inputs with text-only output, and no text output limit. Pricing is $2 / $0.50 / $6 per 1M tokens (input / cached input / output) below 200k prompt tokens, and $4 / $1 / $12 above. Reason"
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": 2,
+    "output_price_per_mtok": 6,
+    "cached_input_price_per_mtok": 0.5,
+    "batch_discount_pct": 20,
+    "currency": "USD",
+    "context_window_tokens": 500000,
+    "max_output_tokens": null,
+    "modalities_in": [
+      "text",
+      "image"
+    ],
+    "modalities_out": [
+      "text"
+    ],
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": true,
+    "supports_streaming": null,
+    "supports_batch": true,
+    "supports_prompt_caching": true,
+    "reasoning": "optional",
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {
+      "input_price_per_mtok": {
+        "url": "https://docs.x.ai/developers/models",
+        "last_checked": "2026-10-27"
+      },
+      "cached_input_price_per_mtok": {
+        "url": "https://docs.x.ai/developers/models",
+        "last_checked": "2026-10-27"
+      },
+      "output_price_per_mtok": {
+        "url": "https://docs.x.ai/developers/models",
+        "last_checked": "2026-10-27"
+      },
+      "context_window_tokens": {
+        "url": "https://docs.x.ai/developers/models",
+        "last_checked": "2026-10-27"
+      },
+      "supports_prompt_caching": {
+        "url": "https://docs.x.ai/developers/models",
+        "last_checked": "2026-10-27"
+      },
+      "modalities_in": {
+        "url": "https://docs.x.ai/developers/release-notes",
+        "last_checked": "2026-10-27"
+      },
+      "modalities_out": {
+        "url": "https://docs.x.ai/developers/release-notes",
+        "last_checked": "2026-10-27"
+      },
+      "supports_vision": {
+        "url": "https://docs.x.ai/developers/release-notes",
+        "last_checked": "2026-10-27"
+      },
+      "reasoning": {
+        "url": "https://docs.x.ai/developers/release-notes",
+        "last_checked": "2026-10-27"
+      },
+      "supports_batch": {
+        "url": "https://docs.x.ai/developers/pricing",
+        "last_checked": "2026-10-27"
+      },
+      "batch_discount_pct": {
+        "url": "https://docs.x.ai/developers/pricing",
+        "last_checked": "2026-10-27"
+      }
+    }
+  },
+  "first_seen": "2026-10-27T12:00:00.000Z",
+  "updated_at": "2026-10-27T12:00:00.000Z"
+}

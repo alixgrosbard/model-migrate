@@ -18,6 +18,8 @@ import { DEPRECATIONS_URL as VERTEX_URL, parseVertex } from "./google-vertex.ts"
 import { MODELS_URL as MISTRAL_URL, parseMistral, PRICING_URL as MISTRAL_PRICING } from "./mistral.ts";
 import { NEWS_URL as DEEPSEEK_NEWS, PRICING_URL as DEEPSEEK_PRICING, UPDATES_URL as DEEPSEEK_UPDATES, parseDeepSeek } from "./deepseek.ts";
 import { DEPRECATIONS_MD_URL as GROQ_DEPRECATIONS, MODELS_MD_URL as GROQ_MODELS, parseGroq } from "./groq.ts";
+import { MAY15_URL as XAI_MAY15, MODELS_URL as XAI_MODELS, NOV2_URL as XAI_NOV2, PRICING_URL as XAI_PRICING, RELEASE_URL as XAI_RELEASE, parseXai } from "./xai.ts";
+import { DEPRECATIONS_MD_URL as COHERE_DEPRECATIONS, MODELS_MD_URL as COHERE_MODELS, parseCohere } from "./cohere.ts";
 import { DEPRECATIONS_URL as OPENAI_URL, parseOpenAI, parseOpenAIPricing, PRICING_URL as OPENAI_PRICING } from "./openai.ts";
 import { addDocumentedOpenAIModels, applyCodexPlatformNotes, OPENAI_MODELS_INDEX_URL } from "./openai-catalog.ts";
 import { canonicalizeModel, realContentKey, recordIdentity } from "../src/lib/stable-export.ts";
@@ -85,6 +87,15 @@ async function loadGroq(url: string, fixture: string, name: "deprecations" | "mo
   return body;
 }
 
+async function loadMarkdown(url: string, fixture: string, provider: string, name: string, markdown = false): Promise<string> {
+  if (fromSnapshots) return readSnapshot(path.join(root, fixture));
+  const body = await politeFetch(url, markdown ? { markdown: true } : undefined);
+  const { mkdir: mk, writeFile: wf } = await import("node:fs/promises");
+  await mk(path.join(root, "snapshots", provider), { recursive: true });
+  await wf(path.join(root, "snapshots", provider, `${name}-${checked}.md`), body);
+  return body;
+}
+
 async function loadText(url: string, snapshot: string, provider: string, suffix = ""): Promise<string> {
   if (fromSnapshots) return readSnapshot(path.join(root, snapshot));
   const body = await politeFetch(url);
@@ -126,6 +137,13 @@ async function scrapeAll(): Promise<Map<string, ScrapedModel[]>> {
   const deepseekNews = await loadText(DEEPSEEK_NEWS, "snapshots/fixtures/deepseek/news-2026-04-24.html", "deepseek", "-news");
   const groqDeprecations = await loadGroq(GROQ_DEPRECATIONS, "snapshots/fixtures/groq/deprecations-2026-10-26.md", "deprecations");
   const groqModels = await loadGroq(GROQ_MODELS, "snapshots/fixtures/groq/models-2026-10-26.md", "models");
+  const xaiModels = await loadMarkdown(XAI_MODELS, "snapshots/fixtures/xai/models-2026-10-27.md", "xai", "models", true);
+  const xaiPricing = await loadMarkdown(XAI_PRICING, "snapshots/fixtures/xai/pricing-2026-10-27.md", "xai", "pricing", true);
+  const xaiMay15 = await loadMarkdown(XAI_MAY15, "snapshots/fixtures/xai/may-15-2026-10-27.md", "xai", "may-15", true);
+  const xaiNov2 = await loadMarkdown(XAI_NOV2, "snapshots/fixtures/xai/nov-2-2026-10-27.md", "xai", "nov-2", true);
+  const xaiRelease = await loadMarkdown(XAI_RELEASE, "snapshots/fixtures/xai/release-notes-2026-10-27.md", "xai", "release-notes", true);
+  const cohereDeprecations = await loadMarkdown(COHERE_DEPRECATIONS, "snapshots/fixtures/cohere/deprecations-2026-10-27.md", "cohere", "deprecations");
+  const cohereModels = await loadMarkdown(COHERE_MODELS, "snapshots/fixtures/cohere/models-2026-10-27.md", "cohere", "models");
 
   const openai = parseOpenAI(openaiHtml, openaiPricing, checked);
   const anthropic = parseAnthropic(anthropicHtml, anthropicPricing, checked);
@@ -137,6 +155,8 @@ async function scrapeAll(): Promise<Map<string, ScrapedModel[]>> {
   const mistral = parseMistral(mistralHtml, mistralPricing, checked);
   const deepseek = parseDeepSeek(deepseekUpdates, deepseekPricing, deepseekNews, checked);
   const groq = parseGroq(groqDeprecations, groqModels, checked);
+  const xai = parseXai({ models: xaiModels, pricing: xaiPricing, may15: xaiMay15, nov2: xaiNov2, releaseNotes: xaiRelease }, checked);
+  const cohere = parseCohere(cohereDeprecations, cohereModels, checked);
 
   const groups = new Map<string, ScrapedModel[]>([
     ["openai", openai],
@@ -148,6 +168,8 @@ async function scrapeAll(): Promise<Map<string, ScrapedModel[]>> {
     ["mistral", mistral],
     ["deepseek", deepseek],
     ["groq", groq],
+    ["xai", xai],
+    ["cohere", cohere],
   ]);
   addReplacementStubs(groups, checked);
   attachStubPrices(groups, openaiPricing, anthropicPricing, geminiPricing, checked);

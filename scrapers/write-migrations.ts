@@ -20,8 +20,11 @@ export async function writeMigrations(models: ModelRecord[], checkedOn: string, 
   const byKey = new Map(models.map((model) => [`${model.provider}:${model.id}`, model]));
   let count = 0;
   for (const model of models) {
-    if (!model.shutdown_date) continue;
-    for (const official of officialMigrationTargets(model)) {
+    const targets = officialMigrationTargets(model);
+    const undatedProvider = model.provider === "xai" || model.provider === "cohere";
+    if (!model.shutdown_date && !undatedProvider) continue;
+    if (!targets.length) continue;
+    for (const official of targets) {
       const target = byKey.get(`${official.provider}:${official.model_id}`);
       if (!target) continue;
       const key = migrationKey(model, target);

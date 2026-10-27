@@ -94,6 +94,20 @@ function unique(values: string[]): string[] {
   return [...new Set(values)];
 }
 
+/** 500k, 1M, 8K, and a plain 512. Uses 1000, not 1024. */
+export function tokenCount(raw: string | null | undefined): number | null {
+  if (!raw) return null;
+  const text = raw.trim().toLowerCase().replace(/,/g, "");
+  const match = text.match(/^(\d+(?:\.\d+)?)(\s*[km])?$/);
+  if (!match) return null;
+  const value = Number(match[1]);
+  if (!Number.isFinite(value)) return null;
+  const unit = match[2]?.trim();
+  if (unit === "k") return Math.round(value * 1000);
+  if (unit === "m") return Math.round(value * 1_000_000);
+  return Math.round(value);
+}
+
 export function money(value: string | null | undefined): number | null {
   if (!value) return null;
   const match = value.replace(/,/g, "").match(/\$?\s*([0-9]+(?:\.[0-9]+)?)/);

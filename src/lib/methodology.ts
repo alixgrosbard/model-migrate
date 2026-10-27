@@ -111,6 +111,41 @@ export const SCRAPE_TARGETS: ScrapeTarget[] = [
     url: "https://console.groq.com/docs/models.md",
     role: "Parsed for production and preview model rows, token prices, context, and max completion. A stored source uses https://console.groq.com/docs/models without the .md suffix.",
   },
+  {
+    provider: "xAI",
+    url: "https://docs.x.ai/developers/models",
+    role: "Fetched with Accept: text/markdown. Parsed for text, image, video, and voice model rows. A stored source uses this URL. Token prices are the under-200k text rows. Image, video, and voice rates are not stored as per-token prices.",
+  },
+  {
+    provider: "xAI",
+    url: "https://docs.x.ai/developers/pricing",
+    role: "Fetched with Accept: text/markdown. Parsed for the batch discount list and the US regional endpoint note.",
+  },
+  {
+    provider: "xAI",
+    url: "https://docs.x.ai/developers/migration/may-15-retirement",
+    role: "Fetched with Accept: text/markdown. Parsed for the May 15, 2026 retirement list and the redirect table.",
+  },
+  {
+    provider: "xAI",
+    url: "https://docs.x.ai/developers/migration/imagine-image-quality-nov-2",
+    role: "Fetched with Accept: text/markdown. Parsed for the November 2, 2026 grok-imagine-image-quality retirement.",
+  },
+  {
+    provider: "xAI",
+    url: "https://docs.x.ai/developers/release-notes",
+    role: "Fetched with Accept: text/markdown. Parsed for voice, transcription, and Grok 4.5, 4.6, and 4.7 notes that name those models.",
+  },
+  {
+    provider: "Cohere",
+    url: "https://docs.cohere.com/docs/deprecations.md",
+    role: "Parsed for retirement and deprecation sections. A stored source uses https://docs.cohere.com/docs/deprecations without the .md suffix.",
+  },
+  {
+    provider: "Cohere",
+    url: "https://docs.cohere.com/docs/models.md",
+    role: "Parsed for model tables, context, and max output. A stored source uses https://docs.cohere.com/docs/models without the .md suffix. Per-token prices are not on this page.",
+  },
 ];
 
 export const ENRICH_PAGES: { label: string; detail: string }[] = [
@@ -198,7 +233,9 @@ export const METHODOLOGY_SECTIONS: MethodologySection[] = [
       "DeepSeek stores deepseek-chat and deepseek-reasoner from the changelog discontinuation date: retired when that date is before the check day, and deprecated otherwise. The v4-flash names the changelog or the pricing page calls retired are stored as retired, with no shutdown day. Other ids parsed from the pricing table are stored as active.",
       "Groq stores a deprecations-table row as retired when its shutdown date is before the check day, and deprecated otherwise. The shutdown date is the table's shutdown column. An id that is only on the models page is stored as active, with no shutdown date. A price that the models page gives per hour or per million characters is not stored as a per-token price.",
       "NVIDIA hosted rows are curated, not parsed by the refresh. A build.nvidia.com page that says the NIM endpoint is deprecated is stored as deprecated, with no shutdown date, because those pages do not print a day. An NVIDIA GitHub notice that prints a full API shutdown day is stored as retired when that day is before the check day. The id it names as the successor is stored as active, with no shutdown date. A notice that says a hosted route retired and does not print a day is stored as retired, with no shutdown date. Self-hosted NIM container dates on the AI Enterprise lifecycle page are not copied onto these rows.",
-      "An active model with no shutdown date whose source is a model-doc page, and not a deprecations page, is kept when a later scrape does not emit it. Deprecation-table rows that disappear are not kept. After model-doc pages are attached, the scrape also adds an undated alias when a dated snapshot id matches that alias plus -YYYY-MM-DD and a model-doc page names the alias. The alias is stored as active with no shutdown date. The shutdown dates stay on the snapshot records.",
+      "xAI stores a retirement date before the check day as retired, and a later date as deprecated. grok-voice-2.0 is stored as deprecated with no shutdown date, because the release notes do not print a day. An id that is only on the models page is stored as active, with no shutdown date. The redirect table is the replacement. A caution sentence that names a different target is kept in the note. Image, video, and per-minute voice rates are not stored as per-token prices. The under-200k text row is the stored token price. The 200k-and-above rate stays in the note.",
+      "Cohere stores an exact shutdown date before the check day as retired, and a later one as deprecated. The September 15, 2025 command models are stored as deprecated with that deprecation date and no shutdown date, because the page says a shutdown date will be assigned later. summarize has no replacement id on that page. A models-page sentence that recommends an id for new projects is not stored as a replacement. Live rows, and platform-table ids with no status, are stored as active with no shutdown date. A price printed per 1K searches is not stored as a per-token price. The how-does-cohere-pricing-work page does not print per-model token prices, so those fields stay empty.",
+      "An active model with no shutdown date whose source is a model-doc page, and not a deprecations page, is kept when a later scrape does not emit it. Deprecation-table rows that disappear are not kept. A stored xAI or Cohere row whose source host is docs.x.ai or docs.cohere.com is kept when a later scrape omits it, so a short page does not silently drop those rows. Removing one still takes a commit that deletes the file and stops the parser from emitting it. After model-doc pages are attached, the scrape also adds an undated alias when a dated snapshot id matches that alias plus -YYYY-MM-DD and a model-doc page names the alias. The alias is stored as active with no shutdown date. The shutdown dates stay on the snapshot records.",
     ],
   },
   {

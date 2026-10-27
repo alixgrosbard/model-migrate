@@ -1,0 +1,52 @@
+{
+  "id": "grok-4-fast-reasoning",
+  "slug": "grok-4-fast-reasoning",
+  "provider": "xai",
+  "display_name": "grok-4-fast-reasoning",
+  "family": null,
+  "status": "retired",
+  "announced_date": null,
+  "deprecation_date": null,
+  "shutdown_date": "2026-05-15",
+  "shutdown_date_kind": "exact",
+  "region_or_platform_notes": "Effective 2026-05-15 at 12:00 PM PT. The page does not say when the retirement was announced. The redirect table says `grok-4.3` with `low` reasoning effort.",
+  "replacements": [
+    {
+      "model_id": "grok-4.3",
+      "provider": "xai",
+      "kind": "official",
+      "source_url": "https://docs.x.ai/developers/migration/may-15-retirement"
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://docs.x.ai/developers/migration/may-15-retirement",
+      "label": "xAI model deprecations",
+      "last_checked": "2026-10-27",
+      "excerpt": "t-non-reasoning` * `grok-4-fast-reasoning` * `grok-4-fast-non-reasoning` * `grok-4-0709` * `grok-code-fast-1` * `grok-3` * `grok-imagine-image-pro` > [!CAUTION] > > After **May 15, 2026 at 12:00 PM PT**, requests to the r"
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": null,
+    "output_price_per_mtok": null,
+    "cached_input_price_per_mtok": null,
+    "batch_discount_pct": null,
+    "currency": null,
+    "context_window_tokens": null,
+    "max_output_tokens": null,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {}
+  },
+  "first_seen": "2026-10-27T12:00:00.000Z",
+  "updated_at": "2026-10-27T12:00:00.000Z"
+}

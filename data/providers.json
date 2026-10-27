@@ -68,5 +68,19 @@
     "deprecations_url": "https://build.nvidia.com/models",
     "pricing_url": "https://build.nvidia.com/models",
     "models_url": "https://build.nvidia.com/models"
+  },
+  {
+    "id": "xai",
+    "name": "xAI",
+    "deprecations_url": "https://docs.x.ai/developers/migration/may-15-retirement",
+    "pricing_url": "https://docs.x.ai/developers/pricing",
+    "models_url": "https://docs.x.ai/developers/models"
+  },
+  {
+    "id": "cohere",
+    "name": "Cohere",
+    "deprecations_url": "https://docs.cohere.com/docs/deprecations",
+    "pricing_url": "https://docs.cohere.com/docs/how-does-cohere-pricing-work",
+    "models_url": "https://docs.cohere.com/docs/models"
   }
 ]

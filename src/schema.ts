@@ -14,6 +14,8 @@ export const providerIds = [
   "deepseek",
   "groq",
   "nvidia",
+  "xai",
+  "cohere",
 ] as const;
 
 export const providerIdSchema = z.enum(providerIds);
