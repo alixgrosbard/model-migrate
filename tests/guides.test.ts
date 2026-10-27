@@ -24,6 +24,10 @@ const ALLOWED_HOSTS = new Set([
   "help.openai.com",
   "learn.chatgpt.com",
   "github.com",
+  "build.nvidia.com",
+  "docs.nvidia.com",
+  "docs.api.nvidia.com",
+  "integrate.api.nvidia.com",
   "api-docs.deepseek.com",
   "deepseek.com",
 ]);

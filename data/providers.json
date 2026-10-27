@@ -61,5 +61,12 @@
     "deprecations_url": "https://console.groq.com/docs/deprecations",
     "pricing_url": "https://console.groq.com/docs/models",
     "models_url": "https://console.groq.com/docs/models"
+  },
+  {
+    "id": "nvidia",
+    "name": "NVIDIA",
+    "deprecations_url": "https://build.nvidia.com/models",
+    "pricing_url": "https://build.nvidia.com/models",
+    "models_url": "https://build.nvidia.com/models"
   }
 ]

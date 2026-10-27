@@ -97,7 +97,7 @@ describe("request error pages", () => {
   it("lists both pages in llms.txt, lastmod, and JSON-LD", () => {
     const text = llmsTxt("https://sunsetdiff.com", [], []);
     const full = llmsFull("https://sunsetdiff.com", []);
-    expect(requestErrors.length).toBe(18);
+    expect(requestErrors.length).toBe(19);
     expect(text).toContain(REQUEST_ERRORS_INDEX);
     expect(full).toContain(REQUEST_ERRORS_INDEX);
     expect(lastmodForUrl(`https://sunsetdiff.com${REQUEST_ERRORS_INDEX}`)).toBe(requestErrorsIndexChecked());

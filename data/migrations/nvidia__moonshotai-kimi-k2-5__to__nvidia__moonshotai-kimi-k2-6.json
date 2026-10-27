@@ -1,0 +1,79 @@
+{
+  "from": {
+    "provider": "nvidia",
+    "model_id": "moonshotai/kimi-k2.5",
+    "slug": "moonshotai-kimi-k2-5"
+  },
+  "to": {
+    "provider": "nvidia",
+    "model_id": "moonshotai/kimi-k2.6",
+    "slug": "moonshotai-kimi-k2-6"
+  },
+  "price_diff": {
+    "input_pct_change": null,
+    "output_pct_change": null,
+    "example_monthly_cost_old": null,
+    "example_monthly_cost_new": null,
+    "currency": "USD",
+    "example_label": "Example monthly cost for 10M input tokens and 2M output tokens. Labeled example, not a bill."
+  },
+  "context_diff": {
+    "old_tokens": null,
+    "new_tokens": null,
+    "change_pct": null
+  },
+  "max_output_diff": {
+    "old_tokens": null,
+    "new_tokens": null,
+    "change_pct": null
+  },
+  "capability_changes": [],
+  "api_changes": [
+    {
+      "kind": "endpoint_change",
+      "detail": "The nemotron-4-340b-reward model page OpenAPI lists server https://integrate.api.nvidia.com/v1/ and POST /chat/completions. It says the API is compatible with OpenAI. This sample only changes the model field.",
+      "source_url": "https://build.nvidia.com/nvidia/nemotron-4-340b-reward"
+    }
+  ],
+  "code_change": {
+    "language": "python",
+    "before": "from openai import OpenAI\nclient = OpenAI(base_url=\"https://integrate.api.nvidia.com/v1\")\nresponse = client.chat.completions.create(\n    model=\"moonshotai/kimi-k2.5\",\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n)\n",
+    "after": "from openai import OpenAI\nclient = OpenAI(base_url=\"https://integrate.api.nvidia.com/v1\")\nresponse = client.chat.completions.create(\n    model=\"moonshotai/kimi-k2.6\",\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n)\n",
+    "snippets": {
+      "python": {
+        "before": "from openai import OpenAI\nclient = OpenAI(base_url=\"https://integrate.api.nvidia.com/v1\")\nresponse = client.chat.completions.create(\n    model=\"moonshotai/kimi-k2.5\",\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n)\n",
+        "after": "from openai import OpenAI\nclient = OpenAI(base_url=\"https://integrate.api.nvidia.com/v1\")\nresponse = client.chat.completions.create(\n    model=\"moonshotai/kimi-k2.6\",\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n)\n"
+      },
+      "typescript": {
+        "before": "import OpenAI from \"openai\";\nconst client = new OpenAI({ baseURL: \"https://integrate.api.nvidia.com/v1\" });\nconst response = await client.chat.completions.create({\n  model: \"moonshotai/kimi-k2.5\",\n  messages: [{ role: \"user\", content: \"Hello\" }],\n});\n",
+        "after": "import OpenAI from \"openai\";\nconst client = new OpenAI({ baseURL: \"https://integrate.api.nvidia.com/v1\" });\nconst response = await client.chat.completions.create({\n  model: \"moonshotai/kimi-k2.6\",\n  messages: [{ role: \"user\", content: \"Hello\" }],\n});\n"
+      },
+      "curl": {
+        "before": "curl https://integrate.api.nvidia.com/v1/chat/completions \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"model\":\"moonshotai/kimi-k2.5\",\"messages\":[{\"role\":\"user\",\"content\":\"Hello\"}]}'\n",
+        "after": "curl https://integrate.api.nvidia.com/v1/chat/completions \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"model\":\"moonshotai/kimi-k2.6\",\"messages\":[{\"role\":\"user\",\"content\":\"Hello\"}]}'\n"
+      }
+    }
+  },
+  "migration_checklist": [
+    "Read the shutdown date for moonshotai/kimi-k2.5 on the linked official page.",
+    "Point your requests at moonshotai/kimi-k2.6.",
+    "Re-check price, context, and parameters on the provider pages linked here.",
+    "Ship the change before the published shutdown date."
+  ],
+  "confidence": "partial",
+  "last_checked": "2026-10-27",
+  "sources": [
+    {
+      "url": "https://github.com/NVIDIA/NemoClaw/issues/2120",
+      "label": "NVIDIA NemoClaw API catalog deprecation notice",
+      "last_checked": "2026-10-27",
+      "excerpt": "Full API Shutdown | May 20, 2026 | kimi-k2.5 fully shut down. Successor: moonshotai/kimi-k2.6."
+    },
+    {
+      "url": "https://github.com/NVIDIA/NemoClaw/issues/2120",
+      "label": "NVIDIA NemoClaw API catalog deprecation notice",
+      "last_checked": "2026-10-27",
+      "excerpt": "Successor: moonshotai/kimi-k2.6 (currently available on HuggingFace; upgrading on build.nvidia.com)."
+    }
+  ]
+}

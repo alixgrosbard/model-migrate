@@ -174,11 +174,13 @@ function callKind(provider: string, id: string): CallKind | null {
 
 function codeSnippets(from: ModelRecord, to: ModelRecord) {
   if (from.provider === "groq" && to.provider === "groq") return groqSnippets(from.id, to.id);
+  if (from.provider === "nvidia" && to.provider === "nvidia") return nvidiaSnippets(from.id, to.id);
   return specialized(from, to)?.snippets ?? defaultSnippets(from, to);
 }
 
 function apiChanges(from: ModelRecord, to: ModelRecord): ApiChange[] {
   if (from.provider === "groq" && to.provider === "groq") return groqApiChanges(from.id, to.id);
+  if (from.provider === "nvidia" && to.provider === "nvidia") return nvidiaApiChanges();
   return specialized(from, to)?.apiChanges ?? [];
 }
 
@@ -218,6 +220,35 @@ export function mergeCuratedMigration(previous: MigrationRecord | undefined, fre
 }
 
 const GROQ_API = "https://console.groq.com/docs/api-reference";
+const NVIDIA_HOSTED_CHAT = "https://build.nvidia.com/nvidia/nemotron-4-340b-reward";
+
+function nvidiaApiChanges(): ApiChange[] {
+  return [
+    {
+      kind: "endpoint_change",
+      detail:
+        "The nemotron-4-340b-reward model page OpenAPI lists server https://integrate.api.nvidia.com/v1/ and POST /chat/completions. It says the API is compatible with OpenAI. This sample only changes the model field.",
+      source_url: NVIDIA_HOSTED_CHAT,
+    },
+  ];
+}
+
+function nvidiaSnippets(fromId: string, toId: string): SnippetSet {
+  return {
+    python: {
+      before: `from openai import OpenAI\nclient = OpenAI(base_url="https://integrate.api.nvidia.com/v1")\nresponse = client.chat.completions.create(\n    model="${fromId}",\n    messages=[{"role": "user", "content": "Hello"}],\n)\n`,
+      after: `from openai import OpenAI\nclient = OpenAI(base_url="https://integrate.api.nvidia.com/v1")\nresponse = client.chat.completions.create(\n    model="${toId}",\n    messages=[{"role": "user", "content": "Hello"}],\n)\n`,
+    },
+    typescript: {
+      before: `import OpenAI from "openai";\nconst client = new OpenAI({ baseURL: "https://integrate.api.nvidia.com/v1" });\nconst response = await client.chat.completions.create({\n  model: "${fromId}",\n  messages: [{ role: "user", content: "Hello" }],\n});\n`,
+      after: `import OpenAI from "openai";\nconst client = new OpenAI({ baseURL: "https://integrate.api.nvidia.com/v1" });\nconst response = await client.chat.completions.create({\n  model: "${toId}",\n  messages: [{ role: "user", content: "Hello" }],\n});\n`,
+    },
+    curl: {
+      before: `curl https://integrate.api.nvidia.com/v1/chat/completions \\\n  -H "Content-Type: application/json" \\\n  -d '{"model":"${fromId}","messages":[{"role":"user","content":"Hello"}]}'\n`,
+      after: `curl https://integrate.api.nvidia.com/v1/chat/completions \\\n  -H "Content-Type: application/json" \\\n  -d '{"model":"${toId}","messages":[{"role":"user","content":"Hello"}]}'\n`,
+    },
+  };
+}
 
 function groqFamily(id: string): "transcription" | "speech" | "chat" {
   if (id.includes("whisper")) return "transcription";

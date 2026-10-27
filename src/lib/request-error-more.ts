@@ -1987,4 +1987,177 @@ const response = await client.chat.completions.create({
     ],
     citations: [OPENAI_CHAT, OPENAI_RESPONSES, OPENAI_DEPRECATIONS, OPENAI_CHANGELOG],
   },
+  {
+    slug: "nvidia-hosted-model-410-gone",
+    provider: "nvidia",
+    cause: "A hosted model id on integrate.api.nvidia.com has reached the end of life named in the 410 body.",
+    title: "NVIDIA hosted model 410 Gone | SunsetDiff",
+    description:
+      "integrate.api.nvidia.com returns 410 Gone when a hosted model has reached its end of life. The quoted sentence is from a public issue log. Replacement steps use the NVIDIA pages on SunsetDiff.",
+    h1: "NVIDIA hosted model has reached its end of life",
+    lead: "A call to the NVIDIA hosted API can return HTTP 410 when that model id is past the end of life named in the body. Read the id, then look it up. Do not keep retrying it.",
+    errorQuoted: true,
+    errorText:
+      "410 Gone: The model 'openai/gpt-oss-120b' has reached its end of life on 2026-09-03T08:00:00Z and is no longer available.",
+    quoteSourceLabel: "E2E-Self-Heal issue 402",
+    quoteSourceUrl: "https://github.com/Lee-Dongwook/E2E-Self-Heal/issues/402",
+    checked: "2026-10-27",
+    rule: "Issue 402 prints the sentence in the error block for openai/gpt-oss-120b. That id is not stored on SunsetDiff, because no NVIDIA model page or NVIDIA repository notice found on 2026-10-27 states that date. Issue omatheusmesmo/Qlawkus#357 prints: 410 Gone: The model 'nvidia/nv-embedqa-e5-v5' has reached its end of life on 2026-08-25T09:00:00Z. The build.nvidia.com page for nvidia/nv-embedqa-e5-v5 says the NIM endpoint has been deprecated and does not print that timestamp, so the stored shutdown date stays empty. Issue chimeranext/better-toolkits#127 reports HTTP 410 and the words reached its end of life on 2026-07-02 for z-ai/glm-5.1, and on 2026-08-07 for deepseek-ai/deepseek-v4-pro. It does not print a full error sentence. Those days are not stored. NVIDIA/NemoClaw issue 2120 says the full API shutdown for kimi-k2.5 is May 20, 2026, and names moonshotai/kimi-k2.6. Issue 1744 says GLM-5 fully shuts down on May 9, 2026. The hosted catalog does not publish one shutdown table. A deprecated banner on a model page means that hosted endpoint is deprecated. The AI Enterprise lifecycle page is the self-hosted NIM container list, not this error.",
+    ruleSourceLabel: "E2E-Self-Heal issue 402",
+    ruleSourceUrl: "https://github.com/Lee-Dongwook/E2E-Self-Heal/issues/402",
+    modelsCaption:
+      "Official NVIDIA records on this site. The quoted 410 names openai/gpt-oss-120b, which is not stored, because no NVIDIA page or NVIDIA repository notice was found for that date.",
+    models: [
+      {
+        id: "nvidia/nv-embedqa-e5-v5",
+        provider: "nvidia",
+        slug: "nvidia-nv-embedqa-e5-v5",
+        note: "The model page says the NIM endpoint is deprecated and does not print a day. Issue 357 prints a 410 sentence with 2026-08-25T09:00:00Z. That timestamp is not the stored shutdown date.",
+      },
+      {
+        id: "moonshotai/kimi-k2.5",
+        provider: "nvidia",
+        slug: "moonshotai-kimi-k2-5",
+        note: "NVIDIA/NemoClaw issue 2120 says the full API shutdown is May 20, 2026, and names moonshotai/kimi-k2.6.",
+      },
+      {
+        id: "z-ai/glm5",
+        provider: "nvidia",
+        slug: "z-ai-glm5",
+        note: "NVIDIA/NemoClaw issue 1744 says GLM-5 fully shuts down on May 9, 2026. The commit that cites it names z-ai/glm-5.1.",
+      },
+    ],
+    fixes: [
+      {
+        heading: "Raw SDK",
+        text: [
+          "Read the model id inside the 410 body. Open that id on build.nvidia.com. If the page says the NIM endpoint has been deprecated and does not name a successor, the page has not published a replacement.",
+          "If an NVIDIA GitHub notice names a successor, use that id. moonshotai/kimi-k2.5 names moonshotai/kimi-k2.6. z-ai/glm5 names z-ai/glm-5.1. The nemotron-4-340b-reward model page lists POST /chat/completions on https://integrate.api.nvidia.com/v1/. This sample only changes the model field. Do not copy a date from the AI Enterprise NIM container page onto a hosted slug.",
+        ],
+        samples: [
+          {
+            caption: "Hosted chat route, model field only",
+            code: `curl https://integrate.api.nvidia.com/v1/chat/completions \\
+  -H "Content-Type: application/json" \\
+  -d '{"model":"moonshotai/kimi-k2.6","messages":[{"role":"user","content":"Hello"}]}'
+`,
+          },
+        ],
+        sourceLabel: "nemotron-4-340b-reward model page",
+        sourceUrl: "https://build.nvidia.com/nvidia/nemotron-4-340b-reward",
+      },
+      {
+        heading: "LiteLLM",
+        text: [
+          "LiteLLM's Nvidia NIM page says to prefix the model with nvidia_nim/. The API endpoint it lists for chat is https://integrate.api.nvidia.com/v1/. Put that string in the proxy model_list, not in application code. After a 410, change the model string in that config.",
+        ],
+        samples: [
+          {
+            caption: "Proxy config, from the Nvidia NIM page",
+            code: `model_list:
+  - model_name: my-model
+    litellm_params:
+      model: nvidia_nim/moonshotai/kimi-k2.6
+`,
+          },
+        ],
+        sourceLabel: "LiteLLM Nvidia NIM",
+        sourceUrl: "https://docs.litellm.ai/docs/providers/nvidia_nim",
+      },
+      {
+        heading: "Vercel AI SDK",
+        text: [
+          "The AI SDK NVIDIA NIM page says to create a provider with createOpenAICompatible and baseURL https://integrate.api.nvidia.com/v1. Pass the hosted model id to chatModel. That call is the place to change when a slug returns 410. The same page also sets an Authorization header from NIM_API_KEY. This sample leaves that header out and only shows the model id.",
+        ],
+        samples: [
+          {
+            caption: "TypeScript",
+            code: `import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
+import { generateText } from "ai";
+
+const nim = createOpenAICompatible({
+  name: "nim",
+  baseURL: "https://integrate.api.nvidia.com/v1",
+});
+
+const { text } = await generateText({
+  model: nim.chatModel("moonshotai/kimi-k2.6"),
+  prompt: "Hello",
+});
+`,
+          },
+        ],
+        sourceLabel: "AI SDK NVIDIA NIM",
+        sourceUrl: "https://ai-sdk.dev/providers/openai-compatible-providers/nim",
+      },
+      {
+        heading: "Do not hardcode the slug",
+        text: [
+          "Keep the model id in config. A 410 is about that id, so a retry of the same slug fails the same way. Point the fallback at a different id, or stop the lane.",
+          "Check SunsetDiff before you pin a slug. In models.json, read rows whose provider is nvidia. shutdown_date is set only when an NVIDIA notice printed a day. status deprecated with an empty shutdown_date means the model page said deprecated and did not print a day.",
+        ],
+        samples: [
+          {
+            caption: "Config",
+            code: `NVIDIA_MODEL=moonshotai/kimi-k2.6
+`,
+          },
+          {
+            caption: "SunsetDiff JSON",
+            code: `curl -fsSL https://sunsetdiff.com/data/models.json
+`,
+          },
+        ],
+        sourceLabel: "SunsetDiff models.json",
+        sourceUrl: "https://sunsetdiff.com/data/models.json",
+      },
+    ],
+    guides: [
+      {
+        href: "/migrate/nvidia__moonshotai-kimi-k2-5__to__nvidia__moonshotai-kimi-k2-6/",
+        label: "moonshotai/kimi-k2.5 to moonshotai/kimi-k2.6",
+      },
+      {
+        href: "/migrate/nvidia__z-ai-glm5__to__nvidia__z-ai-glm-5-1/",
+        label: "z-ai/glm5 to z-ai/glm-5.1",
+      },
+    ],
+    seeAlso: [
+      { href: "/providers/nvidia/", label: "NVIDIA hosted models" },
+      { href: "/guides/nvidia-hosted-api-vs-nim-containers/", label: "Hosted API vs NIM containers" },
+      { href: "https://github.com/omatheusmesmo/Qlawkus/issues/357", label: "Qlawkus issue 357" },
+      { href: "https://github.com/chimeranext/better-toolkits/issues/127", label: "better-toolkits issue 127" },
+    ],
+    faqs: [
+      {
+        question: "What does this 410 mean?",
+        answer:
+          "The public log says the hosted model id in the sentence has reached its end of life and is no longer available. It is not a short outage of a live id. Stop calling that id.",
+      },
+      {
+        question: "Where is the replacement?",
+        answer:
+          "Use a successor only when an NVIDIA page or NVIDIA repository notice names one. [moonshotai/kimi-k2.5](/models/nvidia/moonshotai-kimi-k2-5/) names moonshotai/kimi-k2.6. [z-ai/glm5](/models/nvidia/z-ai-glm5/) names z-ai/glm-5.1. A deprecated banner that says to transition to another model, and does not name one, has no published replacement. The list is [NVIDIA](/providers/nvidia/).",
+      },
+      {
+        question: "How do I avoid the next hardcoded slug?",
+        answer:
+          "Put the id in config. After a 410, do not retry that id. Read [models.json](/data/models.json) and keep provider nvidia. The difference between the hosted API and self-hosted NIM containers is [Hosted API vs NIM containers](/guides/nvidia-hosted-api-vs-nim-containers/).",
+      },
+    ],
+    citations: [
+      "https://github.com/Lee-Dongwook/E2E-Self-Heal/issues/402",
+      "https://github.com/omatheusmesmo/Qlawkus/issues/357",
+      "https://github.com/chimeranext/better-toolkits/issues/127",
+      "https://build.nvidia.com/nvidia/nv-embedqa-e5-v5",
+      "https://build.nvidia.com/nvidia/nemotron-4-340b-reward",
+      "https://github.com/NVIDIA/NemoClaw/issues/2120",
+      "https://github.com/NVIDIA/NemoClaw/issues/1744",
+      "https://github.com/NVIDIA/NemoClaw/commit/db665834691ecf35c55deaa6f64c9227463ef080",
+      "https://docs.nvidia.com/ai-enterprise/lifecycle/latest/eol-notices.html",
+      "https://docs.litellm.ai/docs/providers/nvidia_nim",
+      "https://ai-sdk.dev/providers/openai-compatible-providers/nim",
+      "https://sunsetdiff.com/data/models.json",
+    ],
+  },
 ];
