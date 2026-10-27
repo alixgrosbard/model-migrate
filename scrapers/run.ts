@@ -297,7 +297,7 @@ function merge(
   }
   // gpt-6.1-sol and gpt-6-astra are sourced from model pages, not the deprecations table.
   // A scrape that omits them would delete those records and fail the tests.
-  return { models: carryForwardDocumentedModels(previous, models), changes, changeCount: changes.length };
+  return { models: carryForwardDocumentedModels(previous, models, checkedOn), changes, changeCount: changes.length };
 }
 
 function preserveSpecs(old: ModelRecord["specs"], next: ModelRecord["specs"]): ModelRecord["specs"] {
