@@ -45,15 +45,11 @@
     "knowledge_cutoff": null,
     "endpoints": null,
     "specs_sources": {
-      "input_price_per_mtok": {
-        "url": "https://docs.x.ai/developers/models",
+      "batch_discount_pct": {
+        "url": "https://docs.x.ai/developers/pricing",
         "last_checked": "2026-10-27"
       },
       "cached_input_price_per_mtok": {
-        "url": "https://docs.x.ai/developers/models",
-        "last_checked": "2026-10-27"
-      },
-      "output_price_per_mtok": {
         "url": "https://docs.x.ai/developers/models",
         "last_checked": "2026-10-27"
       },
@@ -61,7 +57,11 @@
         "url": "https://docs.x.ai/developers/models",
         "last_checked": "2026-10-27"
       },
-      "supports_prompt_caching": {
+      "input_price_per_mtok": {
+        "url": "https://docs.x.ai/developers/models",
+        "last_checked": "2026-10-27"
+      },
+      "output_price_per_mtok": {
         "url": "https://docs.x.ai/developers/models",
         "last_checked": "2026-10-27"
       },
@@ -73,8 +73,8 @@
         "url": "https://docs.x.ai/developers/pricing",
         "last_checked": "2026-10-27"
       },
-      "batch_discount_pct": {
-        "url": "https://docs.x.ai/developers/pricing",
+      "supports_prompt_caching": {
+        "url": "https://docs.x.ai/developers/models",
         "last_checked": "2026-10-27"
       }
     }
