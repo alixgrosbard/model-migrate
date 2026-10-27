@@ -281,6 +281,26 @@ describe("refresh pipeline", () => {
       models.filter((model) => model.id !== snapshotId),
     );
     expect(withoutSnapshot.some((model) => model.id === snapshotId)).toBe(false);
+
+    const retiredIds = [
+      "ft-babbage-002",
+      "ft-davinci-002",
+      "ft-gpt-3.5-turbo",
+      "ft-gpt-4",
+      "ft-gpt-4.1-nano-2025-04-14",
+    ];
+    const withoutRetired = carryForwardDocumentedModels(
+      models,
+      models.filter((model) => !(model.provider === "openai" && retiredIds.includes(model.id))),
+      "2026-10-27",
+    );
+    for (const id of retiredIds) {
+      const row = withoutRetired.find((model) => model.provider === "openai" && model.id === id);
+      expect(row?.status).toBe("retired");
+      expect(row?.shutdown_date).toBe("2026-10-23");
+      expect(row?.sources[0]?.url).toBe("https://developers.openai.com/api/docs/deprecations");
+    }
+    expect(withoutRetired).toHaveLength(models.length);
   });
 
   it("keeps a documented OpenAI id that has no dated snapshot", () => {
