@@ -89,5 +89,12 @@
     "deprecations_url": "https://openrouter.ai/docs/guides/overview/models",
     "pricing_url": "https://openrouter.ai/docs/guides/overview/models",
     "models_url": "https://openrouter.ai/api/v1/models?output_modalities=all"
+  },
+  {
+    "id": "nebius",
+    "name": "Nebius Token Factory",
+    "deprecations_url": "https://docs.tokenfactory.nebius.com/model-deprecations-november-2026",
+    "pricing_url": "https://docs.tokenfactory.nebius.com/other-capabilities/billing-new",
+    "models_url": "https://docs.tokenfactory.nebius.com/quickstart"
   }
 ]

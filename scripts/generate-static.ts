@@ -147,6 +147,7 @@ async function main() {
     xaiPages: models.filter((model) => model.provider === "xai").sort((a, b) => a.id.localeCompare(b.id)),
     coherePages: models.filter((model) => model.provider === "cohere").sort((a, b) => a.id.localeCompare(b.id)),
     openrouterPages: models.filter((model) => model.provider === "openrouter").sort((a, b) => a.id.localeCompare(b.id)),
+    nebiusPages: models.filter((model) => model.provider === "nebius").sort((a, b) => a.id.localeCompare(b.id)),
     featured: featuredModelLinks(models).map((link) => ({ label: link.label, path: link.href })),
   }));
   await writeJson(path.join(publicDir, "openapi.json"), openApiDocument(datasetVersion(changes)));
