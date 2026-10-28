@@ -8,6 +8,10 @@ const providerIds = [
     "azure-openai",
     "mistral",
     "deepseek",
+    "nvidia",
+    "xai",
+    "cohere",
+    "openrouter",
 ];
 const hits = new Map();
 export function validEmail(email) {

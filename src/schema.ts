@@ -16,6 +16,7 @@ export const providerIds = [
   "nvidia",
   "xai",
   "cohere",
+  "openrouter",
 ] as const;
 
 export const providerIdSchema = z.enum(providerIds);

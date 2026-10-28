@@ -146,6 +146,21 @@ export const SCRAPE_TARGETS: ScrapeTarget[] = [
     url: "https://docs.cohere.com/docs/models.md",
     role: "Parsed for model tables, context, and max output. A stored source uses https://docs.cohere.com/docs/models without the .md suffix. Per-token prices are not on this page.",
   },
+  {
+    provider: "OpenRouter",
+    url: "https://openrouter.ai/api/v1/models?output_modalities=all",
+    role: "Parsed for rows whose expiration_date is a calendar day. A null expiration_date is not stored. output_modalities=all is required because the default list omits models whose output is not text.",
+  },
+  {
+    provider: "OpenRouter",
+    url: "https://openrouter.ai/docs/guides/overview/models",
+    role: "Checked for the sentence that calls expiration_date the deprecation date for the model endpoint. A failed fetch does not fail the refresh.",
+  },
+  {
+    provider: "OpenRouter",
+    url: "https://openrouter.ai/docs/client-sdks/python/components/model",
+    role: "Checked for the sentence that calls expiration_date the date after which the model may be removed. A failed fetch does not fail the refresh.",
+  },
 ];
 
 export const ENRICH_PAGES: { label: string; detail: string }[] = [
@@ -202,6 +217,7 @@ export const METHODOLOGY_SECTIONS: MethodologySection[] = [
     heading: "Sanity gate and tests",
     paragraphs: [
       "Before any model file is replaced, each provider's new row count is checked. Zero rows fails the gate. When the previous file set had rows, a new count below 70 percent of that previous count also fails. The error text says the count is more than 30 percent below the previous count. A count of exactly 70 percent passes. If any provider fails, the command exits before writeModels runs, so the model files are not replaced. The refresh job commits only after the scrape and the tests succeed, so a failed gate is not pushed.",
+      "OpenRouter is decided before that gate. A failed or incomplete models API read, or a row drop that the stored expiration dates do not explain, removes OpenRouter from the scrape and keeps the stored rows. That does not fail the other providers. The OpenRouter count is not sent through the zero-row check.",
       "npm test runs after a successful scrape and before the data commit. A failing test stops the commit.",
     ],
   },
@@ -235,6 +251,7 @@ export const METHODOLOGY_SECTIONS: MethodologySection[] = [
       "NVIDIA hosted rows are curated, not parsed by the refresh. A build.nvidia.com page that says the NIM endpoint is deprecated is stored as deprecated, with no shutdown date, because those pages do not print a day. An NVIDIA GitHub notice that prints a full API shutdown day is stored as retired when that day is before the check day. The id it names as the successor is stored as active, with no shutdown date. A notice that says a hosted route retired and does not print a day is stored as retired, with no shutdown date. Self-hosted NIM container dates on the AI Enterprise lifecycle page are not copied onto these rows.",
       "xAI stores a retirement date before the check day as retired, and a later date as deprecated. grok-voice-2.0 is stored as deprecated with no shutdown date, because the release notes do not print a day. An id that is only on the models page is stored as active, with no shutdown date. The redirect table is the replacement. A caution sentence that names a different target is kept in the note. Image, video, and per-minute voice rates are not stored as per-token prices. The under-200k text row is the stored token price. The 200k-and-above rate stays in the note.",
       "Cohere stores an exact shutdown date before the check day as retired, and a later one as deprecated. The September 15, 2025 command models are stored as deprecated with that deprecation date and no shutdown date, because the page says a shutdown date will be assigned later. summarize has no replacement id on that page. A models-page sentence that recommends an id for new projects is not stored as a replacement. Live rows, and platform-table ids with no status, are stored as active with no shutdown date. A price printed per 1K searches is not stored as a per-token price. The how-does-cohere-pricing-work page does not print per-model token prices, so those fields stay empty.",
+      "OpenRouter stores a row only when the models API sets expiration_date to a real calendar day. That day is deprecation_date. shutdown_date is the same day and shutdown_date_kind is not_before, because the model schema says the model may be removed after that day and does not say the endpoint stops on that day. Status stays deprecated while the id is still in the list, including when the day is before the check day. A null expiration_date is not stored. The response does not name a replacement, so none is stored. Token prices are stored only when output_modalities is text, because the pricing object is per token, request, or unit. A fetch error, a body that is not a data array, a total_count that does not match the rows, or a row drop that the stored expiration dates do not explain keeps the stored OpenRouter rows and does not fail the other providers. A stored OpenRouter row whose expiration date is before the check day is kept when a later list omits it.",
       "An active model with no shutdown date whose source is a model-doc page, and not a deprecations page, is kept when a later scrape does not emit it. Deprecation-table rows that disappear are not kept. A stored xAI or Cohere row whose source host is docs.x.ai or docs.cohere.com is kept when a later scrape omits it, so a short page does not silently drop those rows. Removing one still takes a commit that deletes the file and stops the parser from emitting it. After model-doc pages are attached, the scrape also adds an undated alias when a dated snapshot id matches that alias plus -YYYY-MM-DD and a model-doc page names the alias. The alias is stored as active with no shutdown date. The shutdown dates stay on the snapshot records.",
     ],
   },
