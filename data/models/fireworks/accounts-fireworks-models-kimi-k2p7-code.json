@@ -1,0 +1,58 @@
+{
+  "id": "accounts/fireworks/models/kimi-k2p7-code",
+  "slug": "accounts-fireworks-models-kimi-k2p7-code",
+  "provider": "fireworks",
+  "display_name": "Kimi K2.7 Code",
+  "family": null,
+  "status": "retired",
+  "announced_date": null,
+  "deprecation_date": null,
+  "shutdown_date": "2026-09-25",
+  "shutdown_date_kind": "exact",
+  "region_or_platform_notes": "Changelog section: Serverless deprecation: DeepSeek V4 Pro (0813), DeepSeek V4 Flash (0731), and related models. Dedicated deployments are unaffected. Changelog section: Upcoming Serverless deprecation: older DeepSeek, GLM, Muse, and Kimi models. This applies only to serverless endpoints, including Fast and US-only Serverless endpoints for models that have those variants. Another changelog bullet links Kimi K2.7 Code Fast and the text after it to the same model page, so no separate id is stored.",
+  "replacements": [
+    {
+      "model_id": "accounts/fireworks/models/glm-5p3",
+      "provider": "fireworks",
+      "kind": "official",
+      "source_url": "https://docs.fireworks.ai/updates/changelog"
+    },
+    {
+      "model_id": "accounts/fireworks/models/kimi-k3",
+      "provider": "fireworks",
+      "kind": "official",
+      "source_url": "https://docs.fireworks.ai/updates/changelog"
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://docs.fireworks.ai/updates/changelog",
+      "label": "Fireworks AI changelog",
+      "last_checked": "2026-10-28",
+      "excerpt": "Kimi K2.7 Code - migrate to GLM 5.3 or Kimi K3"
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": null,
+    "output_price_per_mtok": null,
+    "cached_input_price_per_mtok": null,
+    "batch_discount_pct": null,
+    "currency": null,
+    "context_window_tokens": null,
+    "max_output_tokens": null,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {}
+  },
+  "first_seen": "2026-10-28T12:33:26.950Z",
+  "updated_at": "2026-10-28T12:33:26.950Z"
+}

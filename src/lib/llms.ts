@@ -39,6 +39,8 @@ export function llmsTxt(
     coherePages?: ModelRecord[];
     openrouterPages?: ModelRecord[];
     nebiusPages?: ModelRecord[];
+    togetherPages?: ModelRecord[];
+    fireworksPages?: ModelRecord[];
     featured?: { label: string; path: string }[];
   } = {},
 ): string {
@@ -87,6 +89,12 @@ export function llmsTxt(
     .map((model) => `- [${model.id}](${origin}/models/${model.provider}/${model.slug}/)`)
     .join("\n");
   const nebiusPageLinks = (extra.nebiusPages ?? [])
+    .map((model) => `- [${model.id}](${origin}/models/${model.provider}/${model.slug}/)`)
+    .join("\n");
+  const togetherPageLinks = (extra.togetherPages ?? [])
+    .map((model) => `- [${model.id}](${origin}/models/${model.provider}/${model.slug}/)`)
+    .join("\n");
+  const fireworksPageLinks = (extra.fireworksPages ?? [])
     .map((model) => `- [${model.id}](${origin}/models/${model.provider}/${model.slug}/)`)
     .join("\n");
   return `# SunsetDiff
@@ -196,6 +204,8 @@ ${xaiPageLinks ? `\n## xAI model pages\nRows come from docs.x.ai. A model with n
 ${coherePageLinks ? `\n## Cohere model pages\nRows come from docs.cohere.com. A model with no retirement sentence is active and has no shutdown date. The docs pages parsed here do not print per-token prices.\n${coherePageLinks}` : ""}
 ${openrouterPageLinks ? `\n## OpenRouter model pages\nRows are models whose OpenRouter models API sets expiration_date. A null expiration_date is not stored. The date is a deprecation date and a removal floor, not a guaranteed shutdown day. The API response does not name a replacement.\n${openrouterPageLinks}` : ""}
 ${nebiusPageLinks ? `\n## Nebius Token Factory model pages\nRows come from the November 2026 and August 2026 Token Factory deprecation notices. A removal applies to Serverless. Dedicated Endpoints are unaffected. Token Factory does not automatically reroute requests from deprecated models. The notices do not print a per-token price.\n${nebiusPageLinks}` : ""}
+${togetherPageLinks ? `\n## Together AI model pages\nRows come from the Together deprecations page: scheduled serverless removals, the inference removal table, the fine-tuning removal table, and active redirects. A past removal date is retired. A future removal date is deprecated. Redirects have no removal date. When the scheduled table and the inference table list different dates, the stored shutdown date is the inference table date. A per-million-token price is stored only when the serverless models page lists that id.\n${togetherPageLinks}` : ""}
+${fireworksPageLinks ? `\n## Fireworks AI model pages\nRows come from the Fireworks changelog when a deprecation links a model page. The model id is accounts/fireworks/models/ plus that page's slug, the same shape as the quickstart model field. A US-only row uses the id on the US-only serverless page. A display name with no model link is not stored. Dedicated deployments stay up when the changelog says that.\n${fireworksPageLinks}` : ""}
 
 ## Status lists
 Deprecated means the stored status is deprecated. Retired means the stored status is retired. Dates come from the model records.

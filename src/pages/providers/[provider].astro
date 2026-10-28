@@ -64,6 +64,26 @@ const description = `${provider.name} model shutdown dates, grouped by status.`;
       The <a href={provider.pricing_url}>billing page</a> does not print a per-token price.
       <a href="/#soonest">Soonest shutdowns on the homepage</a>.
     </p>
+  ) : provider.id === "together" ? (
+    <p>
+      Official page: <a href={provider.deprecations_url}>{provider.deprecations_url}</a>.
+      Rows come from the scheduled serverless table, the inference removal table, the fine-tuning removal table, and the active redirects.
+      A past removal date is retired. A future removal date is deprecated.
+      Redirects have no removal date. Requests to the original model id are routed to the upgraded version.
+      When the scheduled table and the inference table list different dates, the stored shutdown date is the inference table date.
+      The <a href={provider.models_url}>serverless models page</a> supplies a per-million-token price only when it lists that id.
+      <a href="/#soonest">Soonest shutdowns on the homepage</a>.
+    </p>
+  ) : provider.id === "fireworks" ? (
+    <p>
+      Official page: <a href={provider.deprecations_url}>{provider.deprecations_url}</a>.
+      A row is stored when a deprecation links a model page.
+      The model id is accounts/fireworks/models/ plus that slug, the same shape the <a href={provider.models_url}>quickstart</a> uses.
+      A US-only row uses the id on the <a href="https://docs.fireworks.ai/serverless/us-only-serverless">US-only serverless page</a>.
+      A display name with no model link is not stored.
+      Dedicated deployments stay up when the changelog says that.
+      <a href="/#soonest">Soonest shutdowns on the homepage</a>.
+    </p>
   ) : (
     <p>Official source: <a href={provider.deprecations_url}>{provider.deprecations_url}</a>. <a href="/#soonest">Soonest shutdowns on the homepage</a>.</p>
   )}

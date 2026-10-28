@@ -9,6 +9,8 @@ import { MAY15_URL as XAI_MAY15, MODELS_URL as XAI_MODELS, NOV2_URL as XAI_NOV2,
 import { DEPRECATIONS_MD_URL as COHERE_DEPRECATIONS, MODELS_MD_URL as COHERE_MODELS } from "../scrapers/cohere.ts";
 import { MODELS_DOC_URL as OPENROUTER_DOC, MODELS_URL as OPENROUTER_MODELS, MODEL_SCHEMA_URL as OPENROUTER_SCHEMA } from "../scrapers/openrouter.ts";
 import { AUGUST_MD_URL as NEBIUS_AUGUST, NOVEMBER_MD_URL as NEBIUS_NOVEMBER } from "../scrapers/nebius.ts";
+import { CHANGELOG_MD_URL as TOGETHER_CHANGELOG, DEPRECATIONS_MD_URL as TOGETHER_DEPRECATIONS, MODELS_MD_URL as TOGETHER_MODELS } from "../scrapers/together.ts";
+import { CHANGELOG_MD_URL as FIREWORKS_CHANGELOG, QUICKSTART_MD_URL as FIREWORKS_QUICKSTART, US_MD_URL as FIREWORKS_US } from "../scrapers/fireworks.ts";
 import { DEPRECATIONS_URL as GEMINI_URL, PRICING_URL as GEMINI_PRICING } from "../scrapers/google-gemini-api.ts";
 import { DEPRECATIONS_URL as VERTEX_URL } from "../scrapers/google-vertex.ts";
 import { MODELS_URL as MISTRAL_URL, PRICING_URL as MISTRAL_PRICING } from "../scrapers/mistral.ts";
@@ -111,6 +113,12 @@ describe("methodology facts", () => {
       OPENROUTER_SCHEMA,
       NEBIUS_NOVEMBER,
       NEBIUS_AUGUST,
+      TOGETHER_DEPRECATIONS,
+      TOGETHER_CHANGELOG,
+      TOGETHER_MODELS,
+      FIREWORKS_CHANGELOG,
+      FIREWORKS_US,
+      FIREWORKS_QUICKSTART,
     ]) {
       expect(urls).toContain(url);
     }
