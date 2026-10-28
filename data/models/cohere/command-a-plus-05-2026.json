@@ -15,7 +15,7 @@
     {
       "url": "https://docs.cohere.com/docs/models",
       "label": "Cohere model docs",
-      "last_checked": "2026-10-27",
+      "last_checked": "2026-10-28",
       "excerpt": "command-a-plus-05-2026 Live Command A+ offers the last model in the Command A family, while being Cohere's first Mixture of Experts model, simultaneously combining vision input suppo"
     }
   ],
@@ -46,23 +46,23 @@
     "specs_sources": {
       "context_window_tokens": {
         "url": "https://docs.cohere.com/docs/models",
-        "last_checked": "2026-10-27"
+        "last_checked": "2026-10-28"
       },
       "max_output_tokens": {
         "url": "https://docs.cohere.com/docs/models",
-        "last_checked": "2026-10-27"
+        "last_checked": "2026-10-28"
       },
       "modalities_in": {
         "url": "https://docs.cohere.com/docs/models",
-        "last_checked": "2026-10-27"
+        "last_checked": "2026-10-28"
       },
       "modalities_out": {
         "url": "https://docs.cohere.com/docs/models",
-        "last_checked": "2026-10-27"
+        "last_checked": "2026-10-28"
       },
       "supports_vision": {
         "url": "https://docs.cohere.com/docs/models",
-        "last_checked": "2026-10-27"
+        "last_checked": "2026-10-28"
       }
     }
   },

@@ -15,7 +15,7 @@
     {
       "url": "https://docs.cohere.com/docs/models",
       "label": "Cohere model docs",
-      "last_checked": "2026-10-27",
+      "last_checked": "2026-10-28",
       "excerpt": "`cohere.command-light v15.6` `command-light-nightly` N/A N/A N/A N/A ## North North is Cohere's family of purpose-built generative models. North models are available on the Cohere API for evaluation. [North Mini"
     }
   ],

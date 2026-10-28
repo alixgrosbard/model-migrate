@@ -22,13 +22,13 @@
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "OpenAI deprecations",
-      "last_checked": "2026-10-27",
+      "last_checked": "2026-10-28",
       "excerpt": "Jan 20, 2027 | gpt-realtime-mini | gpt-realtime-mini-2025-12-15 | gpt-realtime-2.1-mini"
     },
     {
       "url": "https://developers.openai.com/api/docs/models/gpt-realtime-mini.md",
       "label": "OpenAI model docs",
-      "last_checked": "2026-10-27",
+      "last_checked": "2026-10-28",
       "excerpt": "Model ID: gpt-realtime-mini | context window 32000 | max output 4096 | input $0.6 | output $2.4 | Default snapshot gpt-realtime-mini-2025-12-15"
     }
   ],
@@ -54,11 +54,11 @@
     "specs_sources": {
       "context_window_tokens": {
         "url": "https://developers.openai.com/api/docs/models/gpt-realtime-mini.md",
-        "last_checked": "2026-10-27"
+        "last_checked": "2026-10-28"
       },
       "max_output_tokens": {
         "url": "https://developers.openai.com/api/docs/models/gpt-realtime-mini.md",
-        "last_checked": "2026-10-27"
+        "last_checked": "2026-10-28"
       }
     }
   },

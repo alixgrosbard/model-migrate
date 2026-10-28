@@ -15,19 +15,19 @@
     {
       "url": "https://cloud.google.com/gemini-enterprise-agent-platform/generative-ai/pricing",
       "label": "Vertex pricing",
-      "last_checked": "2026-10-27",
+      "last_checked": "2026-10-28",
       "excerpt": "Gemini 3.1 Flash-Lite Input (text, image, video) $0.25 per 1M tokens for the <= 200K column"
     },
     {
       "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/gemini/3-1-flash-lite",
       "label": "Vertex model docs",
-      "last_checked": "2026-10-27",
+      "last_checked": "2026-10-28",
       "excerpt": "Gemini 3.1 Flash-Lite | gemini-3.1-flash-lite | context window 1048576 | maximum output tokens 65536"
     },
     {
       "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/model-versions",
       "label": "Vertex AI model versions",
-      "last_checked": "2026-10-27",
+      "last_checked": "2026-10-28",
       "excerpt": "gemini-3.1-flash-lite | May 7, 2026 | May 7, 2027 or later"
     }
   ],
@@ -53,23 +53,23 @@
     "specs_sources": {
       "cached_input_price_per_mtok": {
         "url": "https://cloud.google.com/gemini-enterprise-agent-platform/generative-ai/pricing",
-        "last_checked": "2026-10-27"
+        "last_checked": "2026-10-28"
       },
       "context_window_tokens": {
         "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/gemini/3-1-flash-lite",
-        "last_checked": "2026-10-27"
+        "last_checked": "2026-10-28"
       },
       "input_price_per_mtok": {
         "url": "https://cloud.google.com/gemini-enterprise-agent-platform/generative-ai/pricing",
-        "last_checked": "2026-10-27"
+        "last_checked": "2026-10-28"
       },
       "max_output_tokens": {
         "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/gemini/3-1-flash-lite",
-        "last_checked": "2026-10-27"
+        "last_checked": "2026-10-28"
       },
       "output_price_per_mtok": {
         "url": "https://cloud.google.com/gemini-enterprise-agent-platform/generative-ai/pricing",
-        "last_checked": "2026-10-27"
+        "last_checked": "2026-10-28"
       }
     }
   },

@@ -61,18 +61,18 @@
     "Ship the change before the published shutdown date."
   ],
   "confidence": "partial",
-  "last_checked": "2026-10-27",
+  "last_checked": "2026-10-28",
   "sources": [
     {
       "url": "https://docs.cohere.com/docs/deprecations",
       "label": "Cohere model deprecations",
-      "last_checked": "2026-10-27",
+      "last_checked": "2026-10-28",
       "excerpt": "2025-04-30 `rerank-multilingual-v2.0` $1.00 / 1K searches `rerank-v3.5`"
     },
     {
       "url": "https://docs.cohere.com/docs/models",
       "label": "Cohere model docs",
-      "last_checked": "2026-10-27",
+      "last_checked": "2026-10-28",
       "excerpt": "rerank-v3.5 A performance upgrade to Rerank v3 series. Supports English and the same non-English languages as `embed-multilingual-v3.0`. Text 4000"
     }
   ]

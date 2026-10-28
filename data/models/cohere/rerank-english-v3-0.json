@@ -15,7 +15,7 @@
     {
       "url": "https://docs.cohere.com/docs/models",
       "label": "Cohere model docs",
-      "last_checked": "2026-10-27",
+      "last_checked": "2026-10-28",
       "excerpt": "rerank-english-v3.0 Our third-generation flagship model. English only. Text 4000"
     }
   ],
@@ -43,11 +43,11 @@
     "specs_sources": {
       "context_window_tokens": {
         "url": "https://docs.cohere.com/docs/models",
-        "last_checked": "2026-10-27"
+        "last_checked": "2026-10-28"
       },
       "modalities_in": {
         "url": "https://docs.cohere.com/docs/models",
-        "last_checked": "2026-10-27"
+        "last_checked": "2026-10-28"
       }
     }
   },

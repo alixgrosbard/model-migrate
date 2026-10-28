@@ -15,13 +15,13 @@
     {
       "url": "https://docs.x.ai/developers/models",
       "label": "xAI model docs",
-      "last_checked": "2026-10-27",
+      "last_checked": "2026-10-28",
       "excerpt": "--- --- --- --- --- grok-4.7 (< 200k prompt tokens) 500k $2.00 $0.50 $6.00 grok-4.7 (≥ 200k prompt tokens) 500k $4.00 $1.00 $12.00 grok-4.6 (< 200k prompt tokens) 500k $2.00 $0.50 $6.00 grok-4.6 (≥ 200k prompt tokens) 500k $4.00 $1"
     },
     {
       "url": "https://docs.x.ai/developers/release-notes",
       "label": "xAI release notes",
-      "last_checked": "2026-10-27",
+      "last_checked": "2026-10-28",
       "excerpt": "00k context window, text and image inputs with text-only output, and no text output limit. Pricing is $2 / $0.50 / $6 per 1M tokens (input / cached input / output) below 200k prompt tokens, and $4 / $1 / $12 above. Reason"
     }
   ],
@@ -52,51 +52,51 @@
     "specs_sources": {
       "batch_discount_pct": {
         "url": "https://docs.x.ai/developers/pricing",
-        "last_checked": "2026-10-27"
+        "last_checked": "2026-10-28"
       },
       "cached_input_price_per_mtok": {
         "url": "https://docs.x.ai/developers/models",
-        "last_checked": "2026-10-27"
+        "last_checked": "2026-10-28"
       },
       "context_window_tokens": {
         "url": "https://docs.x.ai/developers/models",
-        "last_checked": "2026-10-27"
+        "last_checked": "2026-10-28"
       },
       "input_price_per_mtok": {
         "url": "https://docs.x.ai/developers/models",
-        "last_checked": "2026-10-27"
+        "last_checked": "2026-10-28"
       },
       "knowledge_cutoff": {
         "url": "https://docs.x.ai/developers/models",
-        "last_checked": "2026-10-27"
+        "last_checked": "2026-10-28"
       },
       "modalities_in": {
         "url": "https://docs.x.ai/developers/release-notes",
-        "last_checked": "2026-10-27"
+        "last_checked": "2026-10-28"
       },
       "modalities_out": {
         "url": "https://docs.x.ai/developers/release-notes",
-        "last_checked": "2026-10-27"
+        "last_checked": "2026-10-28"
       },
       "output_price_per_mtok": {
         "url": "https://docs.x.ai/developers/models",
-        "last_checked": "2026-10-27"
+        "last_checked": "2026-10-28"
       },
       "reasoning": {
         "url": "https://docs.x.ai/developers/release-notes",
-        "last_checked": "2026-10-27"
+        "last_checked": "2026-10-28"
       },
       "supports_batch": {
         "url": "https://docs.x.ai/developers/pricing",
-        "last_checked": "2026-10-27"
+        "last_checked": "2026-10-28"
       },
       "supports_prompt_caching": {
         "url": "https://docs.x.ai/developers/models",
-        "last_checked": "2026-10-27"
+        "last_checked": "2026-10-28"
       },
       "supports_vision": {
         "url": "https://docs.x.ai/developers/release-notes",
-        "last_checked": "2026-10-27"
+        "last_checked": "2026-10-28"
       }
     }
   },

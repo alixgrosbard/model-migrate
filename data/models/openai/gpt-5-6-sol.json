@@ -15,19 +15,19 @@
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "Named as an official replacement",
-      "last_checked": "2026-10-27",
+      "last_checked": "2026-10-28",
       "excerpt": "Named as an official replacement for gpt-5. No shutdown date was published for this id on that page."
     },
     {
       "url": "https://developers.openai.com/api/docs/models/gpt-5.6-sol.md",
       "label": "OpenAI model docs",
-      "last_checked": "2026-10-27",
+      "last_checked": "2026-10-28",
       "excerpt": "Model ID: gpt-5.6-sol | context window 1050000 | max output 128000 | input $4 | output $20"
     },
     {
       "url": "https://developers.openai.com/api/docs/models/gpt-daybreak-blue-latest.md",
       "label": "OpenAI model docs",
-      "last_checked": "2026-10-27",
+      "last_checked": "2026-10-28",
       "excerpt": "Model ID: gpt-daybreak-blue-latest | context window 1050000 | max output 128000 | Default snapshot gpt-5.6-sol"
     }
   ],
@@ -53,23 +53,23 @@
     "specs_sources": {
       "cached_input_price_per_mtok": {
         "url": "https://developers.openai.com/api/docs/pricing",
-        "last_checked": "2026-10-27"
+        "last_checked": "2026-10-28"
       },
       "context_window_tokens": {
         "url": "https://developers.openai.com/api/docs/models/gpt-5.6-sol.md",
-        "last_checked": "2026-10-27"
+        "last_checked": "2026-10-28"
       },
       "input_price_per_mtok": {
         "url": "https://developers.openai.com/api/docs/pricing",
-        "last_checked": "2026-10-27"
+        "last_checked": "2026-10-28"
       },
       "max_output_tokens": {
         "url": "https://developers.openai.com/api/docs/models/gpt-5.6-sol.md",
-        "last_checked": "2026-10-27"
+        "last_checked": "2026-10-28"
       },
       "output_price_per_mtok": {
         "url": "https://developers.openai.com/api/docs/pricing",
-        "last_checked": "2026-10-27"
+        "last_checked": "2026-10-28"
       }
     }
   },

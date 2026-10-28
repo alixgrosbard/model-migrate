@@ -55,36 +55,36 @@
     "Ship the change before the published shutdown date."
   ],
   "confidence": "official",
-  "last_checked": "2026-10-27",
+  "last_checked": "2026-10-28",
   "sources": [
     {
       "url": "https://ai.google.dev/gemini-api/docs/deprecations",
       "label": "Gemini API deprecations",
-      "last_checked": "2026-10-27",
+      "last_checked": "2026-10-28",
       "excerpt": "gemini-2.5-flash-image | October 2, 2025 | March 15, 2027 | gemini-3.1-flash-lite-image"
     },
     {
       "url": "https://ai.google.dev/gemini-api/docs/models/gemini-2.5-flash-image",
       "label": "Gemini model docs",
-      "last_checked": "2026-10-27",
+      "last_checked": "2026-10-28",
       "excerpt": "gemini-2.5-flash-image input token limit 65536 | max output tokens 32768"
     },
     {
       "url": "https://ai.google.dev/gemini-api/docs/pricing",
       "label": "Gemini API pricing",
-      "last_checked": "2026-10-27",
+      "last_checked": "2026-10-28",
       "excerpt": "Warning: Gemini 2.5 Flash Image (gemini-2.5-flash-image) is deprecated and will be shut down on October 2, 2026; migrate to Gemini 3.1 Flash Image or Gemini 3.1 Flash Lite Image to avoid service disruption."
     },
     {
       "url": "https://ai.google.dev/gemini-api/docs/deprecations",
       "label": "Gemini API deprecations",
-      "last_checked": "2026-10-27",
+      "last_checked": "2026-10-28",
       "excerpt": "gemini-3.1-flash-lite-image | June 30, 2026 | No shutdown date announced"
     },
     {
       "url": "https://ai.google.dev/gemini-api/docs/models/gemini-3.1-flash-lite-image",
       "label": "Gemini model docs",
-      "last_checked": "2026-10-27",
+      "last_checked": "2026-10-28",
       "excerpt": "gemini-3.1-flash-lite-image input token limit 65536 | max output tokens 4096"
     }
   ]

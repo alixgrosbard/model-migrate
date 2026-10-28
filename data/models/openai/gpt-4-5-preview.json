@@ -22,13 +22,13 @@
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "OpenAI deprecations",
-      "last_checked": "2026-10-27",
+      "last_checked": "2026-10-28",
       "excerpt": "2025-07-14 | gpt-4.5-preview | gpt-4.1"
     },
     {
       "url": "https://developers.openai.com/api/docs/models/gpt-4.5-preview.md",
       "label": "OpenAI model docs",
-      "last_checked": "2026-10-27",
+      "last_checked": "2026-10-28",
       "excerpt": "Model ID: gpt-4.5-preview | context window 128000 | max output 16384 | input $75 | output $150 | Default snapshot gpt-4.5-preview-2025-02-27"
     }
   ],
@@ -54,23 +54,23 @@
     "specs_sources": {
       "cached_input_price_per_mtok": {
         "url": "https://developers.openai.com/api/docs/models/gpt-4.5-preview.md",
-        "last_checked": "2026-10-27"
+        "last_checked": "2026-10-28"
       },
       "context_window_tokens": {
         "url": "https://developers.openai.com/api/docs/models/gpt-4.5-preview.md",
-        "last_checked": "2026-10-27"
+        "last_checked": "2026-10-28"
       },
       "input_price_per_mtok": {
         "url": "https://developers.openai.com/api/docs/models/gpt-4.5-preview.md",
-        "last_checked": "2026-10-27"
+        "last_checked": "2026-10-28"
       },
       "max_output_tokens": {
         "url": "https://developers.openai.com/api/docs/models/gpt-4.5-preview.md",
-        "last_checked": "2026-10-27"
+        "last_checked": "2026-10-28"
       },
       "output_price_per_mtok": {
         "url": "https://developers.openai.com/api/docs/models/gpt-4.5-preview.md",
-        "last_checked": "2026-10-27"
+        "last_checked": "2026-10-28"
       }
     }
   },

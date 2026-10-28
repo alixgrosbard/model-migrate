@@ -55,18 +55,18 @@
     "Ship the change before the published shutdown date."
   ],
   "confidence": "partial",
-  "last_checked": "2026-10-27",
+  "last_checked": "2026-10-28",
   "sources": [
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "OpenAI deprecations",
-      "last_checked": "2026-10-27",
+      "last_checked": "2026-10-28",
       "excerpt": "2024-01-04 | text-similarity-ada-001 | $4.00 / 1M tokens | text-embedding-3-small"
     },
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "Named as an official replacement",
-      "last_checked": "2026-10-27",
+      "last_checked": "2026-10-28",
       "excerpt": "Named as an official replacement for text-similarity-ada-001. No shutdown date was published for this id on that page."
     }
   ]

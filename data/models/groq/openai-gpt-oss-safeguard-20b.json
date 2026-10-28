@@ -15,7 +15,7 @@
     {
       "url": "https://console.groq.com/docs/models",
       "label": "Groq supported models",
-      "last_checked": "2026-10-27",
+      "last_checked": "2026-10-28",
       "excerpt": "openai/gpt-oss-safeguard-20b | preview | context 131072 | max completion 65536 | input $0.075 | output $0.3"
     }
   ],
@@ -41,19 +41,19 @@
     "specs_sources": {
       "context_window_tokens": {
         "url": "https://console.groq.com/docs/models",
-        "last_checked": "2026-10-27"
+        "last_checked": "2026-10-28"
       },
       "input_price_per_mtok": {
         "url": "https://console.groq.com/docs/models",
-        "last_checked": "2026-10-27"
+        "last_checked": "2026-10-28"
       },
       "max_output_tokens": {
         "url": "https://console.groq.com/docs/models",
-        "last_checked": "2026-10-27"
+        "last_checked": "2026-10-28"
       },
       "output_price_per_mtok": {
         "url": "https://console.groq.com/docs/models",
-        "last_checked": "2026-10-27"
+        "last_checked": "2026-10-28"
       }
     }
   },

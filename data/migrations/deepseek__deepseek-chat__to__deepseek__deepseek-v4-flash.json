@@ -55,30 +55,30 @@
     "Ship the change before the published shutdown date."
   ],
   "confidence": "partial",
-  "last_checked": "2026-10-27",
+  "last_checked": "2026-10-28",
   "sources": [
     {
       "url": "https://api-docs.deepseek.com/news/news260424/",
       "label": "DeepSeek V4 preview note",
-      "last_checked": "2026-10-27",
+      "last_checked": "2026-10-28",
       "excerpt": "deepseek-chat & deepseek-reasoner will be fully retired and inaccessible after Jul 24th, 2026, 15:59 (UTC Time)."
     },
     {
       "url": "https://api-docs.deepseek.com/updates/",
       "label": "DeepSeek API changelog",
-      "last_checked": "2026-10-27",
+      "last_checked": "2026-10-28",
       "excerpt": "The two legacy API model names, deepseek-chat and deepseek-reasoner, will be discontinued in three months (2026-07-24). | During the current period, these two model names point to the non-thinking mode and thinking mode of deepseek-v4-flash, respectively."
     },
     {
       "url": "https://api-docs.deepseek.com/quick_start/pricing",
       "label": "DeepSeek models and pricing",
-      "last_checked": "2026-10-27",
+      "last_checked": "2026-10-28",
       "excerpt": "The legacy names deepseek-v4-flash and deepseek-v4-flash-vision-exp are still accepted, but the corresponding models have been retired; their requests are served by DeepSeek-V4.1-Flash-1017 and billed at the Flash price."
     },
     {
       "url": "https://api-docs.deepseek.com/updates/",
       "label": "DeepSeek API changelog",
-      "last_checked": "2026-10-27",
+      "last_checked": "2026-10-28",
       "excerpt": "The previous-generation models V4 Flash and V4 Flash Vision Exp have been retired; for compatibility, the model names deepseek-v4-flash and deepseek-v4-flash-vision-exp are temporarily routed to V4.1 Flash."
     }
   ]

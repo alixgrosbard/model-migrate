@@ -22,14 +22,14 @@
     {
       "url": "https://docs.x.ai/developers/migration/imagine-image-quality-nov-2",
       "label": "xAI model deprecations",
-      "last_checked": "2026-10-27",
+      "last_checked": "2026-10-28",
       "excerpt": "Migration Guides # grok-imagine-image-quality Retirement on November 2, 2026 `grok-imagine-image-2.0` now covers everything `grok-imagine-image-quality` was used for, at a lower price. **Effective November 2, 2026**, the `gro"
     },
     {
       "url": "https://docs.x.ai/developers/models",
       "label": "xAI model docs",
-      "last_checked": "2026-10-27",
-      "excerpt": "Model Cost --- --- grok-imagine-image-quality $0.05 / image grok-imagine-image $0.02 / image grok-imagine-image-2.0 $0.04 / image grok-imagine-video $0.050 / sec grok-imagine-video-1.5-lite $0.020 / sec grok-imagine-video-1.5 $0.080 / sec"
+      "last_checked": "2026-10-28",
+      "excerpt": "image $0.02 / image grok-imagine-image-quality $0.05 / image grok-imagine-video-1.5 $0.080 / sec grok-imagine-video $0.050 / sec grok-imagine-video-1.5-lite $0.020 / sec ### Voice Pricing Mode Cost --- --- Speech to Speech (grok-voice-2.0)"
     }
   ],
   "specs": {
@@ -54,14 +54,14 @@
     "specs_sources": {
       "batch_discount_pct": {
         "url": "https://docs.x.ai/developers/pricing",
-        "last_checked": "2026-10-27"
+        "last_checked": "2026-10-28"
       },
       "supports_batch": {
         "url": "https://docs.x.ai/developers/pricing",
-        "last_checked": "2026-10-27"
+        "last_checked": "2026-10-28"
       }
     }
   },
   "first_seen": "2026-10-27T12:00:00.000Z",
-  "updated_at": "2026-10-27T22:15:45.985Z"
+  "updated_at": "2026-10-28T05:45:13.155Z"
 }

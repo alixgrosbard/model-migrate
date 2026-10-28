@@ -22,7 +22,7 @@
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "OpenAI deprecations",
-      "last_checked": "2026-10-27",
+      "last_checked": "2026-10-28",
       "excerpt": "2024-01-04 | text-davinci-003 | $20.00 / 1M tokens | gpt-3.5-turbo-instruct"
     }
   ],
@@ -48,7 +48,7 @@
     "specs_sources": {
       "input_price_per_mtok": {
         "url": "https://developers.openai.com/api/docs/deprecations",
-        "last_checked": "2026-10-27"
+        "last_checked": "2026-10-28"
       }
     }
   },

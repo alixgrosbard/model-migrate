@@ -22,13 +22,13 @@
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "OpenAI deprecations",
-      "last_checked": "2026-10-27",
+      "last_checked": "2026-10-28",
       "excerpt": "Apr 1, 2027 | gpt-5.1 | gpt-5.1-2025-11-13 | gpt-6-sol"
     },
     {
       "url": "https://developers.openai.com/api/docs/models/gpt-5.1.md",
       "label": "OpenAI model docs",
-      "last_checked": "2026-10-27",
+      "last_checked": "2026-10-28",
       "excerpt": "Model ID: gpt-5.1 | context window 400000 | max output 128000 | input $1.25 | output $10 | Default snapshot gpt-5.1-2025-11-13"
     }
   ],
@@ -54,11 +54,11 @@
     "specs_sources": {
       "context_window_tokens": {
         "url": "https://developers.openai.com/api/docs/models/gpt-5.1.md",
-        "last_checked": "2026-10-27"
+        "last_checked": "2026-10-28"
       },
       "max_output_tokens": {
         "url": "https://developers.openai.com/api/docs/models/gpt-5.1.md",
-        "last_checked": "2026-10-27"
+        "last_checked": "2026-10-28"
       }
     }
   },

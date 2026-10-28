@@ -15,7 +15,7 @@
     {
       "url": "https://console.groq.com/docs/models",
       "label": "Groq supported models",
-      "last_checked": "2026-10-27",
+      "last_checked": "2026-10-28",
       "excerpt": "qwen/qwen3.8-27b | preview | context 131072 | max completion 16384 | input $0.8 | output $4"
     }
   ],
@@ -41,27 +41,27 @@
     "specs_sources": {
       "context_window_tokens": {
         "url": "https://console.groq.com/docs/models",
-        "last_checked": "2026-10-27"
+        "last_checked": "2026-10-28"
       },
       "input_price_per_mtok": {
         "url": "https://console.groq.com/docs/models",
-        "last_checked": "2026-10-27"
+        "last_checked": "2026-10-28"
       },
       "max_output_tokens": {
         "url": "https://console.groq.com/docs/models",
-        "last_checked": "2026-10-27"
+        "last_checked": "2026-10-28"
       },
       "output_price_per_mtok": {
         "url": "https://console.groq.com/docs/models",
-        "last_checked": "2026-10-27"
+        "last_checked": "2026-10-28"
       },
       "supports_json_schema": {
         "url": "https://console.groq.com/docs/deprecations",
-        "last_checked": "2026-10-27"
+        "last_checked": "2026-10-28"
       },
       "supports_tools": {
         "url": "https://console.groq.com/docs/deprecations",
-        "last_checked": "2026-10-27"
+        "last_checked": "2026-10-28"
       }
     }
   },

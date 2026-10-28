@@ -28,7 +28,7 @@
     {
       "url": "https://console.groq.com/docs/deprecations",
       "label": "Groq model deprecations",
-      "last_checked": "2026-10-27",
+      "last_checked": "2026-10-28",
       "excerpt": "qwen-2.5-32b | 2025-04-14 | qwen-qwq-32b meta-llama/llama-4-scout-17b-16e-instruct"
     }
   ],
