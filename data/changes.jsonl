@@ -1399,3 +1399,5 @@
 {"date":"2026-10-28","provider":"fireworks","model_id":"accounts/fireworks/models/nemotron-3-ultra-nvfp4","field":"shutdown_date","old":null,"new":"2026-11-07","source_url":"https://docs.fireworks.ai/updates/changelog"}
 {"date":"2026-10-28","provider":"fireworks","model_id":"accounts/fireworks/models/nemotron-lightning-3p5-30b-a3b","field":"shutdown_date","old":null,"new":"2026-11-07","source_url":"https://docs.fireworks.ai/updates/changelog"}
 {"date":"2026-10-28","provider":"fireworks","model_id":"accounts/fireworks/routers/glm-5p3-flash-us","field":"shutdown_date","old":null,"new":"2026-11-07","source_url":"https://docs.fireworks.ai/serverless/us-only-serverless"}
+{"date":"2026-10-28","provider":"openrouter","model_id":"microsoft/mai-voice-2","field":"shutdown_date","old":null,"new":"2026-12-31","source_url":"https://openrouter.ai/api/v1/models?output_modalities=all"}
+{"date":"2026-10-28","provider":"openrouter","model_id":"microsoft/mai-voice-2-flash","field":"shutdown_date","old":null,"new":"2026-12-31","source_url":"https://openrouter.ai/api/v1/models?output_modalities=all"}

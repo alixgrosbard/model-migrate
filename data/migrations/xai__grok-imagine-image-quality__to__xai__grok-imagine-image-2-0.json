@@ -73,13 +73,13 @@
       "url": "https://docs.x.ai/developers/models",
       "label": "xAI model docs",
       "last_checked": "2026-10-28",
-      "excerpt": "image $0.02 / image grok-imagine-image-quality $0.05 / image grok-imagine-video-1.5-lite $0.020 / sec grok-imagine-video-1.5 $0.080 / sec grok-imagine-video $0.050 / sec ### Voice Pricing Mode Cost --- --- Speech to Speech (grok-voice-2.0)"
+      "excerpt": "Model Cost --- --- grok-imagine-image-quality $0.05 / image grok-imagine-image $0.02 / image grok-imagine-image-2.0 $0.04 / image grok-imagine-video-1.5-lite $0.020 / sec grok-imagine-video-1.5 $0.080 / sec grok-imagine-video $0.050 / sec"
     },
     {
       "url": "https://docs.x.ai/developers/models",
       "label": "xAI model docs",
       "last_checked": "2026-10-28",
-      "excerpt": "Model Cost --- --- grok-imagine-image-2.0 $0.04 / image grok-imagine-image $0.02 / image grok-imagine-image-quality $0.05 / image grok-imagine-video-1.5-lite $0.020 / sec grok-imagine-video-1.5 $0.080 / sec grok-imagine-video $0.050 /"
+      "excerpt": "image $0.02 / image grok-imagine-image-2.0 $0.04 / image grok-imagine-video-1.5-lite $0.020 / sec grok-imagine-video-1.5 $0.080 / sec grok-imagine-video $0.050 / sec ### Voice Pricing Mode Cost --- --- Speech to Speech (grok-voice-2.0)"
     }
   ]
 }
