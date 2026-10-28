@@ -1,0 +1,102 @@
+{
+  "id": "nousresearch/hermes-3-llama-3.1-405b",
+  "slug": "nousresearch-hermes-3-llama-3-1-405b",
+  "provider": "openrouter",
+  "display_name": "Nous: Hermes 3 405B Instruct",
+  "family": null,
+  "status": "deprecated",
+  "announced_date": null,
+  "deprecation_date": "2026-11-02",
+  "shutdown_date": "2026-11-02",
+  "shutdown_date_kind": "not_before",
+  "region_or_platform_notes": "The models API sets expiration_date to 2026-11-02. The models guide calls expiration_date the deprecation date for the model endpoint, and null if the endpoint is not deprecated. The model schema says this is the date after which the model may be removed, not a day the model is guaranteed to stop. This response does not name a replacement.",
+  "replacements": [],
+  "sources": [
+    {
+      "url": "https://openrouter.ai/api/v1/models?output_modalities=all",
+      "label": "OpenRouter models API",
+      "last_checked": "2026-10-28",
+      "excerpt": "\"id\":\"nousresearch/hermes-3-llama-3.1-405b\" | \"expiration_date\":\"2026-11-02\""
+    },
+    {
+      "url": "https://openrouter.ai/docs/client-sdks/python/components/model",
+      "label": "OpenRouter model schema",
+      "last_checked": "2026-10-28",
+      "excerpt": "The date after which the model may be removed. ISO 8601 date string (YYYY-MM-DD) or null if no expiration."
+    },
+    {
+      "url": "https://openrouter.ai/docs/guides/overview/models",
+      "label": "OpenRouter models guide",
+      "last_checked": "2026-10-28",
+      "excerpt": "Deprecation date for the model endpoint (null if not deprecated)"
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": 1,
+    "output_price_per_mtok": 1,
+    "cached_input_price_per_mtok": null,
+    "batch_discount_pct": null,
+    "currency": "USD",
+    "context_window_tokens": 131072,
+    "max_output_tokens": 16384,
+    "modalities_in": [
+      "text"
+    ],
+    "modalities_out": [
+      "text"
+    ],
+    "supports_tools": false,
+    "supports_json_schema": true,
+    "supports_vision": false,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": "2023-12-31",
+    "endpoints": null,
+    "specs_sources": {
+      "context_window_tokens": {
+        "url": "https://openrouter.ai/api/v1/models?output_modalities=all",
+        "last_checked": "2026-10-28"
+      },
+      "input_price_per_mtok": {
+        "url": "https://openrouter.ai/api/v1/models?output_modalities=all",
+        "last_checked": "2026-10-28"
+      },
+      "knowledge_cutoff": {
+        "url": "https://openrouter.ai/api/v1/models?output_modalities=all",
+        "last_checked": "2026-10-28"
+      },
+      "max_output_tokens": {
+        "url": "https://openrouter.ai/api/v1/models?output_modalities=all",
+        "last_checked": "2026-10-28"
+      },
+      "modalities_in": {
+        "url": "https://openrouter.ai/api/v1/models?output_modalities=all",
+        "last_checked": "2026-10-28"
+      },
+      "modalities_out": {
+        "url": "https://openrouter.ai/api/v1/models?output_modalities=all",
+        "last_checked": "2026-10-28"
+      },
+      "output_price_per_mtok": {
+        "url": "https://openrouter.ai/api/v1/models?output_modalities=all",
+        "last_checked": "2026-10-28"
+      },
+      "supports_json_schema": {
+        "url": "https://openrouter.ai/api/v1/models?output_modalities=all",
+        "last_checked": "2026-10-28"
+      },
+      "supports_tools": {
+        "url": "https://openrouter.ai/api/v1/models?output_modalities=all",
+        "last_checked": "2026-10-28"
+      },
+      "supports_vision": {
+        "url": "https://openrouter.ai/api/v1/models?output_modalities=all",
+        "last_checked": "2026-10-28"
+      }
+    }
+  },
+  "first_seen": "2026-10-28T04:21:04.125Z",
+  "updated_at": "2026-10-28T04:21:04.125Z"
+}

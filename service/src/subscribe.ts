@@ -12,6 +12,7 @@ const providerIds = [
   "nvidia",
   "xai",
   "cohere",
+  "openrouter",
 ] as const;
 
 const hits = new Map<string, number[]>();

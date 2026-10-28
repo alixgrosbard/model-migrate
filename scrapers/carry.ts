@@ -16,12 +16,20 @@ function isXaiOrCohereDoc(url: string): boolean {
   }
 }
 
+function isOpenRouterDoc(url: string): boolean {
+  try {
+    return new URL(url).hostname === "openrouter.ai";
+  } catch {
+    return false;
+  }
+}
+
 function isCatalogSource(source: { url: string; label: string }): boolean {
   return /\/models\//i.test(source.url) || /model docs/i.test(source.label) || isXaiOrCohereDoc(source.url);
 }
 
 function isOfficialSource(source: { url: string; label: string }): boolean {
-  return isDeprecationsSource(source) || isCatalogSource(source);
+  return isDeprecationsSource(source) || isCatalogSource(source) || isOpenRouterDoc(source.url);
 }
 
 /** Stored xAI and Cohere rows come from those hosts. A later scrape that omits one puts it back. */

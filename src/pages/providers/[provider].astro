@@ -45,6 +45,15 @@ const description = `${provider.name} model shutdown dates, grouped by status.`;
       <a href="/guides/nvidia-hosted-api-vs-nim-containers/">Hosted API vs NIM containers</a>.
       <a href="/#soonest">Soonest shutdowns on the homepage</a>.
     </p>
+  ) : provider.id === "openrouter" ? (
+    <p>
+      Models API: <a href={provider.models_url}>{provider.models_url}</a>.
+      A row is here only when that response sets expiration_date.
+      The <a href={provider.deprecations_url}>models guide</a> calls that field the deprecation date for the model endpoint.
+      The <a href="https://openrouter.ai/docs/client-sdks/python/components/model">model schema</a> says it is the date after which the model may be removed, so the stored shutdown kind is not_before.
+      A null expiration_date is not listed. The response does not name a replacement.
+      <a href="/#soonest">Soonest shutdowns on the homepage</a>.
+    </p>
   ) : (
     <p>Official source: <a href={provider.deprecations_url}>{provider.deprecations_url}</a>. <a href="/#soonest">Soonest shutdowns on the homepage</a>.</p>
   )}

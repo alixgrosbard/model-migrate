@@ -7,6 +7,7 @@ import { NEWS_URL as DEEPSEEK_NEWS, PRICING_URL as DEEPSEEK_PRICING, UPDATES_URL
 import { DEPRECATIONS_MD_URL as GROQ_DEPRECATIONS, MODELS_MD_URL as GROQ_MODELS } from "../scrapers/groq.ts";
 import { MAY15_URL as XAI_MAY15, MODELS_URL as XAI_MODELS, NOV2_URL as XAI_NOV2, PRICING_URL as XAI_PRICING, RELEASE_URL as XAI_RELEASE } from "../scrapers/xai.ts";
 import { DEPRECATIONS_MD_URL as COHERE_DEPRECATIONS, MODELS_MD_URL as COHERE_MODELS } from "../scrapers/cohere.ts";
+import { MODELS_DOC_URL as OPENROUTER_DOC, MODELS_URL as OPENROUTER_MODELS, MODEL_SCHEMA_URL as OPENROUTER_SCHEMA } from "../scrapers/openrouter.ts";
 import { DEPRECATIONS_URL as GEMINI_URL, PRICING_URL as GEMINI_PRICING } from "../scrapers/google-gemini-api.ts";
 import { DEPRECATIONS_URL as VERTEX_URL } from "../scrapers/google-vertex.ts";
 import { MODELS_URL as MISTRAL_URL, PRICING_URL as MISTRAL_PRICING } from "../scrapers/mistral.ts";
@@ -104,6 +105,9 @@ describe("methodology facts", () => {
       XAI_RELEASE,
       COHERE_DEPRECATIONS,
       COHERE_MODELS,
+      OPENROUTER_MODELS,
+      OPENROUTER_DOC,
+      OPENROUTER_SCHEMA,
     ]) {
       expect(urls).toContain(url);
     }

@@ -20,6 +20,7 @@ import { NEWS_URL as DEEPSEEK_NEWS, PRICING_URL as DEEPSEEK_PRICING, UPDATES_URL
 import { DEPRECATIONS_MD_URL as GROQ_DEPRECATIONS, MODELS_MD_URL as GROQ_MODELS, parseGroq } from "./groq.ts";
 import { MAY15_URL as XAI_MAY15, MODELS_URL as XAI_MODELS, NOV2_URL as XAI_NOV2, PRICING_URL as XAI_PRICING, RELEASE_URL as XAI_RELEASE, parseXai } from "./xai.ts";
 import { DEPRECATIONS_MD_URL as COHERE_DEPRECATIONS, MODELS_MD_URL as COHERE_MODELS, parseCohere } from "./cohere.ts";
+import { loadOpenRouterModels, openRouterDecision } from "./openrouter.ts";
 import { DEPRECATIONS_URL as OPENAI_URL, parseOpenAI, parseOpenAIPricing, PRICING_URL as OPENAI_PRICING } from "./openai.ts";
 import { addDocumentedOpenAIModels, applyCodexPlatformNotes, OPENAI_MODELS_INDEX_URL } from "./openai-catalog.ts";
 import { canonicalizeModel, realContentKey, recordIdentity } from "../src/lib/stable-export.ts";
@@ -39,8 +40,23 @@ async function main() {
   for (const model of previous) previousCounts.set(model.provider, (previousCounts.get(model.provider) ?? 0) + 1);
 
   const scraped = await scrapeAll();
+  const openrouter = scraped.get("openrouter");
+  if (!openrouter) {
+    console.error("OpenRouter models API could not be read. Stored OpenRouter rows stay.");
+  } else {
+    const decision = openRouterDecision(
+      openrouter,
+      previous.filter((model) => model.provider === "openrouter"),
+      checked,
+    );
+    if (decision === "keep") {
+      console.error("OpenRouter row change was not applied. Stored OpenRouter rows stay.");
+      scraped.delete("openrouter");
+    }
+  }
   const failures: string[] = [];
   for (const [provider, models] of scraped) {
+    if (provider === "openrouter") continue;
     const result = sanityCheck(provider, models.length, previousCounts.get(provider) ?? 0);
     if (!result.ok && result.reason) failures.push(result.reason);
   }
@@ -157,6 +173,7 @@ async function scrapeAll(): Promise<Map<string, ScrapedModel[]>> {
   const groq = parseGroq(groqDeprecations, groqModels, checked);
   const xai = parseXai({ models: xaiModels, pricing: xaiPricing, may15: xaiMay15, nov2: xaiNov2, releaseNotes: xaiRelease }, checked);
   const cohere = parseCohere(cohereDeprecations, cohereModels, checked);
+  const openrouter = await loadOpenRouterModels({ fromSnapshots, checked, root });
 
   const groups = new Map<string, ScrapedModel[]>([
     ["openai", openai],
@@ -171,6 +188,7 @@ async function scrapeAll(): Promise<Map<string, ScrapedModel[]>> {
     ["xai", xai],
     ["cohere", cohere],
   ]);
+  if (openrouter) groups.set("openrouter", openrouter);
   addReplacementStubs(groups, checked);
   attachStubPrices(groups, openaiPricing, anthropicPricing, geminiPricing, checked);
   // The deprecations tables skip ids that have no shutdown row. The models

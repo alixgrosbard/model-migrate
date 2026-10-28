@@ -82,5 +82,12 @@
     "deprecations_url": "https://docs.cohere.com/docs/deprecations",
     "pricing_url": "https://docs.cohere.com/docs/how-does-cohere-pricing-work",
     "models_url": "https://docs.cohere.com/docs/models"
+  },
+  {
+    "id": "openrouter",
+    "name": "OpenRouter",
+    "deprecations_url": "https://openrouter.ai/docs/guides/overview/models",
+    "pricing_url": "https://openrouter.ai/docs/guides/overview/models",
+    "models_url": "https://openrouter.ai/api/v1/models?output_modalities=all"
   }
 ]
