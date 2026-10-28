@@ -18,6 +18,8 @@ export const providerIds = [
   "cohere",
   "openrouter",
   "nebius",
+  "together",
+  "fireworks",
 ] as const;
 
 export const providerIdSchema = z.enum(providerIds);

@@ -171,6 +171,36 @@ export const SCRAPE_TARGETS: ScrapeTarget[] = [
     url: "https://docs.tokenfactory.nebius.com/august-2026-deprecation-notice.md",
     role: "Parsed for the August Serverless removal table. A stored source uses https://docs.tokenfactory.nebius.com/august-2026-deprecation-notice without the .md suffix. A failed read keeps the stored rows from this page.",
   },
+  {
+    provider: "Together AI",
+    url: "https://docs.together.ai/docs/deprecations.md",
+    role: "Parsed for scheduled serverless removals, the inference removal table, the fine-tuning removal table, and active redirects. A stored source uses https://docs.together.ai/docs/deprecations without the .md suffix. A failed read keeps the stored Together rows.",
+  },
+  {
+    provider: "Together AI",
+    url: "https://docs.together.ai/docs/changelog.md",
+    role: "Parsed for a replacement the deprecations table does not name. A stored source uses https://docs.together.ai/docs/changelog without the .md suffix. A failed read leaves those replacements unset and still applies the deprecations page.",
+  },
+  {
+    provider: "Together AI",
+    url: "https://docs.together.ai/docs/serverless/models.md",
+    role: "Parsed for per-1M-token prices, context, function calling, and structured outputs when the API model string matches a stored id. A stored source uses https://docs.together.ai/docs/serverless/models without the .md suffix. A failed read leaves those fields empty.",
+  },
+  {
+    provider: "Fireworks AI",
+    url: "https://docs.fireworks.ai/updates/changelog.md",
+    role: "Parsed for serverless and Serverless Training deprecation sections that link a model page. A stored source uses https://docs.fireworks.ai/updates/changelog without the .md suffix. A failed read keeps the stored Fireworks rows.",
+  },
+  {
+    provider: "Fireworks AI",
+    url: "https://docs.fireworks.ai/serverless/us-only-serverless.md",
+    role: "Parsed for the US model id table. A US-only changelog row is stored only when this table names that model. A stored source uses https://docs.fireworks.ai/serverless/us-only-serverless without the .md suffix. A failed read keeps the stored Fireworks rows.",
+  },
+  {
+    provider: "Fireworks AI",
+    url: "https://docs.fireworks.ai/getting-started/quickstart.md",
+    role: "Checked for accounts/fireworks/models/glm-5p3-flash. Library links are joined to that id shape only when this string is present. A stored source uses https://docs.fireworks.ai/getting-started/quickstart without the .md suffix. A failed read keeps the stored Fireworks rows.",
+  },
 ];
 
 export const ENRICH_PAGES: { label: string; detail: string }[] = [

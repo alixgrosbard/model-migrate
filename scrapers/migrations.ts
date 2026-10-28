@@ -1,5 +1,21 @@
 import type { MigrationRecord, ModelRecord } from "../src/schema.ts";
 import { AUGUST_URL, NEBIUS_BASE_URL, NEBIUS_CHAT_URL, NOVEMBER_URL, QUICKSTART_URL } from "./nebius.ts";
+import {
+  DEPRECATIONS_URL as TOGETHER_DEPRECATIONS,
+  QUICKSTART_URL as TOGETHER_QUICKSTART,
+  TOGETHER_BASE_URL,
+  TOGETHER_CHAT_URL,
+} from "./together.ts";
+import {
+  CHANGELOG_URL as FIREWORKS_CHANGELOG,
+  FIREWORKS_BASE_URL,
+  FIREWORKS_CHAT_URL,
+  FIREWORKS_US_BASE_URL,
+  FIREWORKS_US_CHAT_URL,
+  QUICKSTART_URL as FIREWORKS_QUICKSTART,
+  US_URL as FIREWORKS_US,
+  fireworksUsesUsHost,
+} from "./fireworks.ts";
 
 const EXAMPLE = "Example monthly cost for 10M input tokens and 2M output tokens. Labeled example, not a bill.";
 
@@ -110,7 +126,16 @@ const FILE_TRANSCRIPTION_OR = new Set([
 export function officialMigrationTargets(model: ModelRecord) {
   const official = model.replacements.filter((item) => item.kind === "official");
   if (model.provider === "openai" && FILE_TRANSCRIPTION_OR.has(model.id)) return official;
-  if (model.provider === "groq" || model.provider === "xai" || model.provider === "cohere" || model.provider === "nebius") return official;
+  if (
+    model.provider === "groq" ||
+    model.provider === "xai" ||
+    model.provider === "cohere" ||
+    model.provider === "nebius" ||
+    model.provider === "together" ||
+    model.provider === "fireworks"
+  ) {
+    return official;
+  }
   return official.slice(0, 1);
 }
 
@@ -177,6 +202,8 @@ function migrationChecklist(from: ModelRecord, to: ModelRecord): string[] {
       `Point your requests at ${to.id} and test before you send traffic.`,
     ];
   }
+  if (from.provider === "together") return togetherChecklist(from, to);
+  if (from.provider === "fireworks") return fireworksChecklist(from, to);
   const undated = (from.provider === "xai" || from.provider === "cohere") && !from.shutdown_date;
   if (undated) {
     return [
@@ -200,6 +227,8 @@ function codeSnippets(from: ModelRecord, to: ModelRecord) {
   if (from.provider === "xai" && to.provider === "xai") return xaiSnippets(from.id, to.id);
   if (from.provider === "cohere" && to.provider === "cohere") return cohereSnippets(from.id, to.id);
   if (from.provider === "nebius" && to.provider === "nebius") return nebiusSnippets(from.id, to.id);
+  if (from.provider === "together" && to.provider === "together") return togetherSnippets(from.id, to.id);
+  if (from.provider === "fireworks" && to.provider === "fireworks") return fireworksSnippets(from, to);
   return specialized(from, to)?.snippets ?? defaultSnippets(from, to);
 }
 
@@ -209,6 +238,8 @@ function apiChanges(from: ModelRecord, to: ModelRecord): ApiChange[] {
   if (from.provider === "xai" && to.provider === "xai") return xaiApiChanges(from.id);
   if (from.provider === "cohere" && to.provider === "cohere") return cohereApiChanges(from.id);
   if (from.provider === "nebius" && to.provider === "nebius") return nebiusApiChanges(from);
+  if (from.provider === "together" && to.provider === "together") return togetherApiChanges(from);
+  if (from.provider === "fireworks" && to.provider === "fireworks") return fireworksApiChanges(from, to);
   return specialized(from, to)?.apiChanges ?? [];
 }
 
@@ -412,6 +443,137 @@ function nebiusChat(id: string) {
     python: `from openai import OpenAI\nclient = OpenAI(base_url="${NEBIUS_BASE_URL}")\nresponse = client.chat.completions.create(\n    model="${id}",\n    messages=[{"role": "user", "content": "Hello"}],\n)\n`,
     typescript: `import OpenAI from "openai";\nconst client = new OpenAI({ baseURL: "${NEBIUS_BASE_URL}" });\nconst response = await client.chat.completions.create({\n  model: "${id}",\n  messages: [{ role: "user", content: "Hello" }],\n});\n`,
     curl: `curl ${NEBIUS_CHAT_URL} \\\n  -H "Content-Type: application/json" \\\n  -H "Authorization: Bearer $NEBIUS_API_KEY" \\\n  -d '{"model":"${id}","messages":[{"role":"user","content":"Hello"}]}'\n`,
+  };
+}
+
+function togetherChecklist(from: ModelRecord, to: ModelRecord): string[] {
+  const notes = from.region_or_platform_notes ?? "";
+  const lines = [
+    from.shutdown_date
+      ? `Read the shutdown date for ${from.id} on the linked official page.`
+      : `Read the deprecations page for ${from.id}. It does not publish a shutdown date.`,
+  ];
+  if (notes.includes("automatically routed")) {
+    lines.push("Requests to the original model ID are automatically routed to the upgraded version.");
+    lines.push("The old version remains available via dedicated endpoints.");
+  } else if (notes.includes("fine-tuning service, not serverless")) {
+    lines.push("This row is the fine-tuning service, not serverless inference.");
+    lines.push("These models can no longer be used as a base model for a fine-tuning job.");
+  } else {
+    lines.push("This date is the serverless inference removal on the Together deprecations page.");
+  }
+  lines.push(`Point your requests at ${to.id} and test before you send traffic.`);
+  return lines;
+}
+
+function togetherApiChanges(from: ModelRecord): ApiChange[] {
+  const notes = from.region_or_platform_notes ?? "";
+  const changes: ApiChange[] = [
+    {
+      kind: "endpoint_change",
+      detail: `The quickstart shows POST ${TOGETHER_CHAT_URL} and an OpenAI client base_url of ${TOGETHER_BASE_URL}. This sample only changes the model field.`,
+      source_url: TOGETHER_QUICKSTART,
+    },
+  ];
+  if (notes.includes("automatically routed")) {
+    changes.push({
+      kind: "behavior_change",
+      detail:
+        "The deprecations page says requests to the original model ID are automatically routed to the upgraded version. The old version remains available via dedicated endpoints.",
+      source_url: TOGETHER_DEPRECATIONS,
+    });
+  } else if (notes.includes("fine-tuning service, not serverless")) {
+    changes.push({
+      kind: "behavior_change",
+      detail:
+        "The deprecations page says these models can no longer be used as a base model for a fine-tuning job. This row is the fine-tuning service, not serverless inference.",
+      source_url: TOGETHER_DEPRECATIONS,
+    });
+  }
+  return changes;
+}
+
+function togetherSnippets(fromId: string, toId: string): SnippetSet {
+  return pairSnippets(togetherChat(fromId), togetherChat(toId));
+}
+
+function togetherChat(id: string) {
+  return {
+    python: `from openai import OpenAI\nclient = OpenAI(base_url="${TOGETHER_BASE_URL}")\nresponse = client.chat.completions.create(\n    model="${id}",\n    messages=[{"role": "user", "content": "Hello"}],\n)\n`,
+    typescript: `import OpenAI from "openai";\nconst client = new OpenAI({ baseURL: "${TOGETHER_BASE_URL}" });\nconst response = await client.chat.completions.create({\n  model: "${id}",\n  messages: [{ role: "user", content: "Hello" }],\n});\n`,
+    curl: `curl ${TOGETHER_CHAT_URL} \\\n  -H "Content-Type: application/json" \\\n  -H "Authorization: Bearer $TOGETHER_API_KEY" \\\n  -d '{"model":"${id}","messages":[{"role":"user","content":"Hello"}]}'\n`,
+  };
+}
+
+function fireworksChecklist(from: ModelRecord, to: ModelRecord): string[] {
+  const notes = from.region_or_platform_notes ?? "";
+  const lines = [
+    from.shutdown_date
+      ? `Read the shutdown date for ${from.id} on the linked official page.`
+      : `Read the changelog entry for ${from.id}. It does not publish a shutdown date.`,
+  ];
+  if (notes.includes("Serverless Training")) lines.push("This change applies only to Serverless Training.");
+  if (notes.includes("Dedicated deployments are unaffected.") || notes.includes("Reserved Throughput are unaffected.")) {
+    lines.push("Dedicated deployments are unaffected.");
+  }
+  if (notes.includes("US endpoint only.")) lines.push("This row is the US endpoint only. The global endpoint is a different id.");
+  lines.push(`Point your requests at ${to.id} and test before you send traffic.`);
+  return lines;
+}
+
+function fireworksApiChanges(from: ModelRecord, to: ModelRecord): ApiChange[] {
+  const notes = from.region_or_platform_notes ?? "";
+  const training = notes.includes("Serverless Training");
+  if (training) {
+    return [
+      {
+        kind: "behavior_change",
+        detail:
+          "The changelog says this removal applies only to Serverless Training. The quickstart sample below is the serverless chat call. It only changes the model field.",
+        source_url: FIREWORKS_CHANGELOG,
+      },
+    ];
+  }
+  const fromUs = fireworksHost(from).us;
+  const toUs = fireworksHost(to).us;
+  const detail = fromUs || toUs
+    ? `The US-only page says to call ${FIREWORKS_US_CHAT_URL} for a US model id. The quickstart shows POST ${FIREWORKS_CHAT_URL} for other serverless models. This sample changes the model field and the host when the id is a US id.`
+    : `The quickstart shows an OpenAI client with base_url ${FIREWORKS_BASE_URL} and POST ${FIREWORKS_CHAT_URL}. This sample only changes the model field.`;
+  const changes: ApiChange[] = [
+    {
+      kind: "endpoint_change",
+      detail,
+      source_url: fromUs || toUs ? FIREWORKS_US : FIREWORKS_QUICKSTART,
+    },
+  ];
+  if (notes.includes("Dedicated deployments are unaffected.") || notes.includes("Reserved Throughput are unaffected.")) {
+    changes.push({
+      kind: "behavior_change",
+      detail: "The changelog says dedicated deployments are unaffected.",
+      source_url: FIREWORKS_CHANGELOG,
+    });
+  }
+  return changes;
+}
+
+function fireworksSnippets(from: ModelRecord, to: ModelRecord): SnippetSet {
+  return pairSnippets(fireworksChat(from), fireworksChat(to));
+}
+
+function fireworksHost(model: ModelRecord): { us: boolean; base: string; chat: string } {
+  const us = model.id.startsWith("accounts/fireworks/routers/") || fireworksUsesUsHost(model.region_or_platform_notes);
+  return us
+    ? { us: true, base: FIREWORKS_US_BASE_URL, chat: FIREWORKS_US_CHAT_URL }
+    : { us: false, base: FIREWORKS_BASE_URL, chat: FIREWORKS_CHAT_URL };
+}
+
+function fireworksChat(model: ModelRecord) {
+  const host = fireworksHost(model);
+  const id = model.id;
+  return {
+    python: `from openai import OpenAI\nclient = OpenAI(base_url="${host.base}")\nresponse = client.chat.completions.create(\n    model="${id}",\n    messages=[{"role": "user", "content": "Hello"}],\n)\n`,
+    typescript: `import OpenAI from "openai";\nconst client = new OpenAI({ baseURL: "${host.base}" });\nconst response = await client.chat.completions.create({\n  model: "${id}",\n  messages: [{ role: "user", content: "Hello" }],\n});\n`,
+    curl: `curl ${host.chat} \\\n  -H "Content-Type: application/json" \\\n  -H "Authorization: Bearer $FIREWORKS_API_KEY" \\\n  -d '{"model":"${id}","messages":[{"role":"user","content":"Hello"}]}'\n`,
   };
 }
 

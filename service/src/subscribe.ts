@@ -14,6 +14,8 @@ const providerIds = [
   "cohere",
   "openrouter",
   "nebius",
+  "together",
+  "fireworks",
 ] as const;
 
 const hits = new Map<string, number[]>();

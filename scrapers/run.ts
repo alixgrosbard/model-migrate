@@ -22,6 +22,8 @@ import { MAY15_URL as XAI_MAY15, MODELS_URL as XAI_MODELS, NOV2_URL as XAI_NOV2,
 import { DEPRECATIONS_MD_URL as COHERE_DEPRECATIONS, MODELS_MD_URL as COHERE_MODELS, parseCohere } from "./cohere.ts";
 import { loadOpenRouterModels, openRouterDecision } from "./openrouter.ts";
 import { assembleNebius, loadNebiusPages } from "./nebius.ts";
+import { assembleTogether, loadTogetherPages } from "./together.ts";
+import { assembleFireworks, loadFireworksPages } from "./fireworks.ts";
 import { DEPRECATIONS_URL as OPENAI_URL, parseOpenAI, parseOpenAIPricing, PRICING_URL as OPENAI_PRICING } from "./openai.ts";
 import { addDocumentedOpenAIModels, applyCodexPlatformNotes, OPENAI_MODELS_INDEX_URL } from "./openai-catalog.ts";
 import { canonicalizeModel, realContentKey, recordIdentity } from "../src/lib/stable-export.ts";
@@ -59,6 +61,8 @@ async function main() {
   for (const [provider, models] of scraped) {
     if (provider === "openrouter") continue;
     if (provider === "nebius") continue;
+    if (provider === "together") continue;
+    if (provider === "fireworks") continue;
     const result = sanityCheck(provider, models.length, previousCounts.get(provider) ?? 0);
     if (!result.ok && result.reason) failures.push(result.reason);
   }
@@ -186,6 +190,24 @@ async function scrapeAll(previous: ModelRecord[]): Promise<Map<string, ScrapedMo
   if (!nebius) {
     console.error("Nebius deprecation pages were not applied. Stored Nebius rows stay.");
   }
+  const togetherPages = await loadTogetherPages({ fromSnapshots, checked, root });
+  const together = assembleTogether(
+    togetherPages,
+    checked,
+    previous.filter((model) => model.provider === "together"),
+  );
+  if (!together) {
+    console.error("Together deprecations page was not applied. Stored Together rows stay.");
+  }
+  const fireworksPages = await loadFireworksPages({ fromSnapshots, checked, root });
+  const fireworks = assembleFireworks(
+    fireworksPages,
+    checked,
+    previous.filter((model) => model.provider === "fireworks"),
+  );
+  if (!fireworks) {
+    console.error("Fireworks changelog was not applied. Stored Fireworks rows stay.");
+  }
 
   const groups = new Map<string, ScrapedModel[]>([
     ["openai", openai],
@@ -202,6 +224,8 @@ async function scrapeAll(previous: ModelRecord[]): Promise<Map<string, ScrapedMo
   ]);
   if (openrouter) groups.set("openrouter", openrouter);
   if (nebius) groups.set("nebius", nebius);
+  if (together) groups.set("together", together);
+  if (fireworks) groups.set("fireworks", fireworks);
   addReplacementStubs(groups, checked);
   attachStubPrices(groups, openaiPricing, anthropicPricing, geminiPricing, checked);
   // The deprecations tables skip ids that have no shutdown row. The models

@@ -96,5 +96,19 @@
     "deprecations_url": "https://docs.tokenfactory.nebius.com/model-deprecations-november-2026",
     "pricing_url": "https://docs.tokenfactory.nebius.com/other-capabilities/billing-new",
     "models_url": "https://docs.tokenfactory.nebius.com/quickstart"
+  },
+  {
+    "id": "together",
+    "name": "Together AI",
+    "deprecations_url": "https://docs.together.ai/docs/deprecations",
+    "pricing_url": "https://docs.together.ai/docs/serverless/models",
+    "models_url": "https://docs.together.ai/docs/serverless/models"
+  },
+  {
+    "id": "fireworks",
+    "name": "Fireworks AI",
+    "deprecations_url": "https://docs.fireworks.ai/updates/changelog",
+    "pricing_url": "https://docs.fireworks.ai/serverless/pricing",
+    "models_url": "https://docs.fireworks.ai/getting-started/quickstart"
   }
 ]

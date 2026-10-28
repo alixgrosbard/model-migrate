@@ -21,7 +21,11 @@ export async function writeMigrations(models: ModelRecord[], checkedOn: string, 
   let count = 0;
   for (const model of models) {
     const targets = officialMigrationTargets(model);
-    const undatedProvider = model.provider === "xai" || model.provider === "cohere";
+    const undatedProvider =
+      model.provider === "xai" ||
+      model.provider === "cohere" ||
+      model.provider === "together" ||
+      model.provider === "fireworks";
     if (!model.shutdown_date && !undatedProvider) continue;
     if (!targets.length) continue;
     for (const official of targets) {

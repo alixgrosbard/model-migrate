@@ -1,0 +1,45 @@
+{
+  "id": "accounts/fireworks/models/nemotron-lightning-3p5-30b-a3b",
+  "slug": "accounts-fireworks-models-nemotron-lightning-3p5-30b-a3b",
+  "provider": "fireworks",
+  "display_name": "NVIDIA Nemotron 3.5 Lightning 30B A3B",
+  "family": null,
+  "status": "deprecated",
+  "announced_date": null,
+  "deprecation_date": null,
+  "shutdown_date": "2026-11-07",
+  "shutdown_date_kind": "exact",
+  "region_or_platform_notes": "Changelog section: Upcoming Serverless deprecation: GPT OSS 120B, Inkling, Nemotron, and US endpoints for MiniMax M3 and GLM 5.3 Flash. Dedicated deployments and Reserved Throughput are unaffected. This applies only to serverless inference. The changelog says: move to a dedicated deployment of Nemotron Super VL.",
+  "replacements": [],
+  "sources": [
+    {
+      "url": "https://docs.fireworks.ai/updates/changelog",
+      "label": "Fireworks AI changelog",
+      "last_checked": "2026-10-28",
+      "excerpt": "NVIDIA Nemotron 3.5 Lightning 30B A3B - move to a dedicated deployment of Nemotron Super VL"
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": null,
+    "output_price_per_mtok": null,
+    "cached_input_price_per_mtok": null,
+    "batch_discount_pct": null,
+    "currency": null,
+    "context_window_tokens": null,
+    "max_output_tokens": null,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {}
+  },
+  "first_seen": "2026-10-28T12:33:26.950Z",
+  "updated_at": "2026-10-28T12:33:26.950Z"
+}
