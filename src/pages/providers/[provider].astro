@@ -54,6 +54,16 @@ const description = `${provider.name} model shutdown dates, grouped by status.`;
       A null expiration_date is not listed. The response does not name a replacement.
       <a href="/#soonest">Soonest shutdowns on the homepage</a>.
     </p>
+  ) : provider.id === "nebius" ? (
+    <p>
+      Official notices: <a href={provider.deprecations_url}>{provider.deprecations_url}</a>
+      and <a href="https://docs.tokenfactory.nebius.com/august-2026-deprecation-notice">August 2026 deprecations</a>.
+      This change only affects Serverless usage. Dedicated Endpoints are unaffected.
+      Token Factory does not automatically reroute requests from deprecated models.
+      The <a href={provider.models_url}>quickstart</a> shows the API host.
+      The <a href={provider.pricing_url}>billing page</a> does not print a per-token price.
+      <a href="/#soonest">Soonest shutdowns on the homepage</a>.
+    </p>
   ) : (
     <p>Official source: <a href={provider.deprecations_url}>{provider.deprecations_url}</a>. <a href="/#soonest">Soonest shutdowns on the homepage</a>.</p>
   )}

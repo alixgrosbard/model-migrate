@@ -17,6 +17,7 @@ export const providerIds = [
   "xai",
   "cohere",
   "openrouter",
+  "nebius",
 ] as const;
 
 export const providerIdSchema = z.enum(providerIds);

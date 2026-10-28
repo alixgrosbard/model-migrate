@@ -38,6 +38,7 @@ export function llmsTxt(
     xaiPages?: ModelRecord[];
     coherePages?: ModelRecord[];
     openrouterPages?: ModelRecord[];
+    nebiusPages?: ModelRecord[];
     featured?: { label: string; path: string }[];
   } = {},
 ): string {
@@ -83,6 +84,9 @@ export function llmsTxt(
     .map((model) => `- [${model.id}](${origin}/models/${model.provider}/${model.slug}/)`)
     .join("\n");
   const openrouterPageLinks = (extra.openrouterPages ?? [])
+    .map((model) => `- [${model.id}](${origin}/models/${model.provider}/${model.slug}/)`)
+    .join("\n");
+  const nebiusPageLinks = (extra.nebiusPages ?? [])
     .map((model) => `- [${model.id}](${origin}/models/${model.provider}/${model.slug}/)`)
     .join("\n");
   return `# SunsetDiff
@@ -191,6 +195,7 @@ ${nvidiaPageLinks ? `\n## NVIDIA hosted model pages\nRows come from a build.nvid
 ${xaiPageLinks ? `\n## xAI model pages\nRows come from docs.x.ai. A model with no retirement sentence is active and has no shutdown date. Image, video, and voice rates are not stored as per-token prices.\n${xaiPageLinks}` : ""}
 ${coherePageLinks ? `\n## Cohere model pages\nRows come from docs.cohere.com. A model with no retirement sentence is active and has no shutdown date. The docs pages parsed here do not print per-token prices.\n${coherePageLinks}` : ""}
 ${openrouterPageLinks ? `\n## OpenRouter model pages\nRows are models whose OpenRouter models API sets expiration_date. A null expiration_date is not stored. The date is a deprecation date and a removal floor, not a guaranteed shutdown day. The API response does not name a replacement.\n${openrouterPageLinks}` : ""}
+${nebiusPageLinks ? `\n## Nebius Token Factory model pages\nRows come from the November 2026 and August 2026 Token Factory deprecation notices. A removal applies to Serverless. Dedicated Endpoints are unaffected. Token Factory does not automatically reroute requests from deprecated models. The notices do not print a per-token price.\n${nebiusPageLinks}` : ""}
 
 ## Status lists
 Deprecated means the stored status is deprecated. Retired means the stored status is retired. Dates come from the model records.

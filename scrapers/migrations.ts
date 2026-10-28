@@ -1,4 +1,5 @@
 import type { MigrationRecord, ModelRecord } from "../src/schema.ts";
+import { AUGUST_URL, NEBIUS_BASE_URL, NEBIUS_CHAT_URL, NOVEMBER_URL, QUICKSTART_URL } from "./nebius.ts";
 
 const EXAMPLE = "Example monthly cost for 10M input tokens and 2M output tokens. Labeled example, not a bill.";
 
@@ -109,7 +110,7 @@ const FILE_TRANSCRIPTION_OR = new Set([
 export function officialMigrationTargets(model: ModelRecord) {
   const official = model.replacements.filter((item) => item.kind === "official");
   if (model.provider === "openai" && FILE_TRANSCRIPTION_OR.has(model.id)) return official;
-  if (model.provider === "groq" || model.provider === "xai" || model.provider === "cohere") return official;
+  if (model.provider === "groq" || model.provider === "xai" || model.provider === "cohere" || model.provider === "nebius") return official;
   return official.slice(0, 1);
 }
 
@@ -168,6 +169,14 @@ function callKind(provider: string, id: string): CallKind | null {
 }
 
 function migrationChecklist(from: ModelRecord, to: ModelRecord): string[] {
+  if (from.provider === "nebius") {
+    return [
+      `Read the shutdown date for ${from.id} on the linked official page.`,
+      "This change only affects Serverless usage. Dedicated Endpoints are unaffected.",
+      "Token Factory does not automatically reroute requests from deprecated models.",
+      `Point your requests at ${to.id} and test before you send traffic.`,
+    ];
+  }
   const undated = (from.provider === "xai" || from.provider === "cohere") && !from.shutdown_date;
   if (undated) {
     return [
@@ -190,6 +199,7 @@ function codeSnippets(from: ModelRecord, to: ModelRecord) {
   if (from.provider === "nvidia" && to.provider === "nvidia") return nvidiaSnippets(from.id, to.id);
   if (from.provider === "xai" && to.provider === "xai") return xaiSnippets(from.id, to.id);
   if (from.provider === "cohere" && to.provider === "cohere") return cohereSnippets(from.id, to.id);
+  if (from.provider === "nebius" && to.provider === "nebius") return nebiusSnippets(from.id, to.id);
   return specialized(from, to)?.snippets ?? defaultSnippets(from, to);
 }
 
@@ -198,6 +208,7 @@ function apiChanges(from: ModelRecord, to: ModelRecord): ApiChange[] {
   if (from.provider === "nvidia" && to.provider === "nvidia") return nvidiaApiChanges();
   if (from.provider === "xai" && to.provider === "xai") return xaiApiChanges(from.id);
   if (from.provider === "cohere" && to.provider === "cohere") return cohereApiChanges(from.id);
+  if (from.provider === "nebius" && to.provider === "nebius") return nebiusApiChanges(from);
   return specialized(from, to)?.apiChanges ?? [];
 }
 
@@ -369,6 +380,38 @@ function xaiVoice(id: string) {
     python: `url = "wss://api.x.ai/v1/realtime?model=${id}"\n`,
     typescript: `const url = "wss://api.x.ai/v1/realtime?model=${id}";\n`,
     curl: `wss://api.x.ai/v1/realtime?model=${id}\n`,
+  };
+}
+
+function nebiusApiChanges(from: ModelRecord): ApiChange[] {
+  const november = from.sources.some((source) => source.url === NOVEMBER_URL);
+  const notice = november ? NOVEMBER_URL : AUGUST_URL;
+  const instruction = november
+    ? "The November 2026 deprecations page says to update the model and base_url values. This sample only changes the model field."
+    : "The August 2026 deprecations page says to update the model value. This sample only changes the model field.";
+  return [
+    {
+      kind: "endpoint_change",
+      detail: `The quickstart shows an OpenAI client with base_url ${NEBIUS_BASE_URL} and POST ${NEBIUS_CHAT_URL}. It also shows Authorization: Bearer $NEBIUS_API_KEY. This sample keeps that base_url.`,
+      source_url: QUICKSTART_URL,
+    },
+    {
+      kind: "behavior_change",
+      detail: `${instruction} Token Factory does not automatically reroute requests from deprecated models. Dedicated Endpoints are unaffected.`,
+      source_url: notice,
+    },
+  ];
+}
+
+function nebiusSnippets(fromId: string, toId: string): SnippetSet {
+  return pairSnippets(nebiusChat(fromId), nebiusChat(toId));
+}
+
+function nebiusChat(id: string) {
+  return {
+    python: `from openai import OpenAI\nclient = OpenAI(base_url="${NEBIUS_BASE_URL}")\nresponse = client.chat.completions.create(\n    model="${id}",\n    messages=[{"role": "user", "content": "Hello"}],\n)\n`,
+    typescript: `import OpenAI from "openai";\nconst client = new OpenAI({ baseURL: "${NEBIUS_BASE_URL}" });\nconst response = await client.chat.completions.create({\n  model: "${id}",\n  messages: [{ role: "user", content: "Hello" }],\n});\n`,
+    curl: `curl ${NEBIUS_CHAT_URL} \\\n  -H "Content-Type: application/json" \\\n  -H "Authorization: Bearer $NEBIUS_API_KEY" \\\n  -d '{"model":"${id}","messages":[{"role":"user","content":"Hello"}]}'\n`,
   };
 }
 

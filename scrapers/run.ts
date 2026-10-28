@@ -21,6 +21,7 @@ import { DEPRECATIONS_MD_URL as GROQ_DEPRECATIONS, MODELS_MD_URL as GROQ_MODELS,
 import { MAY15_URL as XAI_MAY15, MODELS_URL as XAI_MODELS, NOV2_URL as XAI_NOV2, PRICING_URL as XAI_PRICING, RELEASE_URL as XAI_RELEASE, parseXai } from "./xai.ts";
 import { DEPRECATIONS_MD_URL as COHERE_DEPRECATIONS, MODELS_MD_URL as COHERE_MODELS, parseCohere } from "./cohere.ts";
 import { loadOpenRouterModels, openRouterDecision } from "./openrouter.ts";
+import { assembleNebius, loadNebiusPages } from "./nebius.ts";
 import { DEPRECATIONS_URL as OPENAI_URL, parseOpenAI, parseOpenAIPricing, PRICING_URL as OPENAI_PRICING } from "./openai.ts";
 import { addDocumentedOpenAIModels, applyCodexPlatformNotes, OPENAI_MODELS_INDEX_URL } from "./openai-catalog.ts";
 import { canonicalizeModel, realContentKey, recordIdentity } from "../src/lib/stable-export.ts";
@@ -39,7 +40,7 @@ async function main() {
   const previousCounts = new Map<string, number>();
   for (const model of previous) previousCounts.set(model.provider, (previousCounts.get(model.provider) ?? 0) + 1);
 
-  const scraped = await scrapeAll();
+  const scraped = await scrapeAll(previous);
   const openrouter = scraped.get("openrouter");
   if (!openrouter) {
     console.error("OpenRouter models API could not be read. Stored OpenRouter rows stay.");
@@ -57,6 +58,7 @@ async function main() {
   const failures: string[] = [];
   for (const [provider, models] of scraped) {
     if (provider === "openrouter") continue;
+    if (provider === "nebius") continue;
     const result = sanityCheck(provider, models.length, previousCounts.get(provider) ?? 0);
     if (!result.ok && result.reason) failures.push(result.reason);
   }
@@ -125,7 +127,7 @@ async function loadText(url: string, snapshot: string, provider: string, suffix 
   return body;
 }
 
-async function scrapeAll(): Promise<Map<string, ScrapedModel[]>> {
+async function scrapeAll(previous: ModelRecord[]): Promise<Map<string, ScrapedModel[]>> {
   const openaiHtml = await loadText(OPENAI_URL, "snapshots/fixtures/openai/2026-10-17.html", "openai");
   const openaiPricing = await loadText(OPENAI_PRICING, "snapshots/fixtures/openai/pricing-2026-10-17.md", "openai");
   const anthropicHtml = await loadText(ANTHROPIC_URL, "snapshots/fixtures/anthropic/2026-10-17.html", "anthropic");
@@ -174,6 +176,16 @@ async function scrapeAll(): Promise<Map<string, ScrapedModel[]>> {
   const xai = parseXai({ models: xaiModels, pricing: xaiPricing, may15: xaiMay15, nov2: xaiNov2, releaseNotes: xaiRelease }, checked);
   const cohere = parseCohere(cohereDeprecations, cohereModels, checked);
   const openrouter = await loadOpenRouterModels({ fromSnapshots, checked, root });
+  const nebiusPages = await loadNebiusPages({ fromSnapshots, checked, root });
+  const nebius = assembleNebius(
+    nebiusPages.november,
+    nebiusPages.august,
+    checked,
+    previous.filter((model) => model.provider === "nebius"),
+  );
+  if (!nebius) {
+    console.error("Nebius deprecation pages were not applied. Stored Nebius rows stay.");
+  }
 
   const groups = new Map<string, ScrapedModel[]>([
     ["openai", openai],
@@ -189,6 +201,7 @@ async function scrapeAll(): Promise<Map<string, ScrapedModel[]>> {
     ["cohere", cohere],
   ]);
   if (openrouter) groups.set("openrouter", openrouter);
+  if (nebius) groups.set("nebius", nebius);
   addReplacementStubs(groups, checked);
   attachStubPrices(groups, openaiPricing, anthropicPricing, geminiPricing, checked);
   // The deprecations tables skip ids that have no shutdown row. The models
