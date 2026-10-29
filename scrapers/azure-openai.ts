@@ -24,6 +24,7 @@ export async function scrape(checked = todayISO()): Promise<ScrapedModel[]> {
 
 export function parseAzure(scheduleHtml: string, policyHtml = "", checked = todayISO()): ScrapedModel[] {
   const models = new Map<string, ScrapedModel>();
+  const baseIds = new Set<string>();
   const $ = loadHtml(scheduleHtml);
   let inOpenAI = false;
   $("h2, h3, table").each((_, node) => {
@@ -40,7 +41,7 @@ export function parseAzure(scheduleHtml: string, policyHtml = "", checked = toda
     const header = (rows[0] ?? []).map((cell) => cell.toLowerCase());
     if (!header.includes("model") || !header.some((cell) => cell.includes("retirement"))) return;
     const fineTune = header.some((cell) => cell.includes("training"));
-    addRows(models, rows, fineTune, SCHEDULE_URL, checked);
+    addRows(models, baseIds, rows, fineTune, SCHEDULE_URL, checked);
   });
 
   if (policyHtml) {
@@ -53,7 +54,6 @@ export function parseAzure(scheduleHtml: string, policyHtml = "", checked = toda
         const id = azureId(row[0] ?? "", row[1] ?? "");
         if (!id) continue;
         const training = parseDate(row[2] ?? "");
-        const deployment = parseDate(row[3] ?? "");
         const note = `Fine-tuned deployments: training retirement ${row[2] ?? "not published"} (${training.kind}); deployment retirement ${row[3] ?? "not published"}.`;
         const existing = models.get(id);
         if (existing) {
@@ -66,15 +66,16 @@ export function parseAzure(scheduleHtml: string, policyHtml = "", checked = toda
           });
           continue;
         }
+        // A fine-tune-only row has no base lifecycle. Keep the dates in the note.
         models.set(
           id,
           baseModel({
             id,
             provider: "azure-openai",
             displayName: `${row[0]} (${row[1]})`,
-            status: deployment.date && compareDate(deployment.date, checked) < 0 ? "retired" : "deprecated",
-            shutdown: deployment.date,
-            kind: deployment.kind,
+            status: "deprecated",
+            shutdown: null,
+            kind: "none",
             notes: note,
             sourceUrl: POLICY_URL,
             sourceLabel: "Azure OpenAI model retirements",
@@ -90,6 +91,7 @@ export function parseAzure(scheduleHtml: string, policyHtml = "", checked = toda
 
 function addRows(
   models: Map<string, ScrapedModel>,
+  baseIds: Set<string>,
   rows: string[][],
   fineTune: boolean,
   url: string,
@@ -102,18 +104,28 @@ function addRows(
     const id = azureId(name, version);
     if (!id) continue;
     if (fineTune) {
-      const training = parseDate(row[2] ?? "");
-      const deployment = parseDate(row[3] ?? "");
+      const note = `Training retirement: ${row[2] ?? "not published"}. Deployment retirement: ${row[3] ?? "not published"}.`;
+      const existing = models.get(id);
+      if (existing) {
+        existing.region_or_platform_notes = [existing.region_or_platform_notes, note].filter(Boolean).join(" ");
+        existing.sources.push({
+          url,
+          label: "Azure OpenAI retirement schedule",
+          last_checked: checked,
+          excerpt: excerpt(row),
+        });
+        continue;
+      }
       models.set(
         id,
         baseModel({
           id,
           provider: "azure-openai",
-          displayName: version && version !== "—" ? `${name} ${version}` : name,
-          status: deployment.date && compareDate(deployment.date, checked) < 0 ? "retired" : "active",
-          shutdown: deployment.date,
-          kind: training.kind === "not_before" && deployment.kind === "exact" ? "exact" : deployment.kind,
-          notes: `Training retirement: ${row[2] ?? "not published"}. Deployment retirement: ${row[3] ?? "not published"}.`,
+          displayName: version && version !== "—" ? `${name} (${version})` : name,
+          status: "active",
+          shutdown: null,
+          kind: "none",
+          notes: note,
           sourceUrl: url,
           sourceLabel: "Azure OpenAI retirement schedule",
           checked,
@@ -122,6 +134,8 @@ function addRows(
       );
       continue;
     }
+    if (baseIds.has(id)) continue;
+    baseIds.add(id);
     const lifecycle = LIFECYCLE[(row[2] ?? "").trim().toLowerCase()] ?? "active";
     const retirement = parseDate(row[3] ?? "");
     const replacement = (row[4] ?? "").trim();
@@ -130,28 +144,28 @@ function addRows(
         ? "retired"
         : lifecycle;
     const preview = (row[2] ?? "").toLowerCase() === "preview" ? "Lifecycle on the schedule: Preview." : null;
-    models.set(
+    const prior = models.get(id);
+    const model = baseModel({
       id,
-      baseModel({
-        id,
-        provider: "azure-openai",
-        displayName: version && version !== "—" ? `${name} (${version})` : name,
-        status,
-        shutdown: retirement.date,
-        kind: retirement.kind,
-        notes: preview,
-        replacements: replacementIds(replacement).map((modelId) => ({
-          model_id: modelId,
-          provider: "azure-openai" as const,
-          kind: "official" as const,
-          source_url: url,
-        })),
-        sourceUrl: url,
-        sourceLabel: "Azure OpenAI retirement schedule",
-        checked,
-        excerpt: excerpt(row),
-      }),
-    );
+      provider: "azure-openai",
+      displayName: version && version !== "—" ? `${name} (${version})` : name,
+      status,
+      shutdown: retirement.date,
+      kind: retirement.kind,
+      notes: [preview, prior?.region_or_platform_notes].filter(Boolean).join(" ") || null,
+      replacements: replacementIds(replacement).map((modelId) => ({
+        model_id: modelId,
+        provider: "azure-openai" as const,
+        kind: "official" as const,
+        source_url: url,
+      })),
+      sourceUrl: url,
+      sourceLabel: "Azure OpenAI retirement schedule",
+      checked,
+      excerpt: excerpt(row),
+    });
+    if (prior) model.sources.push(...prior.sources);
+    models.set(id, model);
   }
 }
 

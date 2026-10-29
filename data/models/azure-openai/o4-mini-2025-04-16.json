@@ -2,16 +2,29 @@
   "id": "o4-mini-2025-04-16",
   "slug": "o4-mini-2025-04-16",
   "provider": "azure-openai",
-  "display_name": "o4-mini 2025-04-16",
+  "display_name": "o4-mini (2025-04-16)",
   "family": "o4-mini",
-  "status": "active",
+  "status": "deprecated",
   "announced_date": null,
   "deprecation_date": null,
-  "shutdown_date": "2027-11-19",
+  "shutdown_date": "2026-11-19",
   "shutdown_date_kind": "exact",
   "region_or_platform_notes": "Training retirement: No earlier than 2027-05-191. Deployment retirement: 2027-11-19. Fine-tuned deployments: training retirement No earlier than 2027-04-161 (not_before); deployment retirement 2027-10-16.",
-  "replacements": [],
+  "replacements": [
+    {
+      "model_id": "gpt-5.6-terra",
+      "provider": "azure-openai",
+      "kind": "official",
+      "source_url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule"
+    }
+  ],
   "sources": [
+    {
+      "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule",
+      "label": "Azure OpenAI retirement schedule",
+      "last_checked": "2026-10-29",
+      "excerpt": "o4-mini | 2025-04-16 | Deprecated | 2026-11-19 | gpt-5.6-terra"
+    },
     {
       "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule",
       "label": "Azure OpenAI retirement schedule",
@@ -47,5 +60,5 @@
     "specs_sources": {}
   },
   "first_seen": "2026-10-17T15:59:19.574Z",
-  "updated_at": "2026-10-24T04:39:18.299Z"
+  "updated_at": "2026-10-29T12:22:58.671Z"
 }
