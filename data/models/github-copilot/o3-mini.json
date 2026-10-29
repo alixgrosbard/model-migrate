@@ -1,0 +1,70 @@
+{
+  "id": "o3-mini",
+  "slug": "o3-mini",
+  "provider": "github-copilot",
+  "display_name": "o3-mini",
+  "family": null,
+  "status": "retired",
+  "announced_date": null,
+  "deprecation_date": null,
+  "shutdown_date": "2025-10-23",
+  "shutdown_date_kind": "exact",
+  "region_or_platform_notes": "The deprecation of o3-mini has been postponed. The original deprecation date was 2025-07-18. Supported models page suggested alternative: Latest GPT mini model. An earlier changelog named OpenAI o4-mini: https://github.blog/changelog/2025-06-20-upcoming-deprecation-of-o1-gpt-4-5-o3-mini-and-gpt-4o",
+  "replacements": [
+    {
+      "model_id": "GPT-5 mini",
+      "provider": "github-copilot",
+      "kind": "official",
+      "source_url": "https://github.blog/changelog/2025-10-23-selected-claude-openai-and-gemini-copilot-models-are-now-deprecated"
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://docs.github.com/en/copilot/reference/ai-models/supported-models",
+      "label": "GitHub Copilot supported models",
+      "last_checked": "2026-10-29",
+      "excerpt": "o3-mini | 2025-10-23 | Latest GPT mini model"
+    },
+    {
+      "url": "https://github.blog/changelog/2025-06-20-upcoming-deprecation-of-o1-gpt-4-5-o3-mini-and-gpt-4o",
+      "label": "GitHub Changelog",
+      "last_checked": "2026-10-29",
+      "excerpt": "o3-mini | OpenAI o4-mini"
+    },
+    {
+      "url": "https://github.blog/changelog/2025-09-23-upcoming-deprecation-of-select-copilot-models-from-claude-openai-and-gemini",
+      "label": "GitHub Changelog",
+      "last_checked": "2026-10-29",
+      "excerpt": "o3-mini | GPT-5 mini"
+    },
+    {
+      "url": "https://github.blog/changelog/2025-10-23-selected-claude-openai-and-gemini-copilot-models-are-now-deprecated",
+      "label": "GitHub Changelog",
+      "last_checked": "2026-10-29",
+      "excerpt": "o3-mini | GPT-5 mini"
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": null,
+    "output_price_per_mtok": null,
+    "cached_input_price_per_mtok": null,
+    "batch_discount_pct": null,
+    "currency": null,
+    "context_window_tokens": null,
+    "max_output_tokens": null,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {}
+  },
+  "first_seen": "2026-10-29T12:00:00.000Z",
+  "updated_at": "2026-10-29T12:00:00.000Z"
+}

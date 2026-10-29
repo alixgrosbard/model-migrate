@@ -20,6 +20,7 @@ export const providerIds = [
   "nebius",
   "together",
   "fireworks",
+  "github-copilot",
 ] as const;
 
 export const providerIdSchema = z.enum(providerIds);

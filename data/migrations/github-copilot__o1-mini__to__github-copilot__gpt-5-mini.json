@@ -1,0 +1,103 @@
+{
+  "from": {
+    "provider": "github-copilot",
+    "model_id": "o1-mini",
+    "slug": "o1-mini"
+  },
+  "to": {
+    "provider": "github-copilot",
+    "model_id": "GPT-5 mini",
+    "slug": "gpt-5-mini"
+  },
+  "price_diff": {
+    "input_pct_change": null,
+    "output_pct_change": null,
+    "example_monthly_cost_old": null,
+    "example_monthly_cost_new": null,
+    "currency": "USD",
+    "example_label": "Example monthly cost for 10M input tokens and 2M output tokens. Labeled example, not a bill."
+  },
+  "context_diff": {
+    "old_tokens": null,
+    "new_tokens": null,
+    "change_pct": null
+  },
+  "max_output_diff": {
+    "old_tokens": null,
+    "new_tokens": null,
+    "change_pct": null
+  },
+  "capability_changes": [],
+  "api_changes": [
+    {
+      "kind": "behavior_change",
+      "detail": "The GitHub changelog says the replacement shows up in the Copilot Chat model selector. That post does not print a request body, so this page does not show code.",
+      "source_url": "https://github.blog/changelog/2025-09-23-upcoming-deprecation-of-select-copilot-models-from-claude-openai-and-gemini"
+    }
+  ],
+  "code_change": {
+    "language": "python",
+    "before": "",
+    "after": "",
+    "snippets": {
+      "python": {
+        "before": "",
+        "after": ""
+      },
+      "typescript": {
+        "before": "",
+        "after": ""
+      },
+      "curl": {
+        "before": "",
+        "after": ""
+      }
+    }
+  },
+  "migration_checklist": [
+    "Read the Copilot date for o1-mini on the linked GitHub page.",
+    "This date is for models Copilot offers in chat and agent features. It can differ from the original provider's API date.",
+    "Choose GPT-5 mini in the Copilot Chat model selector.",
+    "The linked changelog does not print a request sample."
+  ],
+  "confidence": "partial",
+  "last_checked": "2026-10-29",
+  "sources": [
+    {
+      "url": "https://docs.github.com/en/copilot/reference/ai-models/supported-models",
+      "label": "GitHub Copilot supported models",
+      "last_checked": "2026-10-29",
+      "excerpt": "o1-mini | 2025-10-23 | Latest GPT mini model"
+    },
+    {
+      "url": "https://github.blog/changelog/2025-09-23-upcoming-deprecation-of-select-copilot-models-from-claude-openai-and-gemini",
+      "label": "GitHub Changelog",
+      "last_checked": "2026-10-29",
+      "excerpt": "o1-mini | GPT-5 mini"
+    },
+    {
+      "url": "https://github.blog/changelog/2025-10-23-selected-claude-openai-and-gemini-copilot-models-are-now-deprecated",
+      "label": "GitHub Changelog",
+      "last_checked": "2026-10-29",
+      "excerpt": "o1-mini | GPT-5 mini"
+    },
+    {
+      "url": "https://docs.github.com/en/copilot/reference/ai-models/supported-models",
+      "label": "GitHub Copilot supported models",
+      "last_checked": "2026-10-29",
+      "excerpt": "GPT-5 mini | 2026-10-19 | Latest GPT Luna model"
+    },
+    {
+      "url": "https://github.blog/changelog/2026-09-18-upcoming-deprecation-of-selected-github-copilot-models-in-mid-october",
+      "label": "GitHub Changelog",
+      "last_checked": "2026-10-29",
+      "excerpt": "GPT-5 mini | GPT-5.6 Luna"
+    },
+    {
+      "url": "https://github.blog/changelog/2026-10-19-github-copilot-models-deprecated-on-october-19-2026",
+      "label": "GitHub Changelog",
+      "last_checked": "2026-10-29",
+      "excerpt": "GPT-5 mini | GPT-6 Luna"
+    }
+  ]
+}

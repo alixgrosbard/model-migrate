@@ -1,0 +1,91 @@
+{
+  "from": {
+    "provider": "github-copilot",
+    "model_id": "MAI-Code-1-Flash",
+    "slug": "mai-code-1-flash"
+  },
+  "to": {
+    "provider": "github-copilot",
+    "model_id": "MAI-Code-1.1-Flash",
+    "slug": "mai-code-1-1-flash"
+  },
+  "price_diff": {
+    "input_pct_change": null,
+    "output_pct_change": null,
+    "example_monthly_cost_old": null,
+    "example_monthly_cost_new": null,
+    "currency": "USD",
+    "example_label": "Example monthly cost for 10M input tokens and 2M output tokens. Labeled example, not a bill."
+  },
+  "context_diff": {
+    "old_tokens": null,
+    "new_tokens": null,
+    "change_pct": null
+  },
+  "max_output_diff": {
+    "old_tokens": null,
+    "new_tokens": null,
+    "change_pct": null
+  },
+  "capability_changes": [],
+  "api_changes": [
+    {
+      "kind": "behavior_change",
+      "detail": "The GitHub changelog says the replacement shows up in the Copilot Chat model selector. That post does not print a request body, so this page does not show code.",
+      "source_url": "https://github.blog/changelog/2026-08-11-upcoming-deprecation-of-mai-code-1-flash"
+    }
+  ],
+  "code_change": {
+    "language": "python",
+    "before": "",
+    "after": "",
+    "snippets": {
+      "python": {
+        "before": "",
+        "after": ""
+      },
+      "typescript": {
+        "before": "",
+        "after": ""
+      },
+      "curl": {
+        "before": "",
+        "after": ""
+      }
+    }
+  },
+  "migration_checklist": [
+    "Read the Copilot date for MAI-Code-1-Flash on the linked GitHub page.",
+    "This date is for models Copilot offers in chat and agent features. It can differ from the original provider's API date.",
+    "Choose MAI-Code-1.1-Flash in the Copilot Chat model selector.",
+    "The linked changelog does not print a request sample."
+  ],
+  "confidence": "partial",
+  "last_checked": "2026-10-29",
+  "sources": [
+    {
+      "url": "https://docs.github.com/en/copilot/reference/ai-models/supported-models",
+      "label": "GitHub Copilot supported models",
+      "last_checked": "2026-10-29",
+      "excerpt": "MAI-Code-1-Flash | 2026-09-10 | Latest MAI-Code model"
+    },
+    {
+      "url": "https://github.blog/changelog/2026-08-11-upcoming-deprecation-of-mai-code-1-flash",
+      "label": "GitHub Changelog",
+      "last_checked": "2026-10-29",
+      "excerpt": "MAI-Code-1-Flash | MAI-Code-1.1-Flash"
+    },
+    {
+      "url": "https://github.blog/changelog/2026-09-10-mai-code-1-flash-deprecated",
+      "label": "GitHub Changelog",
+      "last_checked": "2026-10-29",
+      "excerpt": "MAI-Code-1-Flash | MAI-Code-1.1-Flash"
+    },
+    {
+      "url": "https://github.blog/changelog/2026-09-10-mai-code-1-flash-deprecated",
+      "label": "Named as an official replacement",
+      "last_checked": "2026-10-29",
+      "excerpt": "Named as an official replacement for MAI-Code-1-Flash."
+    }
+  ]
+}

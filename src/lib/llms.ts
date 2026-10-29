@@ -41,6 +41,7 @@ export function llmsTxt(
     nebiusPages?: ModelRecord[];
     togetherPages?: ModelRecord[];
     fireworksPages?: ModelRecord[];
+    copilotPages?: ModelRecord[];
     featured?: { label: string; path: string }[];
   } = {},
 ): string {
@@ -95,6 +96,9 @@ export function llmsTxt(
     .map((model) => `- [${model.id}](${origin}/models/${model.provider}/${model.slug}/)`)
     .join("\n");
   const fireworksPageLinks = (extra.fireworksPages ?? [])
+    .map((model) => `- [${model.id}](${origin}/models/${model.provider}/${model.slug}/)`)
+    .join("\n");
+  const copilotPageLinks = (extra.copilotPages ?? [])
     .map((model) => `- [${model.id}](${origin}/models/${model.provider}/${model.slug}/)`)
     .join("\n");
   return `# SunsetDiff
@@ -206,6 +210,7 @@ ${openrouterPageLinks ? `\n## OpenRouter model pages\nRows are models whose Open
 ${nebiusPageLinks ? `\n## Nebius Token Factory model pages\nRows come from the November 2026 and August 2026 Token Factory deprecation notices. A removal applies to Serverless. Dedicated Endpoints are unaffected. Token Factory does not automatically reroute requests from deprecated models. The notices do not print a per-token price.\n${nebiusPageLinks}` : ""}
 ${togetherPageLinks ? `\n## Together AI model pages\nRows come from the Together deprecations page: scheduled serverless removals, the inference removal table, the fine-tuning removal table, and active redirects. A past removal date is retired. A future removal date is deprecated. Redirects have no removal date. When the scheduled table and the inference table list different dates, the stored shutdown date is the inference table date. A per-million-token price is stored only when the serverless models page lists that id.\n${togetherPageLinks}` : ""}
 ${fireworksPageLinks ? `\n## Fireworks AI model pages\nRows come from the Fireworks changelog when a deprecation links a model page. The model id is accounts/fireworks/models/ plus that page's slug, the same shape as the quickstart model field. A US-only row uses the id on the US-only serverless page. A display name with no model link is not stored. Dedicated deployments stay up when the changelog says that.\n${fireworksPageLinks}` : ""}
+${copilotPageLinks ? `\n## GitHub Copilot model pages\nRows come from the supported models retirement table and from GitHub changelog posts about Copilot model retirements. A date on the supported models page is the stored shutdown date. When a changelog names a different date, the note says Sources disagree and the stored date stays the supported models page date. A replacement is stored when a changelog names that model. A docs alternative that says Latest is not stored as a model id. Copilot dates are for chat and agent features, and can differ from the original provider's API dates.\n${copilotPageLinks}` : ""}
 
 ## Status lists
 Deprecated means the stored status is deprecated. Retired means the stored status is retired. Dates come from the model records.

@@ -24,6 +24,7 @@ import { loadOpenRouterModels, openRouterDecision } from "./openrouter.ts";
 import { assembleNebius, loadNebiusPages } from "./nebius.ts";
 import { assembleTogether, loadTogetherPages } from "./together.ts";
 import { assembleFireworks, loadFireworksPages } from "./fireworks.ts";
+import { assembleCopilot, loadCopilotPages } from "./github-copilot.ts";
 import { DEPRECATIONS_URL as OPENAI_URL, parseOpenAI, parseOpenAIPricing, PRICING_URL as OPENAI_PRICING } from "./openai.ts";
 import { addDocumentedOpenAIModels, applyCodexPlatformNotes, OPENAI_MODELS_INDEX_URL } from "./openai-catalog.ts";
 import { canonicalizeModel, realContentKey, recordIdentity } from "../src/lib/stable-export.ts";
@@ -63,6 +64,7 @@ async function main() {
     if (provider === "nebius") continue;
     if (provider === "together") continue;
     if (provider === "fireworks") continue;
+    if (provider === "github-copilot") continue;
     const result = sanityCheck(provider, models.length, previousCounts.get(provider) ?? 0);
     if (!result.ok && result.reason) failures.push(result.reason);
   }
@@ -208,6 +210,15 @@ async function scrapeAll(previous: ModelRecord[]): Promise<Map<string, ScrapedMo
   if (!fireworks) {
     console.error("Fireworks changelog was not applied. Stored Fireworks rows stay.");
   }
+  const copilotPages = await loadCopilotPages({ fromSnapshots, checked, root });
+  const copilot = assembleCopilot(
+    copilotPages,
+    checked,
+    previous.filter((model) => model.provider === "github-copilot"),
+  );
+  if (!copilot) {
+    console.error("GitHub Copilot pages were not applied. Stored GitHub Copilot rows stay.");
+  }
 
   const groups = new Map<string, ScrapedModel[]>([
     ["openai", openai],
@@ -226,6 +237,7 @@ async function scrapeAll(previous: ModelRecord[]): Promise<Map<string, ScrapedMo
   if (nebius) groups.set("nebius", nebius);
   if (together) groups.set("together", together);
   if (fireworks) groups.set("fireworks", fireworks);
+  if (copilot) groups.set("github-copilot", copilot);
   addReplacementStubs(groups, checked);
   attachStubPrices(groups, openaiPricing, anthropicPricing, geminiPricing, checked);
   // The deprecations tables skip ids that have no shutdown row. The models
