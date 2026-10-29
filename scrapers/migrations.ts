@@ -16,6 +16,7 @@ import {
   US_URL as FIREWORKS_US,
   fireworksUsesUsHost,
 } from "./fireworks.ts";
+import { SUPPORTED_URL as COPILOT_SUPPORTED } from "./github-copilot.ts";
 
 const EXAMPLE = "Example monthly cost for 10M input tokens and 2M output tokens. Labeled example, not a bill.";
 
@@ -132,7 +133,8 @@ export function officialMigrationTargets(model: ModelRecord) {
     model.provider === "cohere" ||
     model.provider === "nebius" ||
     model.provider === "together" ||
-    model.provider === "fireworks"
+    model.provider === "fireworks" ||
+    model.provider === "github-copilot"
   ) {
     return official;
   }
@@ -204,6 +206,7 @@ function migrationChecklist(from: ModelRecord, to: ModelRecord): string[] {
   }
   if (from.provider === "together") return togetherChecklist(from, to);
   if (from.provider === "fireworks") return fireworksChecklist(from, to);
+  if (from.provider === "github-copilot") return copilotChecklist(from, to);
   const undated = (from.provider === "xai" || from.provider === "cohere") && !from.shutdown_date;
   if (undated) {
     return [
@@ -229,6 +232,7 @@ function codeSnippets(from: ModelRecord, to: ModelRecord) {
   if (from.provider === "nebius" && to.provider === "nebius") return nebiusSnippets(from.id, to.id);
   if (from.provider === "together" && to.provider === "together") return togetherSnippets(from.id, to.id);
   if (from.provider === "fireworks" && to.provider === "fireworks") return fireworksSnippets(from, to);
+  if (from.provider === "github-copilot" && to.provider === "github-copilot") return blankSnippets();
   return specialized(from, to)?.snippets ?? defaultSnippets(from, to);
 }
 
@@ -240,6 +244,7 @@ function apiChanges(from: ModelRecord, to: ModelRecord): ApiChange[] {
   if (from.provider === "nebius" && to.provider === "nebius") return nebiusApiChanges(from);
   if (from.provider === "together" && to.provider === "together") return togetherApiChanges(from);
   if (from.provider === "fireworks" && to.provider === "fireworks") return fireworksApiChanges(from, to);
+  if (from.provider === "github-copilot" && to.provider === "github-copilot") return copilotApiChanges(from);
   return specialized(from, to)?.apiChanges ?? [];
 }
 
@@ -519,6 +524,27 @@ function fireworksChecklist(from: ModelRecord, to: ModelRecord): string[] {
   if (notes.includes("US endpoint only.")) lines.push("This row is the US endpoint only. The global endpoint is a different id.");
   lines.push(`Point your requests at ${to.id} and test before you send traffic.`);
   return lines;
+}
+
+function copilotChecklist(from: ModelRecord, to: ModelRecord): string[] {
+  return [
+    `Read the Copilot date for ${from.id} on the linked GitHub page.`,
+    "This date is for models Copilot offers in chat and agent features. It can differ from the original provider's API date.",
+    `Choose ${to.id} in the Copilot Chat model selector.`,
+    "The linked changelog does not print a request sample.",
+  ];
+}
+
+function copilotApiChanges(from: ModelRecord): ApiChange[] {
+  const source = from.sources.find((item) => item.url.includes("github.blog/changelog/"))?.url ?? from.sources[0]?.url ?? COPILOT_SUPPORTED;
+  return [
+    {
+      kind: "behavior_change",
+      detail:
+        "The GitHub changelog says the replacement shows up in the Copilot Chat model selector. That post does not print a request body, so this page does not show code.",
+      source_url: source,
+    },
+  ];
 }
 
 function fireworksApiChanges(from: ModelRecord, to: ModelRecord): ApiChange[] {

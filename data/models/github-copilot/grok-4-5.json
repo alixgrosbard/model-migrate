@@ -1,0 +1,58 @@
+{
+  "id": "Grok 4.5",
+  "slug": "grok-4-5",
+  "provider": "github-copilot",
+  "display_name": "Grok 4.5",
+  "family": null,
+  "status": "retired",
+  "announced_date": null,
+  "deprecation_date": null,
+  "shutdown_date": "2026-10-19",
+  "shutdown_date_kind": "exact",
+  "region_or_platform_notes": "The supported models table on that page still lists this name. An earlier changelog named Grok 4.6: https://github.blog/changelog/2026-09-18-upcoming-deprecation-of-selected-github-copilot-models-in-mid-october",
+  "replacements": [
+    {
+      "model_id": "Grok 4.7",
+      "provider": "github-copilot",
+      "kind": "official",
+      "source_url": "https://github.blog/changelog/2026-10-19-github-copilot-models-deprecated-on-october-19-2026"
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://github.blog/changelog/2026-09-18-upcoming-deprecation-of-selected-github-copilot-models-in-mid-october",
+      "label": "GitHub Changelog",
+      "last_checked": "2026-10-29",
+      "excerpt": "Grok 4.5 | Grok 4.6"
+    },
+    {
+      "url": "https://github.blog/changelog/2026-10-19-github-copilot-models-deprecated-on-october-19-2026",
+      "label": "GitHub Changelog",
+      "last_checked": "2026-10-29",
+      "excerpt": "Grok 4.5 | 2026-10-19"
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": null,
+    "output_price_per_mtok": null,
+    "cached_input_price_per_mtok": null,
+    "batch_discount_pct": null,
+    "currency": null,
+    "context_window_tokens": null,
+    "max_output_tokens": null,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {}
+  },
+  "first_seen": "2026-10-29T12:00:00.000Z",
+  "updated_at": "2026-10-29T12:00:00.000Z"
+}

@@ -16,6 +16,7 @@ const providerIds = [
   "nebius",
   "together",
   "fireworks",
+  "github-copilot",
 ] as const;
 
 const hits = new Map<string, number[]>();

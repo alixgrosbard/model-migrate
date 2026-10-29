@@ -84,6 +84,17 @@ const description = `${provider.name} model shutdown dates, grouped by status.`;
       Dedicated deployments stay up when the changelog says that.
       <a href="/#soonest">Soonest shutdowns on the homepage</a>.
     </p>
+  ) : provider.id === "github-copilot" ? (
+    <p>
+      Official page: <a href={provider.deprecations_url}>{provider.deprecations_url}</a>.
+      A Copilot retirement is about which models Copilot offers in chat and agent features.
+      That date can differ from the same model's date on the original provider's own API.
+      {providers.some((item) => item.id === "openai") ? <><a href="/providers/openai/">OpenAI</a> · </> : null}
+      {providers.some((item) => item.id === "anthropic") ? <><a href="/providers/anthropic/">Anthropic</a> · </> : null}
+      {providers.some((item) => item.id === "google-gemini-api") ? <><a href="/providers/google-gemini-api/">Google Gemini API</a> · </> : null}
+      {providers.some((item) => item.id === "xai") ? <><a href="/providers/xai/">xAI</a> · </> : null}
+      <a href="/#soonest">Soonest shutdowns on the homepage</a>.
+    </p>
   ) : (
     <p>Official source: <a href={provider.deprecations_url}>{provider.deprecations_url}</a>. <a href="/#soonest">Soonest shutdowns on the homepage</a>.</p>
   )}

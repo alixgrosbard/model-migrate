@@ -201,6 +201,31 @@ export const SCRAPE_TARGETS: ScrapeTarget[] = [
     url: "https://docs.fireworks.ai/getting-started/quickstart.md",
     role: "Checked for accounts/fireworks/models/glm-5p3-flash. Library links are joined to that id shape only when this string is present. A stored source uses https://docs.fireworks.ai/getting-started/quickstart without the .md suffix. A failed read keeps the stored Fireworks rows.",
   },
+  {
+    provider: "GitHub Copilot",
+    url: "https://docs.github.com/en/copilot/reference/ai-models/supported-models",
+    role: "Parsed for the model retirement history table and the supported models table. A failed read keeps the stored GitHub Copilot rows.",
+  },
+  {
+    provider: "GitHub Copilot",
+    url: "https://github.blog/changelog-sitemap.xml",
+    role: "Parsed for changelog post URLs about Copilot model retirements. Posts linked there are fetched. A failed read keeps the stored GitHub Copilot rows.",
+  },
+  {
+    provider: "GitHub Copilot",
+    url: "https://github.blog/changelog-sitemap2.xml",
+    role: "Parsed for older changelog post URLs about Copilot model retirements. A failed read keeps the stored GitHub Copilot rows.",
+  },
+  {
+    provider: "GitHub Copilot",
+    url: "https://github.blog/changelog-sitemap3.xml",
+    role: "Parsed for older changelog post URLs about Copilot model retirements. A failed read keeps the stored GitHub Copilot rows.",
+  },
+  {
+    provider: "GitHub Copilot",
+    url: "https://github.blog/changelog-sitemap4.xml",
+    role: "Parsed for changelog post URLs about Copilot model retirements. A failed read keeps the stored GitHub Copilot rows.",
+  },
 ];
 
 export const ENRICH_PAGES: { label: string; detail: string }[] = [

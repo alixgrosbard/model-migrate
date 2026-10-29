@@ -1,0 +1,64 @@
+{
+  "id": "Claude Sonnet 4.6",
+  "slug": "claude-sonnet-4-6",
+  "provider": "github-copilot",
+  "display_name": "Claude Sonnet 4.6",
+  "family": null,
+  "status": "retired",
+  "announced_date": null,
+  "deprecation_date": null,
+  "shutdown_date": "2026-09-01",
+  "shutdown_date_kind": "exact",
+  "region_or_platform_notes": "Claude Sonnet 4.6 remains available to individual Copilot subscribers on annual plans. The retirement of Claude Sonnet 4.6 does not apply to these subscribers. The deprecation of Claude Sonnet 4.6 does not apply to these customers. The supported models table on that page still lists this name. Supported models page suggested alternative: Latest Claude Sonnet model.",
+  "replacements": [
+    {
+      "model_id": "Claude Sonnet 5",
+      "provider": "github-copilot",
+      "kind": "official",
+      "source_url": "https://github.blog/changelog/2026-08-31-selected-github-copilot-models-deprecated"
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://docs.github.com/en/copilot/reference/ai-models/supported-models",
+      "label": "GitHub Copilot supported models",
+      "last_checked": "2026-10-29",
+      "excerpt": "Claude Sonnet 4.6 | 2026-09-01 | Latest Claude Sonnet model"
+    },
+    {
+      "url": "https://github.blog/changelog/2026-07-31-upcoming-august-2026-model-deprecations-in-github-copilot",
+      "label": "GitHub Changelog",
+      "last_checked": "2026-10-29",
+      "excerpt": "Claude Sonnet 4.6 | Claude Sonnet 5"
+    },
+    {
+      "url": "https://github.blog/changelog/2026-08-31-selected-github-copilot-models-deprecated",
+      "label": "GitHub Changelog",
+      "last_checked": "2026-10-29",
+      "excerpt": "Claude Sonnet 4.6 | Claude Sonnet 5"
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": null,
+    "output_price_per_mtok": null,
+    "cached_input_price_per_mtok": null,
+    "batch_discount_pct": null,
+    "currency": null,
+    "context_window_tokens": null,
+    "max_output_tokens": null,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {}
+  },
+  "first_seen": "2026-10-29T12:00:00.000Z",
+  "updated_at": "2026-10-29T12:00:00.000Z"
+}

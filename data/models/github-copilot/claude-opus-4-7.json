@@ -1,0 +1,64 @@
+{
+  "id": "Claude Opus 4.7",
+  "slug": "claude-opus-4-7",
+  "provider": "github-copilot",
+  "display_name": "Claude Opus 4.7",
+  "family": null,
+  "status": "retired",
+  "announced_date": null,
+  "deprecation_date": null,
+  "shutdown_date": "2026-10-02",
+  "shutdown_date_kind": "exact",
+  "region_or_platform_notes": "Supported models page suggested alternative: Latest Claude Opus model. An earlier changelog named Claude Opus 5: https://github.blog/changelog/2026-09-03-upcoming-deprecation-of-selected-github-copilot-models",
+  "replacements": [
+    {
+      "model_id": "Claude Opus 5.5",
+      "provider": "github-copilot",
+      "kind": "official",
+      "source_url": "https://github.blog/changelog/2026-10-02-selected-models-in-github-copilot-deprecated"
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://docs.github.com/en/copilot/reference/ai-models/supported-models",
+      "label": "GitHub Copilot supported models",
+      "last_checked": "2026-10-29",
+      "excerpt": "Claude Opus 4.7 | 2026-10-02 | Latest Claude Opus model"
+    },
+    {
+      "url": "https://github.blog/changelog/2026-09-03-upcoming-deprecation-of-selected-github-copilot-models",
+      "label": "GitHub Changelog",
+      "last_checked": "2026-10-29",
+      "excerpt": "Claude Opus 4.7 | Claude Opus 5"
+    },
+    {
+      "url": "https://github.blog/changelog/2026-10-02-selected-models-in-github-copilot-deprecated",
+      "label": "GitHub Changelog",
+      "last_checked": "2026-10-29",
+      "excerpt": "Claude Opus 4.7 | Claude Opus 5.5"
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": null,
+    "output_price_per_mtok": null,
+    "cached_input_price_per_mtok": null,
+    "batch_discount_pct": null,
+    "currency": null,
+    "context_window_tokens": null,
+    "max_output_tokens": null,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {}
+  },
+  "first_seen": "2026-10-29T12:00:00.000Z",
+  "updated_at": "2026-10-29T12:00:00.000Z"
+}
