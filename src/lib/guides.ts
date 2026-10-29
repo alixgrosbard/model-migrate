@@ -64,6 +64,18 @@ const CODEX_MODELS = "https://developers.openai.com/codex/models";
 const CODEX_MODELS_GPT55 = "https://developers.openai.com/codex/models#gpt-55-retirement";
 const CODEX_CHANGELOG_OCT14 = "https://developers.openai.com/codex/changelog#codex-2026-10-14-gpt-55-retirement";
 const CODEX_CHANGELOG_SEP14 = "https://developers.openai.com/codex/changelog#codex-2026-09-14-gpt-55-retirement";
+const OPENAI_ERRORS = "https://developers.openai.com/api/docs/guides/error-codes";
+const CLAUDE_ERRORS = "https://platform.claude.com/docs/en/api/errors";
+const GROQ_DEPRECATIONS = "https://console.groq.com/docs/deprecations";
+const GROQ_ERRORS = "https://console.groq.com/docs/errors";
+const OPENROUTER_ERRORS = "https://openrouter.ai/docs/api_reference/errors-and-debugging";
+const OPENROUTER_MODELS = "https://openrouter.ai/docs/guides/overview/models";
+const OPENROUTER_VARIANTS = "https://openrouter.ai/docs/guides/routing/model-variants/overview";
+const ISSUE_DIGITAL_TWIN_OUTAGE = "https://github.com/AlejandroFuentePinero/digital-twin/issues/54";
+const ISSUE_DIGITAL_TWIN_PROBE = "https://github.com/AlejandroFuentePinero/digital-twin/issues/57";
+const ISSUE_JOANIES = "https://github.com/bobmatnyc/joanies-kitchen/issues/24";
+const ISSUE_RUMAQ = "https://github.com/ahaqqu/RumaQ/issues/306";
+const ISSUE_JUICE = "https://github.com/Ghigog/Juice/issues/421";
 
 export interface GuideSource {
   label: string;
@@ -1221,6 +1233,7 @@ curl -fsSL https://sunsetdiff.com/api/v1/upcoming.json
       { href: "/scan/", label: "Scan code" },
       { href: "/shutdowns/", label: "Shutdown batches" },
       { href: "/guides/get-notified-before-a-model-shuts-down/", label: "Get notified" },
+      { href: "/guides/catch-a-retired-model-before-your-users-do/", label: "Catch a retired model before users do" },
     ],
     faqs: [
       {
@@ -1393,6 +1406,7 @@ curl -fsSL https://sunsetdiff.com/api/v1/lookup/gpt-4.1-nano.json
       { href: "/errors/deepseek-model-not-found/", label: "DeepSeek Model Not Exist" },
       { href: "/errors/openai-model-has-been-deprecated/", label: "The model has been deprecated" },
       { href: "/guides/check-model-shutdown-dates-programmatically/", label: "Check dates programmatically" },
+      { href: "/guides/catch-a-retired-model-before-your-users-do/", label: "Catch a retired model before users do" },
       { href: "/shutdowns/openai-2026-10-23/", label: "OpenAI October 23, 2026 batch" },
       { href: "/shutdowns/azure-openai-2026-11-19/", label: "Azure OpenAI November 19, 2026 batch" },
     ],
@@ -2101,6 +2115,262 @@ llm = OpenAIResponsesLLMService(
       "https://github.com/chimeranext/better-toolkits/issues/127",
       "https://sunsetdiff.com/data/models.json",
       "https://sunsetdiff.com/providers/nvidia/",
+    ],
+  },
+  {
+    slug: "catch-a-retired-model-before-your-users-do",
+    title: "Catch a retired model before your users do | SunsetDiff",
+    description:
+      "Fail a build when SunsetDiff lookup says a configured model is retired or its shutdown date has passed, and do not retry a model the provider says is gone.",
+    h1: "Catch a retired model before your users do",
+    summary: "Check configured model ids before the job runs, and do not retry a model that is already gone.",
+    answer:
+      "A retired model can keep a job green if the caller swallows the error or answers HTTP 200 anyway. Look up each configured id on the free SunsetDiff lookup API before startup or CI. Fail when status is retired or an exact shutdown date is already past. When a live call says the model is missing, stop retrying that id.",
+    checked: "2026-10-29",
+    steps: [
+      {
+        name: "List the ids you actually call",
+        text: "Include defaults, not only ids a person typed. A classifier, a rewrite step, and a test probe can each pin a different id.",
+      },
+      {
+        name: "Look them up before the job",
+        text: "GET /api/v1/lookup/<model-id>.json. Percent-encode the id. Read status, shutdown_date, and shutdown_date_kind.",
+      },
+      {
+        name: "Fail on retired or a past exact date",
+        text: "status retired fails the build. An exact shutdown_date before today fails it too. A not_before date is a floor, not a deadline.",
+      },
+      {
+        name: "Do not retry a gone id",
+        text: "A missing model will fail the same way on the next try. Retry rate limits and 5xx. Do not retry a 404 that means the resource is gone.",
+      },
+    ],
+    sections: [
+      {
+        heading: "The failure can stay quiet",
+        paragraphs: [
+          "OpenAI's deprecations page says access to gpt-4.1-nano was shut down on October 23, 2026. At shutdown, the model is no longer accessible. GitHub issue [AlejandroFuentePinero/digital-twin#54](https://github.com/AlejandroFuentePinero/digital-twin/issues/54) describes a deployed app that kept calling that id after the shutdown. Issue [#57](https://github.com/AlejandroFuentePinero/digital-twin/issues/57) asks the startup check to fail when a configured model is gone.",
+          "GitHub issue [bobmatnyc/joanies-kitchen#24](https://github.com/bobmatnyc/joanies-kitchen/issues/24) describes recipe pages that answered HTTP 200 while the model call had already failed. The visitor saw a normal page. The log had the failure.",
+          "GitHub issue [ahaqqu/RumaQ#306](https://github.com/ahaqqu/RumaQ/issues/306) describes a Gemini 404 that the retry loop treated as temporary. GitHub issue [Ghigog/Juice#421](https://github.com/Ghigog/Juice/issues/421) asks a worker to stop retrying permanent Groq failures. Those issues are examples. The error codes below come from the provider pages, not from the issues.",
+        ],
+        sources: [
+          { label: "OpenAI deprecations", url: OPENAI_DEPRECATIONS },
+          { label: "GitHub issue AlejandroFuentePinero/digital-twin#54", url: ISSUE_DIGITAL_TWIN_OUTAGE },
+          { label: "GitHub issue AlejandroFuentePinero/digital-twin#57", url: ISSUE_DIGITAL_TWIN_PROBE },
+          { label: "GitHub issue bobmatnyc/joanies-kitchen#24", url: ISSUE_JOANIES },
+          { label: "GitHub issue ahaqqu/RumaQ#306", url: ISSUE_RUMAQ },
+          { label: "GitHub issue Ghigog/Juice#421", url: ISSUE_JUICE },
+        ],
+      },
+      {
+        heading: "Fail the build from lookup JSON",
+        paragraphs: [
+          "Lookup is one public file per model id: [the API docs](/api/). No API key. The body is one model record, or an array when several providers share the id. Check every row. The fields used here are status, shutdown_date, and shutdown_date_kind. sources[0].url is the official page. Read it before you migrate.",
+          "Percent-encode the id with encodeURIComponent, or urllib.parse.quote(model_id, safe=\"\") in Python. A colon becomes %3A and a slash becomes %2F, so the id stays one path segment. [anthropic.claude-3-haiku-20240307-v1:0](/api/v1/lookup/anthropic.claude-3-haiku-20240307-v1%3A0.json) is the colon example. A slash id uses %2F the same way. A raw colon also works. A 404 from lookup means the id is not in this dataset. It does not mean the provider retired it.",
+          "Fail when status is retired, or when shutdown_date_kind is exact and shutdown_date is before today. not_before is a floor, not a deadline, so this check does not fail on it. month_only and none are not an exact day either. [Check model shutdown dates programmatically](/guides/check-model-shutdown-dates-programmatically/) lists the other fields. The sample list includes gpt-4.1-nano, which this dataset stores as retired. Running the sample as written exits with a failure. Replace the list with your ids.",
+        ],
+        codes: [
+          {
+            caption: "Python",
+            code: `import json
+import urllib.error
+import urllib.parse
+import urllib.request
+from datetime import datetime, timezone
+
+def lookup(model_id):
+    safe_id = urllib.parse.quote(model_id, safe="")
+    url = f"https://sunsetdiff.com/api/v1/lookup/{safe_id}.json"
+    with urllib.request.urlopen(url) as response:
+        return json.load(response)
+
+def gone(row, today):
+    if row.get("status") == "retired":
+        return True
+    shutdown = row.get("shutdown_date")
+    return row.get("shutdown_date_kind") == "exact" and bool(shutdown) and shutdown < today
+
+def main():
+    today = datetime.now(timezone.utc).date().isoformat()
+    model_ids = [
+        "gpt-4.1-nano",
+        "anthropic.claude-3-haiku-20240307-v1:0",
+    ]
+    failed = []
+    for model_id in model_ids:
+        try:
+            body = lookup(model_id)
+        except urllib.error.HTTPError as error:
+            if error.code == 404:
+                print(f"{model_id}: not in the SunsetDiff dataset")
+                continue
+            raise
+        rows = body if isinstance(body, list) else [body]
+        for row in rows:
+            if gone(row, today):
+                failed.append(
+                    f"{row['provider']} {row['id']} status={row['status']} shutdown_date={row['shutdown_date']}"
+                )
+    if failed:
+        raise SystemExit("retired or past shutdown:\\n" + "\\n".join(failed))
+
+if __name__ == "__main__":
+    main()
+`,
+          },
+          {
+            caption: "Node",
+            code: `const modelIds = [
+  "gpt-4.1-nano",
+  "anthropic.claude-3-haiku-20240307-v1:0",
+];
+
+function gone(row, today) {
+  if (row.status === "retired") return true;
+  return row.shutdown_date_kind === "exact" && row.shutdown_date && row.shutdown_date < today;
+}
+
+async function main() {
+  const today = new Date().toISOString().slice(0, 10);
+  const failed = [];
+  for (const modelId of modelIds) {
+    const url = "https://sunsetdiff.com/api/v1/lookup/" + encodeURIComponent(modelId) + ".json";
+    const response = await fetch(url);
+    if (response.status === 404) {
+      console.log(modelId + ": not in the SunsetDiff dataset");
+      continue;
+    }
+    if (!response.ok) throw new Error(modelId + " lookup HTTP " + response.status);
+    const body = await response.json();
+    const rows = Array.isArray(body) ? body : [body];
+    for (const row of rows) {
+      if (gone(row, today)) {
+        failed.push(row.provider + " " + row.id + " status=" + row.status + " shutdown_date=" + row.shutdown_date);
+      }
+    }
+  }
+  if (failed.length) {
+    console.error(failed.join("\\n"));
+    process.exit(1);
+  }
+}
+
+main();
+`,
+          },
+        ],
+        sources: [{ label: "SunsetDiff API docs", url: "https://sunsetdiff.com/api/" }],
+      },
+      {
+        heading: "Do not retry a gone model",
+        paragraphs: [
+          "Retry a rate limit or a 5xx. Do not retry an id the provider says is missing. The sentence in the table is on the linked official page. Where that page does not print a code, the row says so.",
+        ],
+        table: {
+          caption: "What each official error or deprecations page says about a missing or shut down model. Checked 2026-10-29.",
+          headers: ["Provider", "What the official page says", "What to do"],
+          rows: [
+            [
+              "OpenAI",
+              "The [error codes](https://developers.openai.com/api/docs/guides/error-codes) page lists NotFoundError as requested resource does not exist. It does not name a code model_not_found. The [deprecations](https://developers.openai.com/api/docs/deprecations) page says that at shutdown the model will no longer be accessible.",
+              "Do not retry a not-found response. Change the id before the shutdown date.",
+            ],
+            [
+              "Anthropic",
+              "The [errors](https://platform.claude.com/docs/en/api/errors) page says HTTP 404 is not_found_error, and the example message is The requested resource could not be found. The SDK retries connection errors, rate limits, and 5xx. The [deprecations](https://platform.claude.com/docs/en/about-claude/model-deprecations) page says a retired model is no longer available and requests to retired models fail. It does not name not_found_error.",
+              "Do not retry a 404 not_found_error. Read the body. The deprecations page does not say every retired id uses that type.",
+            ],
+            [
+              "Gemini",
+              "The [deprecations](https://ai.google.dev/gemini-api/docs/deprecations) page says that once a model is shutdown, it is completely turned off and the endpoint is no longer available. That page does not print one error code for every model.",
+              "After shutdown, stop calling that id. Recorded 404 sentences are on the [Gemini error pages](/errors/).",
+            ],
+            [
+              "Groq",
+              "The [errors](https://console.groq.com/docs/errors) page says 404 Not Found means the requested resource could not be found. It does not print a code named model_decommissioned. The [deprecations](https://console.groq.com/docs/deprecations) page says that after the deprecation date the model will no longer be accessible, and requests to deprecated model ids will return errors.",
+              "Do not retry a 404 for that id. Do not invent an error code the errors page does not print.",
+            ],
+            [
+              "OpenRouter",
+              "The [errors](https://openrouter.ai/docs/api_reference/errors-and-debugging) page says error_type not_found is HTTP 404: the requested resource (model, file, etc.) does not exist. It also says to check the body for an error field even on a 200. The [models](https://openrouter.ai/docs/guides/overview/models) page says a single-model lookup returns 404 if the model does not exist. The [variants](https://openrouter.ai/docs/guides/routing/model-variants/overview) page says a missing catalog entry returns 404, or HTTP 200 with an empty endpoints array, and to treat either as unavailable rather than a reason to retry the base slug. Those pages do not print the sentence no longer available on OpenRouter.",
+              "Do not retry not_found. Read a 200 body before you treat the call as success.",
+            ],
+          ],
+        },
+        sources: [
+          { label: "OpenAI error codes", url: OPENAI_ERRORS },
+          { label: "OpenAI deprecations", url: OPENAI_DEPRECATIONS },
+          { label: "Anthropic errors", url: CLAUDE_ERRORS },
+          { label: "Anthropic model deprecations", url: CLAUDE_DEPRECATIONS },
+          { label: "Gemini API deprecations", url: GEMINI_DEPRECATIONS },
+          { label: "Groq API error codes", url: GROQ_ERRORS },
+          { label: "Groq model deprecation", url: GROQ_DEPRECATIONS },
+          { label: "OpenRouter errors", url: OPENROUTER_ERRORS },
+          { label: "OpenRouter models", url: OPENROUTER_MODELS },
+          { label: "OpenRouter model variants", url: OPENROUTER_VARIANTS },
+        ],
+      },
+      {
+        heading: "GitHub Action",
+        paragraphs: [
+          "The [GitHub Action](/github-action/) scans files in the pull request. It reports an id whose status is retired, deprecated, or legacy. It also reports another status when the shutdown date is inside warn-days and the date kind is not not_before. The job fails when the status is retired, or the shutdown date is inside fail-days.",
+          "Use the Action when the ids are in the repo. Use the snippets above when the ids live in a host config the Action's file glob does not read. Both read the same status and shutdown_date fields.",
+        ],
+        sources: [
+          { label: "SunsetDiff GitHub Action", url: "https://sunsetdiff.com/github-action/" },
+          { label: "SunsetDiff API docs", url: "https://sunsetdiff.com/api/" },
+        ],
+      },
+    ],
+    related: [
+      { href: "/guides/check-model-shutdown-dates-programmatically/", label: "Check dates programmatically" },
+      { href: "/guides/silent-failures-after-model-shutdown/", label: "Silent failures after a model shutdown" },
+      { href: "/github-action/", label: "GitHub Action" },
+      { href: "/api/", label: "API docs" },
+      { href: "/errors/", label: "Request errors" },
+      { href: "/errors/openai-model-has-been-deprecated/", label: "The model has been deprecated" },
+      { href: "/errors/gemini-model-no-longer-available/", label: "Gemini model no longer available" },
+      { href: "/errors/azure-openai-retired-model-410-gone/", label: "Azure 410 Gone" },
+    ],
+    faqs: [
+      {
+        question: "Does lookup need an API key?",
+        answer: "No. The files are public and static. The field list is on [API docs](/api/).",
+      },
+      {
+        question: "What if lookup returns 404?",
+        answer:
+          "The id is not in the SunsetDiff dataset. That is not a provider retirement. A colon must be %3A and a slash %2F if you encode the id. A raw colon also resolves.",
+      },
+      {
+        question: "Should a not_before date fail the build?",
+        answer:
+          "No. shutdown_date_kind not_before is a floor, not a deadline. The snippets fail on status retired, and on an exact shutdown_date that is already past.",
+      },
+      {
+        question: "Which error code means a Groq model was decommissioned?",
+        answer:
+          "Groq's [error codes](https://console.groq.com/docs/errors) page does not print model_decommissioned. It says 404 means the requested resource could not be found. The [deprecations](https://console.groq.com/docs/deprecations) page says requests to a deprecated model id return errors after the shutdown date, and it does not name the code.",
+      },
+    ],
+    citations: [
+      OPENAI_DEPRECATIONS,
+      ISSUE_DIGITAL_TWIN_OUTAGE,
+      ISSUE_DIGITAL_TWIN_PROBE,
+      ISSUE_JOANIES,
+      ISSUE_RUMAQ,
+      ISSUE_JUICE,
+      "https://sunsetdiff.com/api/",
+      OPENAI_ERRORS,
+      CLAUDE_ERRORS,
+      CLAUDE_DEPRECATIONS,
+      GEMINI_DEPRECATIONS,
+      GROQ_ERRORS,
+      GROQ_DEPRECATIONS,
+      OPENROUTER_ERRORS,
+      OPENROUTER_MODELS,
+      OPENROUTER_VARIANTS,
+      "https://sunsetdiff.com/github-action/",
     ],
   },
 ];
