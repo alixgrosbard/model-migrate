@@ -22,13 +22,13 @@
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "OpenAI deprecations",
-      "last_checked": "2026-10-28",
+      "last_checked": "2026-10-29",
       "excerpt": "Dec 11, 2026 | gpt-5-mini | gpt-5-mini-2025-08-07 | gpt-5.6-terra"
     },
     {
       "url": "https://developers.openai.com/api/docs/models/gpt-5-mini.md",
       "label": "OpenAI model docs",
-      "last_checked": "2026-10-28",
+      "last_checked": "2026-10-29",
       "excerpt": "Model ID: gpt-5-mini | context window 400000 | max output 128000 | input $0.25 | output $2 | Default snapshot gpt-5-mini-2025-08-07"
     }
   ],
@@ -54,11 +54,11 @@
     "specs_sources": {
       "context_window_tokens": {
         "url": "https://developers.openai.com/api/docs/models/gpt-5-mini.md",
-        "last_checked": "2026-10-28"
+        "last_checked": "2026-10-29"
       },
       "max_output_tokens": {
         "url": "https://developers.openai.com/api/docs/models/gpt-5-mini.md",
-        "last_checked": "2026-10-28"
+        "last_checked": "2026-10-29"
       }
     }
   },

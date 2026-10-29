@@ -22,13 +22,13 @@
     {
       "url": "https://ai.google.dev/gemini-api/docs/deprecations",
       "label": "Gemini API deprecations",
-      "last_checked": "2026-10-28",
+      "last_checked": "2026-10-29",
       "excerpt": "gemini-2.0-flash | February 5, 2025 | June 1, 2026 | gemini-3.6-flash"
     },
     {
       "url": "https://ai.google.dev/gemini-api/docs/models/gemini-2.0-flash",
       "label": "Gemini model docs",
-      "last_checked": "2026-10-28",
+      "last_checked": "2026-10-29",
       "excerpt": "gemini-2.0-flash input token limit 1048576 | max output tokens 8192"
     }
   ],
@@ -54,11 +54,11 @@
     "specs_sources": {
       "context_window_tokens": {
         "url": "https://ai.google.dev/gemini-api/docs/models/gemini-2.0-flash",
-        "last_checked": "2026-10-28"
+        "last_checked": "2026-10-29"
       },
       "max_output_tokens": {
         "url": "https://ai.google.dev/gemini-api/docs/models/gemini-2.0-flash",
-        "last_checked": "2026-10-28"
+        "last_checked": "2026-10-29"
       }
     }
   },

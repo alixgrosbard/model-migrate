@@ -15,7 +15,7 @@
     {
       "url": "https://developers.openai.com/api/docs/models/gpt-oss-20b.md",
       "label": "OpenAI model docs",
-      "last_checked": "2026-10-28",
+      "last_checked": "2026-10-29",
       "excerpt": "Model ID: gpt-oss-20b | Medium-sized open-weight model for low latency"
     }
   ],
@@ -41,11 +41,11 @@
     "specs_sources": {
       "context_window_tokens": {
         "url": "https://developers.openai.com/api/docs/models/gpt-oss-20b.md",
-        "last_checked": "2026-10-28"
+        "last_checked": "2026-10-29"
       },
       "max_output_tokens": {
         "url": "https://developers.openai.com/api/docs/models/gpt-oss-20b.md",
-        "last_checked": "2026-10-28"
+        "last_checked": "2026-10-29"
       }
     }
   },

@@ -61,18 +61,18 @@
     "Ship the change before the published shutdown date."
   ],
   "confidence": "partial",
-  "last_checked": "2026-10-28",
+  "last_checked": "2026-10-29",
   "sources": [
     {
       "url": "https://console.groq.com/docs/deprecations",
       "label": "Groq model deprecations",
-      "last_checked": "2026-10-28",
+      "last_checked": "2026-10-29",
       "excerpt": "llama-3.3-70b-specdec | 2025-04-14 | meta-llama/llama-4-scout-17b-16e-instruct llama-3.3-70b-versatile"
     },
     {
       "url": "https://console.groq.com/docs/deprecations",
       "label": "Groq model deprecations",
-      "last_checked": "2026-10-28",
+      "last_checked": "2026-10-29",
       "excerpt": "meta-llama/llama-4-scout-17b-16e-instruct | 2026-07-17 | openai/gpt-oss-120b qwen/qwen3.6-27b"
     }
   ]

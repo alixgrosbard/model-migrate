@@ -66,18 +66,18 @@
     "Point your requests at Qwen/Qwen3.5-2B and test before you send traffic."
   ],
   "confidence": "partial",
-  "last_checked": "2026-10-28",
+  "last_checked": "2026-10-29",
   "sources": [
     {
       "url": "https://docs.together.ai/docs/deprecations",
       "label": "Together AI deprecations",
-      "last_checked": "2026-10-28",
+      "last_checked": "2026-10-29",
       "excerpt": "2026-07-29 | `Qwen/Qwen2-1.5B` | `Qwen/Qwen3.5-2B`"
     },
     {
       "url": "https://docs.together.ai/docs/deprecations",
       "label": "Named as an official replacement",
-      "last_checked": "2026-10-28",
+      "last_checked": "2026-10-29",
       "excerpt": "Named as an official replacement for Qwen/Qwen2-1.5B."
     }
   ]

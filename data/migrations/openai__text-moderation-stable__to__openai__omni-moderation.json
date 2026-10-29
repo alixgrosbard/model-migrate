@@ -55,24 +55,24 @@
     "Ship the change before the published shutdown date."
   ],
   "confidence": "partial",
-  "last_checked": "2026-10-28",
+  "last_checked": "2026-10-29",
   "sources": [
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "OpenAI deprecations",
-      "last_checked": "2026-10-28",
+      "last_checked": "2026-10-29",
       "excerpt": "2025-10-27 | text-moderation-stable | omni-moderation"
     },
     {
       "url": "https://developers.openai.com/api/docs/models/text-moderation-stable.md",
       "label": "OpenAI model docs",
-      "last_checked": "2026-10-28",
+      "last_checked": "2026-10-29",
       "excerpt": "Model ID: text-moderation-stable | max output 32768 | Default snapshot text-moderation-007"
     },
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "Named as an official replacement",
-      "last_checked": "2026-10-28",
+      "last_checked": "2026-10-29",
       "excerpt": "Named as an official replacement for text-moderation-007. No shutdown date was published for this id on that page."
     }
   ]

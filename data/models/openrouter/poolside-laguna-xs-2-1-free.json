@@ -15,19 +15,19 @@
     {
       "url": "https://openrouter.ai/api/v1/models?output_modalities=all",
       "label": "OpenRouter models API",
-      "last_checked": "2026-10-28",
+      "last_checked": "2026-10-29",
       "excerpt": "\"id\":\"poolside/laguna-xs-2.1:free\" | \"expiration_date\":\"2026-10-31\""
     },
     {
       "url": "https://openrouter.ai/docs/client-sdks/python/components/model",
       "label": "OpenRouter model schema",
-      "last_checked": "2026-10-28",
+      "last_checked": "2026-10-29",
       "excerpt": "The date after which the model may be removed. ISO 8601 date string (YYYY-MM-DD) or null if no expiration."
     },
     {
       "url": "https://openrouter.ai/docs/guides/overview/models",
       "label": "OpenRouter models guide",
-      "last_checked": "2026-10-28",
+      "last_checked": "2026-10-29",
       "excerpt": "Deprecation date for the model endpoint (null if not deprecated)"
     }
   ],
@@ -57,43 +57,43 @@
     "specs_sources": {
       "context_window_tokens": {
         "url": "https://openrouter.ai/api/v1/models?output_modalities=all",
-        "last_checked": "2026-10-28"
+        "last_checked": "2026-10-29"
       },
       "input_price_per_mtok": {
         "url": "https://openrouter.ai/api/v1/models?output_modalities=all",
-        "last_checked": "2026-10-28"
+        "last_checked": "2026-10-29"
       },
       "max_output_tokens": {
         "url": "https://openrouter.ai/api/v1/models?output_modalities=all",
-        "last_checked": "2026-10-28"
+        "last_checked": "2026-10-29"
       },
       "modalities_in": {
         "url": "https://openrouter.ai/api/v1/models?output_modalities=all",
-        "last_checked": "2026-10-28"
+        "last_checked": "2026-10-29"
       },
       "modalities_out": {
         "url": "https://openrouter.ai/api/v1/models?output_modalities=all",
-        "last_checked": "2026-10-28"
+        "last_checked": "2026-10-29"
       },
       "output_price_per_mtok": {
         "url": "https://openrouter.ai/api/v1/models?output_modalities=all",
-        "last_checked": "2026-10-28"
+        "last_checked": "2026-10-29"
       },
       "reasoning": {
         "url": "https://openrouter.ai/api/v1/models?output_modalities=all",
-        "last_checked": "2026-10-28"
+        "last_checked": "2026-10-29"
       },
       "supports_json_schema": {
         "url": "https://openrouter.ai/api/v1/models?output_modalities=all",
-        "last_checked": "2026-10-28"
+        "last_checked": "2026-10-29"
       },
       "supports_tools": {
         "url": "https://openrouter.ai/api/v1/models?output_modalities=all",
-        "last_checked": "2026-10-28"
+        "last_checked": "2026-10-29"
       },
       "supports_vision": {
         "url": "https://openrouter.ai/api/v1/models?output_modalities=all",
-        "last_checked": "2026-10-28"
+        "last_checked": "2026-10-29"
       }
     }
   },

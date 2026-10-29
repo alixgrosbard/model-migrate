@@ -28,7 +28,7 @@
     {
       "url": "https://console.groq.com/docs/deprecations",
       "label": "Groq model deprecations",
-      "last_checked": "2026-10-28",
+      "last_checked": "2026-10-29",
       "excerpt": "moonshotai/kimi-k2-instruct | 2025-10-10 | openai/gpt-oss-120b moonshotai/kimi-k2-instruct-0905"
     }
   ],

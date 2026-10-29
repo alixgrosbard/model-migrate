@@ -28,13 +28,13 @@
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "OpenAI deprecations",
-      "last_checked": "2026-10-28",
+      "last_checked": "2026-10-29",
       "excerpt": "Feb 26, 2027 | gpt-4o-transcribe | gpt-live-transcribe or gpt-transcribe"
     },
     {
       "url": "https://developers.openai.com/api/docs/models/gpt-4o-transcribe.md",
       "label": "OpenAI model docs",
-      "last_checked": "2026-10-28",
+      "last_checked": "2026-10-29",
       "excerpt": "Model ID: gpt-4o-transcribe | context window 16000 | max output 2000"
     }
   ],
@@ -60,11 +60,11 @@
     "specs_sources": {
       "context_window_tokens": {
         "url": "https://developers.openai.com/api/docs/models/gpt-4o-transcribe.md",
-        "last_checked": "2026-10-28"
+        "last_checked": "2026-10-29"
       },
       "max_output_tokens": {
         "url": "https://developers.openai.com/api/docs/models/gpt-4o-transcribe.md",
-        "last_checked": "2026-10-28"
+        "last_checked": "2026-10-29"
       }
     }
   },

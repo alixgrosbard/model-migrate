@@ -60,30 +60,30 @@
     "Point your requests at deepseek-ai/DeepSeek-V4.1-Flash-1017 and test before you send traffic."
   ],
   "confidence": "partial",
-  "last_checked": "2026-10-28",
+  "last_checked": "2026-10-29",
   "sources": [
     {
       "url": "https://docs.together.ai/docs/changelog",
       "label": "Together AI changelog",
-      "last_checked": "2026-10-28",
+      "last_checked": "2026-10-29",
       "excerpt": "Use deepseek-ai/DeepSeek-V4.1-Flash-1017"
     },
     {
       "url": "https://docs.together.ai/docs/deprecations",
       "label": "Together AI deprecations",
-      "last_checked": "2026-10-28",
+      "last_checked": "2026-10-29",
       "excerpt": "2026-10-22 | `deepseek-ai/DeepSeek-V4-Flash-0731` | Yes"
     },
     {
       "url": "https://docs.together.ai/docs/changelog",
       "label": "Named as an official replacement",
-      "last_checked": "2026-10-28",
+      "last_checked": "2026-10-29",
       "excerpt": "Named as an official replacement for deepseek-ai/DeepSeek-V4-Flash-0731."
     },
     {
       "url": "https://docs.together.ai/docs/serverless/models",
       "label": "Together AI serverless models",
-      "last_checked": "2026-10-28",
+      "last_checked": "2026-10-29",
       "excerpt": "deepseek-ai/DeepSeek-V4.1-Flash-1017 | input 0.3 | output 1.2"
     }
   ]

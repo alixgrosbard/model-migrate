@@ -66,18 +66,18 @@
     "Point your requests at moonshotai/Kimi-K3 and test before you send traffic."
   ],
   "confidence": "partial",
-  "last_checked": "2026-10-28",
+  "last_checked": "2026-10-29",
   "sources": [
     {
       "url": "https://docs.tokenfactory.nebius.com/model-deprecations-november-2026",
       "label": "Nebius Token Factory model deprecations",
-      "last_checked": "2026-10-28",
+      "last_checked": "2026-10-29",
       "excerpt": "| [`moonshotai/Kimi-K2.7-Code`](https://tokenfactory.nebius.com/models/catalog/text2text/moonshotai%2FKimi-K2.7-Code) | [`moonshotai/Kimi-K3`](https://tokenfactory.nebius.com/models/catalog/image2text/moonshotai%2FKimi-K3) |"
     },
     {
       "url": "https://docs.tokenfactory.nebius.com/model-deprecations-november-2026",
       "label": "Named as an official replacement",
-      "last_checked": "2026-10-28",
+      "last_checked": "2026-10-29",
       "excerpt": "Named as an official replacement for moonshotai/Kimi-K2.6."
     }
   ]

@@ -22,7 +22,7 @@
     {
       "url": "https://docs.tokenfactory.nebius.com/model-deprecations-november-2026",
       "label": "Nebius Token Factory model deprecations",
-      "last_checked": "2026-10-28",
+      "last_checked": "2026-10-29",
       "excerpt": "| [`zai-org/GLM-5.1`](https://tokenfactory.nebius.com/models/catalog/text2text/zai-org%2FGLM-5.1) | [`zai-org/GLM-5.2`](https://tokenfactory.nebius.com/models/catalog/text2text/zai-org%2FGLM-5.2) |"
     }
   ],

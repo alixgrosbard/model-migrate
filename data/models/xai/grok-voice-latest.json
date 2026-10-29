@@ -15,7 +15,7 @@
     {
       "url": "https://docs.x.ai/developers/release-notes",
       "label": "xAI release notes",
-      "last_checked": "2026-10-28",
+      "last_checked": "2026-10-29",
       "excerpt": "as Grok Voice 2.0. `grok-voice-latest` now points to `grok-voice-3.0`, so sessions that use the alias are upgraded automatically. The API is unchanged. To get started, see the [Speech to Speech docs](/developers/model"
     }
   ],
@@ -45,11 +45,11 @@
     "specs_sources": {
       "modalities_in": {
         "url": "https://docs.x.ai/developers/release-notes",
-        "last_checked": "2026-10-28"
+        "last_checked": "2026-10-29"
       },
       "modalities_out": {
         "url": "https://docs.x.ai/developers/release-notes",
-        "last_checked": "2026-10-28"
+        "last_checked": "2026-10-29"
       }
     }
   },

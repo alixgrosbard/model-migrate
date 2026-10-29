@@ -66,18 +66,18 @@
     "Point your requests at nvidia/Nemotron-3.5-Super-VL and test before you send traffic."
   ],
   "confidence": "partial",
-  "last_checked": "2026-10-28",
+  "last_checked": "2026-10-29",
   "sources": [
     {
       "url": "https://docs.tokenfactory.nebius.com/model-deprecations-november-2026",
       "label": "Nebius Token Factory model deprecations",
-      "last_checked": "2026-10-28",
+      "last_checked": "2026-10-29",
       "excerpt": "| [`openbmb/MiniCPM-V-4_5`](https://tokenfactory.nebius.com/models/catalog/image2text/openbmb%2FMiniCPM-V-4_5) | [`nvidia/Nemotron-3.5-Super-VL`](https://tokenfactory.nebius.com/models/catalog/image2text/nvidia%2FNemotron-3.5-Super-VL) |"
     },
     {
       "url": "https://docs.tokenfactory.nebius.com/model-deprecations-november-2026",
       "label": "Named as an official replacement",
-      "last_checked": "2026-10-28",
+      "last_checked": "2026-10-29",
       "excerpt": "Named as an official replacement for nvidia/nemotron-3-super-120b-a12b."
     }
   ]

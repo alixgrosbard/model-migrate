@@ -22,13 +22,13 @@
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "OpenAI deprecations",
-      "last_checked": "2026-10-28",
+      "last_checked": "2026-10-29",
       "excerpt": "Jan 6, 2027 | gpt-4o-mini-tts | gpt-4o-mini-tts-2025-12-15 | gpt-realtime-2.1-mini"
     },
     {
       "url": "https://developers.openai.com/api/docs/models/gpt-4o-mini-tts.md",
       "label": "OpenAI model docs",
-      "last_checked": "2026-10-28",
+      "last_checked": "2026-10-29",
       "excerpt": "Model ID: gpt-4o-mini-tts | input $0.6 | Default snapshot gpt-4o-mini-tts-2025-12-15"
     }
   ],

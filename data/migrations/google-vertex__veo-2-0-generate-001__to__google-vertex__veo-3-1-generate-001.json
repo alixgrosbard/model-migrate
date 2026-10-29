@@ -61,18 +61,18 @@
     "Ship the change before the published shutdown date."
   ],
   "confidence": "partial",
-  "last_checked": "2026-10-28",
+  "last_checked": "2026-10-29",
   "sources": [
     {
       "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/model-versions",
       "label": "Vertex AI model versions",
-      "last_checked": "2026-10-28",
+      "last_checked": "2026-10-29",
       "excerpt": "veo-2.0-generate-001 | May 27, 2025 | June 30, 2026 | veo-3.1-generate-001"
     },
     {
       "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/model-versions",
       "label": "Vertex AI model versions",
-      "last_checked": "2026-10-28",
+      "last_checked": "2026-10-29",
       "excerpt": "veo-3.1-generate-001 | November 17, 2025 | November 17, 2026 or later"
     }
   ]

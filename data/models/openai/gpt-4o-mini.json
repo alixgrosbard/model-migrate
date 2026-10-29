@@ -21,7 +21,7 @@
     {
       "url": "https://developers.openai.com/api/docs/models/gpt-4o-mini.md",
       "label": "OpenAI model docs",
-      "last_checked": "2026-10-28",
+      "last_checked": "2026-10-29",
       "excerpt": "Model ID: gpt-4o-mini | Fast, affordable small model for focused tasks"
     }
   ],
@@ -47,23 +47,23 @@
     "specs_sources": {
       "cached_input_price_per_mtok": {
         "url": "https://developers.openai.com/api/docs/models/gpt-4o-mini.md",
-        "last_checked": "2026-10-28"
+        "last_checked": "2026-10-29"
       },
       "context_window_tokens": {
         "url": "https://developers.openai.com/api/docs/models/gpt-4o-mini.md",
-        "last_checked": "2026-10-28"
+        "last_checked": "2026-10-29"
       },
       "input_price_per_mtok": {
         "url": "https://developers.openai.com/api/docs/models/gpt-4o-mini.md",
-        "last_checked": "2026-10-28"
+        "last_checked": "2026-10-29"
       },
       "max_output_tokens": {
         "url": "https://developers.openai.com/api/docs/models/gpt-4o-mini.md",
-        "last_checked": "2026-10-28"
+        "last_checked": "2026-10-29"
       },
       "output_price_per_mtok": {
         "url": "https://developers.openai.com/api/docs/models/gpt-4o-mini.md",
-        "last_checked": "2026-10-28"
+        "last_checked": "2026-10-29"
       }
     }
   },

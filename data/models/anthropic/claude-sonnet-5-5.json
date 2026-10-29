@@ -15,13 +15,13 @@
     {
       "url": "https://platform.claude.com/docs/en/about-claude/model-deprecations",
       "label": "Anthropic model deprecations",
-      "last_checked": "2026-10-28",
+      "last_checked": "2026-10-29",
       "excerpt": "claude-sonnet-5-5 | Active | N/A | Not sooner than September 28, 2027"
     },
     {
       "url": "https://platform.claude.com/docs/en/about-claude/models/overview",
       "label": "Anthropic models overview",
-      "last_checked": "2026-10-28",
+      "last_checked": "2026-10-29",
       "excerpt": "claude-sonnet-5-5 | Context window 1M tokens | Max output 128K tokens | Text and image input, text output, vision, and tool use."
     }
   ],
@@ -52,47 +52,47 @@
     "specs_sources": {
       "cached_input_price_per_mtok": {
         "url": "https://platform.claude.com/docs/en/about-claude/pricing",
-        "last_checked": "2026-10-28"
+        "last_checked": "2026-10-29"
       },
       "context_window_tokens": {
         "url": "https://platform.claude.com/docs/en/about-claude/models/overview",
-        "last_checked": "2026-10-28"
+        "last_checked": "2026-10-29"
       },
       "input_price_per_mtok": {
         "url": "https://platform.claude.com/docs/en/about-claude/pricing",
-        "last_checked": "2026-10-28"
+        "last_checked": "2026-10-29"
       },
       "knowledge_cutoff": {
         "url": "https://platform.claude.com/docs/en/about-claude/models/overview",
-        "last_checked": "2026-10-28"
+        "last_checked": "2026-10-29"
       },
       "max_output_tokens": {
         "url": "https://platform.claude.com/docs/en/about-claude/models/overview",
-        "last_checked": "2026-10-28"
+        "last_checked": "2026-10-29"
       },
       "modalities_in": {
         "url": "https://platform.claude.com/docs/en/about-claude/models/overview",
-        "last_checked": "2026-10-28"
+        "last_checked": "2026-10-29"
       },
       "modalities_out": {
         "url": "https://platform.claude.com/docs/en/about-claude/models/overview",
-        "last_checked": "2026-10-28"
+        "last_checked": "2026-10-29"
       },
       "output_price_per_mtok": {
         "url": "https://platform.claude.com/docs/en/about-claude/pricing",
-        "last_checked": "2026-10-28"
+        "last_checked": "2026-10-29"
       },
       "reasoning": {
         "url": "https://platform.claude.com/docs/en/about-claude/models/overview",
-        "last_checked": "2026-10-28"
+        "last_checked": "2026-10-29"
       },
       "supports_tools": {
         "url": "https://platform.claude.com/docs/en/about-claude/models/overview",
-        "last_checked": "2026-10-28"
+        "last_checked": "2026-10-29"
       },
       "supports_vision": {
         "url": "https://platform.claude.com/docs/en/about-claude/models/overview",
-        "last_checked": "2026-10-28"
+        "last_checked": "2026-10-29"
       }
     }
   },

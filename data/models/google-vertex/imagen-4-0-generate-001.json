@@ -22,7 +22,7 @@
     {
       "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/model-versions",
       "label": "Vertex AI model versions",
-      "last_checked": "2026-10-28",
+      "last_checked": "2026-10-29",
       "excerpt": "imagen-4.0-generate-001 | August 14, 2025 | June 30, 2026 | gemini-2.5-flash-image"
     }
   ],
