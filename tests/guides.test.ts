@@ -30,6 +30,7 @@ const ALLOWED_HOSTS = new Set([
   "integrate.api.nvidia.com",
   "api-docs.deepseek.com",
   "deepseek.com",
+  "console.groq.com",
 ]);
 
 describe("guides", () => {
@@ -185,5 +186,37 @@ describe("guides", () => {
     expect(blob).toContain("August 31, 2026");
     const graph = guideGraph("https://sunsetdiff.com/", guide);
     expect(graph.some((node) => node["@type"] === "FAQPage")).toBe(true);
+  });
+
+  it("sources the retired-model check from official error pages and the lookup API", () => {
+    const guide = guides.find((item) => item.slug === "catch-a-retired-model-before-your-users-do");
+    expect(guide).toBeTruthy();
+    if (!guide) return;
+    expect(guideChecked(guide)).toBe("2026-10-29");
+    expect(guidePath(guide.slug)).toBe("/guides/catch-a-retired-model-before-your-users-do/");
+    const blob = JSON.stringify(guide);
+    expect(blob).toContain("https://github.com/AlejandroFuentePinero/digital-twin/issues/54");
+    expect(blob).toContain("https://github.com/AlejandroFuentePinero/digital-twin/issues/57");
+    expect(blob).toContain("https://github.com/bobmatnyc/joanies-kitchen/issues/24");
+    expect(blob).toContain("https://github.com/ahaqqu/RumaQ/issues/306");
+    expect(blob).toContain("https://github.com/Ghigog/Juice/issues/421");
+    expect(blob).toContain("encodeURIComponent");
+    expect(blob).toContain("urllib.parse.quote");
+    expect(blob).toContain("shutdown_date_kind");
+    expect(blob).toContain("/api/v1/lookup/");
+    expect(blob).toContain("/github-action/");
+    expect(blob).toContain("not_found_error");
+    expect(blob).toContain("The requested resource could not be found.");
+    expect(blob).toContain("the endpoint is no longer available");
+    expect(blob).toContain("does not print a code named model_decommissioned");
+    expect(blob).toContain("no longer available on OpenRouter");
+    expect(blob).toContain("https://console.groq.com/docs/errors");
+    expect(blob).toContain("https://openrouter.ai/docs/api_reference/errors-and-debugging");
+    expect(blob).toContain("https://platform.claude.com/docs/en/api/errors");
+    const node = guide.sections.flatMap((section) => section.codes ?? []).find((sample) => sample.caption === "Node");
+    expect(node?.code).toContain("encodeURIComponent(modelId)");
+    expect(node?.code).not.toContain("\\`");
+    const graph = guideGraph("https://sunsetdiff.com/", guide);
+    expect(graph.some((node) => node["@type"] === "BreadcrumbList" || node["@type"] === "Article")).toBe(true);
   });
 });

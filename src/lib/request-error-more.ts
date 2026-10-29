@@ -845,6 +845,10 @@ const { text } = await generateText({
       { href: "/migrate/openai__o3-mini__to__openai__gpt-5-6-sol/", label: "o3-mini to gpt-5.6-sol" },
       { href: "/migrate/openai__o4-mini__to__openai__gpt-5-6-terra/", label: "o4-mini to gpt-5.6-terra" },
     ],
+    seeAlso: [
+      { href: "/guides/catch-a-retired-model-before-your-users-do/", label: "Catch a retired model before your users do" },
+      { href: "/guides/silent-failures-after-model-shutdown/", label: "Silent failures after a model shutdown" },
+    ],
     faqs: [
       {
         question: "Does OpenAI print the error sentence for the October 23 models?",
@@ -1008,6 +1012,10 @@ const { text } = await generateText({
         href: "/migrate/google-gemini-api__veo-3-1-lite-generate-preview__to__google-gemini-api__gemini-omni-1-1-flash/",
         label: "veo-3.1-lite-generate-preview to gemini-omni-1.1-flash",
       },
+    ],
+    seeAlso: [
+      { href: "/guides/catch-a-retired-model-before-your-users-do/", label: "Catch a retired model before your users do" },
+      { href: "/shutdowns/google-gemini-api-2026-10-22/", label: "Gemini API October 22, 2026 batch" },
     ],
     faqs: [
       {
@@ -1410,6 +1418,7 @@ const { text } = await generateText({
       { href: "/errors/openai-model-has-been-deprecated/", label: "The model has been deprecated" },
       { href: "/errors/openai-max-tokens-use-max-completion-tokens/", label: "max_tokens is not supported. Use max_completion_tokens" },
       { href: "/guides/silent-failures-after-model-shutdown/", label: "Silent failures after a model shutdown" },
+      { href: "/guides/catch-a-retired-model-before-your-users-do/", label: "Catch a retired model before your users do" },
       { href: OPENAI_GPT6, label: "Using GPT-6" },
     ],
     faqs: [
@@ -1555,6 +1564,7 @@ const { text } = await generateText({
       { href: "/models/google-gemini-api/gemini-2-5-flash/", label: "gemini-2.5-flash" },
       { href: "/models/google-gemini-api/gemini-3-8-flash/", label: "gemini-3.8-flash" },
       { href: "/guides/silent-failures-after-model-shutdown/", label: "Silent failures after a model shutdown" },
+      { href: "/guides/catch-a-retired-model-before-your-users-do/", label: "Catch a retired model before your users do" },
     ],
     faqs: [
       {
@@ -1691,6 +1701,7 @@ const { text } = await generateText({
       { href: "/shutdowns/azure-openai-2026-11-19/", label: "Azure OpenAI November 19, 2026 batch" },
       { href: "/models/azure-openai/o4-mini-2025-04-16/", label: "o4-mini 2025-04-16" },
       { href: "/guides/silent-failures-after-model-shutdown/", label: "Silent failures after a model shutdown" },
+      { href: "/guides/catch-a-retired-model-before-your-users-do/", label: "Catch a retired model before your users do" },
       { href: AZURE_SCHEDULE, label: "Azure OpenAI retirement schedule" },
     ],
     faqs: [
@@ -1836,6 +1847,7 @@ const response = await client.chat.completions.create({
       { href: "/models/deepseek/deepseek-v4-pro/", label: "deepseek-v4-pro" },
       { href: "/models/deepseek/deepseek-v4-flash/", label: "deepseek-v4-flash" },
       { href: "/guides/silent-failures-after-model-shutdown/", label: "Silent failures after a model shutdown" },
+      { href: "/guides/catch-a-retired-model-before-your-users-do/", label: "Catch a retired model before your users do" },
       { href: DEEPSEEK_ERRORS, label: "DeepSeek error codes" },
       { href: DEEPSEEK_THINKING, label: "DeepSeek thinking mode" },
     ],
@@ -2126,6 +2138,7 @@ const { text } = await generateText({
     seeAlso: [
       { href: "/providers/nvidia/", label: "NVIDIA hosted models" },
       { href: "/guides/nvidia-hosted-api-vs-nim-containers/", label: "Hosted API vs NIM containers" },
+      { href: "/guides/catch-a-retired-model-before-your-users-do/", label: "Catch a retired model before your users do" },
       { href: "https://github.com/omatheusmesmo/Qlawkus/issues/357", label: "Qlawkus issue 357" },
       { href: "https://github.com/chimeranext/better-toolkits/issues/127", label: "better-toolkits issue 127" },
     ],
