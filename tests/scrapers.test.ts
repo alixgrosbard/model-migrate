@@ -157,10 +157,63 @@ describe("official snapshots", () => {
     );
     const azure = parseAzure(read(fixture("azure-openai", "2026-10-17-schedule.html")), read(fixture("azure-openai", "2026-10-17.html")), checked);
     expect(azure.find((model) => model.id === "codex-mini-2025-05-16")?.shutdown_date).toBe("2026-11-15");
+    expect(azure.find((model) => model.id === "codex-mini-2025-05-16")?.status).toBe("deprecated");
     const mistral = parseMistral(read(fixture("mistral", "2026-10-17.html")), read(fixture("mistral", "pricing-2026-10-17.html")), checked);
     const medium = mistral.find((model) => model.id === "mistral-medium-2508");
     expect(medium?.deprecation_date).toBe("2026-05-22");
     expect(medium?.shutdown_date).toBe("2026-08-31");
+  });
+
+  it("keeps Azure base-table dates when the fine-tune table and a later duplicate row disagree", () => {
+    const schedule = read(fixture("azure-openai", "base-and-finetune.html"));
+    const policy = read(fixture("azure-openai", "2026-10-17.html"));
+    const azure = parseAzure(schedule, policy, "2026-10-29");
+    const one = (id: string) => {
+      const rows = azure.filter((model) => model.id === id);
+      expect(rows).toHaveLength(1);
+      return rows[0];
+    };
+    const o4 = one("o4-mini-2025-04-16");
+    expect(o4?.status).toBe("deprecated");
+    expect(o4?.shutdown_date).toBe("2026-11-19");
+    expect(o4?.shutdown_date_kind).toBe("exact");
+    expect(o4?.replacements.map((item) => item.model_id)).toEqual(["gpt-5.6-terra"]);
+    expect(o4?.region_or_platform_notes).toContain("Deployment retirement: 2027-11-19");
+    expect(o4?.region_or_platform_notes).toContain("deployment retirement 2027-10-16");
+    expect(o4?.sources[0]?.excerpt).toContain("Deprecated");
+    expect(o4?.sources[0]?.excerpt).toContain("2026-11-19");
+    for (const id of ["gpt-4.1-2025-04-14", "gpt-4.1-mini-2025-04-14", "gpt-4.1-nano-2025-04-14"]) {
+      const model = one(id);
+      expect(model?.status).toBe("deprecated");
+      expect(model?.shutdown_date).toBe("2027-04-14");
+      expect(model?.region_or_platform_notes).toContain("2027-10-14");
+    }
+    const gpt4o = one("gpt-4o-2024-08-06");
+    expect(gpt4o?.status).toBe("deprecated");
+    expect(gpt4o?.shutdown_date).toBe("2027-04-14");
+    expect(gpt4o?.replacements.map((item) => item.model_id)).toEqual(["gpt-5.1"]);
+    expect(gpt4o?.region_or_platform_notes).toContain("Deployment retirement: 2027-10-01");
+    const mini = one("gpt-4o-mini-2024-07-18");
+    expect(mini?.status).toBe("deprecated");
+    expect(mini?.shutdown_date).toBe("2027-04-14");
+    expect(mini?.region_or_platform_notes).toContain("2027-10-01");
+    const realtimeOctober = one("gpt-realtime-mini-2025-10-06");
+    expect(realtimeOctober?.status).toBe("active");
+    expect(realtimeOctober?.shutdown_date).toBe("2027-04-06");
+    const realtimeDecember = one("gpt-realtime-mini-2025-12-15");
+    expect(realtimeDecember?.status).toBe("active");
+    expect(realtimeDecember?.shutdown_date).toBe("2027-06-15");
+    expect(azure.some((model) => model.id.startsWith("FLUX"))).toBe(false);
+
+    const live = parseAzure(
+      read(fixture("azure-openai", "2026-10-17-schedule.html")),
+      policy,
+      "2026-10-29",
+    );
+    expect(live.find((model) => model.id === "o4-mini-2025-04-16")?.shutdown_date).toBe("2026-11-19");
+    expect(live.find((model) => model.id === "o4-mini-2025-04-16")?.status).toBe("deprecated");
+    expect(live.find((model) => model.id === "gpt-realtime-mini-2025-10-06")?.shutdown_date).toBe("2027-04-06");
+    expect(live.find((model) => model.id === "gpt-realtime-mini-2025-10-06")?.status).toBe("active");
   });
 
   it("fills a replacement when a deprecations cell says requests auto-route", () => {

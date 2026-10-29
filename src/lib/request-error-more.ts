@@ -1588,10 +1588,10 @@ const { text } = await generateText({
     errorQuoted: false,
     errorText:
       "Microsoft's lifecycle page does not print an error sentence. It says a Retired model is removed from service and all inference requests return 410 Gone.",
-    rule: `The lifecycle table says Retired means removed from service, new deployments are not allowed, existing deployments do not work, and all inference requests return 410 Gone. The same page says the API value lifecycleStatus Deprecated means the model is retired and inference returns 410 Gone. The docs stage Deprecated is lifecycleStatus Deprecating, and inference still works. The retirement schedule, checked October 24, 2026, lists these Azure OpenAI base rows as Deprecated with retirement date 2026-11-19: o1 2024-12-17 and o1-pro 2025-03-19 and o3 2025-04-16 and o3-deep-research 2025-06-26 and o3-pro 2025-06-10, replacement gpt-5.6-sol; o3-mini 2025-01-31, replacement gpt-5.6-terra. SunsetDiff stores shutdown_date 2026-11-19 for those six ids. The schedule's base row for o4-mini 2025-04-16 is also Deprecated, retirement 2026-11-19, replacement gpt-5.6-terra. SunsetDiff's file for o4-mini-2025-04-16 stores shutdown_date 2027-11-19, which is the fine-tuned deployment retirement on that schedule, so this page does not treat the stored date as the base-row date. The lifecycle page says Global Standard, Data Zone Standard, and Standard deployments are auto-upgraded at retirement, and provisioned deployments are not. The working-with-models page says automatic model updates are supported for Standard deployment types. On that page, NoAutoUpgrade never upgrades and the deployment stops working at retirement. OnceNewDefaultVersionAvailable upgrades within two weeks of a new default. OnceCurrentVersionExpired upgrades when the retirement date is reached.`,
+    rule: `The lifecycle table says Retired means removed from service, new deployments are not allowed, existing deployments do not work, and all inference requests return 410 Gone. The same page says the API value lifecycleStatus Deprecated means the model is retired and inference returns 410 Gone. The docs stage Deprecated is lifecycleStatus Deprecating, and inference still works. The retirement schedule, checked October 24, 2026, lists these Azure OpenAI base rows as Deprecated with retirement date 2026-11-19: o1 2024-12-17 and o1-pro 2025-03-19 and o3 2025-04-16 and o3-deep-research 2025-06-26 and o3-pro 2025-06-10, replacement gpt-5.6-sol; o3-mini 2025-01-31, replacement gpt-5.6-terra. SunsetDiff stores shutdown_date 2026-11-19 for those six ids. The schedule's base row for o4-mini 2025-04-16 is also Deprecated, retirement 2026-11-19, replacement gpt-5.6-terra. SunsetDiff stores shutdown_date 2026-11-19 for o4-mini-2025-04-16, matching that base row. The fine-tuned deployment retirement 2027-11-19 is only a note on that model, not the shutdown date. The lifecycle page says Global Standard, Data Zone Standard, and Standard deployments are auto-upgraded at retirement, and provisioned deployments are not. The working-with-models page says automatic model updates are supported for Standard deployment types. On that page, NoAutoUpgrade never upgrades and the deployment stops working at retirement. OnceNewDefaultVersionAvailable upgrades within two weeks of a new default. OnceCurrentVersionExpired upgrades when the retirement date is reached.`,
     ruleSourceLabel: "Foundry Models lifecycle",
     ruleSourceUrl: AZURE_RETIREMENTS,
-    modelsCaption: "o-series versions whose SunsetDiff shutdown_date is 2026-11-19, plus o4-mini, whose stored date is the fine-tuned deployment date.",
+    modelsCaption: "o-series versions whose SunsetDiff shutdown_date is 2026-11-19, including o4-mini.",
     models: [
       {
         id: "o1-2024-12-17",
@@ -1633,7 +1633,7 @@ const { text } = await generateText({
         id: "o4-mini-2025-04-16",
         provider: "azure-openai",
         slug: "o4-mini-2025-04-16",
-        note: "The schedule's base row says Deprecated, retirement 2026-11-19, replacement gpt-5.6-terra. SunsetDiff stores shutdown_date 2027-11-19 from the fine-tuned deployment row.",
+        note: "Schedule and SunsetDiff: Deprecated, retirement 2026-11-19, replacement gpt-5.6-terra. The fine-tuned deployment retirement 2027-11-19 is a note, not the shutdown date.",
       },
       {
         id: "gpt-5.6-sol",
@@ -1645,7 +1645,7 @@ const { text } = await generateText({
         id: "gpt-5.6-terra",
         provider: "azure-openai",
         slug: "gpt-5-6-terra",
-        note: "Replacement named for o3-mini. The schedule also names it for the o4-mini base row.",
+        note: "Replacement named for o3-mini and o4-mini.",
       },
     ],
     shutdowns: [{ provider: "azure-openai", date: "2026-11-19" }],
@@ -1685,6 +1685,7 @@ const { text } = await generateText({
       { href: "/migrate/azure-openai__o3-deep-research-2025-06-26__to__azure-openai__gpt-5-6-sol/", label: "o3-deep-research 2025-06-26 to gpt-5.6-sol" },
       { href: "/migrate/azure-openai__o3-mini-2025-01-31__to__azure-openai__gpt-5-6-terra/", label: "o3-mini 2025-01-31 to gpt-5.6-terra" },
       { href: "/migrate/azure-openai__o3-pro-2025-06-10__to__azure-openai__gpt-5-6-sol/", label: "o3-pro 2025-06-10 to gpt-5.6-sol" },
+      { href: "/migrate/azure-openai__o4-mini-2025-04-16__to__azure-openai__gpt-5-6-terra/", label: "o4-mini 2025-04-16 to gpt-5.6-terra" },
     ],
     seeAlso: [
       { href: "/shutdowns/azure-openai-2026-11-19/", label: "Azure OpenAI November 19, 2026 batch" },
@@ -1704,9 +1705,9 @@ const { text } = await generateText({
           "The lifecycle page says Global Standard, Data Zone Standard, and Standard deployments are auto-upgraded at retirement, and provisioned deployments are not. Working with models says automatic updates are supported for Standard deployment types. NoAutoUpgrade never upgrades, and that deployment stops working at retirement.",
       },
       {
-        question: "Why does SunsetDiff list o4-mini on 2027-11-19?",
+        question: "Is the o4-mini fine-tuned deployment date the shutdown date?",
         answer:
-          "The stored shutdown_date is the fine-tuned deployment retirement. The schedule's base row for o4-mini 2025-04-16 says retirement 2026-11-19 and replacement gpt-5.6-terra. Read both on [o4-mini 2025-04-16](/models/azure-openai/o4-mini-2025-04-16/).",
+          "No. SunsetDiff stores shutdown_date 2026-11-19 from the schedule's base row, with replacement gpt-5.6-terra. The fine-tuned deployment retirement is 2027-11-19 and is stored only as a note on [o4-mini 2025-04-16](/models/azure-openai/o4-mini-2025-04-16/).",
       },
     ],
     citations: [AZURE_RETIREMENTS, AZURE_SCHEDULE, AZURE_WORKING],
