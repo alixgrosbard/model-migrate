@@ -6,7 +6,7 @@ import NewsletterForm from "../../../components/NewsletterForm.astro";
 import SponsorSlot from "../../../components/SponsorSlot.astro";
 import { loadMigrations, loadModels, loadProviders, migrationKey } from "../../../lib/load.ts";
 import { clipMeta, relatedModels, replaceFaqs, replacePageTitle, replacementAnswer, uniqueVisibleName, visibleName } from "../../../lib/format.ts";
-import { isThinReplace } from "../../../lib/indexability.ts";
+import { isThinReplace, NOINDEX_FOLLOW } from "../../../lib/indexability.ts";
 import { replaceHub } from "../../../lib/hubs.ts";
 import { migrateGraph } from "../../../jsonld.ts";
 import { DEFAULT_SITE_URL } from "../../../lib/site.ts";
@@ -38,7 +38,7 @@ const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
 <Base
   title={replacePageTitle(model, models, provider.name)}
   description={description}
-  robots={isThinReplace(model) ? "noindex" : undefined}
+  robots={NOINDEX_FOLLOW}
   image={`/og/models/${model.provider}/${model.slug}.svg`}
   crumbs={[
     { name: "Home", path: "/" },

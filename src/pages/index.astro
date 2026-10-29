@@ -9,7 +9,7 @@ import { HUBS } from "../lib/hubs.ts";
 import { STATUS_HUBS } from "../lib/status-hubs.ts";
 import { publicName } from "../lib/growth.ts";
 import { featuredErrorLinks, featuredModelLinks } from "../lib/featured.ts";
-import { batchHeadline, eventCountLabel, orderShutdownEvents, providerDisplayName, shutdownEventPath, shutdownEvents } from "../lib/shutdowns.ts";
+import { batchHeadline, eventCountLabel, nextDeadlineAnchors, orderShutdownEvents, providerDisplayName, shutdownEventPath, shutdownEvents } from "../lib/shutdowns.ts";
 
 const providers = await loadProviders();
 const models = await loadModels();
@@ -46,6 +46,12 @@ function replacementModel(model: (typeof models)[number]) {
     <a href="/frameworks/">Frameworks</a>
   </p>
   <SearchBox />
+  <h2>Next deadlines</h2>
+  <ul>
+    {nextDeadlineAnchors(shutdownEvents(models), providers, day).map((item) => (
+      <li><a href={item.href}>{item.label}</a></li>
+    ))}
+  </ul>
   <h2>Models people look up</h2>
   <ul>
     {featured.map((item) => {

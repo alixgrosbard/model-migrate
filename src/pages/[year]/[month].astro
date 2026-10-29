@@ -6,6 +6,7 @@ import { scheduleGraph } from "../../jsonld.ts";
 import { clipMeta, today } from "../../lib/format.ts";
 import { monthLabel } from "../../lib/growth.ts";
 import { loadMigrations, loadModels, loadProviders } from "../../lib/load.ts";
+import { NOINDEX_FOLLOW } from "../../lib/indexability.ts";
 import { DEFAULT_SITE_URL } from "../../lib/site.ts";
 import {
   listItems,
@@ -53,7 +54,7 @@ const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
 <Base
   title={`${name} | SunsetDiff`}
   description={description}
-  robots={selected.length < 2 ? "noindex" : undefined}
+  robots={selected.length < 2 ? NOINDEX_FOLLOW : undefined}
   crumbs={[
     { name: "Home", path: "/" },
     { name: "Timeline", path: TIMELINE_PATH },

@@ -42,7 +42,8 @@ export function parseSitemapUrls(xml: string): SitemapUrl[] {
   for (const block of xml.split("<url>").slice(1)) {
     const loc = block.match(/<loc>([^<]*)<\/loc>/)?.[1];
     if (!loc) continue;
-    const lastmod = block.match(/<lastmod>([^<]*)<\/lastmod>/)?.[1];
+    const raw = block.match(/<lastmod>([^<]*)<\/lastmod>/)?.[1];
+    const lastmod = raw?.slice(0, 10);
     urls.push(lastmod ? { loc, lastmod } : { loc });
   }
   return urls;

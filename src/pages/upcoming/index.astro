@@ -5,7 +5,7 @@ import ShutdownTable from "../../components/ShutdownTable.astro";
 import { scheduleGraph } from "../../jsonld.ts";
 import { clipMeta, today } from "../../lib/format.ts";
 import { loadMigrations, loadModels, loadProviders } from "../../lib/load.ts";
-import { longDate } from "../../lib/shutdowns.ts";
+import { COPILOT_NOV16_PATH, COPILOT_NOV16_TITLE, copilotNov16Hit } from "../../lib/shutdowns.ts";
 import { DEFAULT_SITE_URL } from "../../lib/site.ts";
 import {
   groupRowsByMonth,
@@ -55,6 +55,9 @@ const name = "Upcoming AI model shutdowns";
   )}
 >
   <h1>Upcoming AI model shutdowns</h1>
+  {copilotNov16Hit(models) ? (
+    <p><a href={COPILOT_NOV16_PATH}>{COPILOT_NOV16_TITLE}</a></p>
+  ) : null}
   <p class="answer">{intro}</p>
   <p>
     {selected.length} rows, sorted by shutdown date and grouped by month.

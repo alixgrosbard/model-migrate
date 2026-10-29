@@ -4,8 +4,7 @@ import { fileURLToPath } from "node:url";
 import { defineConfig } from "astro/config";
 import sitemap from "@astrojs/sitemap";
 import { lastmodForUrl } from "./src/lib/lastmod.ts";
-import { excludeFromSitemap } from "./src/lib/indexability.ts";
-import { OPENAPI_PATH } from "./src/lib/openapi.ts";
+import { includeInSitemap } from "./src/lib/indexability.ts";
 import { siteOrigin } from "./src/lib/site.ts";
 import { writeSectionSitemaps } from "./src/lib/sitemaps.ts";
 
@@ -20,26 +19,11 @@ export default defineConfig({
       filter(page) {
         try {
           const pathname = new URL(page).pathname;
-          return pathname !== "/google/"
-            && pathname !== "/models/openai/gpt-4-1-2/"
-            && pathname !== "/migrate/openai__gpt-4-5-preview__to__openai__gpt-4-1-2/"
-            && !pathname.startsWith("/.well-known/")
-            && !excludeFromSitemap(page);
+          return !pathname.startsWith("/.well-known/") && includeInSitemap(page);
         } catch {
-          return true;
+          return includeInSitemap(page);
         }
       },
-      customPages: [
-        `${site}/deadlines.ics`,
-        `${site}/feed.xml`,
-        `${site}/data/models.json`,
-        `${site}/data/deprecations.csv`,
-        `${site}/data/changelog.json`,
-        `${site}/data/breaking-changes.json`,
-        `${site}/data/breaking-changes.csv`,
-        `${site}${OPENAPI_PATH}`,
-        `${site}/server.json`,
-      ],
       serialize(item) {
         const lastmod = lastmodForUrl(item.url);
         if (lastmod) item.lastmod = lastmod;
@@ -53,7 +37,7 @@ export default defineConfig({
       hooks: {
         "astro:build:done": async ({ dir }) => {
           const out = fileURLToPath(dir);
-          await writeSectionSitemaps(out, site, (pathname) => !excludeFromSitemap(`${site}${pathname}`));
+          await writeSectionSitemaps(out, site, (pathname) => includeInSitemap(pathname));
           // Vite's public copy uses readdir, which includes dot directories.
           // Copy again so a bundler that skips them cannot drop this file.
           await cp(path.join(process.cwd(), "public", ".well-known"), path.join(out, ".well-known"), {

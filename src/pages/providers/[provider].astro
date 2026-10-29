@@ -7,6 +7,7 @@ import { formatWhen, isUpcomingShutdown, today } from "../../lib/format.ts";
 import { publicName } from "../../lib/growth.ts";
 import { providersHub } from "../../lib/hubs.ts";
 import { providerStatusPath, STATUS_HUBS } from "../../lib/status-hubs.ts";
+import { COPILOT_NOV16_PATH, COPILOT_NOV16_TITLE, copilotNov16Hit } from "../../lib/shutdowns.ts";
 import type { ModelRecord } from "../../schema.ts";
 
 export async function getStaticPaths() {
@@ -36,6 +37,9 @@ const description = `${provider.name} model shutdown dates, grouped by status.`;
   crumbs={[{ name: "Home", path: "/" }, { name: providersHub.nav, path: providersHub.path }, { name: provider.name, path: `/providers/${provider.id}/` }]}
 >
   <h1>{provider.name}</h1>
+  {provider.id === "github-copilot" && copilotNov16Hit(allModels) ? (
+    <p><a href={COPILOT_NOV16_PATH}>{COPILOT_NOV16_TITLE}</a></p>
+  ) : null}
   {provider.id === "nvidia" ? (
     <p>
       Hosted catalog: <a href={provider.models_url}>{provider.models_url}</a>.

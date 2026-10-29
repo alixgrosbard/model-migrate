@@ -17,7 +17,7 @@ import { migrateHub, modelsHub, providersHub, replaceHub } from "./hubs.ts";
 import { INTEGRATIONS_PATH, MCP_DOCS_CHECKED, MCP_PATH, MCP_SERVER_JSON_PATH } from "./mcp-docs.ts";
 import { OPENAPI_PATH } from "./openapi.ts";
 import { providerStatusPath, statusHubPath } from "./status-hubs.ts";
-import { shutdownEventPath, shutdownEvents } from "./shutdowns.ts";
+import { OPENAI_NOV30_CHECKED, OPENAI_NOV30_PATH, shutdownEventPath, shutdownEvents } from "./shutdowns.ts";
 import {
   CHANGELOG_PATH,
   datedShutdowns,
@@ -118,7 +118,11 @@ function build(): Map<string, string> {
     map.set(FAQ_PATH, datedModified);
   }
   const upcomingModified = newestDate(upcomingShutdowns(all, today()).map(contentDay));
-  if (upcomingModified) map.set(UPCOMING_PATH, upcomingModified);
+  if (upcomingModified) {
+    map.set(UPCOMING_PATH, upcomingModified);
+    map.set("/calendar/", upcomingModified);
+  }
+  map.set(OPENAI_NOV30_PATH, OPENAI_NOV30_CHECKED);
   for (const year of shutdownYearList(all)) {
     const newest = newestDate(shutdownsInYear(all, year).map(contentDay));
     if (newest) map.set(yearPath(year), newest);

@@ -6,6 +6,21 @@ const MONTHS = ["January", "February", "March", "April", "May", "June", "July", 
 /** A batch page exists only when this many models share one provider and one exact shutdown date. */
 export const SHUTDOWN_BATCH_MIN = 3;
 
+/** GitHub changelog post for the November 16, 2026 Copilot retirements. */
+export const COPILOT_NOV16_SLUG = "github-copilot-2026-11-16";
+export const COPILOT_NOV16_PATH = `/shutdowns/${COPILOT_NOV16_SLUG}/`;
+export const COPILOT_NOV16_TITLE = "Claude Opus 4.8, Opus 5, GPT-5.6 Terra leave GitHub Copilot Nov 16, 2026";
+export const COPILOT_NOV16_DESCRIPTION =
+  "Claude Opus 4.8, Claude Opus 5 and GPT-5.6 Terra are removed from GitHub Copilot on Nov 16, 2026. Replacements and source.";
+export const COPILOT_NOV16_CHANGELOG =
+  "https://github.blog/changelog/2026-10-15-upcoming-deprecation-of-selected-github-copilot-models-in-mid-november";
+
+/** The only November 30, 2026 URL. OpenAI did not publish a /shutdowns/ page for this date. */
+export const OPENAI_NOV30_PATH = "/openai-evals-agent-builder-prompts-shutdown-nov-30-2026/";
+export const OPENAI_NOV30_DATE = "2026-11-30";
+export const OPENAI_NOV30_CHECKED = "2026-10-19";
+export const OPENAI_NOV30_LABEL = "OpenAI Evals, Agent Builder, and stored prompts shut down November 30, 2026";
+
 export interface ShutdownEvent {
   provider: string;
   date: string;
@@ -246,7 +261,20 @@ export function batchHeadline(providerName: string, event: ShutdownEvent, day: s
   return bedrockHeadline(providerName, event, day) ?? batchExtras(event).headline ?? shutdownEventTitle(providerName, event, day);
 }
 
+/** Document title. The Copilot November 16 page names the models. The H1 stays the headline. */
+export function batchDocumentTitle(providerName: string, event: ShutdownEvent, day: string): string {
+  if (event.slug === COPILOT_NOV16_SLUG) return COPILOT_NOV16_TITLE;
+  return batchHeadline(providerName, event, day);
+}
+
+/** dateModified for the page. Copilot uses the day the GitHub source was checked. */
+export function batchDateModified(event: ShutdownEvent): string {
+  if (event.slug === COPILOT_NOV16_SLUG) return eventLastChecked(event);
+  return eventDateModified(event);
+}
+
 export function batchDescription(providerName: string, event: ShutdownEvent, day: string): string {
+  if (event.slug === COPILOT_NOV16_SLUG) return COPILOT_NOV16_DESCRIPTION;
   if (event.provider === "aws-bedrock" && event.date === "2026-11-13") {
     const past = isPastShutdown(event.date, day);
     return clipMeta(
@@ -290,12 +318,14 @@ export function limitBedrockAnswer(event: ShutdownEvent, answer: string): string
 }
 
 export function batchLead(providerName: string, event: ShutdownEvent, day: string): string {
+  if (event.slug === COPILOT_NOV16_SLUG) return copilotNov16Lead();
   if (isModelIdBatch(event)) return openAiShortAnswer(event, day);
   if (event.provider === "aws-bedrock" && event.date === "2026-11-13") return bedrockShortAnswer(day);
   return batchExtras(event).lead ?? shutdownEventLead(providerName, event, day);
 }
 
 export function batchChecklist(event: ShutdownEvent, day: string): string[] {
+  if (event.slug === COPILOT_NOV16_SLUG) return copilotNov16Checklist();
   const steps = shutdownEventChecklist(event, day);
   if (event.provider === "aws-bedrock" && event.date === "2026-11-13" && !isPastShutdown(event.date, day)) {
     steps[0] = "Find every request that still uses these model ids before November 13, 2026 in some Regions.";
@@ -304,6 +334,7 @@ export function batchChecklist(event: ShutdownEvent, day: string): string[] {
 }
 
 export function batchFaqs(providerName: string, event: ShutdownEvent, day: string): FaqItem[] {
+  if (event.slug === COPILOT_NOV16_SLUG) return copilotNov16Faqs();
   const extras = batchExtras(event);
   if (isModelIdBatch(event)) return openAiOct23Faqs(event, day);
   if (event.provider === "aws-bedrock" && event.date === "2026-11-13") return bedrockNov13Faqs(day);
@@ -325,6 +356,83 @@ export function eventLastChecked(event: ShutdownEvent): string {
     }
   }
   return newest;
+}
+
+/**
+ * Wording is from GitHub's October 15, 2026 changelog and the supported-models page.
+ * GitHub lists model names, not a separate API id. GPT-5.6 Terra's alternatives are
+ * "GPT-6.1 Sol or GPT-6 Luna", with no preference. SunsetDiff is not GitHub.
+ */
+function copilotNov16Lead(): string {
+  return "GitHub will deprecate Claude Opus 4.8, Claude Opus 5, and GPT-5.6 Terra across all GitHub Copilot experiences (including Copilot Chat, inline edits, ask and agent modes, and code completions) on November 16, 2026. GitHub lists Claude Opus 5.5 as the suggested alternative for the two Opus models. For GPT-5.6 Terra, GitHub lists GPT-6.1 Sol or GPT-6 Luna and does not prefer one. The supported-models page lists these model names and does not publish a separate API id. GitHub says Claude Opus 4.8 stays available to individual subscribers on annual plans. SunsetDiff is not GitHub.";
+}
+
+function copilotNov16Checklist(): string[] {
+  return [
+    "Update workflows and integrations to a supported model before November 16, 2026. That is what GitHub's changelog asks.",
+    "Under default model enablement, GitHub says the suggested alternatives are automatically enabled for Copilot Enterprise and Copilot Business unless an administrator turned off the global default or explicitly disabled the model.",
+    "If the global default is off, enable the alternative models through their model policies in Copilot settings. GitHub says users then see the model in the Copilot Chat model selector.",
+    "GitHub says no action is required to remove the models after they have been deprecated.",
+  ];
+}
+
+function copilotNov16Faqs(): FaqItem[] {
+  return [
+    {
+      question: "Which models leave GitHub Copilot on November 16, 2026?",
+      answer:
+        "GitHub's changelog names Claude Opus 4.8, Claude Opus 5, and GPT-5.6 Terra. The deprecation date is November 16, 2026. GitHub says Claude Opus 4.8 stays available to individual subscribers on annual plans.",
+    },
+    {
+      question: "Which Copilot surfaces lose these models?",
+      answer:
+        "GitHub's October 15, 2026 changelog says it will deprecate them across all GitHub Copilot experiences, including Copilot Chat, inline edits, ask and agent modes, and code completions.",
+    },
+    {
+      question: "What does GitHub suggest instead of GPT-5.6 Terra?",
+      answer:
+        "GitHub's changelog lists GPT-6.1 Sol or GPT-6 Luna. It does not say which one to pick. Claude Opus 4.8 and Claude Opus 5 both list Claude Opus 5.5.",
+    },
+    {
+      question: "What should a Copilot admin do before November 16, 2026?",
+      answer:
+        "GitHub says to update workflows and integrations before that date. Under default model enablement, the suggested alternatives are enabled for Copilot Enterprise and Copilot Business unless an administrator turned off the global default or disabled the model. If the global default is off, enable the alternatives in their model policies in Copilot settings. GitHub says users then see the model in the Copilot Chat model selector. GitHub says no action is required to remove the deprecated models.",
+    },
+  ];
+}
+
+export interface DeadlineAnchor {
+  href: string;
+  label: string;
+  date: string;
+}
+
+/** Upcoming /shutdowns/ pages, plus the November 30 OpenAI landing page. Anchor text includes model or product names. */
+export function nextDeadlineAnchors(events: ShutdownEvent[], providers: Provider[], day: string): DeadlineAnchor[] {
+  const links: DeadlineAnchor[] = orderShutdownEvents(events, day)
+    .filter((event) => event.date >= day)
+    .map((event) => ({
+      href: shutdownEventPath(event),
+      label: deadlineAnchorLabel(event, providers),
+      date: event.date,
+    }));
+  if (OPENAI_NOV30_DATE >= day) {
+    links.push({ href: OPENAI_NOV30_PATH, label: OPENAI_NOV30_LABEL, date: OPENAI_NOV30_DATE });
+  }
+  return links.sort((a, b) => a.date.localeCompare(b.date) || a.label.localeCompare(b.label));
+}
+
+function deadlineAnchorLabel(event: ShutdownEvent, providers: Provider[]): string {
+  if (event.slug === COPILOT_NOV16_SLUG) return COPILOT_NOV16_TITLE;
+  const provider = providerDisplayName(providers, event.provider);
+  const names = [...new Set(event.models.map((model) => model.display_name.trim()).filter(Boolean))];
+  const shown = names.slice(0, 3).join(", ");
+  const more = names.length > 3 ? `, and ${names.length - 3} more` : "";
+  return `${shown}${more} on ${provider}, ${longDate(event.date)}`;
+}
+
+export function copilotNov16Hit(models: ModelRecord[]): boolean {
+  return shutdownEvents(models).some((event) => event.slug === COPILOT_NOV16_SLUG);
 }
 
 function openAiShortAnswer(event: ShutdownEvent, day: string): string {
