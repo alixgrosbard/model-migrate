@@ -109,7 +109,9 @@ function parameterDescription(name: string): string {
     return "Provider id. The ids are listed in /api/v1/providers.json.";
   }
   if (name === "slug" || name === "from-slug" || name === "to-slug") return "Model URL slug.";
-  if (name === "model-id") return "Model id. Characters that are not safe in a URL are percent-encoded in the filename.";
+  if (name === "model-id") {
+    return "Model id as one path segment. Percent-encode with encodeURIComponent: colon is %3A, slash is %2F, space is %20, ( is %28, ) is %29. A colon or a slash may also be sent raw. Example: anthropic.claude-3-haiku-20240307-v1%3A0.";
+  }
   return name;
 }
 

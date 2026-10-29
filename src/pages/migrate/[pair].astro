@@ -4,6 +4,7 @@ import FaqList from "../../components/FaqList.astro";
 import MigrationCard from "../../components/MigrationCard.astro";
 import { loadMigrations, loadModels, loadProviders } from "../../lib/load.ts";
 import { clipMeta, migratePageTitle, replaceFaqs, replacementAnswer } from "../../lib/format.ts";
+import { NOINDEX_FOLLOW } from "../../lib/indexability.ts";
 import { migrateHub } from "../../lib/hubs.ts";
 import { migrateGraph } from "../../jsonld.ts";
 import { DEFAULT_SITE_URL } from "../../lib/site.ts";
@@ -37,6 +38,7 @@ const breakingRules = breakingChangesForMigration(Astro.params.pair ?? "");
 <Base
   title={migratePageTitle(from, to, models, provider.name, toProvider?.name ?? to.provider)}
   description={description}
+  robots={NOINDEX_FOLLOW}
   image={`/og/models/${from.provider}/${from.slug}.svg`}
   crumbs={[
     { name: "Home", path: "/" },

@@ -4,10 +4,20 @@ import path from "node:path";
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { migrateGraph } from "../src/jsonld.ts";
-import { excludedPaths, excludeFromSitemap, isThinReplace } from "../src/lib/indexability.ts";
+import {
+  excludedPaths,
+  excludeFromSitemap,
+  includeInSitemap,
+  isConsolidatedLeaf,
+  modelPageIndexable,
+  NOINDEX_FOLLOW,
+  PRIORITY_SITEMAP_PATHS,
+  staleShutdownCutoff,
+  STALE_SHUTDOWN_MONTHS,
+} from "../src/lib/indexability.ts";
 import { lastmodForUrl } from "../src/lib/lastmod.ts";
 import { featuredErrorLinks, featuredModelLinks } from "../src/lib/featured.ts";
-import { guidesForModel } from "../src/lib/guides.ts";
+import { guidePath, guides, guidesForModel } from "../src/lib/guides.ts";
 import { loadMigrations, loadModels, loadProviders } from "../src/lib/load.ts";
 import {
   answerSentence,
@@ -20,7 +30,20 @@ import {
   uniqueVisibleName,
 } from "../src/lib/format.ts";
 import { monthKeyPath, shutdownMonthList, shutdownsInMonth } from "../src/lib/schedule.ts";
-import { modelsInMonth, shutdownMonths, topRetiringModels } from "../src/lib/growth.ts";
+import { modelsInMonth, questionPath, shutdownMonths, topRetiringModels } from "../src/lib/growth.ts";
+import { requestErrorPath, requestErrors } from "../src/lib/request-errors.ts";
+import {
+  COPILOT_NOV16_DESCRIPTION,
+  COPILOT_NOV16_TITLE,
+  batchChecklist,
+  batchDescription,
+  batchDocumentTitle,
+  batchHeadline,
+  batchLead,
+  nextDeadlineAnchors,
+  shutdownEventPath,
+  shutdownEvents,
+} from "../src/lib/shutdowns.ts";
 import { today } from "../src/lib/format.ts";
 import { llmsFull, llmsTxt } from "../src/lib/llms.ts";
 import {
@@ -98,17 +121,56 @@ describe("sitemap sections", () => {
 });
 
 describe("indexable pages", () => {
-  it("drops replacement pages with no successor and one-row months", async () => {
-    const models = await loadModels();
-    const thin = models.filter(isThinReplace);
-    const kept = models.filter((model) => !isThinReplace(model));
-    expect(thin.length).toBeGreaterThan(100);
-    expect(kept.length).toBeGreaterThan(100);
-    for (const model of thin) {
-      expect(excludeFromSitemap(`https://sunsetdiff.com/replace/${model.provider}/${model.slug}/`)).toBe(true);
-      expect(excludeFromSitemap(`https://sunsetdiff.com/models/${model.provider}/${model.slug}/`)).toBe(false);
+  it("noindexes migrate, replace, and question leaves, and stale or empty model pages", async () => {
+    const [models, migrations] = await Promise.all([loadModels(), loadMigrations()]);
+    const day = today();
+    const cutoff = staleShutdownCutoff(day);
+    expect(STALE_SHUTDOWN_MONTHS).toBe(6);
+    expect(cutoff < day).toBe(true);
+    expect(NOINDEX_FOLLOW).toBe("noindex,follow");
+    expect(modelPageIndexable({ shutdown_date: cutoff, shutdown_date_kind: "exact", region_or_platform_notes: null }, day)).toBe(true);
+    expect(modelPageIndexable({ shutdown_date: "2020-01-01", shutdown_date_kind: "exact", region_or_platform_notes: "a note" }, day)).toBe(false);
+    expect(modelPageIndexable({ shutdown_date: null, shutdown_date_kind: "none", region_or_platform_notes: null }, day)).toBe(false);
+    expect(modelPageIndexable({ shutdown_date: null, shutdown_date_kind: "none", region_or_platform_notes: "   " }, day)).toBe(false);
+    expect(modelPageIndexable({ shutdown_date: null, shutdown_date_kind: "none", region_or_platform_notes: "Sources disagree." }, day)).toBe(true);
+
+    let stale = 0;
+    let recent = 0;
+    let undatedThin = 0;
+    let undatedUnique = 0;
+    for (const model of models) {
+      const indexable = modelPageIndexable(model, day);
+      const modelPath = `/models/${model.provider}/${model.slug}/`;
+      const replacePath = `/replace/${model.provider}/${model.slug}/`;
+      expect(isConsolidatedLeaf(replacePath)).toBe(true);
+      expect(includeInSitemap(replacePath)).toBe(false);
+      expect(excludeFromSitemap(`https://sunsetdiff.com${modelPath}`)).toBe(!indexable);
+      if (model.shutdown_date && model.shutdown_date_kind !== "none") {
+        if (model.shutdown_date >= cutoff) recent += 1;
+        else stale += 1;
+      } else if (model.region_or_platform_notes?.trim()) undatedUnique += 1;
+      else undatedThin += 1;
     }
-    expect(excludeFromSitemap(`https://sunsetdiff.com/replace/${kept[0].provider}/${kept[0].slug}/`)).toBe(false);
+    expect(stale).toBeGreaterThan(100);
+    expect(recent).toBeGreaterThan(100);
+    expect(undatedThin).toBeGreaterThan(10);
+    expect(undatedUnique).toBeGreaterThan(10);
+
+    for (const migration of migrations) {
+      const leaf = `/migrate/${migration.from.provider}__${migration.from.slug}__to__${migration.to.provider}__${migration.to.slug}/`;
+      expect(isConsolidatedLeaf(leaf)).toBe(true);
+      expect(includeInSitemap(leaf)).toBe(false);
+    }
+    expect(includeInSitemap("/migrate/")).toBe(true);
+    expect(includeInSitemap("/replace/")).toBe(true);
+    expect(includeInSitemap("/questions/")).toBe(true);
+    expect(isConsolidatedLeaf("/migrate/")).toBe(false);
+
+    for (const model of topRetiringModels(models, day, 40)) {
+      expect(includeInSitemap(questionPath(model, "deprecated"))).toBe(false);
+      expect(includeInSitemap(questionPath(model, "shutdown-date"))).toBe(false);
+    }
+
     const paths = excludedPaths(models);
     let deadlineThin = 0;
     for (const month of shutdownMonths(models)) {
@@ -125,7 +187,41 @@ describe("indexable pages", () => {
     }
     expect(deadlineThin).toBeGreaterThan(0);
     expect(scheduleThin).toBeGreaterThan(0);
-    expect(paths.size).toBe(thin.length + deadlineThin + scheduleThin);
+
+    for (const asset of ["/feed.xml", "/deadlines.ics", "/openapi.json", "/server.json", "/data/models.json", "/data/deprecations.csv"]) {
+      expect(includeInSitemap(asset)).toBe(false);
+    }
+    expect(PRIORITY_SITEMAP_PATHS).toHaveLength(28);
+    for (const pathname of PRIORITY_SITEMAP_PATHS) {
+      expect(includeInSitemap(pathname)).toBe(true);
+      expect(lastmodForUrl(`https://sunsetdiff.com${pathname}`)).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    }
+    for (const event of shutdownEvents(models)) {
+      if (event.date < day) continue;
+      expect(includeInSitemap(shutdownEventPath(event))).toBe(true);
+    }
+    for (const guide of guides) expect(includeInSitemap(guidePath(guide.slug))).toBe(true);
+    for (const page of requestErrors) expect(includeInSitemap(requestErrorPath(page.slug))).toBe(true);
+
+    const copilot = shutdownEvents(models).find((event) => event.slug === "github-copilot-2026-11-16");
+    expect(copilot).toBeTruthy();
+    expect(batchDocumentTitle("GitHub Copilot", copilot!, day)).toBe(COPILOT_NOV16_TITLE);
+    expect(batchHeadline("GitHub Copilot", copilot!, day)).toBe("GitHub Copilot models shutting down November 16, 2026");
+    expect(batchDescription("GitHub Copilot", copilot!, day)).toBe(COPILOT_NOV16_DESCRIPTION);
+    const lead = batchLead("GitHub Copilot", copilot!, day);
+    expect(lead).toContain("Copilot Chat, inline edits, ask and agent modes, and code completions");
+    expect(lead).toContain("does not prefer one");
+    expect(lead).toContain("does not publish a separate API id");
+    expect(lead).toContain("SunsetDiff is not GitHub");
+    expect(lead).not.toContain("Requests start failing");
+    const steps = batchChecklist(copilot!, day).join(" ");
+    expect(steps).toContain("model policies");
+    expect(steps).toContain("Copilot Chat model selector");
+    expect(steps).not.toContain("scan");
+    const anchors = nextDeadlineAnchors(shutdownEvents(models), await loadProviders(), day);
+    expect(anchors.some((item) => item.href === "/shutdowns/github-copilot-2026-11-16/" && item.label === COPILOT_NOV16_TITLE)).toBe(true);
+    expect(anchors.some((item) => item.href === "/openai-evals-agent-builder-prompts-shutdown-nov-30-2026/")).toBe(true);
+    expect(anchors.every((item) => item.date >= day)).toBe(true);
   });
 });
 

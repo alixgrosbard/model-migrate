@@ -5,6 +5,7 @@ import { loadMigrations, loadModels, loadProviders } from "../../../../lib/load.
 import { clipMeta, questionPageTitle, today } from "../../../../lib/format.ts";
 import { deprecatedFaqs, questionPath, shutdownFaqs, topRetiringModels } from "../../../../lib/growth.ts";
 import { questionGraph } from "../../../../jsonld.ts";
+import { NOINDEX_FOLLOW } from "../../../../lib/indexability.ts";
 import { DEFAULT_SITE_URL } from "../../../../lib/site.ts";
 
 export async function getStaticPaths() {
@@ -37,6 +38,7 @@ const other = kind === "deprecated" ? "shutdown-date" : "deprecated";
     { name: title, path: questionPath(model, kind) },
   ]}
   extraGraph={questionGraph(site, model, provider, kind, migration, models)}
+  robots={NOINDEX_FOLLOW}
 >
   <h1>{title}</h1>
   <p class="answer">{faqs[0]?.answer}</p>

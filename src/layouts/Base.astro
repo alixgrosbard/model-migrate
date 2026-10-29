@@ -2,7 +2,6 @@
 import "../styles/global.css";
 import { breadcrumb, graph, websiteGraph } from "../jsonld.ts";
 import { loadModels, loadProviders } from "../lib/load.ts";
-import { monthLabel, shutdownMonths } from "../lib/growth.ts";
 import { shutdownYearList, yearPath } from "../lib/schedule.ts";
 import { HUBS } from "../lib/hubs.ts";
 import { STATUS_HUBS } from "../lib/status-hubs.ts";
@@ -22,9 +21,7 @@ interface Props {
 }
 const { title, description, crumbs, extraGraph = [], image = "/og/sunsetdiff.svg", robots, canonicalPath, refresh } = Astro.props;
 const providers = await loadProviders();
-const models = await loadModels();
-const months = shutdownMonths(models);
-const years = shutdownYearList(models);
+const years = shutdownYearList(await loadModels());
 const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
 const canonical = new URL(canonicalPath ?? Astro.url.pathname, site).href;
 const imageUrl = new URL(image, site).href;
@@ -91,9 +88,6 @@ const jsonld = graph([...websiteGraph(site), breadcrumb(site, crumbs), ...extraG
         <a href="/alerts/">Alerts</a>
         <a href="/sponsor/">Sponsor</a>
       </nav>
-      <nav class="months" aria-label="Shutdown months">
-        {months.map((month) => <a href={`/deadlines/${month}/`}>{monthLabel(month)}</a>)}
-      </nav>
     </header>
     <main id="content">
       {crumbs.length > 1 ? (
@@ -140,9 +134,6 @@ const jsonld = graph([...websiteGraph(site), breadcrumb(site, crumbs), ...extraG
         <a href="/integrations/">Integrations</a>
         <a href="/alternatives/">Compare</a>
         <a href="/pro/">Pro</a>
-      </nav>
-      <nav class="months" aria-label="Shutdown months">
-        {months.map((month) => <a href={`/deadlines/${month}/`}>{monthLabel(month)}</a>)}
       </nav>
       <nav aria-label="Shutdown years">
         {years.map((year) => <a href={yearPath(year)}>{year}</a>)}

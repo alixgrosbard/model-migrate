@@ -11,7 +11,15 @@ import { loadModels, loadProviders } from "../src/lib/load.ts";
 import { siteOrigin } from "../src/lib/site.ts";
 import { HUBS } from "../src/lib/hubs.ts";
 import { today } from "../src/lib/format.ts";
-import { isPastShutdown, shutdownEventPath, shutdownEvents } from "../src/lib/shutdowns.ts";
+import {
+  COPILOT_NOV16_DESCRIPTION,
+  COPILOT_NOV16_PATH,
+  COPILOT_NOV16_TITLE,
+  isPastShutdown,
+  nextDeadlineAnchors,
+  shutdownEventPath,
+  shutdownEvents,
+} from "../src/lib/shutdowns.ts";
 import { GUIDES_CHECKED, guideChecked, guidePath, guides } from "../src/lib/guides.ts";
 import { FRAMEWORKS_CHECKED, FRAMEWORKS_INDEX, frameworkChatShutdowns, frameworkPath, frameworks } from "../src/lib/frameworks.ts";
 import { GLOSSARY_CHECKED, GLOSSARY_INDEX, glossaryPath, glossaryTerms } from "../src/lib/glossary.ts";
@@ -43,9 +51,16 @@ import SwaggerParser from "@apidevtools/swagger-parser";
 import { ENDPOINTS } from "../src/lib/endpoints.ts";
 import { OPENAPI_PATH, OPENAPI_SERVER, openApiPath } from "../src/lib/openapi.ts";
 import { providerStatusTargets } from "../src/lib/status-hubs.ts";
-import { excludedPaths, isThinReplace } from "../src/lib/indexability.ts";
+import {
+  CANONICAL_ALIAS_PATHS,
+  excludedPaths,
+  includeInSitemap,
+  modelPageIndexable,
+  NOINDEX_FOLLOW,
+  PRIORITY_SITEMAP_PATHS,
+} from "../src/lib/indexability.ts";
 import { SITEMAP_SECTION_FILES } from "../src/lib/sitemaps.ts";
-import { modelsInMonth, shutdownMonths } from "../src/lib/growth.ts";
+import { modelsInMonth, questionPath, shutdownMonths, topRetiringModels } from "../src/lib/growth.ts";
 
 const dist = path.join(process.cwd(), "dist");
 const required = [
@@ -172,6 +187,11 @@ async function main() {
     if (!home.includes(`"${type}"`) && !home.includes(type)) throw new Error(`Home JSON-LD missing ${type}`);
   }
   if (!home.includes("/shutdowns/")) throw new Error("Home page is missing the shutdown batches link");
+  if (!home.includes(">Next deadlines<")) throw new Error("Home page is missing the Next deadlines block");
+  if ((home.match(/aria-label="Shutdown months"/g) ?? []).length !== 0) {
+    throw new Error("Month links should not be repeated in the header or footer");
+  }
+  if (!home.includes('href="/deadlines/"')) throw new Error("Home page is missing the deadlines link");
   const deadlines = await readFile(path.join(dist, "deadlines/index.html"), "utf8");
   if (!deadlines.includes("/shutdowns/")) throw new Error("Deadlines page is missing the shutdown batches link");
   const dataPage = await readFile(path.join(dist, "data/index.html"), "utf8");
@@ -233,6 +253,7 @@ async function main() {
   const llmsFull = await readFile(path.join(dist, "llms-full.txt"), "utf8");
   await checkRegistryAuth(sitemap);
   await checkHubs(sitemap, llms, llmsFull);
+  await checkCrawlPriority(sitemap);
   await checkStatusPages(sitemap, llms, llmsFull);
   await checkSchedule(sitemap, llms, llmsFull);
   if (!llmsFull.includes("/alternatives/")) throw new Error("llms-full.txt is missing /alternatives/");
@@ -289,8 +310,8 @@ async function main() {
     if (!breakingHub.includes(rule.source_url)) throw new Error(`Breaking changes hub is missing the source for ${rule.id}`);
   }
   if (!sitemap.includes(BREAKING_CHANGES_PATH)) throw new Error("Sitemap is missing /breaking-changes/");
-  if (!sitemap.includes(BREAKING_CHANGES_JSON)) throw new Error("Sitemap is missing breaking-changes.json");
-  if (!sitemap.includes(BREAKING_CHANGES_CSV)) throw new Error("Sitemap is missing breaking-changes.csv");
+  if (sitemap.includes(BREAKING_CHANGES_JSON)) throw new Error("Sitemap includes breaking-changes.json");
+  if (sitemap.includes(BREAKING_CHANGES_CSV)) throw new Error("Sitemap includes breaking-changes.csv");
   if (!llms.includes(BREAKING_CHANGES_PATH) || !llms.includes(BREAKING_CHANGES_JSON)) {
     throw new Error("llms.txt is missing the breaking changes list");
   }
@@ -456,6 +477,12 @@ async function main() {
       if (html.includes("shutting down") || html.includes("shuts down") || html.includes("start failing")) {
         throw new Error(`Past shutdown page still uses future wording: ${rel}`);
       }
+    } else if (event.slug === "github-copilot-2026-11-16") {
+      if (!html.includes("shutting down")) throw new Error(`Copilot page is missing the shutdown headline: ${rel}`);
+      if (!html.includes("Copilot Chat, inline edits, ask and agent modes, and code completions")) {
+        throw new Error(`Copilot page is missing GitHub's surface list: ${rel}`);
+      }
+      if (html.includes("start failing")) throw new Error(`Copilot page still uses API failure wording: ${rel}`);
     } else {
       if (!html.includes("shutting down") || !html.includes("start failing")) {
         throw new Error(`Upcoming shutdown page is missing future wording: ${rel}`);
@@ -602,15 +629,35 @@ async function checkHubs(sitemap: string, llms: string, llmsFull: string) {
   for (const model of models) {
     const rel = path.join("replace", model.provider, model.slug, "index.html");
     const html = await readFile(path.join(dist, rel), "utf8");
-    const thin = isThinReplace(model);
     const loc = `/replace/${model.provider}/${model.slug}/</loc>`;
-    if (thin) {
-      if (!html.includes('name="robots" content="noindex"')) throw new Error(`Thin replace page is indexable: ${rel}`);
-      if (sitemap.includes(loc)) throw new Error(`Sitemap includes thin replace page /replace/${model.provider}/${model.slug}/`);
-    } else if (html.includes('name="robots" content="noindex"')) {
-      throw new Error(`Replace page with a successor is noindex: ${rel}`);
-    } else if (!sitemap.includes(loc)) {
-      throw new Error(`Sitemap is missing /replace/${model.provider}/${model.slug}/`);
+    if (!html.includes(`name="robots" content="${NOINDEX_FOLLOW}"`)) throw new Error(`Replace page is indexable: ${rel}`);
+    if (sitemap.includes(loc)) throw new Error(`Sitemap includes replace page /replace/${model.provider}/${model.slug}/`);
+    const modelRel = path.join("models", model.provider, model.slug, "index.html");
+    const modelHtml = await readFile(path.join(dist, modelRel), "utf8");
+    const modelLoc = `/models/${model.provider}/${model.slug}/</loc>`;
+    const indexable = modelPageIndexable(model, today());
+    if (indexable) {
+      if (modelHtml.includes('name="robots" content="noindex')) throw new Error(`Recent model page is noindex: ${modelRel}`);
+      if (!sitemap.includes(modelLoc)) throw new Error(`Sitemap is missing /models/${model.provider}/${model.slug}/`);
+    } else {
+      if (!modelHtml.includes(`name="robots" content="${NOINDEX_FOLLOW}"`)) throw new Error(`Stale model page is indexable: ${modelRel}`);
+      if (sitemap.includes(modelLoc)) throw new Error(`Sitemap includes stale model page /models/${model.provider}/${model.slug}/`);
+    }
+  }
+  for (const row of migrations) {
+    const pair = `${row.from.provider}__${row.from.slug}__to__${row.to.provider}__${row.to.slug}`;
+    const leaf = `/migrate/${pair}/`;
+    if (CANONICAL_ALIAS_PATHS.has(leaf)) continue;
+    const html = await readFile(path.join(dist, "migrate", pair, "index.html"), "utf8");
+    if (!html.includes(`name="robots" content="${NOINDEX_FOLLOW}"`)) throw new Error(`Migrate page is indexable: ${leaf}`);
+    if (sitemap.includes(`${leaf}</loc>`)) throw new Error(`Sitemap includes migrate page ${leaf}`);
+  }
+  for (const model of topRetiringModels(models, today(), 40)) {
+    for (const kind of ["deprecated", "shutdown-date"] as const) {
+      const leaf = questionPath(model, kind);
+      const html = await readFile(path.join(dist, leaf.slice(1), "index.html"), "utf8");
+      if (!html.includes(`name="robots" content="${NOINDEX_FOLLOW}"`)) throw new Error(`Question page is indexable: ${leaf}`);
+      if (sitemap.includes(`${leaf}</loc>`)) throw new Error(`Sitemap includes question page ${leaf}`);
     }
   }
   const thinPaths = excludedPaths(models);
@@ -619,8 +666,8 @@ async function checkHubs(sitemap: string, llms: string, llmsFull: string) {
     const html = await readFile(path.join(dist, "deadlines", month, "index.html"), "utf8");
     const thin = modelsInMonth(models, month).length < 2;
     if (thin !== thinPaths.has(deadline)) throw new Error(`Deadline thin flag mismatch for ${deadline}`);
-    if (thin && !html.includes('name="robots" content="noindex"')) throw new Error(`${deadline} should be noindex`);
-    if (!thin && html.includes('name="robots" content="noindex"')) throw new Error(`${deadline} should stay indexable`);
+    if (thin && !html.includes(`name="robots" content="${NOINDEX_FOLLOW}"`)) throw new Error(`${deadline} should be noindex`);
+    if (!thin && html.includes('name="robots" content="noindex')) throw new Error(`${deadline} should stay indexable`);
     if (thin && sitemap.includes(`${deadline}</loc>`)) throw new Error(`Sitemap includes thin deadline ${deadline}`);
     if (!thin && !sitemap.includes(`${deadline}</loc>`)) throw new Error(`Sitemap is missing ${deadline}`);
   }
@@ -629,8 +676,8 @@ async function checkHubs(sitemap: string, llms: string, llmsFull: string) {
     const html = await readFile(path.join(dist, page.slice(1), "index.html"), "utf8");
     const thin = shutdownsInMonth(models, month).length < 2;
     if (thin !== thinPaths.has(page)) throw new Error(`Month thin flag mismatch for ${page}`);
-    if (thin && !html.includes('name="robots" content="noindex"')) throw new Error(`${page} should be noindex`);
-    if (!thin && html.includes('name="robots" content="noindex"')) throw new Error(`${page} should stay indexable`);
+    if (thin && !html.includes(`name="robots" content="${NOINDEX_FOLLOW}"`)) throw new Error(`${page} should be noindex`);
+    if (!thin && html.includes('name="robots" content="noindex')) throw new Error(`${page} should stay indexable`);
     if (thin && sitemap.includes(`${page}</loc>`)) throw new Error(`Sitemap includes thin month ${page}`);
   }
   const gpt4o = await readFile(path.join(dist, "models/openai/gpt-4o/index.html"), "utf8");
@@ -649,11 +696,13 @@ async function checkHubs(sitemap: string, llms: string, llmsFull: string) {
 async function checkStatusPages(sitemap: string, llms: string, llmsFull: string) {
   const [models, providers] = await Promise.all([loadModels(), loadProviders()]);
   const origin = siteOrigin();
-  for (const page of ["/deprecated/", "/retired/", OPENAPI_PATH]) {
+  for (const page of ["/deprecated/", "/retired/"]) {
     if (!sitemap.includes(`${origin}${page}`)) throw new Error(`Sitemap is missing ${page}`);
     if (!llms.includes(page)) throw new Error(`llms.txt is missing ${page}`);
     if (!llmsFull.includes(page)) throw new Error(`llms-full.txt is missing ${page}`);
   }
+  if (sitemap.includes(`${origin}${OPENAPI_PATH}`)) throw new Error("Sitemap includes openapi.json");
+  if (!llms.includes(OPENAPI_PATH) || !llmsFull.includes(OPENAPI_PATH)) throw new Error("llms files are missing openapi.json");
   const locs = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => new URL(match[1]).pathname);
   for (const provider of providers) {
     if (locs.includes(`/${provider.id}/`)) throw new Error(`Sitemap includes shortcut /${provider.id}/`);
@@ -973,13 +1022,103 @@ async function checkDiscovery(sitemap: string, llms: string, llmsFull: string) {
   }
   const api = await readFile(path.join(dist, "api/index.html"), "utf8");
   if (!api.includes("/mcp/") || !api.includes(MCP_ENDPOINT)) throw new Error("API page is missing the MCP server");
-  for (const rel of ["/mcp/</loc>", "/integrations/</loc>", "/server.json</loc>"]) {
+  for (const rel of ["/mcp/</loc>", "/integrations/</loc>"]) {
     if (!sitemap.includes(rel)) throw new Error(`Sitemap is missing ${rel}`);
   }
+  if (sitemap.includes("/server.json</loc>")) throw new Error("Sitemap includes server.json");
   for (const rel of ["/mcp/", "/integrations/", "/server.json", MCP_ENDPOINT]) {
     if (!llms.includes(rel)) throw new Error(`llms.txt is missing ${rel}`);
     if (!llmsFull.includes(rel)) throw new Error(`llms-full.txt is missing ${rel}`);
   }
+}
+
+async function checkCrawlPriority(sitemap: string) {
+  const origin = siteOrigin();
+  const robots = await readFile(path.join(dist, "robots.txt"), "utf8");
+  if (!robots.includes(`Sitemap: ${origin}/sitemap-index.xml`)) throw new Error("robots.txt must point at the sitemap index");
+  const models = await loadModels();
+  const day = today();
+  for (const pathname of PRIORITY_SITEMAP_PATHS) {
+    const loc = `${origin}${pathname}`;
+    if (!sitemap.includes(`${loc}</loc>`)) throw new Error(`Sitemap is missing priority URL ${pathname}`);
+    if (!includeInSitemap(pathname)) throw new Error(`Priority URL is excluded from the sitemap: ${pathname}`);
+    const file = pathname === "/" ? "index.html" : path.join(pathname.slice(1), "index.html");
+    const html = await readFile(path.join(dist, file), "utf8");
+    if (html.includes('name="robots" content="noindex')) throw new Error(`Priority URL is noindex: ${pathname}`);
+    const block = sitemap.slice(sitemap.indexOf(`<loc>${loc}</loc>`), sitemap.indexOf(`<loc>${loc}</loc>`) + 220);
+    if (!/<lastmod>\d{4}-\d{2}-\d{2}<\/lastmod>/.test(block)) throw new Error(`Priority URL is missing a real lastmod: ${pathname}`);
+  }
+  for (const asset of [
+    "/feed.xml",
+    "/deadlines.ics",
+    "/openapi.json",
+    "/server.json",
+    "/data/models.json",
+    "/data/deprecations.csv",
+    "/data/changelog.json",
+    "/data/breaking-changes.json",
+    "/data/breaking-changes.csv",
+    "/calendar.ics",
+    "/rss.xml",
+  ]) {
+    if (sitemap.includes(`${asset}</loc>`)) throw new Error(`Sitemap includes non-HTML file ${asset}`);
+  }
+  for (const event of shutdownEvents(models)) {
+    if (event.date < day) continue;
+    const leaf = shutdownEventPath(event);
+    if (!sitemap.includes(`${origin}${leaf}</loc>`)) throw new Error(`Sitemap is missing upcoming shutdown ${leaf}`);
+  }
+  for (const guide of guides) {
+    const leaf = guidePath(guide.slug);
+    if (!sitemap.includes(`${origin}${leaf}</loc>`)) throw new Error(`Sitemap is missing guide ${leaf}`);
+  }
+  for (const page of requestErrors) {
+    const leaf = requestErrorPath(page.slug);
+    if (!sitemap.includes(`${origin}${leaf}</loc>`)) throw new Error(`Sitemap is missing error page ${leaf}`);
+  }
+  const copilot = await readFile(path.join(dist, "shutdowns/github-copilot-2026-11-16/index.html"), "utf8");
+  if (!copilot.includes(`<title>${COPILOT_NOV16_TITLE} | SunsetDiff</title>`)) throw new Error("Copilot page title is missing the model names");
+  if (!copilot.includes("<h1>GitHub Copilot models shutting down November 16, 2026</h1>")) {
+    throw new Error("Copilot page H1 changed");
+  }
+  if (!copilot.includes(`content="${COPILOT_NOV16_DESCRIPTION}"`)) throw new Error("Copilot meta description is missing");
+  if (!copilot.includes("Last checked:")) throw new Error("Copilot page is missing Last checked");
+  if (copilot.includes("Requests start failing") || copilot.includes("Requests to these models start failing")) {
+    throw new Error("Copilot page still uses API failure wording");
+  }
+  if (copilot.includes("SunsetDiff recommends")) throw new Error("Copilot page must not present SunsetDiff as official");
+  const upcoming = await readFile(path.join(dist, "upcoming/index.html"), "utf8");
+  const november = await readFile(path.join(dist, "deadlines/2026-11/index.html"), "utf8");
+  const provider = await readFile(path.join(dist, "providers/github-copilot/index.html"), "utf8");
+  const opus = await readFile(path.join(dist, "models/github-copilot/claude-opus-4-8/index.html"), "utf8");
+  const opus5 = await readFile(path.join(dist, "models/github-copilot/claude-opus-5/index.html"), "utf8");
+  const terra = await readFile(path.join(dist, "models/github-copilot/gpt-5-6-terra/index.html"), "utf8");
+  for (const [name, html] of [
+    ["upcoming", upcoming],
+    ["november", november],
+    ["provider", provider],
+    ["opus", opus],
+    ["opus5", opus5],
+    ["terra", terra],
+  ] as const) {
+    if (!html.includes(`href="${COPILOT_NOV16_PATH}"`) || !html.includes(COPILOT_NOV16_TITLE)) {
+      throw new Error(`${name} is missing the Copilot November 16 link`);
+    }
+  }
+  if (!november.includes('"CollectionPage"') || !november.includes('"ItemList"')) {
+    throw new Error("November deadlines page is missing CollectionPage or ItemList");
+  }
+  const home = await readFile(path.join(dist, "index.html"), "utf8");
+  const anchors = nextDeadlineAnchors(shutdownEvents(models), await loadProviders(), day);
+  for (const anchor of anchors) {
+    if (!home.includes(`href="${anchor.href}"`) || !home.includes(anchor.label)) {
+      throw new Error(`Homepage Next deadlines is missing ${anchor.href}`);
+    }
+  }
+  const gpt4 = await readFile(path.join(dist, "replace/openai/gpt-4/index.html"), "utf8");
+  if (!gpt4.includes(`name="robots" content="${NOINDEX_FOLLOW}"`)) throw new Error("gpt-4 replace page should be noindex,follow");
+  if (!gpt4.includes("<h1>")) throw new Error("gpt-4 replace page did not render");
+  if (sitemap.includes("/replace/openai/gpt-4/</loc>")) throw new Error("Sitemap includes the gpt-4 replace page");
 }
 
 async function walk(dir: string): Promise<string[]> {

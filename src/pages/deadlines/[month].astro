@@ -1,7 +1,11 @@
 ---
 import Base from "../../layouts/Base.astro";
+import { collectionGraph } from "../../jsonld.ts";
 import { loadModels, loadProviders, providerName } from "../../lib/load.ts";
-import { formatWindowDate, modelsInMonth, monthLabel, shutdownMonths } from "../../lib/growth.ts";
+import { formatWindowDate, modelsInMonth, monthLabel, publicName, shutdownMonths } from "../../lib/growth.ts";
+import { NOINDEX_FOLLOW } from "../../lib/indexability.ts";
+import { COPILOT_NOV16_PATH, COPILOT_NOV16_TITLE, copilotNov16Hit } from "../../lib/shutdowns.ts";
+import { DEFAULT_SITE_URL } from "../../lib/site.ts";
 
 export async function getStaticPaths() {
   const months = shutdownMonths(await loadModels());
@@ -11,16 +15,31 @@ export async function getStaticPaths() {
 const month = Astro.params.month ?? "";
 if (!/^\d{4}-\d{2}$/.test(month)) throw new Error("Missing month");
 const providers = await loadProviders();
-const rows = modelsInMonth(await loadModels(), month);
+const models = await loadModels();
+const rows = modelsInMonth(models, month);
 const label = monthLabel(month);
+const description = `Models with a published shutdown date in ${label}. Dates come from official provider pages.`;
+const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
+const showCopilot = month === "2026-11" && copilotNov16Hit(models);
 ---
 <Base
   title={`AI model shutdowns in ${label} | SunsetDiff`}
-  description={`Models with a published shutdown date in ${label}. Dates come from official provider pages.`}
-  robots={rows.length < 2 ? "noindex" : undefined}
+  description={description}
+  robots={rows.length < 2 ? NOINDEX_FOLLOW : undefined}
   crumbs={[{ name: "Home", path: "/" }, { name: "Deadlines", path: "/deadlines/" }, { name: label, path: `/deadlines/${month}/` }]}
+  extraGraph={collectionGraph(
+    site,
+    { path: `/deadlines/${month}/`, name: `AI model shutdowns in ${label}`, description },
+    rows.map((model) => ({
+      name: publicName(model),
+      path: `/models/${model.provider}/${model.slug}/`,
+    })),
+  )}
 >
   <h1>Shutdowns in {label}</h1>
+  {showCopilot ? (
+    <p><a href={COPILOT_NOV16_PATH}>{COPILOT_NOV16_TITLE}</a></p>
+  ) : null}
   <p>
     Each row is a date published on an official page. "Not sooner than" is a floor, not a confirmed shutdown day.
     <a href="/deadlines/">All deadlines</a> · <a href="/deadlines.ics">iCal</a> · <a href="/feed.xml">RSS</a>

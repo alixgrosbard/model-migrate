@@ -437,7 +437,11 @@ export const ENDPOINTS: EndpointDoc[] = [
     format: "application/json",
     summary: "The model record for that id. If several providers use the same id, the file is an array of records.",
     fields: [{ name: "(model or array)", detail: "One model record, or an array of model records that share the id." }],
-    notes: ["The filename is the model id. Characters that are not safe in a URL are percent-encoded."],
+    notes: [
+      "The model id is one path segment. Percent-encode it with encodeURIComponent. A colon is %3A, a slash is %2F, a space is %20, and parentheses are %28 and %29.",
+      "A colon may also be sent raw. /api/v1/lookup/anthropic.claude-3-haiku-20240307-v1%3A0.json and /api/v1/lookup/anthropic.claude-3-haiku-20240307-v1:0.json are the same record.",
+      "A slash may be %2F in that one segment, or a real slash. /api/v1/lookup/accounts%2Ffireworks%2Fmodels%2Fdeepseek-v4-pro.json and /api/v1/lookup/accounts/fireworks/models/deepseek-v4-pro.json are the same record.",
+    ],
     body: "json",
   },
   {

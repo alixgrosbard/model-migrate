@@ -19,6 +19,8 @@ import { breakingChangesForModel } from "../../../lib/breaking-changes.ts";
 import { REQUEST_ERRORS_INDEX, requestErrorPath, requestErrorsForModel } from "../../../lib/request-errors.ts";
 import { guidesForModel } from "../../../lib/guides.ts";
 import { replacementRetirement } from "../../../lib/replacement-chain.ts";
+import { modelRobots } from "../../../lib/indexability.ts";
+import { COPILOT_NOV16_PATH, COPILOT_NOV16_SLUG, COPILOT_NOV16_TITLE, shutdownEvents } from "../../../lib/shutdowns.ts";
 
 export async function getStaticPaths() {
   const models = await loadModels();
@@ -46,6 +48,9 @@ const restrictedAccess = gemini25Restricted(model);
 const disagree = disagreementNote(model.region_or_platform_notes);
 const regionNote = noteWithoutDisagreement(model.region_or_platform_notes);
 const retiringReplacements = replacementRetirement(model, models);
+const onCopilotNov16 = shutdownEvents(models).some(
+  (event) => event.slug === COPILOT_NOV16_SLUG && event.models.some((item) => item.provider === model.provider && item.slug === model.slug),
+);
 const statusLabel = alias?.badgeMessage ?? autoRouteStatusText(model) ?? (restrictedAccess ? "existing users only" : model.status);
 const specRows: [string, string, string][] = [
   ["Input price / 1M", money(model.specs.input_price_per_mtok), "input_price_per_mtok"],
@@ -69,9 +74,13 @@ const specRows: [string, string, string][] = [
     { name: publicName(model), path: `/models/${model.provider}/${model.slug}/` },
   ]}
   extraGraph={modelGraph(site, model, provider, migration, models)}
+  robots={modelRobots(model)}
 >
   <h1>When is {pageName} shut down?</h1>
   <p class="answer">{answer}</p>
+  {onCopilotNov16 ? (
+    <p><a href={COPILOT_NOV16_PATH}>{COPILOT_NOV16_TITLE}</a></p>
+  ) : null}
   {disagree ? (
     <p class="answer">
       <InlineText text={disagree} />

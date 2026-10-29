@@ -25,6 +25,7 @@ import { SHORTCUT_MARKER, contentAliasFiles, shortcutFiles } from "../src/lib/sh
 import { replacementApiFields } from "../src/lib/replacement-chain.ts";
 import { canonicalizeModel } from "../src/lib/stable-export.ts";
 import { featuredModelLinks } from "../src/lib/featured.ts";
+import { lookupDiskPaths } from "../src/lib/lookup-path.ts";
 
 const site = siteOrigin();
 const publicDir = path.join(process.cwd(), "public");
@@ -39,6 +40,7 @@ async function main() {
   ]);
   await mkdir(path.join(publicDir, "api/v1/models"), { recursive: true });
   await mkdir(path.join(publicDir, "api/v1/migrations"), { recursive: true });
+  await rm(path.join(publicDir, "api/v1/lookup"), { recursive: true, force: true });
   await mkdir(path.join(publicDir, "api/v1/lookup"), { recursive: true });
   await mkdir(path.join(publicDir, "dataset"), { recursive: true });
   await mkdir(path.join(publicDir, "calendar"), { recursive: true });
@@ -120,7 +122,11 @@ async function main() {
     const body = list.length === 1
       ? { ...list[0], ...replacementApiFields(list[0], models) }
       : list.map((item) => ({ ...item, ...replacementApiFields(item, models) }));
-    await writeJson(path.join(publicDir, "api/v1/lookup", `${encodeURIComponent(id)}.json`), body);
+    for (const rel of lookupDiskPaths(id)) {
+      const file = path.join(publicDir, rel);
+      await mkdir(path.dirname(file), { recursive: true });
+      await writeJson(file, body);
+    }
   }
 
   const soonForLlms = models
