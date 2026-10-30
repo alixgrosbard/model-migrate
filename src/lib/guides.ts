@@ -1,5 +1,12 @@
 import type { ModelRecord } from "../schema.ts";
 import { aliasSnapshotView } from "./aliases.ts";
+import {
+  DECEMBER_11_GUIDE_SLUG,
+  datasetShutdownGuides,
+  isDecember11OpenAiShutdown,
+  isJanuary2027Gpt4Shutdown,
+  JANUARY_2027_GPT4_GUIDE_SLUG,
+} from "./dataset-guides.ts";
 import type { FaqItem } from "./format.ts";
 
 /** Day the official pages linked from the guides were read. */
@@ -156,7 +163,7 @@ export const guideHubFaqs: FaqItem[] = [
   },
 ];
 
-export const guides: GuidePage[] = [
+const guidePages: GuidePage[] = [
   {
     slug: "custom-gpt-retirement",
     title: "Custom GPT retirement | SunsetDiff",
@@ -2375,6 +2382,8 @@ main();
   },
 ];
 
+export const guides: GuidePage[] = [...guidePages, ...datasetShutdownGuides()];
+
 export function guideBySlug(slug: string | undefined): GuidePage | undefined {
   return guides.find((guide) => guide.slug === slug);
 }
@@ -2395,6 +2404,8 @@ export function guidesForModel(model: ModelRecord, catalog: ModelRecord[]): Mode
     seen.add(slug);
     links.push({ href: guidePath(slug), label: guide.h1 });
   };
+  if (isDecember11OpenAiShutdown(model)) add(DECEMBER_11_GUIDE_SLUG);
+  if (isJanuary2027Gpt4Shutdown(model)) add(JANUARY_2027_GPT4_GUIDE_SLUG);
   if (model.provider === "nvidia") add("nvidia-hosted-api-vs-nim-containers");
   if (aliasSnapshotView(model, catalog)) add("model-aliases-vs-pinned-snapshots");
   if (model.shutdown_date && model.shutdown_date_kind !== "none") {

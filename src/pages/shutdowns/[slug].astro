@@ -8,6 +8,7 @@ import { publicName } from "../../lib/growth.ts";
 import type { ModelRecord } from "../../schema.ts";
 import { today } from "../../lib/format.ts";
 import { DEFAULT_SITE_URL } from "../../lib/site.ts";
+import { guideBySlug, guidePath } from "../../lib/guides.ts";
 import { requestErrorPath, requestErrorsForShutdown } from "../../lib/request-errors.ts";
 import {
   eventCitations,
@@ -58,6 +59,13 @@ const alertPitch = "Get an email before your models shut down. Free.";
 const suggestBedrock = event.provider === "aws-bedrock" && event.date === "2026-11-13";
 const path = shutdownEventPath(event);
 const relatedErrors = requestErrorsForShutdown(event.provider, event.date);
+const shutdownGuide = guideBySlug(
+  event.slug === "openai-2026-12-11"
+    ? "openai-december-11-2026-shutdowns"
+    : event.slug === "openai-2027-01-14"
+      ? "openai-gpt-4-1-gpt-4o-shutdown-january-2027"
+      : undefined,
+);
 const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
 const rows = event.models.map((model) => ({
   model,
@@ -167,6 +175,12 @@ function bedrockSuggestions(model: ModelRecord): { href: string; label: string }
     <a href={`/providers/${provider.id}/`}>{name} on SunsetDiff</a>
     {" · "}
     <a href={`/deadlines/${event.date.slice(0, 7)}/`}>Shutdowns in {event.date.slice(0, 7)}</a>
+    {shutdownGuide ? (
+      <>
+        {" · "}
+        <a href={guidePath(shutdownGuide.slug)}>{shutdownGuide.h1}</a>
+      </>
+    ) : null}
   </p>
   {extras.answerFirst ? (
     <h2>
