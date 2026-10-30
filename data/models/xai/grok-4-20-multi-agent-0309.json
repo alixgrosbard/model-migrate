@@ -15,7 +15,7 @@
     {
       "url": "https://docs.x.ai/developers/models",
       "label": "xAI model docs",
-      "last_checked": "2026-10-29",
+      "last_checked": "2026-10-30",
       "excerpt": "k $2.00 $0.40 $4.00 grok-4.20-multi-agent-0309 (< 200k prompt tokens) 1M $1.25 $0.20 $2.50 grok-4.20-multi-agent-0309 (≥ 200k prompt tokens) 1M $2.50 $0.40 $5.00 *Prices shown per million tokens. Models listed with two rows use long context pricing:"
     }
   ],
@@ -41,31 +41,31 @@
     "specs_sources": {
       "batch_discount_pct": {
         "url": "https://docs.x.ai/developers/pricing",
-        "last_checked": "2026-10-29"
+        "last_checked": "2026-10-30"
       },
       "cached_input_price_per_mtok": {
         "url": "https://docs.x.ai/developers/models",
-        "last_checked": "2026-10-29"
+        "last_checked": "2026-10-30"
       },
       "context_window_tokens": {
         "url": "https://docs.x.ai/developers/models",
-        "last_checked": "2026-10-29"
+        "last_checked": "2026-10-30"
       },
       "input_price_per_mtok": {
         "url": "https://docs.x.ai/developers/models",
-        "last_checked": "2026-10-29"
+        "last_checked": "2026-10-30"
       },
       "output_price_per_mtok": {
         "url": "https://docs.x.ai/developers/models",
-        "last_checked": "2026-10-29"
+        "last_checked": "2026-10-30"
       },
       "supports_batch": {
         "url": "https://docs.x.ai/developers/pricing",
-        "last_checked": "2026-10-29"
+        "last_checked": "2026-10-30"
       },
       "supports_prompt_caching": {
         "url": "https://docs.x.ai/developers/models",
-        "last_checked": "2026-10-29"
+        "last_checked": "2026-10-30"
       }
     }
   },

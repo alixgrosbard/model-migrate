@@ -61,24 +61,24 @@
     "The official page did not publish a shutdown date for this id."
   ],
   "confidence": "partial",
-  "last_checked": "2026-10-29",
+  "last_checked": "2026-10-30",
   "sources": [
     {
       "url": "https://docs.cohere.com/docs/deprecations",
       "label": "Cohere model deprecations",
-      "last_checked": "2026-10-29",
+      "last_checked": "2026-10-30",
       "excerpt": "ll out. Deprecated Models: * `command-r-03-2024` (and the alias `command-r`) * `command-r-plus-04-2024` (and the alias `command-r-plus`) * `command-light` * `command` * `summarize` (Refer to [the migration g"
     },
     {
       "url": "https://docs.cohere.com/docs/models",
       "label": "Cohere model docs",
-      "last_checked": "2026-10-29",
+      "last_checked": "2026-10-30",
       "excerpt": "command-r-03-2024 Deprecated Sept 15, 2025 Command R is an instruction-following conversational model that performs language tasks at a higher quality, more reliably, and with a"
     },
     {
       "url": "https://docs.cohere.com/docs/models",
       "label": "Cohere model docs",
-      "last_checked": "2026-10-29",
+      "last_checked": "2026-10-30",
       "excerpt": "command-r-plus-08-2024 Live `command-r-plus-08-2024` is an update of the Command R+ model, delivered in August 2024. Find more information in the [changelog](https://docs.cohere.com/"
     }
   ]

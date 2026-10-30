@@ -22,7 +22,7 @@
     {
       "url": "https://console.groq.com/docs/deprecations",
       "label": "Groq model deprecations",
-      "last_checked": "2026-10-29",
+      "last_checked": "2026-10-30",
       "excerpt": "deepseek-r1-distill-qwen-32b | 2025-04-14 | qwen-qwq-32b"
     }
   ],

@@ -61,30 +61,30 @@
     "The linked changelog does not print a request sample."
   ],
   "confidence": "partial",
-  "last_checked": "2026-10-29",
+  "last_checked": "2026-10-30",
   "sources": [
     {
       "url": "https://docs.github.com/en/copilot/reference/ai-models/supported-models",
       "label": "GitHub Copilot supported models",
-      "last_checked": "2026-10-29",
+      "last_checked": "2026-10-30",
       "excerpt": "GPT-5.2-Codex | 2026-06-05 | Latest GPT Codex model"
     },
     {
       "url": "https://github.blog/changelog/2026-05-01-upcoming-deprecation-of-gpt-5-2-and-gpt-5-2-codex",
       "label": "GitHub Changelog",
-      "last_checked": "2026-10-29",
+      "last_checked": "2026-10-30",
       "excerpt": "GPT-5.2-Codex | GPT-5.3-Codex"
     },
     {
       "url": "https://github.blog/changelog/2026-06-05-gpt-5-2-and-gpt-5-2-codex-deprecated",
       "label": "GitHub Changelog",
-      "last_checked": "2026-10-29",
+      "last_checked": "2026-10-30",
       "excerpt": "GPT-5.2-Codex | GPT-5.3-Codex"
     },
     {
       "url": "https://github.blog/changelog/2026-06-05-gpt-5-2-and-gpt-5-2-codex-deprecated",
       "label": "Named as an official replacement",
-      "last_checked": "2026-10-29",
+      "last_checked": "2026-10-30",
       "excerpt": "Named as an official replacement for GPT-5.1."
     }
   ]

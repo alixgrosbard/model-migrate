@@ -61,24 +61,24 @@
     "Ship the change before the published shutdown date."
   ],
   "confidence": "partial",
-  "last_checked": "2026-10-29",
+  "last_checked": "2026-10-30",
   "sources": [
     {
       "url": "https://docs.x.ai/developers/migration/may-15-retirement",
       "label": "xAI model deprecations",
-      "last_checked": "2026-10-29",
+      "last_checked": "2026-10-30",
       "excerpt": "-fast-reasoning` * `grok-4-1-fast-non-reasoning` * `grok-4-fast-reasoning` * `grok-4-fast-non-reasoning` * `grok-4-0709` * `grok-code-fast-1` * `grok-3` * `grok-imagine-image-pro` > [!CAUTION] > > After **May 15, 2026 at 12:00"
     },
     {
       "url": "https://docs.x.ai/developers/migration/may-15-retirement",
       "label": "xAI model deprecations",
-      "last_checked": "2026-10-29",
+      "last_checked": "2026-10-30",
       "excerpt": "4 reasoning effort levels (none, low, medium, and high)"
     },
     {
       "url": "https://docs.x.ai/developers/models",
       "label": "xAI model docs",
-      "last_checked": "2026-10-29",
+      "last_checked": "2026-10-30",
       "excerpt": "$4.00 $0.60 $12.00 grok-4.3 (< 200k prompt tokens) 1M $1.25 $0.20 $2.50 grok-4.3 (≥ 200k prompt tokens) 1M $2.50 $0.40 $5.00 grok-4.20-0309-reasoning (< 200k prompt tokens) 1M $1.25 $0.20 $2.50 grok-4.20-0309-reasoning (≥ 200k pro"
     }
   ]

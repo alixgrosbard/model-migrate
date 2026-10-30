@@ -15,7 +15,7 @@
     {
       "url": "https://docs.aws.amazon.com/bedrock/latest/userguide/model-lifecycle-legacy.html",
       "label": "Amazon Bedrock model lifecycle (legacy)",
-      "last_checked": "2026-10-29",
+      "last_checked": "2026-10-30",
       "excerpt": "Policy page https://docs.aws.amazon.com/bedrock/latest/userguide/model-lifecycle.html | Mistral AI | Voxtral Small 24B 2507 | mistral.voxtral-small-24b-2507 | ap-northeast-1, ap-south-1, ap-southeast-2, eu-south-1, eu-west-1, eu-west-2, sa-east-1, us-east-1, us-east-2, us-west-2 | September 30, 202…"
     }
   ],

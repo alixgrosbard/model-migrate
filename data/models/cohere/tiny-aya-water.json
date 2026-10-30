@@ -15,7 +15,7 @@
     {
       "url": "https://docs.cohere.com/docs/models",
       "label": "Cohere model docs",
-      "last_checked": "2026-10-29",
+      "last_checked": "2026-10-30",
       "excerpt": "tiny-aya-water Live Tiny Aya Water is a 3.35B region-specialized multilingual model, best for European and Asia-Pacific languages. Supports 70 languages. Text 8000"
     }
   ],
@@ -45,19 +45,19 @@
     "specs_sources": {
       "context_window_tokens": {
         "url": "https://docs.cohere.com/docs/models",
-        "last_checked": "2026-10-29"
+        "last_checked": "2026-10-30"
       },
       "max_output_tokens": {
         "url": "https://docs.cohere.com/docs/models",
-        "last_checked": "2026-10-29"
+        "last_checked": "2026-10-30"
       },
       "modalities_in": {
         "url": "https://docs.cohere.com/docs/models",
-        "last_checked": "2026-10-29"
+        "last_checked": "2026-10-30"
       },
       "modalities_out": {
         "url": "https://docs.cohere.com/docs/models",
-        "last_checked": "2026-10-29"
+        "last_checked": "2026-10-30"
       }
     }
   },

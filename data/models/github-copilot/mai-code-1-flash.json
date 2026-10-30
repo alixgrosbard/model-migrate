@@ -22,19 +22,19 @@
     {
       "url": "https://docs.github.com/en/copilot/reference/ai-models/supported-models",
       "label": "GitHub Copilot supported models",
-      "last_checked": "2026-10-29",
+      "last_checked": "2026-10-30",
       "excerpt": "MAI-Code-1-Flash | 2026-09-10 | Latest MAI-Code model"
     },
     {
       "url": "https://github.blog/changelog/2026-08-11-upcoming-deprecation-of-mai-code-1-flash",
       "label": "GitHub Changelog",
-      "last_checked": "2026-10-29",
+      "last_checked": "2026-10-30",
       "excerpt": "MAI-Code-1-Flash | MAI-Code-1.1-Flash"
     },
     {
       "url": "https://github.blog/changelog/2026-09-10-mai-code-1-flash-deprecated",
       "label": "GitHub Changelog",
-      "last_checked": "2026-10-29",
+      "last_checked": "2026-10-30",
       "excerpt": "MAI-Code-1-Flash | MAI-Code-1.1-Flash"
     }
   ],

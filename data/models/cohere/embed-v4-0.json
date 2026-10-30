@@ -15,7 +15,7 @@
     {
       "url": "https://docs.cohere.com/docs/models",
       "label": "Cohere model docs",
-      "last_checked": "2026-10-29",
+      "last_checked": "2026-10-30",
       "excerpt": "embed-v4.0 A model that allows for text and images to be classified or turned into embeddings Text, Images, Mixed texts/images (i.e. PDFs) 128000"
     }
   ],
@@ -45,15 +45,15 @@
     "specs_sources": {
       "context_window_tokens": {
         "url": "https://docs.cohere.com/docs/models",
-        "last_checked": "2026-10-29"
+        "last_checked": "2026-10-30"
       },
       "modalities_in": {
         "url": "https://docs.cohere.com/docs/models",
-        "last_checked": "2026-10-29"
+        "last_checked": "2026-10-30"
       },
       "supports_vision": {
         "url": "https://docs.cohere.com/docs/models",
-        "last_checked": "2026-10-29"
+        "last_checked": "2026-10-30"
       }
     }
   },

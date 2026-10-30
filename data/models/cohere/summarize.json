@@ -15,7 +15,7 @@
     {
       "url": "https://docs.cohere.com/docs/deprecations",
       "label": "Cohere model deprecations",
-      "last_checked": "2026-10-29",
+      "last_checked": "2026-10-30",
       "excerpt": "command-light` * `command` * `summarize` (Refer to [the migration guide](https://docs.cohere.com/docs/summarizing-text#migration-from-summarize-to-chat-endpoint) for alternatives)."
     }
   ],

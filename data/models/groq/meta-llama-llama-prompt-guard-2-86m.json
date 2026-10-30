@@ -15,7 +15,7 @@
     {
       "url": "https://console.groq.com/docs/models",
       "label": "Groq supported models",
-      "last_checked": "2026-10-29",
+      "last_checked": "2026-10-30",
       "excerpt": "meta-llama/llama-prompt-guard-2-86m | preview | context 512 | max completion 512 | input $0.04 | output $0.04"
     }
   ],
@@ -41,19 +41,19 @@
     "specs_sources": {
       "context_window_tokens": {
         "url": "https://console.groq.com/docs/models",
-        "last_checked": "2026-10-29"
+        "last_checked": "2026-10-30"
       },
       "input_price_per_mtok": {
         "url": "https://console.groq.com/docs/models",
-        "last_checked": "2026-10-29"
+        "last_checked": "2026-10-30"
       },
       "max_output_tokens": {
         "url": "https://console.groq.com/docs/models",
-        "last_checked": "2026-10-29"
+        "last_checked": "2026-10-30"
       },
       "output_price_per_mtok": {
         "url": "https://console.groq.com/docs/models",
-        "last_checked": "2026-10-29"
+        "last_checked": "2026-10-30"
       }
     }
   },

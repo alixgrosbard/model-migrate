@@ -22,7 +22,7 @@
     {
       "url": "https://docs.tokenfactory.nebius.com/model-deprecations-november-2026",
       "label": "Nebius Token Factory model deprecations",
-      "last_checked": "2026-10-29",
+      "last_checked": "2026-10-30",
       "excerpt": "| [`moonshotai/Kimi-K2.7-Code`](https://tokenfactory.nebius.com/models/catalog/text2text/moonshotai%2FKimi-K2.7-Code) | [`moonshotai/Kimi-K3`](https://tokenfactory.nebius.com/models/catalog/image2text/moonshotai%2FKimi-K3) |"
     }
   ],

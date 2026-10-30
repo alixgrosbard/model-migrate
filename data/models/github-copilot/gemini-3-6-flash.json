@@ -22,19 +22,19 @@
     {
       "url": "https://docs.github.com/en/copilot/reference/ai-models/supported-models",
       "label": "GitHub Copilot supported models",
-      "last_checked": "2026-10-29",
+      "last_checked": "2026-10-30",
       "excerpt": "Gemini 3.6 Flash | 2026-10-02 | Latest Gemini Flash model"
     },
     {
       "url": "https://github.blog/changelog/2026-09-03-upcoming-deprecation-of-selected-github-copilot-models",
       "label": "GitHub Changelog",
-      "last_checked": "2026-10-29",
+      "last_checked": "2026-10-30",
       "excerpt": "Gemini 3.6 Flash | Gemini 3.8 Flash"
     },
     {
       "url": "https://github.blog/changelog/2026-10-02-selected-models-in-github-copilot-deprecated",
       "label": "GitHub Changelog",
-      "last_checked": "2026-10-29",
+      "last_checked": "2026-10-30",
       "excerpt": "Gemini 3.6 Flash | Gemini 3.8 Flash"
     }
   ],

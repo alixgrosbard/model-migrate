@@ -15,7 +15,7 @@
     {
       "url": "https://docs.cohere.com/docs/models",
       "label": "Cohere model docs",
-      "last_checked": "2026-10-29",
+      "last_checked": "2026-10-30",
       "excerpt": "rerank-v5.0-fast A light version of `rerank-v5.0-pro`, this is a multilingual model that allows for re-ranking English and non-English documents and semi-structured data (JSON)"
     }
   ],
@@ -43,11 +43,11 @@
     "specs_sources": {
       "context_window_tokens": {
         "url": "https://docs.cohere.com/docs/models",
-        "last_checked": "2026-10-29"
+        "last_checked": "2026-10-30"
       },
       "modalities_in": {
         "url": "https://docs.cohere.com/docs/models",
-        "last_checked": "2026-10-29"
+        "last_checked": "2026-10-30"
       }
     }
   },

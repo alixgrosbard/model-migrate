@@ -15,7 +15,7 @@
     {
       "url": "https://docs.cohere.com/docs/models",
       "label": "Cohere model docs",
-      "last_checked": "2026-10-29",
+      "last_checked": "2026-10-30",
       "excerpt": "embed-v5.0-pro Our most capable embedding model, for text and images. Higher quality than `embed-v5.0-fast`, at higher latency. Text, Images, Mixed texts/images (i.e. PDFs) 1"
     }
   ],
@@ -45,15 +45,15 @@
     "specs_sources": {
       "context_window_tokens": {
         "url": "https://docs.cohere.com/docs/models",
-        "last_checked": "2026-10-29"
+        "last_checked": "2026-10-30"
       },
       "modalities_in": {
         "url": "https://docs.cohere.com/docs/models",
-        "last_checked": "2026-10-29"
+        "last_checked": "2026-10-30"
       },
       "supports_vision": {
         "url": "https://docs.cohere.com/docs/models",
-        "last_checked": "2026-10-29"
+        "last_checked": "2026-10-30"
       }
     }
   },

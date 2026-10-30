@@ -61,30 +61,30 @@
     "The linked changelog does not print a request sample."
   ],
   "confidence": "partial",
-  "last_checked": "2026-10-29",
+  "last_checked": "2026-10-30",
   "sources": [
     {
       "url": "https://docs.github.com/en/copilot/reference/ai-models/supported-models",
       "label": "GitHub Copilot supported models",
-      "last_checked": "2026-10-29",
+      "last_checked": "2026-10-30",
       "excerpt": "GPT-5 mini | 2026-10-19 | Latest GPT Luna model"
     },
     {
       "url": "https://github.blog/changelog/2026-09-18-upcoming-deprecation-of-selected-github-copilot-models-in-mid-october",
       "label": "GitHub Changelog",
-      "last_checked": "2026-10-29",
+      "last_checked": "2026-10-30",
       "excerpt": "GPT-5 mini | GPT-5.6 Luna"
     },
     {
       "url": "https://github.blog/changelog/2026-10-19-github-copilot-models-deprecated-on-october-19-2026",
       "label": "GitHub Changelog",
-      "last_checked": "2026-10-29",
+      "last_checked": "2026-10-30",
       "excerpt": "GPT-5 mini | GPT-6 Luna"
     },
     {
       "url": "https://github.blog/changelog/2026-10-19-github-copilot-models-deprecated-on-october-19-2026",
       "label": "Named as an official replacement",
-      "last_checked": "2026-10-29",
+      "last_checked": "2026-10-30",
       "excerpt": "Named as an official replacement for GPT-5 mini."
     }
   ]

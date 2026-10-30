@@ -22,19 +22,19 @@
     {
       "url": "https://docs.github.com/en/copilot/reference/ai-models/supported-models",
       "label": "GitHub Copilot supported models",
-      "last_checked": "2026-10-29",
+      "last_checked": "2026-10-30",
       "excerpt": "GPT-5-Codex | 2026-02-17 | Latest GPT Codex model"
     },
     {
       "url": "https://github.blog/changelog/2026-01-13-upcoming-deprecation-of-select-github-copilot-models-from-claude-and-openai",
       "label": "GitHub Changelog",
-      "last_checked": "2026-10-29",
+      "last_checked": "2026-10-30",
       "excerpt": "GPT-5-Codex | GPT-5.2-Codex"
     },
     {
       "url": "https://github.blog/changelog/2026-02-19-selected-anthropic-and-openai-models-are-now-deprecated",
       "label": "GitHub Changelog",
-      "last_checked": "2026-10-29",
+      "last_checked": "2026-10-30",
       "excerpt": "GPT-5-Codex | GPT-5.2-Codex"
     }
   ],

@@ -61,18 +61,18 @@
     "Ship the change before the published shutdown date."
   ],
   "confidence": "partial",
-  "last_checked": "2026-10-29",
+  "last_checked": "2026-10-30",
   "sources": [
     {
       "url": "https://console.groq.com/docs/deprecations",
       "label": "Groq model deprecations",
-      "last_checked": "2026-10-29",
+      "last_checked": "2026-10-30",
       "excerpt": "distil-whisper-large-v3-en | 2025-08-23 | whisper-large-v3-turbo"
     },
     {
       "url": "https://console.groq.com/docs/models",
       "label": "Groq supported models",
-      "last_checked": "2026-10-29",
+      "last_checked": "2026-10-30",
       "excerpt": "whisper-large-v3-turbo | production"
     }
   ]

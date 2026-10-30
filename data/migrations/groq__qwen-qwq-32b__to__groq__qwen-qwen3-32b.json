@@ -61,18 +61,18 @@
     "Ship the change before the published shutdown date."
   ],
   "confidence": "partial",
-  "last_checked": "2026-10-29",
+  "last_checked": "2026-10-30",
   "sources": [
     {
       "url": "https://console.groq.com/docs/deprecations",
       "label": "Groq model deprecations",
-      "last_checked": "2026-10-29",
+      "last_checked": "2026-10-30",
       "excerpt": "qwen-qwq-32b | 2025-07-14 | qwen/qwen3-32b"
     },
     {
       "url": "https://console.groq.com/docs/deprecations",
       "label": "Groq model deprecations",
-      "last_checked": "2026-10-29",
+      "last_checked": "2026-10-30",
       "excerpt": "qwen/qwen3-32b | 2026-07-17 | openai/gpt-oss-120b"
     }
   ]

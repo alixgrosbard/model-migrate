@@ -15,7 +15,7 @@
     {
       "url": "https://docs.cohere.com/docs/models",
       "label": "Cohere model docs",
-      "last_checked": "2026-10-29",
+      "last_checked": "2026-10-30",
       "excerpt": "embed-multilingual-v3.0 Provides multilingual classification and embedding support. [See supported languages here.](/docs/supported-languages) Text, Images 512"
     }
   ],
@@ -44,15 +44,15 @@
     "specs_sources": {
       "context_window_tokens": {
         "url": "https://docs.cohere.com/docs/models",
-        "last_checked": "2026-10-29"
+        "last_checked": "2026-10-30"
       },
       "modalities_in": {
         "url": "https://docs.cohere.com/docs/models",
-        "last_checked": "2026-10-29"
+        "last_checked": "2026-10-30"
       },
       "supports_vision": {
         "url": "https://docs.cohere.com/docs/models",
-        "last_checked": "2026-10-29"
+        "last_checked": "2026-10-30"
       }
     }
   },

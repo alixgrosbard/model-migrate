@@ -28,7 +28,7 @@
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "OpenAI deprecations",
-      "last_checked": "2026-10-29",
+      "last_checked": "2026-10-30",
       "excerpt": "Feb 26, 2027 | whisper-1 | gpt-live-transcribe or gpt-transcribe"
     }
   ],

@@ -66,18 +66,18 @@
     "Point your requests at meta-llama/Llama-4-Maverick-17B-128E-Instruct and test before you send traffic."
   ],
   "confidence": "partial",
-  "last_checked": "2026-10-29",
+  "last_checked": "2026-10-30",
   "sources": [
     {
       "url": "https://docs.together.ai/docs/deprecations",
       "label": "Together AI deprecations",
-      "last_checked": "2026-10-29",
+      "last_checked": "2026-10-30",
       "excerpt": "2026-07-29 | `meta-llama/Llama-4-Maverick-17B-128E` | `meta-llama/Llama-4-Maverick-17B-128E-Instruct`"
     },
     {
       "url": "https://docs.together.ai/docs/deprecations",
       "label": "Named as an official replacement",
-      "last_checked": "2026-10-29",
+      "last_checked": "2026-10-30",
       "excerpt": "Named as an official replacement for meta-llama/Llama-4-Maverick-17B-128E."
     }
   ]

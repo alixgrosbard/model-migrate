@@ -28,13 +28,13 @@
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "OpenAI deprecations",
-      "last_checked": "2026-10-29",
+      "last_checked": "2026-10-30",
       "excerpt": "Dec 1, 2026 | gpt-image-1.5 | gpt-image-1.5-2025-12-16 | gpt-image-2.5-sunburst or gpt-image-2.5-flare"
     },
     {
       "url": "https://developers.openai.com/api/docs/models/gpt-image-1.5.md",
       "label": "OpenAI model docs",
-      "last_checked": "2026-10-29",
+      "last_checked": "2026-10-30",
       "excerpt": "Model ID: gpt-image-1.5 | input $5 | output $10 | Default snapshot gpt-image-1.5-2025-12-16"
     }
   ],
@@ -60,15 +60,15 @@
     "specs_sources": {
       "cached_input_price_per_mtok": {
         "url": "https://developers.openai.com/api/docs/models/gpt-image-1.5.md",
-        "last_checked": "2026-10-29"
+        "last_checked": "2026-10-30"
       },
       "input_price_per_mtok": {
         "url": "https://developers.openai.com/api/docs/models/gpt-image-1.5.md",
-        "last_checked": "2026-10-29"
+        "last_checked": "2026-10-30"
       },
       "output_price_per_mtok": {
         "url": "https://developers.openai.com/api/docs/models/gpt-image-1.5.md",
-        "last_checked": "2026-10-29"
+        "last_checked": "2026-10-30"
       }
     }
   },

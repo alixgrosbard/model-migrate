@@ -15,8 +15,8 @@
     {
       "url": "https://docs.x.ai/developers/models",
       "label": "xAI model docs",
-      "last_checked": "2026-10-29",
-      "excerpt": "-video $0.050 / sec grok-imagine-video-1.5 $0.080 / sec grok-imagine-video-1.5-lite $0.020 / sec ### Voice Pricing Mode Cost --- --- Speech to Speech (grok-voice-2.0) - Deprecated $0.08 / min ($4.80 / hr)<br />$0.004 / text input Speec"
+      "last_checked": "2026-10-30",
+      "excerpt": "image $0.02 / image grok-imagine-video-1.5 $0.080 / sec grok-imagine-video-1.5-lite $0.020 / sec grok-imagine-video $0.050 / sec ### Voice Pricing Mode Cost --- --- Speech to Speech (grok-voice-2.0) - Deprecated $0.08 / min ($4.80 / hr"
     }
   ],
   "specs": {
@@ -41,14 +41,14 @@
     "specs_sources": {
       "batch_discount_pct": {
         "url": "https://docs.x.ai/developers/pricing",
-        "last_checked": "2026-10-29"
+        "last_checked": "2026-10-30"
       },
       "supports_batch": {
         "url": "https://docs.x.ai/developers/pricing",
-        "last_checked": "2026-10-29"
+        "last_checked": "2026-10-30"
       }
     }
   },
   "first_seen": "2026-10-27T12:00:00.000Z",
-  "updated_at": "2026-10-29T20:40:36.435Z"
+  "updated_at": "2026-10-30T05:51:59.088Z"
 }

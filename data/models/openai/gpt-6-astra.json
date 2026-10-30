@@ -27,7 +27,7 @@
     {
       "url": "https://developers.openai.com/api/docs/models/gpt-6-astra.md",
       "label": "OpenAI model docs",
-      "last_checked": "2026-10-29",
+      "last_checked": "2026-10-30",
       "excerpt": "Model ID: gpt-6-astra | Our most capable model for the most demanding work."
     }
   ],
@@ -53,23 +53,23 @@
     "specs_sources": {
       "cached_input_price_per_mtok": {
         "url": "https://developers.openai.com/api/docs/models/gpt-6-astra.md",
-        "last_checked": "2026-10-29"
+        "last_checked": "2026-10-30"
       },
       "context_window_tokens": {
         "url": "https://developers.openai.com/api/docs/models/gpt-6-astra.md",
-        "last_checked": "2026-10-29"
+        "last_checked": "2026-10-30"
       },
       "input_price_per_mtok": {
         "url": "https://developers.openai.com/api/docs/models/gpt-6-astra.md",
-        "last_checked": "2026-10-29"
+        "last_checked": "2026-10-30"
       },
       "max_output_tokens": {
         "url": "https://developers.openai.com/api/docs/models/gpt-6-astra.md",
-        "last_checked": "2026-10-29"
+        "last_checked": "2026-10-30"
       },
       "output_price_per_mtok": {
         "url": "https://developers.openai.com/api/docs/models/gpt-6-astra.md",
-        "last_checked": "2026-10-29"
+        "last_checked": "2026-10-30"
       }
     }
   },

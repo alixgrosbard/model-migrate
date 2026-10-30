@@ -22,7 +22,7 @@
     {
       "url": "https://console.groq.com/docs/deprecations",
       "label": "Groq model deprecations",
-      "last_checked": "2026-10-29",
+      "last_checked": "2026-10-30",
       "excerpt": "llama-guard-3-8b | 2025-06-06 | meta-llama/llama-guard-4-12b"
     }
   ],

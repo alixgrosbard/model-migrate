@@ -15,7 +15,7 @@
     {
       "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule",
       "label": "Azure OpenAI retirement schedule",
-      "last_checked": "2026-10-29",
+      "last_checked": "2026-10-30",
       "excerpt": "gpt-5.4-mini | 2026-03-17 | GA | 2027-09-21 | —"
     }
   ],

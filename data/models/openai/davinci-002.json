@@ -22,13 +22,13 @@
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "OpenAI deprecations",
-      "last_checked": "2026-10-29",
+      "last_checked": "2026-10-30",
       "excerpt": "2026-09-28 | davinci-002 | gpt-5.6-terra"
     },
     {
       "url": "https://developers.openai.com/api/docs/models/davinci-002.md",
       "label": "OpenAI model docs",
-      "last_checked": "2026-10-29",
+      "last_checked": "2026-10-30",
       "excerpt": "Model ID: davinci-002 | max output 16384 | input $2 | output $2"
     }
   ],
@@ -54,15 +54,15 @@
     "specs_sources": {
       "input_price_per_mtok": {
         "url": "https://developers.openai.com/api/docs/models/davinci-002.md",
-        "last_checked": "2026-10-29"
+        "last_checked": "2026-10-30"
       },
       "max_output_tokens": {
         "url": "https://developers.openai.com/api/docs/models/davinci-002.md",
-        "last_checked": "2026-10-29"
+        "last_checked": "2026-10-30"
       },
       "output_price_per_mtok": {
         "url": "https://developers.openai.com/api/docs/models/davinci-002.md",
-        "last_checked": "2026-10-29"
+        "last_checked": "2026-10-30"
       }
     }
   },
