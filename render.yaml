@@ -62,7 +62,7 @@ services:
     branch: cursor/sunsetdiff-v1-3cab
     autoDeploy: true
     buildCommand: npm ci && npm run build:service
-    startCommand: node service/dist/service/src/index.js
+    startCommand: node service/dist/index.js
     healthCheckPath: /health
     envVars:
       - key: RESEND_API_KEY
