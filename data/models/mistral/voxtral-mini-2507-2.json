@@ -10,7 +10,14 @@
   "shutdown_date": "2026-05-31",
   "shutdown_date_kind": "exact",
   "region_or_platform_notes": "Replacement named on the models page: Voxtral Mini Transcribe 2.",
-  "replacements": [],
+  "replacements": [
+    {
+      "model_id": "voxtral-mini-2602",
+      "provider": "mistral",
+      "kind": "official",
+      "source_url": "https://docs.mistral.ai/models"
+    }
+  ],
   "sources": [
     {
       "url": "https://docs.mistral.ai/models",
@@ -58,5 +65,5 @@
     }
   },
   "first_seen": "2026-10-17T15:59:19.574Z",
-  "updated_at": "2026-10-25T20:53:11.768Z"
+  "updated_at": "2026-10-30T20:09:35.319Z"
 }

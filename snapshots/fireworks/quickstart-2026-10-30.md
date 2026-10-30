@@ -14,198 +14,198 @@ Before you begin, create an API key in the [Fireworks dashboard](https://app.fir
 
 Once you have your API key, export it as an environment variable in your terminal:
 
-**macOS / Linux**
+> [tab] macOS / Linux
+>
+> ```bash theme={null}
+> export FIREWORKS_API_KEY="your_api_key_here"
+> ```
 
-```bash theme={null}
-export FIREWORKS_API_KEY="your_api_key_here"
-```
-
-**Windows**
-
-```powershell theme={null}
-setx FIREWORKS_API_KEY "your_api_key_here"
-```
+> [tab] Windows
+>
+> ```powershell theme={null}
+> setx FIREWORKS_API_KEY "your_api_key_here"
+> ```
 
 ## Step 2: Make your first Serverless API call
 
-**Python (Fireworks SDK)**
-
-Install the [Fireworks Python SDK](https://docs.fireworks.ai/tools-sdks/python-sdk.md):
-
-> [!NOTE]
+> [tab] Python (Fireworks SDK)
 >
-> The SDK is currently in alpha. Use the `--pre` flag when installing to get the latest version.
+> Install the [Fireworks Python SDK](https://docs.fireworks.ai/tools-sdks/python-sdk.md):
+>
+> > [!NOTE]
+> >
+> > The SDK is currently in alpha. Use the `--pre` flag when installing to get the latest version.
+>
+> ```bash pip theme={null}
+> pip install --pre fireworks-ai
+> ```
+>
+> ```bash poetry theme={null}
+> poetry add --pre fireworks-ai
+> ```
+>
+> ```bash uv theme={null}
+> uv add --pre fireworks-ai
+> ```
+>
+> Then make your first Serverless API call:
+>
+> ```python theme={null}
+> from fireworks import Fireworks
+>
+> client = Fireworks()
+>
+> response = client.chat.completions.create(
+>   model="accounts/fireworks/models/glm-5p3-flash",
+>   messages=[{
+>     "role": "user",
+>     "content": "Say hello in Spanish",
+>   }],
+> )
+>
+> print(response.choices[0].message.content)
+> ```
 
-```bash pip theme={null}
-pip install --pre fireworks-ai
-```
+> [tab] Python (OpenAI SDK)
+>
+> Fireworks provides an OpenAI compatible endpoint. Install the [OpenAI Python SDK](https://github.com/openai/openai-python):
+>
+> ```bash theme={null}
+> pip install openai
+> ```
+>
+> Then make your first Serverless API call:
+>
+> ```python theme={null}
+> import os
+> from openai import OpenAI
+>
+> client = OpenAI(
+>     api_key=os.environ.get("FIREWORKS_API_KEY"),
+>     base_url="https://api.fireworks.ai/inference/v1"
+> )
+>
+> response = client.chat.completions.create(
+>     model="accounts/fireworks/models/glm-5p3-flash",
+>     messages=[{
+>         "role": "user",
+>         "content": "Say hello in Spanish",
+>     }],
+> )
+>
+> print(response.choices[0].message.content)
+> ```
 
-```bash poetry theme={null}
-poetry add --pre fireworks-ai
-```
+> [tab] Python (Anthropic SDK)
+>
+> Fireworks provides an Anthropic compatible endpoint. Install the [Anthropic Python SDK](https://github.com/anthropics/anthropic-sdk-python):
+>
+> ```bash theme={null}
+> pip install anthropic
+> ```
+>
+> Then make your first Serverless API call:
+>
+> ```python theme={null}
+> import os
+> import anthropic
+>
+> client = anthropic.Anthropic(
+>     api_key=os.environ.get("FIREWORKS_API_KEY"),
+>     base_url="https://api.fireworks.ai/inference"
+> )
+>
+> response = client.messages.create(
+>     model="accounts/fireworks/models/glm-5p3-flash",
+>     max_tokens=1024,
+>     messages=[{
+>         "role": "user",
+>         "content": "Say hello in Spanish",
+>     }],
+> )
+>
+> print(response.content[0].text)
+> ```
 
-```bash uv theme={null}
-uv add --pre fireworks-ai
-```
+> [tab] JavaScript (OpenAI SDK)
+>
+> Fireworks provides an OpenAI compatible endpoint. Install the [OpenAI JavaScript / TypeScript SDK](https://github.com/openai/openai-node):
+>
+> ```bash theme={null}
+> npm install openai
+> ```
+>
+> Then make your first Serverless API call:
+>
+> ```javascript theme={null}
+> import OpenAI from "openai";
+>
+> const client = new OpenAI({
+>   apiKey: process.env.FIREWORKS_API_KEY,
+>   baseURL: "https://api.fireworks.ai/inference/v1",
+> });
+>
+> const response = await client.chat.completions.create({
+>   model: "accounts/fireworks/models/glm-5p3-flash",
+>   messages: [
+>     {
+>       role: "user",
+>       content: "Say hello in Spanish",
+>     },
+>   ],
+> });
+>
+> console.log(response.choices[0].message.content);
+> ```
 
-Then make your first Serverless API call:
+> [tab] JavaScript (Anthropic SDK)
+>
+> Fireworks provides an Anthropic compatible endpoint. Install the [Anthropic JavaScript / TypeScript SDK](https://github.com/anthropics/anthropic-sdk-typescript):
+>
+> ```bash theme={null}
+> npm install @anthropic-ai/sdk
+> ```
+>
+> Then make your first Serverless API call:
+>
+> ```javascript theme={null}
+> import Anthropic from "@anthropic-ai/sdk";
+>
+> const client = new Anthropic({
+>   apiKey: process.env.FIREWORKS_API_KEY,
+>   baseURL: "https://api.fireworks.ai/inference",
+> });
+>
+> const response = await client.messages.create({
+>   model: "accounts/fireworks/models/glm-5p3-flash",
+>   max_tokens: 1024,
+>   messages: [
+>     {
+>       role: "user",
+>       content: "Say hello in Spanish",
+>     },
+>   ],
+> });
+>
+> console.log(response.content[0].text);
+> ```
 
-```python theme={null}
-from fireworks import Fireworks
-
-client = Fireworks()
-
-response = client.chat.completions.create(
-  model="accounts/fireworks/models/glm-5p3-flash",
-  messages=[{
-    "role": "user",
-    "content": "Say hello in Spanish",
-  }],
-)
-
-print(response.choices[0].message.content)
-```
-
-**Python (OpenAI SDK)**
-
-Fireworks provides an OpenAI compatible endpoint. Install the [OpenAI Python SDK](https://github.com/openai/openai-python):
-
-```bash theme={null}
-pip install openai
-```
-
-Then make your first Serverless API call:
-
-```python theme={null}
-import os
-from openai import OpenAI
-
-client = OpenAI(
-    api_key=os.environ.get("FIREWORKS_API_KEY"),
-    base_url="https://api.fireworks.ai/inference/v1"
-)
-
-response = client.chat.completions.create(
-    model="accounts/fireworks/models/glm-5p3-flash",
-    messages=[{
-        "role": "user",
-        "content": "Say hello in Spanish",
-    }],
-)
-
-print(response.choices[0].message.content)
-```
-
-**Python (Anthropic SDK)**
-
-Fireworks provides an Anthropic compatible endpoint. Install the [Anthropic Python SDK](https://github.com/anthropics/anthropic-sdk-python):
-
-```bash theme={null}
-pip install anthropic
-```
-
-Then make your first Serverless API call:
-
-```python theme={null}
-import os
-import anthropic
-
-client = anthropic.Anthropic(
-    api_key=os.environ.get("FIREWORKS_API_KEY"),
-    base_url="https://api.fireworks.ai/inference"
-)
-
-response = client.messages.create(
-    model="accounts/fireworks/models/glm-5p3-flash",
-    max_tokens=1024,
-    messages=[{
-        "role": "user",
-        "content": "Say hello in Spanish",
-    }],
-)
-
-print(response.content[0].text)
-```
-
-**JavaScript (OpenAI SDK)**
-
-Fireworks provides an OpenAI compatible endpoint. Install the [OpenAI JavaScript / TypeScript SDK](https://github.com/openai/openai-node):
-
-```bash theme={null}
-npm install openai
-```
-
-Then make your first Serverless API call:
-
-```javascript theme={null}
-import OpenAI from "openai";
-
-const client = new OpenAI({
-  apiKey: process.env.FIREWORKS_API_KEY,
-  baseURL: "https://api.fireworks.ai/inference/v1",
-});
-
-const response = await client.chat.completions.create({
-  model: "accounts/fireworks/models/glm-5p3-flash",
-  messages: [
-    {
-      role: "user",
-      content: "Say hello in Spanish",
-    },
-  ],
-});
-
-console.log(response.choices[0].message.content);
-```
-
-**JavaScript (Anthropic SDK)**
-
-Fireworks provides an Anthropic compatible endpoint. Install the [Anthropic JavaScript / TypeScript SDK](https://github.com/anthropics/anthropic-sdk-typescript):
-
-```bash theme={null}
-npm install @anthropic-ai/sdk
-```
-
-Then make your first Serverless API call:
-
-```javascript theme={null}
-import Anthropic from "@anthropic-ai/sdk";
-
-const client = new Anthropic({
-  apiKey: process.env.FIREWORKS_API_KEY,
-  baseURL: "https://api.fireworks.ai/inference",
-});
-
-const response = await client.messages.create({
-  model: "accounts/fireworks/models/glm-5p3-flash",
-  max_tokens: 1024,
-  messages: [
-    {
-      role: "user",
-      content: "Say hello in Spanish",
-    },
-  ],
-});
-
-console.log(response.content[0].text);
-```
-
-**curl**
-
-```bash theme={null}
-curl https://api.fireworks.ai/inference/v1/chat/completions \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer $FIREWORKS_API_KEY" \
-  -d '{
-    "model": "accounts/fireworks/models/glm-5p3-flash",
-    "messages": [
-      {
-        "role": "user",
-        "content": "Say hello in Spanish"
-      }
-    ]
-  }'
-```
+> [tab] curl
+>
+> ```bash theme={null}
+> curl https://api.fireworks.ai/inference/v1/chat/completions \
+>   -H "Content-Type: application/json" \
+>   -H "Authorization: Bearer $FIREWORKS_API_KEY" \
+>   -d '{
+>     "model": "accounts/fireworks/models/glm-5p3-flash",
+>     "messages": [
+>       {
+>         "role": "user",
+>         "content": "Say hello in Spanish"
+>       }
+>     ]
+>   }'
+> ```
 
 You should see a response like: `"¡Hola!"`
 
@@ -219,361 +219,361 @@ You should see a response like: `"¡Hola!"`
 
 Stream responses token-by-token for a better user experience:
 
-**Python (Fireworks SDK)**
+> [tab] Python (Fireworks SDK)
+>
+> ```python theme={null}
+> from fireworks import Fireworks
+>
+> client = Fireworks()
+>
+> stream = client.chat.completions.create(
+>   model="accounts/fireworks/models/glm-5p3-flash",
+>   messages=[{"role": "user", "content": "Tell me a short story"}],
+>   stream=True
+> )
+>
+> for chunk in stream:
+>   if chunk.choices[0].delta.content:
+>     print(chunk.choices[0].delta.content, end="")
+> ```
 
-```python theme={null}
-from fireworks import Fireworks
+> [tab] Python (OpenAI SDK)
+>
+> ```python theme={null}
+> import os
+> from openai import OpenAI
+>
+> client = OpenAI(
+>     api_key=os.environ.get("FIREWORKS_API_KEY"),
+>     base_url="https://api.fireworks.ai/inference/v1"
+> )
+>
+> stream = client.chat.completions.create(
+>     model="accounts/fireworks/models/glm-5p3-flash",
+>     messages=[{"role": "user", "content": "Tell me a short story"}],
+>     stream=True
+> )
+>
+> for chunk in stream:
+>     if chunk.choices[0].delta.content:
+>         print(chunk.choices[0].delta.content, end="")
+> ```
 
-client = Fireworks()
+> [tab] Python (Anthropic SDK)
+>
+> ```python theme={null}
+> import os
+> import anthropic
+>
+> client = anthropic.Anthropic(
+>     api_key=os.environ.get("FIREWORKS_API_KEY"),
+>     base_url="https://api.fireworks.ai/inference"
+> )
+>
+> with client.messages.stream(
+>     model="accounts/fireworks/models/glm-5p3-flash",
+>     max_tokens=1024,
+>     messages=[{"role": "user", "content": "Tell me a short story"}],
+> ) as stream:
+>     for text in stream.text_stream:
+>         print(text, end="", flush=True)
+> ```
 
-stream = client.chat.completions.create(
-  model="accounts/fireworks/models/glm-5p3-flash",
-  messages=[{"role": "user", "content": "Tell me a short story"}],
-  stream=True
-)
+> [tab] JavaScript (OpenAI SDK)
+>
+> ```javascript theme={null}
+> import OpenAI from "openai";
+>
+> const client = new OpenAI({
+>   apiKey: process.env.FIREWORKS_API_KEY,
+>   baseURL: "https://api.fireworks.ai/inference/v1",
+> });
+>
+> const stream = await client.chat.completions.create({
+>   model: "accounts/fireworks/models/glm-5p3-flash",
+>   messages: [{ role: "user", content: "Tell me a short story" }],
+>   stream: true,
+> });
+>
+> for await (const chunk of stream) {
+>   process.stdout.write(chunk.choices[0]?.delta?.content || "");
+> }
+> ```
 
-for chunk in stream:
-  if chunk.choices[0].delta.content:
-    print(chunk.choices[0].delta.content, end="")
-```
+> [tab] JavaScript (Anthropic SDK)
+>
+> ```javascript theme={null}
+> import Anthropic from "@anthropic-ai/sdk";
+>
+> const client = new Anthropic({
+>   apiKey: process.env.FIREWORKS_API_KEY,
+>   baseURL: "https://api.fireworks.ai/inference",
+> });
+>
+> const stream = client.messages.stream({
+>   model: "accounts/fireworks/models/glm-5p3-flash",
+>   max_tokens: 1024,
+>   messages: [{ role: "user", content: "Tell me a short story" }],
+> });
+>
+> stream.on("text", (text) => {
+>   process.stdout.write(text);
+> });
+>
+> await stream.finalMessage();
+> ```
 
-**Python (OpenAI SDK)**
-
-```python theme={null}
-import os
-from openai import OpenAI
-
-client = OpenAI(
-    api_key=os.environ.get("FIREWORKS_API_KEY"),
-    base_url="https://api.fireworks.ai/inference/v1"
-)
-
-stream = client.chat.completions.create(
-    model="accounts/fireworks/models/glm-5p3-flash",
-    messages=[{"role": "user", "content": "Tell me a short story"}],
-    stream=True
-)
-
-for chunk in stream:
-    if chunk.choices[0].delta.content:
-        print(chunk.choices[0].delta.content, end="")
-```
-
-**Python (Anthropic SDK)**
-
-```python theme={null}
-import os
-import anthropic
-
-client = anthropic.Anthropic(
-    api_key=os.environ.get("FIREWORKS_API_KEY"),
-    base_url="https://api.fireworks.ai/inference"
-)
-
-with client.messages.stream(
-    model="accounts/fireworks/models/glm-5p3-flash",
-    max_tokens=1024,
-    messages=[{"role": "user", "content": "Tell me a short story"}],
-) as stream:
-    for text in stream.text_stream:
-        print(text, end="", flush=True)
-```
-
-**JavaScript (OpenAI SDK)**
-
-```javascript theme={null}
-import OpenAI from "openai";
-
-const client = new OpenAI({
-  apiKey: process.env.FIREWORKS_API_KEY,
-  baseURL: "https://api.fireworks.ai/inference/v1",
-});
-
-const stream = await client.chat.completions.create({
-  model: "accounts/fireworks/models/glm-5p3-flash",
-  messages: [{ role: "user", content: "Tell me a short story" }],
-  stream: true,
-});
-
-for await (const chunk of stream) {
-  process.stdout.write(chunk.choices[0]?.delta?.content || "");
-}
-```
-
-**JavaScript (Anthropic SDK)**
-
-```javascript theme={null}
-import Anthropic from "@anthropic-ai/sdk";
-
-const client = new Anthropic({
-  apiKey: process.env.FIREWORKS_API_KEY,
-  baseURL: "https://api.fireworks.ai/inference",
-});
-
-const stream = client.messages.stream({
-  model: "accounts/fireworks/models/glm-5p3-flash",
-  max_tokens: 1024,
-  messages: [{ role: "user", content: "Tell me a short story" }],
-});
-
-stream.on("text", (text) => {
-  process.stdout.write(text);
-});
-
-await stream.finalMessage();
-```
-
-**curl**
-
-```bash theme={null}
-curl https://api.fireworks.ai/inference/v1/chat/completions \
-    -H "Content-Type: application/json" \
-    -H "Authorization: Bearer $FIREWORKS_API_KEY" \
-    -d '{
-    "model": "accounts/fireworks/models/glm-5p3-flash",
-    "messages": [
-        {
-        "role": "user",
-        "content": "Tell me a short story"
-        }
-    ],
-    "stream": true
-    }'
-```
+> [tab] curl
+>
+> ```bash theme={null}
+> curl https://api.fireworks.ai/inference/v1/chat/completions \
+>     -H "Content-Type: application/json" \
+>     -H "Authorization: Bearer $FIREWORKS_API_KEY" \
+>     -d '{
+>     "model": "accounts/fireworks/models/glm-5p3-flash",
+>     "messages": [
+>         {
+>         "role": "user",
+>         "content": "Tell me a short story"
+>         }
+>     ],
+>     "stream": true
+>     }'
+> ```
 
 ### Function calling
 
 Connect your models to external tools and APIs:
 
-**Python (Fireworks SDK)**
+> [tab] Python (Fireworks SDK)
+>
+> ```python theme={null}
+> from fireworks import Fireworks
+>
+> client = Fireworks()
+>
+> response = client.chat.completions.create(
+>     model="accounts/fireworks/models/kimi-k3",
+>     messages=[
+>         {"role": "user", "content": "What's the weather in Paris?"}
+>     ],
+>     tools=[
+>         {
+>             "type": "function",
+>             "function": {
+>                 "name": "get_weather",
+>                 "description": "Get the current weather for a location",
+>                 "parameters": {
+>                     "type": "object",
+>                     "properties": {
+>                         "location": {
+>                             "type": "string",
+>                             "description": "City name, e.g. San Francisco",
+>                         }
+>                     },
+>                     "required": ["location"],
+>                 },
+>             },
+>         },
+>     ],
+> )
+>
+> print(response.choices[0].message.tool_calls)
+> ```
 
-```python theme={null}
-from fireworks import Fireworks
+> [tab] Python (OpenAI SDK)
+>
+> ```python theme={null}
+> import os
+> from openai import OpenAI
+>
+> client = OpenAI(
+>     api_key=os.environ.get("FIREWORKS_API_KEY"),
+>     base_url="https://api.fireworks.ai/inference/v1",
+> )
+>
+> response = client.chat.completions.create(
+>     model="accounts/fireworks/models/kimi-k3",
+>     messages=[
+>         {"role": "user", "content": "What's the weather in Paris?"}
+>     ],
+>     tools=[
+>         {
+>             "type": "function",
+>             "function": {
+>                 "name": "get_weather",
+>                 "description": "Get the current weather for a location",
+>                 "parameters": {
+>                     "type": "object",
+>                     "properties": {
+>                         "location": {
+>                             "type": "string",
+>                             "description": "City name, e.g. San Francisco",
+>                         }
+>                     },
+>                     "required": ["location"],
+>                 },
+>             },
+>         },
+>     ],
+> )
+>
+> print(response.choices[0].message.tool_calls)
+> ```
 
-client = Fireworks()
+> [tab] Python (Anthropic SDK)
+>
+> ```python theme={null}
+> import os
+> import anthropic
+>
+> client = anthropic.Anthropic(
+>     api_key=os.environ.get("FIREWORKS_API_KEY"),
+>     base_url="https://api.fireworks.ai/inference"
+> )
+>
+> response = client.messages.create(
+>     model="accounts/fireworks/models/kimi-k3",
+>     max_tokens=1024,
+>     messages=[
+>         {"role": "user", "content": "What's the weather in Paris?"}
+>     ],
+>     tools=[
+>         {
+>             "name": "get_weather",
+>             "description": "Get the current weather for a location",
+>             "input_schema": {
+>                 "type": "object",
+>                 "properties": {
+>                     "location": {
+>                         "type": "string",
+>                         "description": "City name, e.g. San Francisco",
+>                     }
+>                 },
+>                 "required": ["location"],
+>             },
+>         },
+>     ],
+> )
+>
+> for block in response.content:
+>     if block.type == "tool_use":
+>         print(f"Tool: {block.name}, Input: {block.input}")
+> ```
 
-response = client.chat.completions.create(
-    model="accounts/fireworks/models/kimi-k3",
-    messages=[
-        {"role": "user", "content": "What's the weather in Paris?"}
-    ],
-    tools=[
-        {
-            "type": "function",
-            "function": {
-                "name": "get_weather",
-                "description": "Get the current weather for a location",
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "location": {
-                            "type": "string",
-                            "description": "City name, e.g. San Francisco",
-                        }
-                    },
-                    "required": ["location"],
-                },
-            },
-        },
-    ],
-)
+> [tab] JavaScript (OpenAI SDK)
+>
+> ```javascript theme={null}
+> import OpenAI from "openai";
+>
+> const client = new OpenAI({
+>   apiKey: process.env.FIREWORKS_API_KEY,
+>   baseURL: "https://api.fireworks.ai/inference/v1",
+> });
+>
+> const tools = [
+>   {
+>     type: "function",
+>     function: {
+>       name: "get_weather",
+>       description: "Get the current weather for a location",
+>       parameters: {
+>         type: "object",
+>         properties: {
+>           location: {
+>             type: "string",
+>             description: "City name, e.g. San Francisco",
+>           },
+>         },
+>         required: ["location"],
+>       },
+>     },
+>   },
+> ];
+>
+> const response = await client.chat.completions.create({
+>   model: "accounts/fireworks/models/kimi-k3",
+>   messages: [{ role: "user", content: "What's the weather in Paris?" }],
+>   tools: tools,
+> });
+>
+> console.log(response.choices[0].message.tool_calls);
+> ```
 
-print(response.choices[0].message.tool_calls)
-```
+> [tab] JavaScript (Anthropic SDK)
+>
+> ```javascript theme={null}
+> import Anthropic from "@anthropic-ai/sdk";
+>
+> const client = new Anthropic({
+>   apiKey: process.env.FIREWORKS_API_KEY,
+>   baseURL: "https://api.fireworks.ai/inference",
+> });
+>
+> const response = await client.messages.create({
+>   model: "accounts/fireworks/models/kimi-k3",
+>   max_tokens: 1024,
+>   messages: [{ role: "user", content: "What's the weather in Paris?" }],
+>   tools: [
+>     {
+>       name: "get_weather",
+>       description: "Get the current weather for a location",
+>       input_schema: {
+>         type: "object",
+>         properties: {
+>           location: {
+>             type: "string",
+>             description: "City name, e.g. San Francisco",
+>           },
+>         },
+>         required: ["location"],
+>       },
+>     },
+>   ],
+> });
+>
+> for (const block of response.content) {
+>   if (block.type === "tool_use") {
+>     console.log(`Tool: ${block.name}, Input:`, block.input);
+>   }
+> }
+> ```
 
-**Python (OpenAI SDK)**
-
-```python theme={null}
-import os
-from openai import OpenAI
-
-client = OpenAI(
-    api_key=os.environ.get("FIREWORKS_API_KEY"),
-    base_url="https://api.fireworks.ai/inference/v1",
-)
-
-response = client.chat.completions.create(
-    model="accounts/fireworks/models/kimi-k3",
-    messages=[
-        {"role": "user", "content": "What's the weather in Paris?"}
-    ],
-    tools=[
-        {
-            "type": "function",
-            "function": {
-                "name": "get_weather",
-                "description": "Get the current weather for a location",
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "location": {
-                            "type": "string",
-                            "description": "City name, e.g. San Francisco",
-                        }
-                    },
-                    "required": ["location"],
-                },
-            },
-        },
-    ],
-)
-
-print(response.choices[0].message.tool_calls)
-```
-
-**Python (Anthropic SDK)**
-
-```python theme={null}
-import os
-import anthropic
-
-client = anthropic.Anthropic(
-    api_key=os.environ.get("FIREWORKS_API_KEY"),
-    base_url="https://api.fireworks.ai/inference"
-)
-
-response = client.messages.create(
-    model="accounts/fireworks/models/kimi-k3",
-    max_tokens=1024,
-    messages=[
-        {"role": "user", "content": "What's the weather in Paris?"}
-    ],
-    tools=[
-        {
-            "name": "get_weather",
-            "description": "Get the current weather for a location",
-            "input_schema": {
-                "type": "object",
-                "properties": {
-                    "location": {
-                        "type": "string",
-                        "description": "City name, e.g. San Francisco",
-                    }
-                },
-                "required": ["location"],
-            },
-        },
-    ],
-)
-
-for block in response.content:
-    if block.type == "tool_use":
-        print(f"Tool: {block.name}, Input: {block.input}")
-```
-
-**JavaScript (OpenAI SDK)**
-
-```javascript theme={null}
-import OpenAI from "openai";
-
-const client = new OpenAI({
-  apiKey: process.env.FIREWORKS_API_KEY,
-  baseURL: "https://api.fireworks.ai/inference/v1",
-});
-
-const tools = [
-  {
-    type: "function",
-    function: {
-      name: "get_weather",
-      description: "Get the current weather for a location",
-      parameters: {
-        type: "object",
-        properties: {
-          location: {
-            type: "string",
-            description: "City name, e.g. San Francisco",
-          },
-        },
-        required: ["location"],
-      },
-    },
-  },
-];
-
-const response = await client.chat.completions.create({
-  model: "accounts/fireworks/models/kimi-k3",
-  messages: [{ role: "user", content: "What's the weather in Paris?" }],
-  tools: tools,
-});
-
-console.log(response.choices[0].message.tool_calls);
-```
-
-**JavaScript (Anthropic SDK)**
-
-```javascript theme={null}
-import Anthropic from "@anthropic-ai/sdk";
-
-const client = new Anthropic({
-  apiKey: process.env.FIREWORKS_API_KEY,
-  baseURL: "https://api.fireworks.ai/inference",
-});
-
-const response = await client.messages.create({
-  model: "accounts/fireworks/models/kimi-k3",
-  max_tokens: 1024,
-  messages: [{ role: "user", content: "What's the weather in Paris?" }],
-  tools: [
-    {
-      name: "get_weather",
-      description: "Get the current weather for a location",
-      input_schema: {
-        type: "object",
-        properties: {
-          location: {
-            type: "string",
-            description: "City name, e.g. San Francisco",
-          },
-        },
-        required: ["location"],
-      },
-    },
-  ],
-});
-
-for (const block of response.content) {
-  if (block.type === "tool_use") {
-    console.log(`Tool: ${block.name}, Input:`, block.input);
-  }
-}
-```
-
-**curl**
-
-```bash theme={null}
-curl https://api.fireworks.ai/inference/v1/chat/completions \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer $FIREWORKS_API_KEY" \
-  -d '{
-    "model": "accounts/fireworks/models/kimi-k3",
-    "messages": [
-      {
-        "role": "user",
-        "content": "What'\''s the weather in Paris?"
-      }
-    ],
-    "tools": [
-      {
-        "type": "function",
-        "function": {
-          "name": "get_weather",
-          "description": "Get the current weather for a location",
-          "parameters": {
-            "type": "object",
-            "properties": {
-              "location": {
-                "type": "string",
-                "description": "City name, e.g. San Francisco"
-              }
-            },
-            "required": ["location"]
-          }
-        }
-      }
-    ]
-  }'
-```
+> [tab] curl
+>
+> ```bash theme={null}
+> curl https://api.fireworks.ai/inference/v1/chat/completions \
+>   -H "Content-Type: application/json" \
+>   -H "Authorization: Bearer $FIREWORKS_API_KEY" \
+>   -d '{
+>     "model": "accounts/fireworks/models/kimi-k3",
+>     "messages": [
+>       {
+>         "role": "user",
+>         "content": "What'\''s the weather in Paris?"
+>       }
+>     ],
+>     "tools": [
+>       {
+>         "type": "function",
+>         "function": {
+>           "name": "get_weather",
+>           "description": "Get the current weather for a location",
+>           "parameters": {
+>             "type": "object",
+>             "properties": {
+>               "location": {
+>                 "type": "string",
+>                 "description": "City name, e.g. San Francisco"
+>               }
+>             },
+>             "required": ["location"]
+>           }
+>         }
+>       }
+>     ]
+>   }'
+> ```
 
 [Learn more about function calling →](https://docs.fireworks.ai/guides/function-calling.md)
 
@@ -581,221 +581,221 @@ curl https://api.fireworks.ai/inference/v1/chat/completions \
 
 Get reliable JSON responses that match your schema:
 
-**Python (Fireworks SDK)**
+> [tab] Python (Fireworks SDK)
+>
+> ```python theme={null}
+> from fireworks import Fireworks
+>
+> client = Fireworks()
+>
+> response = client.chat.completions.create(
+>   model="accounts/fireworks/models/glm-5p3-flash",
+>   messages=[
+>     {
+>       "role": "user",
+>       "content": "Extract the name and age from: John is 30 years old",
+>     }
+>   ],
+>   response_format={
+>     "type": "json_schema",
+>     "json_schema": {
+>       "name": "person",
+>       "schema": {
+>         "type": "object",
+>         "properties": {
+>           "name": { "type": "string" },
+>           "age": { "type": "number" }
+>         },
+>         "required": ["name", "age"],
+>       },
+>     },
+>   },
+> )
+>
+> print(response.choices[0].message.content)
+> ```
 
-```python theme={null}
-from fireworks import Fireworks
+> [tab] Python (OpenAI SDK)
+>
+> ```python theme={null}
+> import os
+> from openai import OpenAI
+>
+> client = OpenAI(
+>     api_key=os.environ.get("FIREWORKS_API_KEY"),
+>     base_url="https://api.fireworks.ai/inference/v1",
+> )
+>
+> response = client.chat.completions.create(
+>     model="accounts/fireworks/models/glm-5p3-flash",
+>     messages=[
+>         {
+>             "role": "user",
+>             "content": "Extract the name and age from: John is 30 years old",
+>         }
+>     ],
+>     response_format={
+>         "type": "json_schema",
+>         "json_schema": {
+>             "name": "person",
+>             "schema": {
+>                 "type": "object",
+>                 "properties": {"name": {"type": "string"}, "age": {"type": "number"}},
+>                 "required": ["name", "age"],
+>             },
+>         },
+>     },
+> )
+>
+> print(response.choices[0].message.content)
+> ```
 
-client = Fireworks()
+> [tab] Python (Anthropic SDK)
+>
+> ```python theme={null}
+> import os
+> import anthropic
+>
+> client = anthropic.Anthropic(
+>     api_key=os.environ.get("FIREWORKS_API_KEY"),
+>     base_url="https://api.fireworks.ai/inference"
+> )
+>
+> response = client.messages.create(
+>     model="accounts/fireworks/models/glm-5p3-flash",
+>     max_tokens=1024,
+>     output_config={
+>         "format": {
+>             "type": "json_schema",
+>             "schema": {
+>                 "type": "object",
+>                 "properties": {
+>                     "name": { "type": "string" },
+>                     "age": { "type": "number" }
+>                 },
+>                 "required": ["name", "age"],
+>             },
+>         }
+>     },
+>     messages=[
+>         {
+>             "role": "user",
+>             "content": "Extract the name and age from: John is 30 years old",
+>         }
+>     ],
+> )
+>
+> print(response.content[0].text)
+> ```
 
-response = client.chat.completions.create(
-  model="accounts/fireworks/models/glm-5p3-flash",
-  messages=[
-    {
-      "role": "user",
-      "content": "Extract the name and age from: John is 30 years old",
-    }
-  ],
-  response_format={
-    "type": "json_schema",
-    "json_schema": {
-      "name": "person",
-      "schema": {
-        "type": "object",
-        "properties": {
-          "name": { "type": "string" },
-          "age": { "type": "number" }
-        },
-        "required": ["name", "age"],
-      },
-    },
-  },
-)
+> [tab] JavaScript (OpenAI SDK)
+>
+> ```javascript theme={null}
+> import OpenAI from "openai";
+>
+> const client = new OpenAI({
+>   apiKey: process.env.FIREWORKS_API_KEY,
+>   baseURL: "https://api.fireworks.ai/inference/v1",
+> });
+>
+> const response = await client.chat.completions.create({
+>   model: "accounts/fireworks/models/glm-5p3-flash",
+>   messages: [
+>     {
+>       role: "user",
+>       content: "Extract the name and age from: John is 30 years old",
+>     },
+>   ],
+>   response_format: {
+>     type: "json_schema",
+>     json_schema: {
+>       name: "person",
+>       schema: {
+>         type: "object",
+>         properties: {
+>           name: { type: "string" },
+>           age: { type: "number" },
+>         },
+>         required: ["name", "age"],
+>       },
+>     },
+>   },
+> });
+>
+> console.log(response.choices[0].message.content);
+> ```
 
-print(response.choices[0].message.content)
-```
+> [tab] JavaScript (Anthropic SDK)
+>
+> ```javascript theme={null}
+> import Anthropic from "@anthropic-ai/sdk";
+>
+> const client = new Anthropic({
+>   apiKey: process.env.FIREWORKS_API_KEY,
+>   baseURL: "https://api.fireworks.ai/inference",
+> });
+>
+> const response = await client.messages.create({
+>   model: "accounts/fireworks/models/glm-5p3-flash",
+>   max_tokens: 1024,
+>   output_config: {
+>     format: {
+>       type: "json_schema",
+>       schema: {
+>         type: "object",
+>         properties: {
+>           name: { type: "string" },
+>           age: { type: "number" },
+>         },
+>         required: ["name", "age"],
+>       },
+>     },
+>   },
+>   messages: [
+>     {
+>       role: "user",
+>       content: "Extract the name and age from: John is 30 years old",
+>     },
+>   ],
+> });
+>
+> console.log(response.content[0].text);
+> ```
 
-**Python (OpenAI SDK)**
-
-```python theme={null}
-import os
-from openai import OpenAI
-
-client = OpenAI(
-    api_key=os.environ.get("FIREWORKS_API_KEY"),
-    base_url="https://api.fireworks.ai/inference/v1",
-)
-
-response = client.chat.completions.create(
-    model="accounts/fireworks/models/glm-5p3-flash",
-    messages=[
-        {
-            "role": "user",
-            "content": "Extract the name and age from: John is 30 years old",
-        }
-    ],
-    response_format={
-        "type": "json_schema",
-        "json_schema": {
-            "name": "person",
-            "schema": {
-                "type": "object",
-                "properties": {"name": {"type": "string"}, "age": {"type": "number"}},
-                "required": ["name", "age"],
-            },
-        },
-    },
-)
-
-print(response.choices[0].message.content)
-```
-
-**Python (Anthropic SDK)**
-
-```python theme={null}
-import os
-import anthropic
-
-client = anthropic.Anthropic(
-    api_key=os.environ.get("FIREWORKS_API_KEY"),
-    base_url="https://api.fireworks.ai/inference"
-)
-
-response = client.messages.create(
-    model="accounts/fireworks/models/glm-5p3-flash",
-    max_tokens=1024,
-    output_config={
-        "format": {
-            "type": "json_schema",
-            "schema": {
-                "type": "object",
-                "properties": {
-                    "name": { "type": "string" },
-                    "age": { "type": "number" }
-                },
-                "required": ["name", "age"],
-            },
-        }
-    },
-    messages=[
-        {
-            "role": "user",
-            "content": "Extract the name and age from: John is 30 years old",
-        }
-    ],
-)
-
-print(response.content[0].text)
-```
-
-**JavaScript (OpenAI SDK)**
-
-```javascript theme={null}
-import OpenAI from "openai";
-
-const client = new OpenAI({
-  apiKey: process.env.FIREWORKS_API_KEY,
-  baseURL: "https://api.fireworks.ai/inference/v1",
-});
-
-const response = await client.chat.completions.create({
-  model: "accounts/fireworks/models/glm-5p3-flash",
-  messages: [
-    {
-      role: "user",
-      content: "Extract the name and age from: John is 30 years old",
-    },
-  ],
-  response_format: {
-    type: "json_schema",
-    json_schema: {
-      name: "person",
-      schema: {
-        type: "object",
-        properties: {
-          name: { type: "string" },
-          age: { type: "number" },
-        },
-        required: ["name", "age"],
-      },
-    },
-  },
-});
-
-console.log(response.choices[0].message.content);
-```
-
-**JavaScript (Anthropic SDK)**
-
-```javascript theme={null}
-import Anthropic from "@anthropic-ai/sdk";
-
-const client = new Anthropic({
-  apiKey: process.env.FIREWORKS_API_KEY,
-  baseURL: "https://api.fireworks.ai/inference",
-});
-
-const response = await client.messages.create({
-  model: "accounts/fireworks/models/glm-5p3-flash",
-  max_tokens: 1024,
-  output_config: {
-    format: {
-      type: "json_schema",
-      schema: {
-        type: "object",
-        properties: {
-          name: { type: "string" },
-          age: { type: "number" },
-        },
-        required: ["name", "age"],
-      },
-    },
-  },
-  messages: [
-    {
-      role: "user",
-      content: "Extract the name and age from: John is 30 years old",
-    },
-  ],
-});
-
-console.log(response.content[0].text);
-```
-
-**curl**
-
-```bash theme={null}
-curl https://api.fireworks.ai/inference/v1/chat/completions \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer $FIREWORKS_API_KEY" \
-  -d '{
-    "model": "accounts/fireworks/models/glm-5p3-flash",
-    "messages": [
-      {
-        "role": "user",
-        "content": "Extract the name and age from: John is 30 years old"
-      }
-    ],
-    "response_format": {
-      "type": "json_schema",
-      "json_schema": {
-        "name": "person",
-        "schema": {
-          "type": "object",
-          "properties": {
-            "name": {
-              "type": "string"
-            },
-            "age": {
-              "type": "number"
-            }
-          },
-          "required": ["name", "age"]
-        }
-      }
-    }
-  }'
-```
+> [tab] curl
+>
+> ```bash theme={null}
+> curl https://api.fireworks.ai/inference/v1/chat/completions \
+>   -H "Content-Type: application/json" \
+>   -H "Authorization: Bearer $FIREWORKS_API_KEY" \
+>   -d '{
+>     "model": "accounts/fireworks/models/glm-5p3-flash",
+>     "messages": [
+>       {
+>         "role": "user",
+>         "content": "Extract the name and age from: John is 30 years old"
+>       }
+>     ],
+>     "response_format": {
+>       "type": "json_schema",
+>       "json_schema": {
+>         "name": "person",
+>         "schema": {
+>           "type": "object",
+>           "properties": {
+>             "name": {
+>               "type": "string"
+>             },
+>             "age": {
+>               "type": "number"
+>             }
+>           },
+>           "required": ["name", "age"]
+>         }
+>       }
+>     }
+>   }'
+> ```
 
 [Learn more about structured outputs →](https://docs.fireworks.ai/structured-responses/structured-response-formatting.md)
 
@@ -803,158 +803,158 @@ curl https://api.fireworks.ai/inference/v1/chat/completions \
 
 Some models support reasoning, where the model shows its thought process before giving the final answer:
 
-**Python (Fireworks SDK)**
+> [tab] Python (Fireworks SDK)
+>
+> ```python theme={null}
+> from fireworks import Fireworks
+>
+> client = Fireworks()
+>
+> response = client.chat.completions.create(
+>     model="accounts/fireworks/models/glm-5p3",
+>     messages=[
+>         {"role": "user", "content": "What is 25 * 37? Show your work."}
+>     ],
+>     reasoning_effort="medium",
+> )
+>
+> msg = response.choices[0].message
+> if msg.reasoning_content:
+>     print("Reasoning:", msg.reasoning_content)
+> print("Answer:", msg.content)
+> ```
 
-```python theme={null}
-from fireworks import Fireworks
+> [tab] Python (OpenAI SDK)
+>
+> ```python theme={null}
+> import os
+> from openai import OpenAI
+>
+> client = OpenAI(
+>     api_key=os.environ.get("FIREWORKS_API_KEY"),
+>     base_url="https://api.fireworks.ai/inference/v1",
+> )
+>
+> response = client.chat.completions.create(
+>     model="accounts/fireworks/models/glm-5p3",
+>     messages=[
+>         {"role": "user", "content": "What is 25 * 37? Show your work."}
+>     ],
+>     extra_body={"reasoning_effort": "medium"},
+> )
+>
+> msg = response.choices[0].message
+> # Reasoning content is returned in a separate field
+> reasoning = getattr(msg, "reasoning_content", None)
+> if reasoning is None and hasattr(msg, "model_extra"):
+>     reasoning = msg.model_extra.get("reasoning_content")
+>
+> if reasoning:
+>     print("Reasoning:", reasoning)
+> print("Answer:", msg.content)
+> ```
 
-client = Fireworks()
+> [tab] Python (Anthropic SDK)
+>
+> The Anthropic SDK uses the `thinking` parameter to enable reasoning:
+>
+> ```python theme={null}
+> import os
+> import anthropic
+>
+> client = anthropic.Anthropic(
+>     api_key=os.environ.get("FIREWORKS_API_KEY"),
+>     base_url="https://api.fireworks.ai/inference"
+> )
+>
+> response = client.messages.create(
+>     model="accounts/fireworks/models/glm-5p3",
+>     max_tokens=16000,
+>     thinking={"type": "enabled", "budget_tokens": 4096},
+>     messages=[
+>         {"role": "user", "content": "What is 25 * 37? Show your work."}
+>     ],
+> )
+>
+> for block in response.content:
+>     if block.type == "thinking":
+>         print("Thinking:", block.thinking)
+>     elif block.type == "text":
+>         print("Answer:", block.text)
+> ```
 
-response = client.chat.completions.create(
-    model="accounts/fireworks/models/glm-5p3",
-    messages=[
-        {"role": "user", "content": "What is 25 * 37? Show your work."}
-    ],
-    reasoning_effort="medium",
-)
+> [tab] JavaScript (OpenAI SDK)
+>
+> ```javascript theme={null}
+> import OpenAI from "openai";
+>
+> const client = new OpenAI({
+>   apiKey: process.env.FIREWORKS_API_KEY,
+>   baseURL: "https://api.fireworks.ai/inference/v1",
+> });
+>
+> const response = await client.chat.completions.create({
+>   model: "accounts/fireworks/models/glm-5p3",
+>   messages: [
+>     { role: "user", content: "What is 25 * 37? Show your work." },
+>   ],
+>   reasoning_effort: "medium",
+> });
+>
+> const msg = response.choices[0].message;
+> if (msg.reasoning_content) {
+>   console.log("Reasoning:", msg.reasoning_content);
+> }
+> console.log("Answer:", msg.content);
+> ```
 
-msg = response.choices[0].message
-if msg.reasoning_content:
-    print("Reasoning:", msg.reasoning_content)
-print("Answer:", msg.content)
-```
+> [tab] JavaScript (Anthropic SDK)
+>
+> The Anthropic SDK uses the `thinking` parameter to enable reasoning:
+>
+> ```javascript theme={null}
+> import Anthropic from "@anthropic-ai/sdk";
+>
+> const client = new Anthropic({
+>   apiKey: process.env.FIREWORKS_API_KEY,
+>   baseURL: "https://api.fireworks.ai/inference",
+> });
+>
+> const response = await client.messages.create({
+>   model: "accounts/fireworks/models/glm-5p3",
+>   max_tokens: 16000,
+>   thinking: { type: "enabled", budget_tokens: 4096 },
+>   messages: [
+>     { role: "user", content: "What is 25 * 37? Show your work." },
+>   ],
+> });
+>
+> for (const block of response.content) {
+>   if (block.type === "thinking") {
+>     console.log("Thinking:", block.thinking);
+>   } else if (block.type === "text") {
+>     console.log("Answer:", block.text);
+>   }
+> }
+> ```
 
-**Python (OpenAI SDK)**
-
-```python theme={null}
-import os
-from openai import OpenAI
-
-client = OpenAI(
-    api_key=os.environ.get("FIREWORKS_API_KEY"),
-    base_url="https://api.fireworks.ai/inference/v1",
-)
-
-response = client.chat.completions.create(
-    model="accounts/fireworks/models/glm-5p3",
-    messages=[
-        {"role": "user", "content": "What is 25 * 37? Show your work."}
-    ],
-    extra_body={"reasoning_effort": "medium"},
-)
-
-msg = response.choices[0].message
-# Reasoning content is returned in a separate field
-reasoning = getattr(msg, "reasoning_content", None)
-if reasoning is None and hasattr(msg, "model_extra"):
-    reasoning = msg.model_extra.get("reasoning_content")
-
-if reasoning:
-    print("Reasoning:", reasoning)
-print("Answer:", msg.content)
-```
-
-**Python (Anthropic SDK)**
-
-The Anthropic SDK uses the `thinking` parameter to enable reasoning:
-
-```python theme={null}
-import os
-import anthropic
-
-client = anthropic.Anthropic(
-    api_key=os.environ.get("FIREWORKS_API_KEY"),
-    base_url="https://api.fireworks.ai/inference"
-)
-
-response = client.messages.create(
-    model="accounts/fireworks/models/glm-5p3",
-    max_tokens=16000,
-    thinking={"type": "enabled", "budget_tokens": 4096},
-    messages=[
-        {"role": "user", "content": "What is 25 * 37? Show your work."}
-    ],
-)
-
-for block in response.content:
-    if block.type == "thinking":
-        print("Thinking:", block.thinking)
-    elif block.type == "text":
-        print("Answer:", block.text)
-```
-
-**JavaScript (OpenAI SDK)**
-
-```javascript theme={null}
-import OpenAI from "openai";
-
-const client = new OpenAI({
-  apiKey: process.env.FIREWORKS_API_KEY,
-  baseURL: "https://api.fireworks.ai/inference/v1",
-});
-
-const response = await client.chat.completions.create({
-  model: "accounts/fireworks/models/glm-5p3",
-  messages: [
-    { role: "user", content: "What is 25 * 37? Show your work." },
-  ],
-  reasoning_effort: "medium",
-});
-
-const msg = response.choices[0].message;
-if (msg.reasoning_content) {
-  console.log("Reasoning:", msg.reasoning_content);
-}
-console.log("Answer:", msg.content);
-```
-
-**JavaScript (Anthropic SDK)**
-
-The Anthropic SDK uses the `thinking` parameter to enable reasoning:
-
-```javascript theme={null}
-import Anthropic from "@anthropic-ai/sdk";
-
-const client = new Anthropic({
-  apiKey: process.env.FIREWORKS_API_KEY,
-  baseURL: "https://api.fireworks.ai/inference",
-});
-
-const response = await client.messages.create({
-  model: "accounts/fireworks/models/glm-5p3",
-  max_tokens: 16000,
-  thinking: { type: "enabled", budget_tokens: 4096 },
-  messages: [
-    { role: "user", content: "What is 25 * 37? Show your work." },
-  ],
-});
-
-for (const block of response.content) {
-  if (block.type === "thinking") {
-    console.log("Thinking:", block.thinking);
-  } else if (block.type === "text") {
-    console.log("Answer:", block.text);
-  }
-}
-```
-
-**curl**
-
-```bash theme={null}
-curl https://api.fireworks.ai/inference/v1/chat/completions \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer $FIREWORKS_API_KEY" \
-  -d '{
-    "model": "accounts/fireworks/models/glm-5p3",
-    "messages": [
-      {
-        "role": "user",
-        "content": "What is 25 * 37? Show your work."
-      }
-    ],
-    "reasoning_effort": "medium"
-  }'
-```
+> [tab] curl
+>
+> ```bash theme={null}
+> curl https://api.fireworks.ai/inference/v1/chat/completions \
+>   -H "Content-Type: application/json" \
+>   -H "Authorization: Bearer $FIREWORKS_API_KEY" \
+>   -d '{
+>     "model": "accounts/fireworks/models/glm-5p3",
+>     "messages": [
+>       {
+>         "role": "user",
+>         "content": "What is 25 * 37? Show your work."
+>       }
+>     ],
+>     "reasoning_effort": "medium"
+>   }'
+> ```
 
 [Learn more about reasoning →](https://docs.fireworks.ai/guides/reasoning.md)
 
@@ -962,199 +962,199 @@ curl https://api.fireworks.ai/inference/v1/chat/completions \
 
 Analyze images with vision-language models:
 
-**Python (Fireworks SDK)**
+> [tab] Python (Fireworks SDK)
+>
+> ```python theme={null}
+> from fireworks import Fireworks
+>
+> client = Fireworks()
+>
+> response = client.chat.completions.create(
+>   model="accounts/fireworks/models/kimi-k3",
+>   messages=[
+>     {
+>       "role": "user",
+>       "content": [
+>         {"type": "text", "text": "What's in this image?"},
+>         {
+>           "type": "image_url",
+>           "image_url": {
+>             "url": "https://storage.googleapis.com/fireworks-public/image_assets/fireworks-ai-wordmark-color-dark.png"
+>           },
+>         },
+>       ],
+>     }
+>   ],
+> )
+>
+> print(response.choices[0].message.content)
+> ```
 
-```python theme={null}
-from fireworks import Fireworks
+> [tab] Python (OpenAI SDK)
+>
+> ```python theme={null}
+> import os
+> from openai import OpenAI
+>
+> client = OpenAI(
+>     api_key=os.environ.get("FIREWORKS_API_KEY"),
+>     base_url="https://api.fireworks.ai/inference/v1"
+> )
+>
+> response = client.chat.completions.create(
+>     model="accounts/fireworks/models/kimi-k3",
+>     messages=[
+>         {
+>             "role": "user",
+>             "content": [
+>                 {"type": "text", "text": "What's in this image?"},
+>                 {
+>                     "type": "image_url",
+>                     "image_url": {
+>                         "url": "https://storage.googleapis.com/fireworks-public/image_assets/fireworks-ai-wordmark-color-dark.png"
+>                     },
+>                 },
+>             ],
+>         }
+>     ],
+> )
+>
+> print(response.choices[0].message.content)
+> ```
 
-client = Fireworks()
+> [tab] Python (Anthropic SDK)
+>
+> The Anthropic SDK uses its native image format with `type: "image"` and a `source` object:
+>
+> ```python theme={null}
+> import os
+> import anthropic
+>
+> client = anthropic.Anthropic(
+>     api_key=os.environ.get("FIREWORKS_API_KEY"),
+>     base_url="https://api.fireworks.ai/inference"
+> )
+>
+> response = client.messages.create(
+>     model="accounts/fireworks/models/kimi-k3",
+>     max_tokens=1024,
+>     messages=[
+>         {
+>             "role": "user",
+>             "content": [
+>                 {"type": "text", "text": "What's in this image?"},
+>                 {
+>                     "type": "image",
+>                     "source": {
+>                         "type": "url",
+>                         "url": "https://storage.googleapis.com/fireworks-public/image_assets/fireworks-ai-wordmark-color-dark.png",
+>                     },
+>                 },
+>             ],
+>         }
+>     ],
+> )
+>
+> for block in response.content:
+>     if block.type == "text":
+>         print(block.text)
+> ```
 
-response = client.chat.completions.create(
-  model="accounts/fireworks/models/kimi-k3",
-  messages=[
-    {
-      "role": "user",
-      "content": [
-        {"type": "text", "text": "What's in this image?"},
-        {
-          "type": "image_url",
-          "image_url": {
-            "url": "https://storage.googleapis.com/fireworks-public/image_assets/fireworks-ai-wordmark-color-dark.png"
-          },
-        },
-      ],
-    }
-  ],
-)
+> [tab] JavaScript (OpenAI SDK)
+>
+> ```javascript theme={null}
+> import OpenAI from "openai";
+>
+> const client = new OpenAI({
+>   apiKey: process.env.FIREWORKS_API_KEY,
+>   baseURL: "https://api.fireworks.ai/inference/v1",
+> });
+>
+> const response = await client.chat.completions.create({
+>   model: "accounts/fireworks/models/kimi-k3",
+>   messages: [
+>     {
+>       role: "user",
+>       content: [
+>         { type: "text", text: "What's in this image?" },
+>         {
+>           type: "image_url",
+>           image_url: {
+>             url: "https://storage.googleapis.com/fireworks-public/image_assets/fireworks-ai-wordmark-color-dark.png",
+>           },
+>         },
+>       ],
+>     },
+>   ],
+> });
+>
+> console.log(response.choices[0].message.content);
+> ```
 
-print(response.choices[0].message.content)
-```
+> [tab] JavaScript (Anthropic SDK)
+>
+> ```javascript theme={null}
+> import Anthropic from "@anthropic-ai/sdk";
+>
+> const client = new Anthropic({
+>   apiKey: process.env.FIREWORKS_API_KEY,
+>   baseURL: "https://api.fireworks.ai/inference",
+> });
+>
+> const response = await client.messages.create({
+>   model: "accounts/fireworks/models/kimi-k3",
+>   max_tokens: 1024,
+>   messages: [
+>     {
+>       role: "user",
+>       content: [
+>         { type: "text", text: "What's in this image?" },
+>         {
+>           type: "image",
+>           source: {
+>             type: "url",
+>             url: "https://storage.googleapis.com/fireworks-public/image_assets/fireworks-ai-wordmark-color-dark.png",
+>           },
+>         },
+>       ],
+>     },
+>   ],
+> });
+>
+> for (const block of response.content) {
+>   if (block.type === "text") {
+>     console.log(block.text);
+>   }
+> }
+> ```
 
-**Python (OpenAI SDK)**
-
-```python theme={null}
-import os
-from openai import OpenAI
-
-client = OpenAI(
-    api_key=os.environ.get("FIREWORKS_API_KEY"),
-    base_url="https://api.fireworks.ai/inference/v1"
-)
-
-response = client.chat.completions.create(
-    model="accounts/fireworks/models/kimi-k3",
-    messages=[
-        {
-            "role": "user",
-            "content": [
-                {"type": "text", "text": "What's in this image?"},
-                {
-                    "type": "image_url",
-                    "image_url": {
-                        "url": "https://storage.googleapis.com/fireworks-public/image_assets/fireworks-ai-wordmark-color-dark.png"
-                    },
-                },
-            ],
-        }
-    ],
-)
-
-print(response.choices[0].message.content)
-```
-
-**Python (Anthropic SDK)**
-
-The Anthropic SDK uses its native image format with `type: "image"` and a `source` object:
-
-```python theme={null}
-import os
-import anthropic
-
-client = anthropic.Anthropic(
-    api_key=os.environ.get("FIREWORKS_API_KEY"),
-    base_url="https://api.fireworks.ai/inference"
-)
-
-response = client.messages.create(
-    model="accounts/fireworks/models/kimi-k3",
-    max_tokens=1024,
-    messages=[
-        {
-            "role": "user",
-            "content": [
-                {"type": "text", "text": "What's in this image?"},
-                {
-                    "type": "image",
-                    "source": {
-                        "type": "url",
-                        "url": "https://storage.googleapis.com/fireworks-public/image_assets/fireworks-ai-wordmark-color-dark.png",
-                    },
-                },
-            ],
-        }
-    ],
-)
-
-for block in response.content:
-    if block.type == "text":
-        print(block.text)
-```
-
-**JavaScript (OpenAI SDK)**
-
-```javascript theme={null}
-import OpenAI from "openai";
-
-const client = new OpenAI({
-  apiKey: process.env.FIREWORKS_API_KEY,
-  baseURL: "https://api.fireworks.ai/inference/v1",
-});
-
-const response = await client.chat.completions.create({
-  model: "accounts/fireworks/models/kimi-k3",
-  messages: [
-    {
-      role: "user",
-      content: [
-        { type: "text", text: "What's in this image?" },
-        {
-          type: "image_url",
-          image_url: {
-            url: "https://storage.googleapis.com/fireworks-public/image_assets/fireworks-ai-wordmark-color-dark.png",
-          },
-        },
-      ],
-    },
-  ],
-});
-
-console.log(response.choices[0].message.content);
-```
-
-**JavaScript (Anthropic SDK)**
-
-```javascript theme={null}
-import Anthropic from "@anthropic-ai/sdk";
-
-const client = new Anthropic({
-  apiKey: process.env.FIREWORKS_API_KEY,
-  baseURL: "https://api.fireworks.ai/inference",
-});
-
-const response = await client.messages.create({
-  model: "accounts/fireworks/models/kimi-k3",
-  max_tokens: 1024,
-  messages: [
-    {
-      role: "user",
-      content: [
-        { type: "text", text: "What's in this image?" },
-        {
-          type: "image",
-          source: {
-            type: "url",
-            url: "https://storage.googleapis.com/fireworks-public/image_assets/fireworks-ai-wordmark-color-dark.png",
-          },
-        },
-      ],
-    },
-  ],
-});
-
-for (const block of response.content) {
-  if (block.type === "text") {
-    console.log(block.text);
-  }
-}
-```
-
-**curl**
-
-```bash theme={null}
-curl https://api.fireworks.ai/inference/v1/chat/completions \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer $FIREWORKS_API_KEY" \
-  -d '{
-    "model": "accounts/fireworks/models/kimi-k3",
-    "messages": [
-      {
-        "role": "user",
-        "content": [
-          {
-            "type": "text",
-            "text": "What'\''s in this image?"
-          },
-          {
-            "type": "image_url",
-            "image_url": {
-              "url": "https://storage.googleapis.com/fireworks-public/image_assets/fireworks-ai-wordmark-color-dark.png"
-            }
-          }
-        ]
-      }
-    ]
-  }'
-```
+> [tab] curl
+>
+> ```bash theme={null}
+> curl https://api.fireworks.ai/inference/v1/chat/completions \
+>   -H "Content-Type: application/json" \
+>   -H "Authorization: Bearer $FIREWORKS_API_KEY" \
+>   -d '{
+>     "model": "accounts/fireworks/models/kimi-k3",
+>     "messages": [
+>       {
+>         "role": "user",
+>         "content": [
+>           {
+>             "type": "text",
+>             "text": "What'\''s in this image?"
+>           },
+>           {
+>             "type": "image_url",
+>             "image_url": {
+>               "url": "https://storage.googleapis.com/fireworks-public/image_assets/fireworks-ai-wordmark-color-dark.png"
+>             }
+>           }
+>         ]
+>       }
+>     ]
+>   }'
+> ```
 
 [Learn more about vision models →](https://docs.fireworks.ai/guides/querying-vision-language-models.md)
 
@@ -1166,26 +1166,26 @@ For the model lifecycle policy, billing details, and serverless-specific request
 
 Ready to scale to production, explore other modalities, or customize your models?
 
-> **[Deploy and autoscale on Dedicated GPUs](https://docs.fireworks.ai/guides/ondemand-deployments.md)**
+> [card] [Deploy and autoscale on Dedicated GPUs](https://docs.fireworks.ai/guides/ondemand-deployments.md)
 >
 > Deploy with high performance on dedicated GPUs with fast autoscaling and minimal cold starts
 
-> **[Train Models](https://docs.fireworks.ai/fine-tuning/finetuning-intro.md)**
+> [card] [Train Models](https://docs.fireworks.ai/fine-tuning/finetuning-intro.md)
 >
 > Improve model quality with supervised and reinforcement learning
 
-> **[Embeddings & Reranking](https://docs.fireworks.ai/guides/querying-embeddings-models.md)**
+> [card] [Embeddings & Reranking](https://docs.fireworks.ai/guides/querying-embeddings-models.md)
 >
 > Use embeddings & reranking in search & context retrieval
 
-> **[Batch Inference](https://docs.fireworks.ai/guides/batch-inference.md)**
+> [card] [Batch Inference](https://docs.fireworks.ai/guides/batch-inference.md)
 >
 > Run async inference jobs at scale, faster and cheaper
 
-> **[Browse 100+ Models](https://fireworks.ai/models)**
+> [card] [Browse 100+ Models](https://fireworks.ai/models)
 >
 > Explore all available models across modalities
 
-> **[API Reference](https://docs.fireworks.ai/api-reference/introduction.md)**
+> [card] [API Reference](https://docs.fireworks.ai/api-reference/introduction.md)
 >
 > Complete API documentation

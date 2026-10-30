@@ -197,7 +197,7 @@ Your evaluator logic carries over. Start with [Cookbook: Reinforcement Learning]
 
 The 70 models below were tunable only through managed RFT. With managed RFT paused, none of them can be fine-tuned on Fireworks anymore, and they no longer appear on the [Models](https://docs.fireworks.ai/fine-tuning/models.md) page. Inference on these models is not affected by this change.
 
-> **Full list (70 models)**
+> [accordion] Full list (70 models)
 >
 > * **DeepSeek:** `deepseek-r1`, `deepseek-r1-basic`, `deepseek-r1-0528`, `deepseek-r1-0528-distill-qwen3-8b`, `deepseek-r1-distill-llama-8b`, `deepseek-r1-distill-llama-70b`, `deepseek-r1-distill-qwen-14b`, `deepseek-r1-distill-qwen-32b`, `deepseek-v3`, `deepseek-v3-0324`, `deepseek-v3p1`, `deepseek-v3p1-terminus`, `deepseek-prover-v2`, `deepseek-coder-1b-base`
 > * **Kimi:** `kimi-k2-instruct`, `kimi-k2-instruct-0905`, `kimi-k2-thinking`
@@ -558,7 +558,7 @@ See the [SSO documentation](https://docs.fireworks.ai/accounts/sso.md) for setup
 * **Autoscaling Metric:** New `prompt_tokens_per_second` load target for prefill-heavy workloads ([Autoscaling](https://docs.fireworks.ai/deployments/autoscaling.md))
 * **firectl CLI Syntax:** All documentation updated to `firectl <noun> <verb>` syntax
 
-> **Bug Fixes & Minor Improvements**
+> [accordion] Bug Fixes & Minor Improvements
 >
 > * **Model Library Enhancements:** Skeleton loader for faster perceived loading, new filter categories for Embeddings, Reranks, and Agents (Web App)
 > * **Service Account Roles:** Role column and role assignment in the Users management page (Web App)
@@ -601,7 +601,7 @@ See the [Uploading Custom Models documentation](https://docs.fireworks.ai/models
 * **Preserved Thinking:** Multi-turn reasoning with preserved thinking context ([Reasoning](https://docs.fireworks.ai/guides/reasoning.md))
 * **GLM 4.7:** Added to models supporting `reasoning_effort` parameter
 
-> **Bug Fixes & Minor Improvements**
+> [accordion] Bug Fixes & Minor Improvements
 >
 > * **RFT Cost Display:** Reinforcement Fine-Tuning job pages now show approximate final cost (Web App)
 > * **GPU Information:** Deployments table displays GPU type and count (Web App)
@@ -656,7 +656,7 @@ Fine-tuning workflows have been enhanced with several new capabilities:
 * **Fine-Tuning APIs:** Added [Resume DPO Job](https://docs.fireworks.ai/api-reference/resume-dpo-job.md), [Resume Reinforcement Fine-Tuning Step](https://docs.fireworks.ai/api-reference/resume-reinforcement-fine-tuning-step.md), Execute Reinforcement Fine-Tuning Step, and [Get Evaluation Job Log Endpoint](https://docs.fireworks.ai/api-reference/get-evaluation-job-log-endpoint.md)
 * **SDK Examples:** Added Python SDK example links for direct routing and [supervised fine-tuning](https://docs.fireworks.ai/fine-tuning/fine-tuning-models.md) workflows
 
-> **Bug Fixes & Minor Improvements**
+> [accordion] Bug Fixes & Minor Improvements
 >
 > * **Deployment Progress Display:** Deployment details page now shows live deployment progress with replica status (pending, downloading, initializing, ready) and error banners (Web App)
 > * **Multi-LoRA Display:** Deployment details page now shows all deployed models with expandable sections, not just the default model (Web App)
@@ -715,7 +715,7 @@ See the [Prompt Caching guide](https://docs.fireworks.ai/guides/prompt-caching.m
 * **Evaluator APIs:** Added REST API documentation for Evaluator and Evaluation Job CRUD operations ([Evals API Reference](https://docs.fireworks.ai/api-reference/list-evaluators.md))
 * **firectl CLI Reference:** Updated with new commands including `cancel dpo-job`, `cancel supervised-fine-tuning-job`, `set-api-key`, `redeem-credit-code`, and evaluator revision management
 
-> **Bug Fixes & Minor Improvements**
+> [accordion] Bug Fixes & Minor Improvements
 >
 > * **Audio Usage Charts:** Added a Voice modality tab to the Usage page for viewing audio-specific usage metrics and charts (Web App)
 > * **Deployment Page Redesign:** Redesigned deployment details page with inline action buttons (Edit, Delete, Enable/Disable), reordered metadata sections, and collapsible API examples (Web App)
@@ -778,7 +778,7 @@ The Evaluations dashboard has been enhanced with new filtering and status tracki
 
 * **Reranking Guide:** Added documentation for using the `/rerank` endpoint and `/embeddings` endpoint with `return_logits` for reranking, including parallel batching examples ([Querying Embeddings Models](https://docs.fireworks.ai/guides/querying-embeddings-models.md))
 
-> **Bug Fixes & Minor Improvements**
+> [accordion] Bug Fixes & Minor Improvements
 >
 > * **Deployment Page Enhancements:** Redesigned deployment detail page with new model header, quick actions (Playground, Go to Model), tabbed API/Info interface, collapsible code examples, and improved GPU count display (Web App)
 > * **Login Page Redesign:** New marketing panel with customer testimonials carousel, highlighted platform capabilities, and improved visual design (Web App)
@@ -832,7 +832,7 @@ See the [Weighted Training documentation](https://docs.fireworks.ai/fine-tuning/
 
 * **[KAT Coder](https://app.fireworks.ai/models/fireworks/kat-coder)** is now available in the Model Library
 
-> **Bug Fixes & Minor Improvements**
+> [accordion] Bug Fixes & Minor Improvements
 >
 > * **Console Navigation:** Redesigned sidebar with organized groups (CREATE, EXPLORE, MANAGE) for easier navigation (Web App)
 > * **Fine-Tuning Progress Display:** Training progress (progress/epoch) now displays inline in the job title while Supervised Fine-Tuning jobs are running (Web App)
@@ -895,7 +895,7 @@ New REST API endpoints are now available for managing Reinforcement Fine-Tuning 
 * [Get Deployment Shape Version](https://docs.fireworks.ai/api-reference/get-deployment-shape-version.md)
 * [Get Dataset Download Endpoint](https://docs.fireworks.ai/api-reference/get-dataset-download-endpoint.md)
 
-> **Bug Fixes & Minor Improvements**
+> [accordion] Bug Fixes & Minor Improvements
 >
 > * **Deployment Region Selector:** Added GPU accelerator hints to the region selector, with Global set as default for optimal availability (Web App)
 > * **Preference Fine-Tuning (DPO):** Added to the Fine-Tuning page for training models with human preference data (Web App)
