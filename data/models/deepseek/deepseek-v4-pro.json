@@ -2,21 +2,21 @@
   "id": "deepseek-v4-pro",
   "slug": "deepseek-v4-pro",
   "provider": "deepseek",
-  "display_name": "deepseek-v4-pro",
+  "display_name": "deepseek-v4-pro (DeepSeek-V4-Pro-0813)",
   "family": null,
   "status": "active",
   "announced_date": "2026-04-24",
   "deprecation_date": null,
   "shutdown_date": null,
   "shutdown_date_kind": "none",
-  "region_or_platform_notes": "The 2026-09-10 changelog says API service for DeepSeek V4 Pro continues after September 14, 2026, with the same billing. No shutdown date is published. Stored prices are the peak cache-miss input, peak cache-hit cached input, and peak output from the pricing table. That page says off-peak rates are half of the peak rates. Peak hours are 01:00-04:00 and 06:00-10:00 UTC, Monday through Friday, excluding Chinese public holidays.",
+  "region_or_platform_notes": "Model version on the pricing page: DeepSeek-V4-Pro-0813. The 2026-09-10 changelog says API service for DeepSeek V4 Pro continues after September 14, 2026, with the same billing. No shutdown date is published. Stored prices are the peak cache-miss input, peak cache-hit cached input, and peak output from the pricing table. That page says off-peak rates are half of the peak rates. Peak hours are 01:00-04:00 and 06:00-10:00 UTC, Monday through Friday, excluding Chinese public holidays.",
   "replacements": [],
   "sources": [
     {
       "url": "https://api-docs.deepseek.com/quick_start/pricing",
       "label": "DeepSeek models and pricing",
       "last_checked": "2026-10-30",
-      "excerpt": "deepseek-v4-pro"
+      "excerpt": "deepseek-v4-pro | DeepSeek-V4-Pro-0813 | context 1000000 | max output 384000 | peak cache miss $1.32 | peak output $3.96"
     }
   ],
   "specs": {
@@ -29,38 +29,58 @@
     "max_output_tokens": 384000,
     "modalities_in": null,
     "modalities_out": null,
-    "supports_tools": null,
-    "supports_json_schema": null,
-    "supports_vision": null,
+    "supports_tools": true,
+    "supports_json_schema": true,
+    "supports_vision": false,
     "supports_streaming": null,
     "supports_batch": null,
-    "supports_prompt_caching": null,
-    "reasoning": null,
+    "supports_prompt_caching": true,
+    "reasoning": "optional",
     "knowledge_cutoff": null,
     "endpoints": null,
     "specs_sources": {
       "cached_input_price_per_mtok": {
         "url": "https://api-docs.deepseek.com/quick_start/pricing",
-        "last_checked": "2026-10-25"
+        "last_checked": "2026-10-30"
       },
       "context_window_tokens": {
         "url": "https://api-docs.deepseek.com/quick_start/pricing",
-        "last_checked": "2026-10-25"
+        "last_checked": "2026-10-30"
       },
       "input_price_per_mtok": {
         "url": "https://api-docs.deepseek.com/quick_start/pricing",
-        "last_checked": "2026-10-25"
+        "last_checked": "2026-10-30"
       },
       "max_output_tokens": {
         "url": "https://api-docs.deepseek.com/quick_start/pricing",
-        "last_checked": "2026-10-25"
+        "last_checked": "2026-10-30"
       },
       "output_price_per_mtok": {
         "url": "https://api-docs.deepseek.com/quick_start/pricing",
-        "last_checked": "2026-10-25"
+        "last_checked": "2026-10-30"
+      },
+      "reasoning": {
+        "url": "https://api-docs.deepseek.com/quick_start/pricing",
+        "last_checked": "2026-10-30"
+      },
+      "supports_json_schema": {
+        "url": "https://api-docs.deepseek.com/quick_start/pricing",
+        "last_checked": "2026-10-30"
+      },
+      "supports_prompt_caching": {
+        "url": "https://api-docs.deepseek.com/quick_start/pricing",
+        "last_checked": "2026-10-30"
+      },
+      "supports_tools": {
+        "url": "https://api-docs.deepseek.com/quick_start/pricing",
+        "last_checked": "2026-10-30"
+      },
+      "supports_vision": {
+        "url": "https://api-docs.deepseek.com/quick_start/pricing",
+        "last_checked": "2026-10-30"
       }
     }
   },
   "first_seen": "2026-10-25T12:00:00.000Z",
-  "updated_at": "2026-10-25T20:53:11.768Z"
+  "updated_at": "2026-10-30T12:58:16.405Z"
 }
