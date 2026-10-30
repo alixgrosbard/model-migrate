@@ -2125,7 +2125,7 @@ llm = OpenAIResponsesLLMService(
     h1: "Catch a retired model before your users do",
     summary: "Check configured model ids before the job runs, and do not retry a model that is already gone.",
     answer:
-      "A retired model can keep a job green if the caller swallows the error or answers HTTP 200 anyway. Look up each configured id on the free SunsetDiff lookup API before startup or CI. Fail when status is retired or an exact shutdown date is already past. When a live call says the model is missing, stop retrying that id.",
+      "A retired model can keep a job green if the caller swallows the error or answers HTTP 200 anyway. Look up each configured id on the free SunsetDiff lookup API before startup or CI. Fail when status is retired or an exact or via_snapshots shutdown date is already past. When a live call says the model is missing, stop retrying that id.",
     checked: "2026-10-29",
     steps: [
       {
@@ -2138,7 +2138,7 @@ llm = OpenAIResponsesLLMService(
       },
       {
         name: "Fail on retired or a past exact date",
-        text: "status retired fails the build. An exact shutdown_date before today fails it too. A not_before date is a floor, not a deadline.",
+        text: "status retired fails the build. An exact or via_snapshots shutdown_date before today fails it too. A not_before date is a floor, not a deadline.",
       },
       {
         name: "Do not retry a gone id",
@@ -2167,7 +2167,7 @@ llm = OpenAIResponsesLLMService(
         paragraphs: [
           "Lookup is one public file per model id: [the API docs](/api/). No API key. The body is one model record, or an array when several providers share the id. Check every row. The fields used here are status, shutdown_date, and shutdown_date_kind. sources[0].url is the official page. Read it before you migrate.",
           "Percent-encode the id with encodeURIComponent, or urllib.parse.quote(model_id, safe=\"\") in Python. A colon becomes %3A and a slash becomes %2F, so the id stays one path segment. [anthropic.claude-3-haiku-20240307-v1:0](/api/v1/lookup/anthropic.claude-3-haiku-20240307-v1%3A0.json) is the colon example. A slash id uses %2F the same way. A raw colon also works. A 404 from lookup means the id is not in this dataset. It does not mean the provider retired it.",
-          "Fail when status is retired, or when shutdown_date_kind is exact and shutdown_date is before today. not_before is a floor, not a deadline, so this check does not fail on it. month_only and none are not an exact day either. [Check model shutdown dates programmatically](/guides/check-model-shutdown-dates-programmatically/) lists the other fields. The sample list includes gpt-4.1-nano, which this dataset stores as retired. Running the sample as written exits with a failure. Replace the list with your ids.",
+          "Fail when status is retired, or when shutdown_date_kind is exact or via_snapshots and shutdown_date is before today. not_before is a floor, not a deadline, so this check does not fail on it. month_only and none are not an exact day either. [Check model shutdown dates programmatically](/guides/check-model-shutdown-dates-programmatically/) lists the other fields. The sample list includes gpt-4.1-nano, which this dataset stores as retired. Running the sample as written exits with a failure. Replace the list with your ids.",
         ],
         codes: [
           {
@@ -2188,7 +2188,7 @@ def gone(row, today):
     if row.get("status") == "retired":
         return True
     shutdown = row.get("shutdown_date")
-    return row.get("shutdown_date_kind") == "exact" and bool(shutdown) and shutdown < today
+    return row.get("shutdown_date_kind") in ("exact", "via_snapshots") and bool(shutdown) and shutdown < today
 
 def main():
     today = datetime.now(timezone.utc).date().isoformat()
@@ -2227,7 +2227,7 @@ if __name__ == "__main__":
 
 function gone(row, today) {
   if (row.status === "retired") return true;
-  return row.shutdown_date_kind === "exact" && row.shutdown_date && row.shutdown_date < today;
+  return (row.shutdown_date_kind === "exact" || row.shutdown_date_kind === "via_snapshots") && row.shutdown_date && row.shutdown_date < today;
 }
 
 async function main() {
@@ -2345,7 +2345,7 @@ main();
       {
         question: "Should a not_before date fail the build?",
         answer:
-          "No. shutdown_date_kind not_before is a floor, not a deadline. The snippets fail on status retired, and on an exact shutdown_date that is already past.",
+          "No. shutdown_date_kind not_before is a floor, not a deadline. The snippets fail on status retired, and on an exact or via_snapshots shutdown_date that is already past.",
       },
       {
         question: "Which error code means a Groq model was decommissioned?",

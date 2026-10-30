@@ -59,6 +59,7 @@ function toolNotes(name: (typeof MCP_TOOL_ORDER)[number]): string[] {
     return [
       "model_id is required. provider is optional. When provider is set, the row must use that provider id.",
       "When no row matches, the tool returns found set to false and the model_id you sent.",
+      "shutdown_date_kind via_snapshots means the date is the latest dated snapshot on the deprecations page. The alias id itself is not listed by name.",
     ];
   }
   if (name === "upcoming_shutdowns") {

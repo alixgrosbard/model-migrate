@@ -33,7 +33,7 @@ export interface AliasSnapshotView {
   snapshots: AliasSnapshotRow[];
   /** Set when every dated snapshot shares one shutdown date. */
   sharedDate: string | null;
-  /** Latest snapshot shutdown date. The badge uses this and does not write it onto the alias. */
+  /** Latest snapshot shutdown date. Published JSON copies this with kind via_snapshots. */
   badgeDate: string;
   replacementIds: string[];
   defaultSnapshot: AliasDefaultSnapshot | null;
@@ -140,12 +140,15 @@ function defaultSnapshot(aliasId: string, alias: AliasInput | undefined, rows: A
 }
 
 /**
- * Undated alias whose every `{id}-YYYY-MM-DD` snapshot is on a deprecations page.
- * The returned date is the snapshots' date. It is not a shutdown date for the alias id.
+ * Alias whose every `{id}-YYYY-MM-DD` snapshot is on a deprecations page.
+ * The returned date is the snapshots' date. OpenAI's deprecations page names the
+ * dated snapshot ids, not the alias id. Checked 2026-10-30.
  */
 export function aliasSnapshotView(model: AliasInput, models: AliasInput[]): AliasSnapshotView | null {
   if (aliasIdOf(model.id)) return null;
-  if (model.shutdown_date || model.shutdown_date_kind !== "none") return null;
+  // exact, not_before, and month_only were published for this id. Leave them alone.
+  if (model.shutdown_date_kind !== "none" && model.shutdown_date_kind !== "via_snapshots") return null;
+  if (model.shutdown_date_kind === "none" && model.shutdown_date) return null;
   const rows = snapshotRows(datedSnapshotsOf(model.id, model.provider, models));
   if (!rows) return null;
   const dates = [...new Set(rows.map((row) => row.shutdownDate))];
@@ -164,6 +167,68 @@ export function aliasSnapshotView(model: AliasInput, models: AliasInput[]): Alia
     label: aliasLabel(rows),
     badgeMessage: `snapshots retire ${badgeDate}`,
   };
+}
+
+function replacementsForBadgeDate(view: AliasSnapshotView): ModelRecord["replacements"] {
+  const seen = new Set<string>();
+  const replacements: ModelRecord["replacements"] = [];
+  for (const row of view.snapshots) {
+    if (row.shutdownDate !== view.badgeDate) continue;
+    for (const item of row.model.replacements) {
+      if (item.kind !== "official") continue;
+      const key = `${item.provider}:${item.model_id}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      replacements.push(item);
+    }
+  }
+  return replacements;
+}
+
+function sameReplacements(left: ModelRecord["replacements"], right: ModelRecord["replacements"]): boolean {
+  if (left.length !== right.length) return false;
+  return left.every((item, index) => {
+    const other = right[index];
+    return item.model_id === other?.model_id && item.provider === other.provider && item.kind === other.kind && item.source_url === other.source_url;
+  });
+}
+
+/**
+ * Copy the HTML alias snapshot date onto the record the JSON APIs return.
+ * shutdown_date is the latest snapshot date. kind via_snapshots means that
+ * date was not published for the alias id. exact, not_before, month_only,
+ * and none are left as stored.
+ */
+export function applyAliasSnapshotShutdowns<T extends ModelRecord>(models: T[]): T[] {
+  return models.map((model) => {
+    if (model.shutdown_date_kind !== "none" && model.shutdown_date_kind !== "via_snapshots") return model;
+    const view = aliasSnapshotView(model, models);
+    if (!view) return model;
+    const replacements = model.shutdown_date_kind === "via_snapshots" || model.replacements.length === 0
+      ? replacementsForBadgeDate(view)
+      : model.replacements;
+    const today = new Date().toISOString().slice(0, 10);
+    const status = model.status !== "active"
+      ? model.status
+      : view.badgeDate < today
+        ? "retired"
+        : "deprecated";
+    if (
+      model.status === status
+      && model.shutdown_date === view.badgeDate
+      && model.shutdown_date_kind === "via_snapshots"
+      && sameReplacements(model.replacements, replacements)
+    ) {
+      return model;
+    }
+    return {
+      ...model,
+      status,
+      shutdown_date: view.badgeDate,
+      shutdown_date_kind: "via_snapshots",
+      replacements,
+    };
+  });
 }
 
 export function aliasLead(view: AliasSnapshotView): string {

@@ -143,6 +143,7 @@ function statusClause(model: ChainModel): string {
   if (!model.shutdown_date || kind === "none") return `is also ${model.status}`;
   if (kind === "not_before") return `is also ${model.status} and is not scheduled to shut down sooner than ${model.shutdown_date}`;
   if (kind === "month_only") return `is also ${model.status} and has a published shutdown month of ${model.shutdown_date.slice(0, 7)}`;
+  if (kind === "via_snapshots") return `is also ${model.status} and its dated snapshots shut down by ${model.shutdown_date} (the alias itself is not listed by name)`;
   if (model.status === "retired") return `is also retired and shut down on ${model.shutdown_date}`;
   return `is also deprecated and shuts down on ${model.shutdown_date}`;
 }

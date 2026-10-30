@@ -1,5 +1,6 @@
 import { readFile, readdir } from "node:fs/promises";
 import path from "node:path";
+import { applyAliasSnapshotShutdowns } from "../../src/lib/aliases.js";
 let cache;
 export function dataDir() {
     return process.env.DATA_DIR || path.join(process.cwd(), "data", "models");
@@ -21,7 +22,7 @@ async function readAll() {
             models.push(JSON.parse(await readFile(path.join(folder, file), "utf8")));
         }
     }
-    return models;
+    return applyAliasSnapshotShutdowns(models);
 }
 export async function loadMigrations() {
     const dir = path.join(path.dirname(dataDir()), "migrations");

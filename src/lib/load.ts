@@ -11,6 +11,7 @@ import {
   type ModelRecord,
   type Provider,
 } from "../schema.ts";
+import { applyAliasSnapshotShutdowns } from "./aliases.ts";
 import { compareModels } from "./stable-export.ts";
 
 const root = process.cwd();
@@ -45,7 +46,7 @@ async function readModels(): Promise<ModelRecord[]> {
       models.push(modelSchema.parse(raw));
     }
   }
-  return models.sort(compareModels);
+  return applyAliasSnapshotShutdowns(models.sort(compareModels));
 }
 
 export async function loadMigrations(): Promise<MigrationRecord[]> {

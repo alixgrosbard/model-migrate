@@ -12,6 +12,10 @@ const providerIds = [
     "xai",
     "cohere",
     "openrouter",
+    "nebius",
+    "together",
+    "fireworks",
+    "github-copilot",
 ];
 const hits = new Map();
 export function validEmail(email) {
