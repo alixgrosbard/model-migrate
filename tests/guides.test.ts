@@ -1,6 +1,16 @@
 import { describe, expect, it } from "vitest";
 import { guideGraph, guidesIndexGraph } from "../src/jsonld.ts";
-import { GUIDES_CHECKED, GUIDES_INDEX, guideChecked, guidePath, guides } from "../src/lib/guides.ts";
+import {
+  DECEMBER_11_GUIDE_SLUG,
+  DECEMBER_11_SHUTDOWN_DATE,
+  JANUARY_2027_GPT4_GUIDE_SLUG,
+  JANUARY_2027_SHUTDOWN_DATE,
+  isDecember11OpenAiShutdown,
+  isJanuary2027Gpt4Shutdown,
+} from "../src/lib/dataset-guides.ts";
+import { GUIDES_CHECKED, GUIDES_INDEX, guideChecked, guidePath, guides, guidesForModel } from "../src/lib/guides.ts";
+import { loadModels } from "../src/lib/load.ts";
+import { publishedReplacementIds } from "../src/lib/shutdowns.ts";
 import { lastmodForUrl } from "../src/lib/lastmod.ts";
 import { llmsFull, llmsTxt } from "../src/lib/llms.ts";
 import { contentAliasFiles } from "../src/lib/shortcuts.ts";
@@ -218,5 +228,91 @@ describe("guides", () => {
     expect(node?.code).not.toContain("\\`");
     const graph = guideGraph("https://sunsetdiff.com/", guide);
     expect(graph.some((node) => node["@type"] === "BreadcrumbList" || node["@type"] === "Article")).toBe(true);
+  });
+
+  it("builds the OpenAI shutdown guides from the dataset", async () => {
+    const models = await loadModels();
+    const decemberRows = models.filter(isDecember11OpenAiShutdown).sort((a, b) => a.id.localeCompare(b.id));
+    const januaryRows = models.filter(isJanuary2027Gpt4Shutdown).sort((a, b) => a.id.localeCompare(b.id));
+    expect(decemberRows.length).toBeGreaterThan(0);
+    expect(januaryRows.length).toBeGreaterThan(0);
+    expect(new Set(decemberRows.map((model) => model.shutdown_date))).toEqual(new Set([DECEMBER_11_SHUTDOWN_DATE]));
+    expect(new Set(januaryRows.map((model) => model.shutdown_date))).toEqual(new Set([JANUARY_2027_SHUTDOWN_DATE]));
+
+    const december = guides.find((guide) => guide.slug === DECEMBER_11_GUIDE_SLUG);
+    const january = guides.find((guide) => guide.slug === JANUARY_2027_GPT4_GUIDE_SLUG);
+    expect(december).toBeTruthy();
+    expect(january).toBeTruthy();
+    if (!december || !january) return;
+
+    expect(guidePath(december.slug)).toBe("/guides/openai-december-11-2026-shutdowns/");
+    expect(guidePath(january.slug)).toBe("/guides/openai-gpt-4-1-gpt-4o-shutdown-january-2027/");
+    expect(december.h1).toContain("December 11, 2026");
+    expect(january.h1).toContain("January 14, 2027");
+
+    const decemberTable = december.sections.find((section) => section.table)?.table;
+    const januaryTable = january.sections.find((section) => section.table)?.table;
+    expect(decemberTable?.headers).toEqual(["Model id", "Deprecation date", "Shutdown date", "Recommended replacement"]);
+    expect(januaryTable?.headers).toEqual(decemberTable?.headers);
+    expect(decemberTable?.rows.map((row) => row[0])).toEqual(
+      decemberRows.map((model) => `[${model.id}](/models/${model.provider}/${model.slug}/)`),
+    );
+    expect(januaryTable?.rows.map((row) => row[0])).toEqual(
+      januaryRows.map((model) => `[${model.id}](/models/${model.provider}/${model.slug}/)`),
+    );
+
+    for (const [guide, rows] of [[december, decemberRows], [january, januaryRows]] as const) {
+      const table = guide.sections.find((section) => section.table)?.table;
+      expect(table?.rows.length).toBe(rows.length);
+      rows.forEach((model, index) => {
+        const row = table?.rows[index];
+        expect(row?.[1]).toBe(model.deprecation_date ?? "Not published");
+        expect(row?.[2]).toContain(model.shutdown_date);
+        const replacements = publishedReplacementIds(model);
+        if (!replacements.length) expect(row?.[3]).toBe("Not published");
+        for (const id of replacements) expect(row?.[3]).toContain(id);
+      });
+      const pageFacts = JSON.stringify({
+        answer: guide.answer,
+        steps: guide.steps,
+        sections: guide.sections,
+      });
+      for (const faq of guide.faqs) {
+        for (const date of faq.answer.match(/\d{4}-\d{2}-\d{2}/g) ?? []) {
+          expect(pageFacts).toContain(date);
+        }
+        for (const id of rows.map((model) => model.id)) {
+          if (faq.answer.includes(id)) expect(pageFacts).toContain(id);
+        }
+      }
+      const graph = guideGraph("https://sunsetdiff.com/", guide);
+      expect(graph.some((node) => node["@type"] === "FAQPage")).toBe(true);
+      expect(guide.sections.some((section) => section.heading === "What breaks")).toBe(true);
+      expect(guide.sections.some((section) => section.heading === "Find the model ids in your code")).toBe(true);
+      expect(guide.sections.some((section) => section.heading === "Test the replacement before the cutoff")).toBe(true);
+    }
+
+    expect(JSON.stringify(january)).toContain("the alias itself is not listed by name");
+    expect(JSON.stringify(january)).toContain("Fine-tuned versions of these models follow the same shutdown schedule as their underlying base models.");
+    expect(JSON.stringify(december)).toContain("no longer be accessible");
+    expect(JSON.stringify(december)).not.toContain("HTTP 404");
+    expect(januaryRows.map((model) => model.id)).toEqual(expect.arrayContaining([
+      "gpt-4o",
+      "gpt-4o-mini",
+      "gpt-4.1",
+      "gpt-4.1-mini",
+      "gpt-4o-2024-08-06",
+      "gpt-4o-2024-11-20",
+      "gpt-4o-mini-2024-07-18",
+      "gpt-4.1-2025-04-14",
+      "gpt-4.1-mini-2025-04-14",
+    ]));
+    expect(januaryRows.map((model) => model.id)).not.toContain("gpt-4o-2024-05-13");
+
+    const gpt4o = models.find((model) => model.id === "gpt-4o")!;
+    const gpt5 = models.find((model) => model.id === "gpt-5")!;
+    expect(guidesForModel(gpt4o, models).map((link) => link.href)).toContain(`/guides/${JANUARY_2027_GPT4_GUIDE_SLUG}/`);
+    expect(guidesForModel(gpt5, models).map((link) => link.href)).toContain(`/guides/${DECEMBER_11_GUIDE_SLUG}/`);
+    expect(guidesForModel(gpt4o, models).map((link) => link.href)).toContain("/guides/model-aliases-vs-pinned-snapshots/");
   });
 });

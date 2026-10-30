@@ -8,6 +8,7 @@ import { publicName } from "../../lib/growth.ts";
 import { providersHub } from "../../lib/hubs.ts";
 import { providerStatusPath, STATUS_HUBS } from "../../lib/status-hubs.ts";
 import { COPILOT_NOV16_PATH, COPILOT_NOV16_TITLE, copilotNov16Hit } from "../../lib/shutdowns.ts";
+import { guideBySlug, guidePath } from "../../lib/guides.ts";
 import type { ModelRecord } from "../../schema.ts";
 
 export async function getStaticPaths() {
@@ -29,6 +30,12 @@ const soonest = models
   .slice(0, 8);
 const groups: ModelRecord["status"][] = ["deprecated", "legacy", "retired", "active"];
 const description = `${provider.name} model shutdown dates, grouped by status.`;
+const openaiGuides = provider.id === "openai"
+  ? ["openai-december-11-2026-shutdowns", "openai-gpt-4-1-gpt-4o-shutdown-january-2027"].flatMap((slug) => {
+      const guide = guideBySlug(slug);
+      return guide ? [guide] : [];
+    })
+  : [];
 ---
 <Base
   title={`${provider.name} model shutdowns and replacements | SunsetDiff`}
@@ -102,6 +109,16 @@ const description = `${provider.name} model shutdown dates, grouped by status.`;
   ) : (
     <p>Official source: <a href={provider.deprecations_url}>{provider.deprecations_url}</a>. <a href="/#soonest">Soonest shutdowns on the homepage</a>.</p>
   )}
+  {openaiGuides.length ? (
+    <p>
+      {openaiGuides.map((guide, index) => (
+        <>
+          {index > 0 ? " · " : null}
+          <a href={guidePath(guide.slug)}>{guide.h1}</a>
+        </>
+      ))}
+    </p>
+  ) : null}
   <p>
     {STATUS_HUBS.map((hub) => {
       const count = models.filter((model) => model.status === hub.kind).length;
