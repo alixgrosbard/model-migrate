@@ -164,7 +164,7 @@ function statusIntro(page: StatusPage, rows: ModelRecord[]): string {
       ? `None of these records has an exact shutdown date before ${page.day}.`
       : `${pastExact} of these records ${pastExact === 1 ? "has" : "have"} an exact shutdown date before ${page.day}. The stored status is still deprecated.`
     : "The stored status is retired. The dataset records these models as already shut down.";
-  const undated = rows.filter((model) => !model.shutdown_date || model.shutdown_date_kind === "none").length;
+  const undated = rows.filter((model) => !model.shutdown_date || model.shutdown_date_kind === "none" || model.shutdown_date_kind === "via_snapshots").length;
   const dates = undated === 0
     ? "Every record on this page has a shutdown date."
     : `${undated} ${undated === 1 ? "record has" : "records have"} no published shutdown date.`;
@@ -217,7 +217,7 @@ function statusFaqs(page: StatusPage, rows: ModelRecord[], providers: Provider[]
     });
   }
   if (page.kind === "deprecated") {
-    const undated = rows.filter((model) => !model.shutdown_date || model.shutdown_date_kind === "none").length;
+    const undated = rows.filter((model) => !model.shutdown_date || model.shutdown_date_kind === "none" || model.shutdown_date_kind === "via_snapshots").length;
     faqs.push({
       question: page.provider
         ? `How many deprecated ${page.provider.name} models have no published shutdown date?`

@@ -255,7 +255,7 @@ ${items}
 
 function ics(models: Awaited<ReturnType<typeof loadModels>>, name: string) {
   const events = models
-    .filter((model) => model.shutdown_date && model.shutdown_date_kind !== "none")
+    .filter((model) => model.shutdown_date && model.shutdown_date_kind !== "none" && model.shutdown_date_kind !== "via_snapshots")
     .map((model) => {
       const stamp = model.shutdown_date!.replace(/-/g, "");
       const summary = model.shutdown_date_kind === "not_before" ? `${model.id} not before this date` : `${model.id} shutdown`;

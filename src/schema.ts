@@ -86,7 +86,7 @@ export const modelSchema = z.object({
   announced_date: isoDate.nullable(),
   deprecation_date: isoDate.nullable(),
   shutdown_date: isoDate.nullable(),
-  shutdown_date_kind: z.enum(["exact", "not_before", "month_only", "none"]),
+  shutdown_date_kind: z.enum(["exact", "not_before", "month_only", "none", "via_snapshots"]),
   region_or_platform_notes: z.string().nullable(),
   replacements: z.array(replacementSchema),
   sources: z.array(sourceSchema).min(1),

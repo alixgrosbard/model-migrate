@@ -116,6 +116,7 @@ describe("undated alias snapshots", () => {
       const key = `${model.provider}:${model.slug}`;
       const old = before[key];
       if (!old) continue;
+      if (model.shutdown_date_kind === "via_snapshots") continue;
       if (old.status !== model.status || old.shutdown_date !== model.shutdown_date) changed.push(key);
     }
     expect(changed).toEqual([]);

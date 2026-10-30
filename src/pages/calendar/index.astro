@@ -8,7 +8,7 @@ import { batchHeadline, eventCountLabel, orderShutdownEvents, providerDisplayNam
 const providers = await loadProviders();
 const all = await loadModels();
 const day = today();
-const models = all.filter((model) => model.shutdown_date && model.shutdown_date_kind !== "none");
+const models = all.filter((model) => model.shutdown_date && model.shutdown_date_kind !== "none" && model.shutdown_date_kind !== "via_snapshots");
 const windows = [30, 60, 90].map((days) => ({ days, rows: deadlineWindow(all, day, days) }));
 const batches = orderShutdownEvents(shutdownEvents(all), day).filter((event) => event.date >= day).slice(0, 8);
 const months = new Map<string, typeof models>();

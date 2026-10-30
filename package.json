@@ -10,7 +10,7 @@
     "node": ">=20"
   },
   "bin": {
-    "sunsetdiff": "./service/dist/cli.js"
+    "sunsetdiff": "./service/dist/service/src/cli.js"
   },
   "scripts": {
     "prebuild": "tsx scripts/generate-static.ts",
@@ -20,7 +20,7 @@
     "scrape": "tsx scrapers/run.ts",
     "generate:static": "tsx scripts/generate-static.ts",
     "build:service": "tsc -p service/tsconfig.json",
-    "start:service": "node service/dist/index.js",
+    "start:service": "node service/dist/service/src/index.js",
     "build:action": "ncc build action/src/index.ts -o action/dist --target es2022"
   },
   "dependencies": {

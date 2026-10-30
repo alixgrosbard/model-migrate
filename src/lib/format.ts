@@ -16,7 +16,7 @@ export function visibleName(model: { display_name: string; id: string }): string
 }
 
 export function isUpcomingShutdown(model: ModelRecord, day: string): boolean {
-  if (!model.shutdown_date || model.shutdown_date_kind === "none" || model.shutdown_date_kind === "not_before") return false;
+  if (!model.shutdown_date || model.shutdown_date_kind === "none" || model.shutdown_date_kind === "not_before" || model.shutdown_date_kind === "via_snapshots") return false;
   if (model.shutdown_date_kind === "month_only") return model.shutdown_date.slice(0, 7) >= day.slice(0, 7);
   return model.shutdown_date >= day;
 }
@@ -38,6 +38,7 @@ export function autoRouteStatusText(model: { region_or_platform_notes?: string |
 
 export function formatWhen(model: ModelRecord): string {
   if (!model.shutdown_date || model.shutdown_date_kind === "none") return "Not published";
+  if (model.shutdown_date_kind === "via_snapshots") return `Snapshots retire ${model.shutdown_date}`;
   if (model.shutdown_date_kind === "not_before") return `Not sooner than ${model.shutdown_date}`;
   if (model.shutdown_date_kind === "month_only") return `During ${model.shutdown_date.slice(0, 7)}`;
   return model.shutdown_date;
@@ -48,6 +49,8 @@ export function shutdownSentence(model: ModelRecord, provider: Provider): string
   let when: string;
   if (model.shutdown_date_kind === "not_before" && model.shutdown_date) {
     when = `is not scheduled to shut down sooner than ${model.shutdown_date}`;
+  } else if (model.shutdown_date_kind === "via_snapshots" && model.shutdown_date) {
+    when = `is an alias whose dated snapshots shut down by ${model.shutdown_date} (the alias itself is not listed by name)`;
   } else if (model.shutdown_date_kind === "month_only" && model.shutdown_date) {
     when = `has a published shutdown month of ${model.shutdown_date.slice(0, 7)}`;
   } else if (model.status === "retired" && model.shutdown_date) {
@@ -136,7 +139,7 @@ export function modelFaqs(
       { question: `What replaces ${name}?`, answer: aliasReplacementSentence(alias) },
       {
         question: `Is ${name} deprecated?`,
-        answer: `${name} is not listed by name on the deprecations page (checked ${alias.checked}). The dated snapshots behind it are. This record keeps status ${model.status} and does not copy a snapshot shutdown date onto the alias.`,
+        answer: `${name} is not listed by name on the deprecations page (checked ${alias.checked}). The dated snapshots behind it are. shutdown_date is ${alias.badgeDate} and shutdown_date_kind is via_snapshots, copied from those snapshots. Status is ${model.status}.`,
       },
     ];
   }
@@ -313,7 +316,7 @@ export function pct(value: number | null): string {
 
 export function isSoon(model: ModelRecord, today: string, days: number): boolean {
   if (!model.shutdown_date) return false;
-  if (model.shutdown_date_kind === "none" || model.shutdown_date_kind === "not_before") return false;
+  if (model.shutdown_date_kind === "none" || model.shutdown_date_kind === "not_before" || model.shutdown_date_kind === "via_snapshots") return false;
   const end = addDays(today, days);
   if (model.shutdown_date_kind === "month_only") {
     return model.shutdown_date <= end && model.shutdown_date.slice(0, 7) >= today.slice(0, 7);

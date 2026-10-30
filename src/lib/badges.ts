@@ -23,12 +23,12 @@ export const badgeFaqs: FaqItem[] = [
   {
     question: "What do the badge colors mean?",
     answer:
-      `Red means the model is retired, or the published shutdown date is under 30 days away. A date that is already past is red too. Amber means the published shutdown date is under 90 days away. Green means a later date, or the model is active and no shutdown date is published. For gemini-2.5-pro, gemini-2.5-flash, and gemini-2.5-flash-lite on the Gemini API, the green message says existing users only. Google's deprecations page limits those three ids to people who have used them before, and says they are not deprecated. Source: ${GEMINI_25_ACCESS_SOURCE}, checked ${GEMINI_25_ACCESS_CHECKED}. Gray means the date is only a not-sooner-than floor, or the status has no shutdown date. An undated alias whose dated snapshots are all on the deprecations page uses those snapshot dates for the color. The message says snapshots retire that date.`,
+      `Red means the model is retired, or the published shutdown date is under 30 days away. A date that is already past is red too. Amber means the published shutdown date is under 90 days away. Green means a later date, or the model is active and no shutdown date is published. For gemini-2.5-pro, gemini-2.5-flash, and gemini-2.5-flash-lite on the Gemini API, the green message says existing users only. Google's deprecations page limits those three ids to people who have used them before, and says they are not deprecated. Source: ${GEMINI_25_ACCESS_SOURCE}, checked ${GEMINI_25_ACCESS_CHECKED}. Gray means the date is only a not-sooner-than floor, or the status has no shutdown date. An alias with shutdown_date_kind via_snapshots uses the snapshot shutdown date for the color. The message says snapshots retire that date.`,
   },
   {
     question: "Where does the badge date come from?",
     answer:
-      "The badge uses the same model record as the model page. It does not add a date that is not in that record. If no shutdown date is published, the message says so. When an undated alias has dated snapshots and every one of those snapshots is on the provider deprecations page, the message says snapshots retire and uses the snapshot shutdown date. That date stays off the alias record.",
+      "The badge uses the same model record as the model page. It does not add a date that is not in that record. If no shutdown date is published, the message says so. When every dated snapshot of an alias is on the provider deprecations page, the record stores the latest snapshot shutdown date with shutdown_date_kind via_snapshots. The badge message says snapshots retire that date. The alias id itself is not listed by name.",
   },
   {
     question: "When does a badge update?",
@@ -91,6 +91,9 @@ export function badgeView(model: ModelRecord, day: string, models: ModelRecord[]
   const label = model.id;
   const alias = models.length ? aliasSnapshotView(model, models) : null;
   if (alias) return paint(label, alias.badgeMessage, colorForDays(daysUntil(day, alias.badgeDate)));
+  if (model.shutdown_date && model.shutdown_date_kind === "via_snapshots") {
+    return paint(label, `snapshots retire ${model.shutdown_date}`, colorForDays(daysUntil(day, model.shutdown_date)));
+  }
   if (model.status === "retired") return paint(label, "retired", "red");
   if (model.shutdown_date && model.shutdown_date_kind === "exact") {
     return paint(label, `retires ${model.shutdown_date}`, colorForDays(daysUntil(day, model.shutdown_date)));

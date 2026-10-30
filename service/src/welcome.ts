@@ -214,7 +214,7 @@ export function modelUrl(model: ShutdownModel): string {
 
 function isOnOrAfterToday(model: ShutdownModel, day: string): boolean {
   if (!model.shutdown_date) return false;
-  if (model.shutdown_date_kind === "none" || model.shutdown_date_kind === "not_before") return false;
+  if (model.shutdown_date_kind === "none" || model.shutdown_date_kind === "not_before" || model.shutdown_date_kind === "via_snapshots") return false;
   if (model.shutdown_date_kind === "month_only") return model.shutdown_date.slice(0, 7) >= day.slice(0, 7);
   return model.shutdown_date >= day;
 }

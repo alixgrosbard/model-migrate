@@ -63,7 +63,7 @@ export function topRetiringModels(models: ModelRecord[], day: string, limit = 40
 export function shutdownMonths(models: ModelRecord[]): string[] {
   const months = new Set<string>();
   for (const model of models) {
-    if (!model.shutdown_date || model.shutdown_date_kind === "none") continue;
+    if (!model.shutdown_date || model.shutdown_date_kind === "none" || model.shutdown_date_kind === "via_snapshots") continue;
     const month = model.shutdown_date.slice(0, 7);
     if (/^\d{4}-\d{2}$/.test(month)) months.add(month);
   }
@@ -79,7 +79,7 @@ export function monthLabel(month: string): string {
 
 export function modelsInMonth(models: ModelRecord[], month: string): ModelRecord[] {
   return models
-    .filter((model) => model.shutdown_date && model.shutdown_date_kind !== "none" && model.shutdown_date.slice(0, 7) === month)
+    .filter((model) => model.shutdown_date && model.shutdown_date_kind !== "none" && model.shutdown_date_kind !== "via_snapshots" && model.shutdown_date.slice(0, 7) === month)
     .sort((a, b) => (a.shutdown_date ?? "").localeCompare(b.shutdown_date ?? "") || a.id.localeCompare(b.id));
 }
 

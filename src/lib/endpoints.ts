@@ -104,7 +104,7 @@ export interface EndpointDoc {
 }
 
 const modelRecordDetail =
-  "Full model record. status is active, legacy, deprecated, or retired. shutdown_date_kind is exact, not_before, month_only, or none. A null date or spec means the official page did not publish it.";
+  "Full model record. status is active, legacy, deprecated, or retired. shutdown_date_kind is exact, not_before, month_only, none, or via_snapshots. exact, not_before, month_only, and none keep their previous meanings. via_snapshots means every dated snapshot of this alias is on the deprecations page, and shutdown_date is the latest of those snapshot dates. The alias id itself is not listed by name. A null date or spec means the official page did not publish it.";
 
 const specDetail = `specs object: ${SPEC_FIELDS.join(", ")}. Prices are USD per 1M tokens when published. specs_sources maps a spec field to { url, last_checked }.`;
 
@@ -133,7 +133,7 @@ export const ENDPOINTS: EndpointDoc[] = [
       { name: "models[].announced_date", detail: "YYYY-MM-DD, or null when the page did not publish one." },
       { name: "models[].deprecation_date", detail: "YYYY-MM-DD, or null." },
       { name: "models[].shutdown_date", detail: "YYYY-MM-DD, or null." },
-      { name: "models[].shutdown_date_kind", detail: "exact, not_before, month_only, or none. not_before is a floor, not a deadline." },
+      { name: "models[].shutdown_date_kind", detail: "exact, not_before, month_only, none, or via_snapshots. not_before is a floor, not a deadline. via_snapshots copies the latest dated-snapshot shutdown date onto an alias the deprecations page does not list by name. exact, not_before, month_only, and none are unchanged." },
       { name: "models[].region_or_platform_notes", detail: "Scope note when the date does not apply everywhere, a release note, or a Sources disagree note when official pages list different shutdown dates. Null when none of those were published. shutdown_date stays the deprecations-page date when sources disagree." },
       { name: "models[].replacements", detail: replacementDetail },
       { name: "models[].sources", detail: sourceDetail },
@@ -381,7 +381,7 @@ export const ENDPOINTS: EndpointDoc[] = [
       name,
       detail: "Same fields as /api/v1/models.json.",
     })),
-    notes: ["not_before floors and rows with shutdown_date_kind none are omitted. month_only rows are included when that month overlaps the window."],
+    notes: ["not_before floors, via_snapshots alias rows, and rows with shutdown_date_kind none are omitted. The dated snapshots are listed on their own rows. month_only rows are included when that month overlaps the window."],
     body: "json",
   },
   {
@@ -457,7 +457,7 @@ export const ENDPOINTS: EndpointDoc[] = [
     path: "/calendar.ics",
     title: "All shutdown dates",
     format: "text/calendar",
-    summary: "iCalendar of every model with a shutdown date, including not_before floors.",
+    summary: "iCalendar of every model with a published shutdown date, including not_before floors. via_snapshots alias rows are omitted because their snapshots are already listed.",
     fields: [
       { name: "SUMMARY", detail: "Model id plus shutdown, or 'not before this date' when the kind is not_before." },
       { name: "DESCRIPTION", detail: "The official source URL." },

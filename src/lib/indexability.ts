@@ -1,6 +1,7 @@
 import { readdirSync, readFileSync, existsSync } from "node:fs";
 import path from "node:path";
 import type { ModelRecord } from "../schema.ts";
+import { applyAliasSnapshotShutdowns } from "./aliases.ts";
 import { today } from "./format.ts";
 import { modelsInMonth, questionPath, shutdownMonths, topRetiringModels } from "./growth.ts";
 import { monthKeyPath, shutdownMonthList, shutdownsInMonth } from "./schedule.ts";
@@ -186,5 +187,5 @@ function readModels(): ModelRecord[] {
       models.push(JSON.parse(readFileSync(path.join(folder, file), "utf8")) as ModelRecord);
     }
   }
-  return models;
+  return applyAliasSnapshotShutdowns(models);
 }

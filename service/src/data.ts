@@ -1,5 +1,7 @@
 import { readFile, readdir } from "node:fs/promises";
 import path from "node:path";
+import { applyAliasSnapshotShutdowns } from "../../src/lib/aliases.ts";
+import type { ModelRecord } from "../../src/schema.ts";
 
 export interface ModelRow {
   id: string;
@@ -37,7 +39,7 @@ async function readAll(): Promise<ModelRow[]> {
       models.push(JSON.parse(await readFile(path.join(folder, file), "utf8")) as ModelRow);
     }
   }
-  return models;
+  return applyAliasSnapshotShutdowns(models as ModelRecord[]);
 }
 
 export async function loadMigrations() {
