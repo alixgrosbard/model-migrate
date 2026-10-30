@@ -1,0 +1,45 @@
+{
+  "id": "MiniMax-M3.1-Flash",
+  "slug": "minimax-m3-1-flash",
+  "provider": "minimax",
+  "display_name": "MiniMax-M3.1-Flash",
+  "family": null,
+  "status": "active",
+  "announced_date": null,
+  "deprecation_date": null,
+  "shutdown_date": null,
+  "shutdown_date_kind": "none",
+  "region_or_platform_notes": "The Available Models table lists this id. The retirement notice says M Plan and Token Plan requests to M2.5 and M2.7 models are automatically routed to M3.1 Flash. No shutdown date was published for this id on that page.",
+  "replacements": [],
+  "sources": [
+    {
+      "url": "https://platform.minimax.io/docs/faq/models",
+      "label": "Named as an official replacement",
+      "last_checked": "2026-10-30",
+      "excerpt": "MiniMax-M3.1-Flash is listed under Available Models."
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": null,
+    "output_price_per_mtok": null,
+    "cached_input_price_per_mtok": null,
+    "batch_discount_pct": null,
+    "currency": null,
+    "context_window_tokens": null,
+    "max_output_tokens": null,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {}
+  },
+  "first_seen": "2026-10-30T16:10:00.000Z",
+  "updated_at": "2026-10-30T16:10:00.000Z"
+}

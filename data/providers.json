@@ -117,5 +117,19 @@
     "deprecations_url": "https://docs.github.com/en/copilot/reference/ai-models/supported-models",
     "pricing_url": "https://docs.github.com/en/copilot/reference/copilot-billing/models-and-pricing",
     "models_url": "https://docs.github.com/en/copilot/reference/ai-models/supported-models"
+  },
+  {
+    "id": "minimax",
+    "name": "MiniMax",
+    "deprecations_url": "https://platform.minimax.io/docs/faq/models",
+    "pricing_url": "https://platform.minimax.io/docs/pricing/overview",
+    "models_url": "https://platform.minimax.io/docs/faq/models"
+  },
+  {
+    "id": "cloudflare-workers-ai",
+    "name": "Cloudflare Workers AI",
+    "deprecations_url": "https://developers.cloudflare.com/changelog/post/2026-05-08-planned-model-deprecations/",
+    "pricing_url": "https://developers.cloudflare.com/workers-ai/platform/pricing/",
+    "models_url": "https://developers.cloudflare.com/workers-ai/models/"
   }
 ]

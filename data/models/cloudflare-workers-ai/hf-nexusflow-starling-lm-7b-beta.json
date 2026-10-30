@@ -1,0 +1,45 @@
+{
+  "id": "@hf/nexusflow/starling-lm-7b-beta",
+  "slug": "hf-nexusflow-starling-lm-7b-beta",
+  "provider": "cloudflare-workers-ai",
+  "display_name": "@hf/nexusflow/starling-lm-7b-beta",
+  "family": null,
+  "status": "retired",
+  "announced_date": null,
+  "deprecation_date": null,
+  "shutdown_date": "2025-10-01",
+  "shutdown_date_kind": "exact",
+  "region_or_platform_notes": "The Workers AI changelog says this model is being deprecated on October 1, 2025. The same sentence recommends newer models such as Llama 4 and gpt-oss. It does not name one replacement id for this model.",
+  "replacements": [],
+  "sources": [
+    {
+      "url": "https://developers.cloudflare.com/workers-ai/changelog/",
+      "label": "Cloudflare Workers AI changelog",
+      "last_checked": "2026-10-30",
+      "excerpt": "- @hf/nexusflow/starling-lm-7b-beta"
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": null,
+    "output_price_per_mtok": null,
+    "cached_input_price_per_mtok": null,
+    "batch_discount_pct": null,
+    "currency": null,
+    "context_window_tokens": null,
+    "max_output_tokens": null,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {}
+  },
+  "first_seen": "2026-10-30T16:10:00.000Z",
+  "updated_at": "2026-10-30T16:10:00.000Z"
+}
