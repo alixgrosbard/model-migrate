@@ -17,6 +17,8 @@ const providerIds = [
   "together",
   "fireworks",
   "github-copilot",
+  "minimax",
+  "cloudflare-workers-ai",
 ] as const;
 
 const hits = new Map<string, number[]>();

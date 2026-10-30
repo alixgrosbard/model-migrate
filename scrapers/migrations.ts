@@ -17,6 +17,8 @@ import {
   fireworksUsesUsHost,
 } from "./fireworks.ts";
 import { SUPPORTED_URL as COPILOT_SUPPORTED } from "./github-copilot.ts";
+import { MINIMAX_BASE_URL, MINIMAX_CHAT_URL, MODELS_URL as MINIMAX_MODELS, TEXT_GENERATION_URL } from "./minimax.ts";
+import { CLOUDFLARE_RUN_URL, POST_URL as CLOUDFLARE_POST, REST_URL as CLOUDFLARE_REST } from "./cloudflare-workers-ai.ts";
 
 const EXAMPLE = "Example monthly cost for 10M input tokens and 2M output tokens. Labeled example, not a bill.";
 
@@ -134,7 +136,9 @@ export function officialMigrationTargets(model: ModelRecord) {
     model.provider === "nebius" ||
     model.provider === "together" ||
     model.provider === "fireworks" ||
-    model.provider === "github-copilot"
+    model.provider === "github-copilot" ||
+    model.provider === "minimax" ||
+    model.provider === "cloudflare-workers-ai"
   ) {
     return official;
   }
@@ -207,6 +211,8 @@ function migrationChecklist(from: ModelRecord, to: ModelRecord): string[] {
   if (from.provider === "together") return togetherChecklist(from, to);
   if (from.provider === "fireworks") return fireworksChecklist(from, to);
   if (from.provider === "github-copilot") return copilotChecklist(from, to);
+  if (from.provider === "minimax") return minimaxChecklist(from, to);
+  if (from.provider === "cloudflare-workers-ai") return cloudflareChecklist(from, to);
   const undated = (from.provider === "xai" || from.provider === "cohere") && !from.shutdown_date;
   if (undated) {
     return [
@@ -233,6 +239,8 @@ function codeSnippets(from: ModelRecord, to: ModelRecord) {
   if (from.provider === "together" && to.provider === "together") return togetherSnippets(from.id, to.id);
   if (from.provider === "fireworks" && to.provider === "fireworks") return fireworksSnippets(from, to);
   if (from.provider === "github-copilot" && to.provider === "github-copilot") return blankSnippets();
+  if (from.provider === "minimax" && to.provider === "minimax") return minimaxSnippets(from.id, to.id);
+  if (from.provider === "cloudflare-workers-ai" && to.provider === "cloudflare-workers-ai") return cloudflareSnippets(from.id, to.id);
   return specialized(from, to)?.snippets ?? defaultSnippets(from, to);
 }
 
@@ -245,6 +253,8 @@ function apiChanges(from: ModelRecord, to: ModelRecord): ApiChange[] {
   if (from.provider === "together" && to.provider === "together") return togetherApiChanges(from);
   if (from.provider === "fireworks" && to.provider === "fireworks") return fireworksApiChanges(from, to);
   if (from.provider === "github-copilot" && to.provider === "github-copilot") return copilotApiChanges(from);
+  if (from.provider === "minimax" && to.provider === "minimax") return minimaxApiChanges();
+  if (from.provider === "cloudflare-workers-ai" && to.provider === "cloudflare-workers-ai") return cloudflareApiChanges(from);
   return specialized(from, to)?.apiChanges ?? [];
 }
 
@@ -951,6 +961,86 @@ function swap(sample: (id: string) => { python: string; typescript: string; curl
     python: { before: before.python, after: after.python },
     typescript: { before: before.typescript, after: after.typescript },
     curl: { before: before.curl, after: after.curl },
+  };
+}
+
+function minimaxChecklist(from: ModelRecord, to: ModelRecord): string[] {
+  return [
+    `Read the shutdown date for ${from.id} on the MiniMax model list.`,
+    "Pay-as-you-go API requests stop working once these models are retired.",
+    "M Plan and Token Plan requests are automatically routed to M3.1 Flash, and the existing model names keep working.",
+    `Point your requests at ${to.id} and test before you send traffic.`,
+  ];
+}
+
+function minimaxApiChanges(): ApiChange[] {
+  return [
+    {
+      kind: "endpoint_change",
+      detail: `The text generation guide shows an OpenAI-compatible client with base_url ${MINIMAX_BASE_URL} and POST ${MINIMAX_CHAT_URL}. This sample only changes the model field.`,
+      source_url: TEXT_GENERATION_URL,
+    },
+    {
+      kind: "behavior_change",
+      detail:
+        "The model list says pay-as-you-go API requests stop working once M2.5 and M2.7 are retired. Starting October 19, 2026, M Plan and Token Plan requests are automatically routed to M3.1 Flash, and the existing model names keep working. The guide's sample for MiniMax-M3.1-Flash also sets reasoning_effort to max. This sample does not add that field.",
+      source_url: MINIMAX_MODELS,
+    },
+  ];
+}
+
+function minimaxSnippets(fromId: string, toId: string): SnippetSet {
+  return pairSnippets(minimaxChat(fromId), minimaxChat(toId));
+}
+
+function minimaxChat(id: string) {
+  return {
+    python: `from openai import OpenAI\nclient = OpenAI(base_url="${MINIMAX_BASE_URL}", api_key="<MINIMAX_API_KEY>")\nresponse = client.chat.completions.create(\n    model="${id}",\n    messages=[{"role": "user", "content": "Hi, how are you?"}],\n)\n`,
+    typescript: `import OpenAI from "openai";\nconst client = new OpenAI({ baseURL: "${MINIMAX_BASE_URL}", apiKey: "<MINIMAX_API_KEY>" });\nconst response = await client.chat.completions.create({\n  model: "${id}",\n  messages: [{ role: "user", content: "Hi, how are you?" }],\n});\n`,
+    curl: `curl ${MINIMAX_CHAT_URL} \\\n  -H "Authorization: Bearer <MINIMAX_API_KEY>" \\\n  -H "Content-Type: application/json" \\\n  -d '{"model":"${id}","messages":[{"role":"user","content":"Hi, how are you?"}]}'\n`,
+  };
+}
+
+function cloudflareChecklist(from: ModelRecord, to: ModelRecord): string[] {
+  const lines = [
+    `Read the deprecation date for ${from.id} on the Cloudflare changelog.`,
+    "The -fast and -lora variants of models remain active.",
+  ];
+  if ((from.region_or_platform_notes ?? "").includes("automatically aliased")) {
+    lines.push(`Requests are automatically aliased to ${to.id}. That model has a higher price.`);
+  }
+  lines.push(`Point the REST path at ${to.id} and test before you send traffic.`);
+  return lines;
+}
+
+function cloudflareApiChanges(from: ModelRecord): ApiChange[] {
+  const changes: ApiChange[] = [
+    {
+      kind: "endpoint_change",
+      detail: `The REST API guide shows POST ${CLOUDFLARE_RUN_URL}{model} with Authorization: Bearer {API_TOKEN} and a JSON prompt. This sample only changes the model id in that path.`,
+      source_url: CLOUDFLARE_REST,
+    },
+  ];
+  if ((from.region_or_platform_notes ?? "").includes("automatically aliased")) {
+    changes.push({
+      kind: "behavior_change",
+      detail: `The changelog says requests are automatically aliased to the replacement on May 30, 2026, and that model has a higher price.`,
+      source_url: CLOUDFLARE_POST,
+    });
+  }
+  return changes;
+}
+
+function cloudflareSnippets(fromId: string, toId: string): SnippetSet {
+  return pairSnippets(cloudflareRun(fromId), cloudflareRun(toId));
+}
+
+function cloudflareRun(id: string) {
+  const url = `${CLOUDFLARE_RUN_URL}${id}`;
+  return {
+    python: `import json\nimport urllib.request\nrequest = urllib.request.Request(\n    "${url}",\n    data=json.dumps({"prompt": "Where did the phrase Hello World come from"}).encode(),\n    headers={"Authorization": "Bearer {API_TOKEN}", "Content-Type": "application/json"},\n)\nurllib.request.urlopen(request)\n`,
+    typescript: `await fetch("${url}", {\n  method: "POST",\n  headers: { Authorization: "Bearer {API_TOKEN}", "Content-Type": "application/json" },\n  body: JSON.stringify({ prompt: "Where did the phrase Hello World come from" }),\n});\n`,
+    curl: `curl ${url} \\\n  -H 'Authorization: Bearer {API_TOKEN}' \\\n  -d '{ "prompt": "Where did the phrase Hello World come from" }'\n`,
   };
 }
 

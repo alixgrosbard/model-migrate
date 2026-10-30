@@ -157,6 +157,8 @@ async function main() {
     togetherPages: models.filter((model) => model.provider === "together").sort((a, b) => a.id.localeCompare(b.id)),
     fireworksPages: models.filter((model) => model.provider === "fireworks").sort((a, b) => a.id.localeCompare(b.id) || a.slug.localeCompare(b.slug)),
     copilotPages: models.filter((model) => model.provider === "github-copilot").sort((a, b) => a.id.localeCompare(b.id) || a.slug.localeCompare(b.slug)),
+    minimaxPages: models.filter((model) => model.provider === "minimax").sort((a, b) => a.id.localeCompare(b.id) || a.slug.localeCompare(b.slug)),
+    cloudflarePages: models.filter((model) => model.provider === "cloudflare-workers-ai").sort((a, b) => a.id.localeCompare(b.id) || a.slug.localeCompare(b.slug)),
     featured: featuredModelLinks(models).map((link) => ({ label: link.label, path: link.href })),
   }));
   await writeJson(path.join(publicDir, "openapi.json"), openApiDocument(datasetVersion(changes)));

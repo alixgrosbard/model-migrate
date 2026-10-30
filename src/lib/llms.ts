@@ -42,6 +42,8 @@ export function llmsTxt(
     togetherPages?: ModelRecord[];
     fireworksPages?: ModelRecord[];
     copilotPages?: ModelRecord[];
+    minimaxPages?: ModelRecord[];
+    cloudflarePages?: ModelRecord[];
     featured?: { label: string; path: string }[];
   } = {},
 ): string {
@@ -99,6 +101,12 @@ export function llmsTxt(
     .map((model) => `- [${model.id}](${origin}/models/${model.provider}/${model.slug}/)`)
     .join("\n");
   const copilotPageLinks = (extra.copilotPages ?? [])
+    .map((model) => `- [${model.id}](${origin}/models/${model.provider}/${model.slug}/)`)
+    .join("\n");
+  const minimaxPageLinks = (extra.minimaxPages ?? [])
+    .map((model) => `- [${model.id}](${origin}/models/${model.provider}/${model.slug}/)`)
+    .join("\n");
+  const cloudflarePageLinks = (extra.cloudflarePages ?? [])
     .map((model) => `- [${model.id}](${origin}/models/${model.provider}/${model.slug}/)`)
     .join("\n");
   return `# SunsetDiff
@@ -211,6 +219,8 @@ ${nebiusPageLinks ? `\n## Nebius Token Factory model pages\nRows come from the N
 ${togetherPageLinks ? `\n## Together AI model pages\nRows come from the Together deprecations page: scheduled serverless removals, the inference removal table, the fine-tuning removal table, and active redirects. A past removal date is retired. A future removal date is deprecated. Redirects have no removal date. When the scheduled table and the inference table list different dates, the stored shutdown date is the inference table date. A per-million-token price is stored only when the serverless models page lists that id.\n${togetherPageLinks}` : ""}
 ${fireworksPageLinks ? `\n## Fireworks AI model pages\nRows come from the Fireworks changelog when a deprecation links a model page. The model id is accounts/fireworks/models/ plus that page's slug, the same shape as the quickstart model field. A US-only row uses the id on the US-only serverless page. A display name with no model link is not stored. Dedicated deployments stay up when the changelog says that.\n${fireworksPageLinks}` : ""}
 ${copilotPageLinks ? `\n## GitHub Copilot model pages\nRows come from the supported models retirement table and from GitHub changelog posts about Copilot model retirements. A date on the supported models page is the stored shutdown date. When a changelog names a different date, the note says Sources disagree and the stored date stays the supported models page date. A replacement is stored when a changelog names that model. A docs alternative that says Latest is not stored as a model id. Copilot dates are for chat and agent features, and can differ from the original provider's API dates.\n${copilotPageLinks}` : ""}
+${minimaxPageLinks ? `\n## MiniMax model pages\nRows come from the MiniMax model list. The retirement notice says M2.5 and M2.7 are retired on November 18, 2026. Pay-as-you-go API requests stop working then. M Plan and Token Plan requests are automatically routed to M3.1 Flash. The Retired Models table on the same page lists those ids as Retired. Other rows in that table have no shutdown date. The list does not print a per-token price.\n${minimaxPageLinks}` : ""}
+${cloudflarePageLinks ? `\n## Cloudflare Workers AI model pages\nRows come from the May 8, 2026 changelog post and the Workers AI changelog. There is no separate deprecations index. A line with an arrow stores that target as the replacement. The recommended replacements section is not a per-model replacement. The -fast and -lora variants named on the post stay active. Per-model pages for the May 30, 2026 ids were not in the docs index on the check day.\n${cloudflarePageLinks}` : ""}
 
 ## Status lists
 Deprecated means the stored status is deprecated. Retired means the stored status is retired. Dates come from the model records.

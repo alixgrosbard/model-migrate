@@ -7,7 +7,7 @@ import { formatWhen, isUpcomingShutdown, today } from "../../lib/format.ts";
 import { publicName } from "../../lib/growth.ts";
 import { providersHub } from "../../lib/hubs.ts";
 import { providerStatusPath, STATUS_HUBS } from "../../lib/status-hubs.ts";
-import { COPILOT_NOV16_PATH, COPILOT_NOV16_TITLE, copilotNov16Hit } from "../../lib/shutdowns.ts";
+import { COPILOT_NOV16_PATH, COPILOT_NOV16_TITLE, copilotNov16Hit, shutdownEventPath, shutdownEvents } from "../../lib/shutdowns.ts";
 import { guideBySlug, guidePath } from "../../lib/guides.ts";
 import type { ModelRecord } from "../../schema.ts";
 
@@ -30,6 +30,7 @@ const soonest = models
   .slice(0, 8);
 const groups: ModelRecord["status"][] = ["deprecated", "legacy", "retired", "active"];
 const description = `${provider.name} model shutdown dates, grouped by status.`;
+const minimaxNov18 = shutdownEvents(allModels).find((event) => event.slug === "minimax-2026-11-18");
 const openaiGuides = provider.id === "openai"
   ? ["openai-december-11-2026-shutdowns", "openai-gpt-4-1-gpt-4o-shutdown-january-2027"].flatMap((slug) => {
       const guide = guideBySlug(slug);
@@ -93,6 +94,28 @@ const openaiGuides = provider.id === "openai"
       A US-only row uses the id on the <a href="https://docs.fireworks.ai/serverless/us-only-serverless">US-only serverless page</a>.
       A display name with no model link is not stored.
       Dedicated deployments stay up when the changelog says that.
+      <a href="/#soonest">Soonest shutdowns on the homepage</a>.
+    </p>
+  ) : provider.id === "minimax" ? (
+    <p>
+      Official page: <a href={provider.deprecations_url}>{provider.deprecations_url}</a>.
+      The retirement notice says MiniMax M2.5 and M2.7 are no longer available to new users on October 19, 2026, and are retired on November 18, 2026.
+      Pay-as-you-go API requests stop working once they are retired.
+      M Plan and Token Plan requests are automatically routed to M3.1 Flash, and the existing model names keep working.
+      The Retired Models table on the same page lists those ids as Retired.
+      Other rows in that table have no shutdown date.
+      The <a href={provider.pricing_url}>pricing page</a> is not parsed for these rows.
+      {minimaxNov18 ? <><a href={shutdownEventPath(minimaxNov18)}>November 18, 2026 shutdowns</a>. </> : null}
+      <a href="/#soonest">Soonest shutdowns on the homepage</a>.
+    </p>
+  ) : provider.id === "cloudflare-workers-ai" ? (
+    <p>
+      Official page: <a href={provider.deprecations_url}>{provider.deprecations_url}</a>.
+      There is no separate Workers AI deprecations index. The refresh also reads the <a href="https://developers.cloudflare.com/workers-ai/changelog/">Workers AI changelog</a>.
+      The May 30, 2026 list is deprecated on that day. Only a line with an arrow stores a replacement.
+      The -fast and -lora variants named on that post remain active.
+      The October 1, 2025 changelog list has no per-model replacement id.
+      <a href={provider.models_url}>Model catalog</a>.
       <a href="/#soonest">Soonest shutdowns on the homepage</a>.
     </p>
   ) : provider.id === "github-copilot" ? (

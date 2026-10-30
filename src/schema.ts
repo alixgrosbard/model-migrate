@@ -21,6 +21,8 @@ export const providerIds = [
   "together",
   "fireworks",
   "github-copilot",
+  "minimax",
+  "cloudflare-workers-ai",
 ] as const;
 
 export const providerIdSchema = z.enum(providerIds);
