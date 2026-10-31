@@ -41,6 +41,7 @@ const ALLOWED_HOSTS = new Set([
   "api-docs.deepseek.com",
   "deepseek.com",
   "console.groq.com",
+  "platform.minimax.io",
 ]);
 
 describe("guides", () => {
@@ -314,5 +315,46 @@ describe("guides", () => {
     expect(guidesForModel(gpt4o, models).map((link) => link.href)).toContain(`/guides/${JANUARY_2027_GPT4_GUIDE_SLUG}/`);
     expect(guidesForModel(gpt5, models).map((link) => link.href)).toContain(`/guides/${DECEMBER_11_GUIDE_SLUG}/`);
     expect(guidesForModel(gpt4o, models).map((link) => link.href)).toContain("/guides/model-aliases-vs-pinned-snapshots/");
+  });
+
+  it("builds the MiniMax November 18 guide from the dataset", async () => {
+    const models = await loadModels();
+    const rows = models
+      .filter((model) => model.provider === "minimax" && model.shutdown_date === "2026-11-18")
+      .sort((a, b) => a.id.localeCompare(b.id));
+    expect(rows.map((model) => model.id)).toEqual([
+      "MiniMax-M2.5",
+      "MiniMax-M2.5-highspeed",
+      "MiniMax-M2.7",
+      "MiniMax-M2.7-highspeed",
+    ]);
+    expect(rows.every((model) => model.status === "deprecated")).toBe(true);
+    const guide = guides.find((item) => item.slug === "minimax-m2-5-m2-7-shutdown-november-18-2026");
+    expect(guide).toBeTruthy();
+    if (!guide) return;
+    expect(guidePath(guide.slug)).toBe("/guides/minimax-m2-5-m2-7-shutdown-november-18-2026/");
+    expect(guideChecked(guide)).toBe("2026-10-31");
+    expect(guide.h1).toContain("November 18, 2026");
+    const table = guide.sections.find((section) => section.table)?.table;
+    expect(table?.headers).toEqual(["Model id", "Deprecation date", "Shutdown date", "Recommended replacement"]);
+    expect(table?.rows.map((row) => row[0])).toEqual(
+      rows.map((model) => `[${model.id}](/models/${model.provider}/${model.slug}/)`),
+    );
+    expect(table?.rows.every((row) => row[3].includes("MiniMax-M3.1-Flash"))).toBe(true);
+    const blob = JSON.stringify(guide);
+    expect(blob).toContain("Once retired, API requests to these models will no longer work.");
+    expect(blob).toContain("automatically be routed to M3.1 Flash");
+    expect(blob).toContain("requires adaptive thinking");
+    expect(blob).toContain("https://platform.minimax.io/docs/faq/models");
+    expect(blob).toContain("https://platform.minimax.io/docs/guides/text-generation");
+    expect(blob).toContain("/shutdowns/minimax-2026-11-18/");
+    expect(blob).toContain("/providers/minimax/");
+    expect(blob).not.toContain("HTTP 410");
+    const retired = models.filter((model) => model.provider === "minimax" && model.status === "retired");
+    expect(retired.some((model) => model.id === "MiniMax-M2")).toBe(true);
+    expect(retired.some((model) => model.shutdown_date === "2026-11-18")).toBe(false);
+    expect(guidesForModel(rows[0], models).map((link) => link.href)).toContain(guidePath(guide.slug));
+    const graph = guideGraph("https://sunsetdiff.com/", guide);
+    expect(graph.some((node) => node["@type"] === "FAQPage")).toBe(true);
   });
 });

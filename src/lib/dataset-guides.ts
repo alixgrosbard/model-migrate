@@ -15,6 +15,21 @@ export const DECEMBER_11_GUIDE_SLUG = "openai-december-11-2026-shutdowns";
 export const JANUARY_2027_SHUTDOWN_DATE = "2027-01-14";
 export const JANUARY_2027_GPT4_GUIDE_SLUG = "openai-gpt-4-1-gpt-4o-shutdown-january-2027";
 
+/** Checked against the MiniMax rows. The slug uses this date. */
+export const MINIMAX_NOV18_SHUTDOWN_DATE = "2026-11-18";
+export const MINIMAX_NOV18_GUIDE_SLUG = "minimax-m2-5-m2-7-shutdown-november-18-2026";
+
+const MINIMAX_MODELS = "https://platform.minimax.io/docs/faq/models";
+const MINIMAX_TEXT = "https://platform.minimax.io/docs/guides/text-generation";
+const MINIMAX_NEW_USERS = "These models will no longer be available to new users.";
+const MINIMAX_RETIRED = "These models will be retired.";
+const MINIMAX_STOP = "Once retired, API requests to these models will no longer work.";
+const MINIMAX_ROUTE = "Starting October 19, 2026, all requests to M2.5 and M2.7 models under these plans will automatically be routed to M3.1 Flash.";
+const MINIMAX_NAMES = "Existing model names will continue to work for backward compatibility, so you won’t need to update the model names in your requests.";
+const MINIMAX_ALLOWANCES = "Your plan’s usage allowances will remain unchanged.";
+const MINIMAX_TABLE = "The following models have been retired and are no longer available.";
+const MINIMAX_THINKING = 'model "MiniMax-M3.1-Flash" requires adaptive thinking';
+
 /** Longer ids first so a mini alias is not treated as the shorter one. */
 const JANUARY_ALIASES = ["gpt-4o-mini", "gpt-4.1-mini", "gpt-4o", "gpt-4.1"] as const;
 
@@ -55,6 +70,12 @@ export function isDecember11OpenAiShutdown(model: ModelRecord): boolean {
   return model.provider === "openai"
     && model.shutdown_date === DECEMBER_11_SHUTDOWN_DATE
     && (model.shutdown_date_kind === "exact" || model.shutdown_date_kind === "via_snapshots");
+}
+
+export function isMinimaxNov18Shutdown(model: ModelRecord): boolean {
+  return model.provider === "minimax"
+    && model.shutdown_date === MINIMAX_NOV18_SHUTDOWN_DATE
+    && model.shutdown_date_kind === "exact";
 }
 
 export function isJanuary2027Gpt4Shutdown(model: ModelRecord): boolean {
@@ -140,6 +161,8 @@ export function datasetShutdownGuides(catalog: ModelRecord[] = readCatalog()): G
   if (december.length) pages.push(decemberGuide(december, catalog));
   const january = rowsFor(isJanuary2027Gpt4Shutdown, catalog);
   if (january.length) pages.push(januaryGuide(january, catalog));
+  const minimax = rowsFor(isMinimaxNov18Shutdown, catalog);
+  if (minimax.length) pages.push(minimaxGuide(minimax, catalog));
   const slugs = new Set(pages.map((page) => page.slug));
   for (const page of pages) {
     page.related = page.related.filter((link) => {
@@ -364,5 +387,142 @@ function januaryGuide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePage {
       },
     ],
     citations: [OPENAI_DEPRECATIONS],
+  };
+}
+
+function minimaxGuide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePage {
+  const when = longDate(MINIMAX_NOV18_SHUTDOWN_DATE);
+  const checked = "2026-10-31";
+  return {
+    slug: MINIMAX_NOV18_GUIDE_SLUG,
+    title: `MiniMax M2.5 and M2.7 shutdown on ${when} | SunsetDiff`,
+    description: `MiniMax-M2.5, MiniMax-M2.5-highspeed, MiniMax-M2.7, and MiniMax-M2.7-highspeed shut down on ${MINIMAX_NOV18_SHUTDOWN_DATE}. The model list names M3.1 Flash. Pay-as-you-go requests stop. M Plan and Token Plan requests are routed.`,
+    h1: `MiniMax M2.5 and M2.7 shutdown on ${when}`,
+    summary: `The four MiniMax ids with shutdown date ${MINIMAX_NOV18_SHUTDOWN_DATE}, the stored replacement, and what the model list says happens to each plan.`,
+    answer: `The dataset has ${rows.length} MiniMax ids with shutdown date ${MINIMAX_NOV18_SHUTDOWN_DATE}: MiniMax-M2.5, MiniMax-M2.5-highspeed, MiniMax-M2.7, and MiniMax-M2.7-highspeed. The model list says new users lose them on October 19, 2026, and the models are retired on ${when}. Pay-as-you-go API requests stop working once they are retired. M Plan and Token Plan requests are routed to M3.1 Flash, and the old names keep working. The stored replacement on each row is MiniMax-M3.1-Flash.`,
+    checked,
+    steps: [
+      {
+        name: "Read the four ids",
+        text: `The table lists every MiniMax id in the dataset whose shutdown date is ${MINIMAX_NOV18_SHUTDOWN_DATE}. Open the model page before you change a call. MiniMax-M2, MiniMax-M2.1, and the music rows are not in this table. Those rows have no shutdown date.`,
+      },
+      {
+        name: "Sort the plan",
+        text: "Pay-as-you-go calls to these ids stop on the retirement date. M Plan and Token Plan calls are routed to M3.1 Flash from October 19, 2026, and the model list says the existing names keep working. Find which plan sends the traffic before you decide whether the old id can stay.",
+      },
+      {
+        name: "Send MiniMax-M3.1-Flash",
+        text: `Change the model field to MiniMax-M3.1-Flash and call it with the prompts you use now. Do that before ${when}. The text generation guide says thinking cannot be turned off on that id.`,
+      },
+    ],
+    sections: [
+      {
+        heading: "Models shutting down",
+        paragraphs: [
+          `These rows are every MiniMax model in the dataset with shutdown date ${MINIMAX_NOV18_SHUTDOWN_DATE}. The model id links to its SunsetDiff model page. Deprecation date, shutdown date, and replacement are the fields stored on that row. Not published means the field is empty.`,
+          `MiniMax's model list says: "${MINIMAX_NEW_USERS}" The date on that line is October 19, 2026. The next line says: "${MINIMAX_RETIRED}" The date on that line is ${when}.`,
+          `The same page's Retired Models table lists these four ids as Retired, and it says: "${MINIMAX_TABLE}" SunsetDiff still stores them as deprecated with shutdown date ${MINIMAX_NOV18_SHUTDOWN_DATE}, because the notice gives that future date for this family. Older ids in that table, including MiniMax-M2 and MiniMax-M2.1, are stored as retired with no shutdown date. The page does not print a date for them.`,
+        ],
+        table: {
+          caption: `${rows.length} MiniMax model ids with shutdown date ${MINIMAX_NOV18_SHUTDOWN_DATE}.`,
+          headers: ["Model id", "Deprecation date", "Shutdown date", "Recommended replacement"],
+          rows: tableRows(rows, catalog),
+        },
+        sources: [{ label: "MiniMax model list", url: MINIMAX_MODELS }],
+      },
+      {
+        heading: "What changes when you switch",
+        paragraphs: [
+          `For pay-as-you-go, the model list says: "${MINIMAX_STOP}" Change the model field to MiniMax-M3.1-Flash before ${when}. The text generation guide's OpenAI-compatible host is https://api.minimax.io/v1 and the chat path is https://api.minimax.io/v1/chat/completions. Its Anthropic-compatible host is https://api.minimax.io/anthropic.`,
+          `For M Plan and Token Plan, the model list says: "${MINIMAX_ROUTE}" It also says: "${MINIMAX_NAMES}" And: "${MINIMAX_ALLOWANCES}" The old id can keep working on those plans because MiniMax routes it. A pay-as-you-go call does not get that route.`,
+          "The text generation guide calls MiniMax-M3.1-Flash the latest M-series language model for agentic reasoning, tool use, coding, and long-context tasks, and says it supports tuning thinking depth with effort. The supported-models table lists a context window of 1,000,000 for MiniMax-M3.1-Flash and for MiniMax-M3. The model list does not print a context window or a price for the M2.5 and M2.7 ids. This page does not state what those ids used to accept.",
+          `The same guide says thinking cannot be turned off. Sending thinking type disabled, or effort none, returns 400. The page prints: ${MINIMAX_THINKING}. On the OpenAI-compatible API the depth field is reasoning_effort. On the Anthropic-compatible API it is output_config.effort. The values are low, medium, high, xhigh, and max. Omitting effort defaults to max for MiniMax-M3.1-Flash. Thinking content on the OpenAI-compatible API is returned on reasoning_content. The answer is on content.`,
+        ],
+        codes: [
+          {
+            caption: "OpenAI-compatible, model field only",
+            code: `from openai import OpenAI
+client = OpenAI(base_url="https://api.minimax.io/v1")
+response = client.chat.completions.create(
+    model="MiniMax-M3.1-Flash",
+    messages=[{"role": "user", "content": "Hi, how are you?"}],
+)
+`,
+          },
+        ],
+        sources: [
+          { label: "MiniMax model list", url: MINIMAX_MODELS },
+          { label: "MiniMax text generation", url: MINIMAX_TEXT },
+        ],
+      },
+      {
+        heading: "What breaks",
+        paragraphs: [
+          `On ${when} these four ids reach the shutdown date stored in the dataset. For pay-as-you-go, the model list says API requests to these models will no longer work. It does not print an HTTP status for that moment.`,
+          "M Plan and Token Plan requests are a different case. The model list says those requests are routed to M3.1 Flash and the existing model names keep working. A call that still sends MiniMax-M2.5 on those plans is not the same failure as a pay-as-you-go call after the retirement date.",
+          `The text generation guide's 400, ${MINIMAX_THINKING}, is what MiniMax-M3.1-Flash returns when thinking is disabled. That is a request-shape failure on the replacement, not the retirement itself.`,
+        ],
+        sources: [
+          { label: "MiniMax model list", url: MINIMAX_MODELS },
+          { label: "MiniMax text generation", url: MINIMAX_TEXT },
+        ],
+      },
+      {
+        heading: "Find the model ids in your code",
+        paragraphs: [
+          "Search the repository for the four ids in the table. A hit is a candidate, not proof the call still runs. [How to find every model ID in your codebase](/guides/find-model-ids-in-your-codebase/) covers SDK argument names. The [scan page](/scan/) builds a search from dataset ids that have a shutdown date.",
+          "MiniMax-M2 and MiniMax-M2.1 are older ids. They are stored as retired with no shutdown date. A search that only looks for M2.5 and M2.7 will miss them, and a search for M2 will also hit M2.5. Read the id on the row.",
+        ],
+        codes: [{ caption: "ripgrep", code: searchCode(rows) }],
+        sources: [{ label: "MiniMax model list", url: MINIMAX_MODELS }],
+      },
+      {
+        heading: "Test the replacement before the cutoff",
+        paragraphs: [
+          `Call MiniMax-M3.1-Flash with the prompts you send today. Do that before ${when}. If you use M Plan or Token Plan, the model list says the old names keep working because of the route. Still run the new id once, so you see thinking content and the 400 that disabling thinking returns.`,
+          "The [pre-migration test checklist](/guides/pre-migration-test-checklist/) is the longer list: evals, rejected fields, token limits, tools, price, and latency. This dataset does not store a price for these MiniMax rows.",
+        ],
+        sources: [
+          { label: "MiniMax model list", url: MINIMAX_MODELS },
+          { label: "MiniMax text generation", url: MINIMAX_TEXT },
+        ],
+      },
+    ],
+    related: [
+      { href: "/shutdowns/minimax-2026-11-18/", label: `MiniMax shutdowns on ${when}` },
+      { href: "/providers/minimax/", label: "MiniMax provider page" },
+      { href: "/models/minimax/minimax-m3-1-flash/", label: "MiniMax-M3.1-Flash" },
+      { href: "/guides/find-model-ids-in-your-codebase/", label: "Find model ids in your codebase" },
+      { href: "/guides/pre-migration-test-checklist/", label: "Pre-migration test checklist" },
+      { href: "/scan/", label: "Scan retiring ids" },
+      { href: MINIMAX_TEXT, label: "MiniMax text generation" },
+    ],
+    faqs: [
+      {
+        question: `Which MiniMax ids shut down on ${when}?`,
+        answer: `The dataset lists ${idList(rows)} with shutdown date ${MINIMAX_NOV18_SHUTDOWN_DATE}. MiniMax-M2, MiniMax-M2.1, MiniMax-M2.1-highspeed, and M2-her are not in that list. They are stored as retired with no shutdown date.`,
+      },
+      {
+        question: "What does MiniMax say happens on that date?",
+        answer: `The model list says: "${MINIMAX_RETIRED}" The date is ${when}. For pay-as-you-go it says: "${MINIMAX_STOP}" It does not print an HTTP status.`,
+      },
+      {
+        question: "What is the recommended replacement?",
+        answer: replacementFaq(rows, catalog),
+      },
+      {
+        question: "Do M Plan and Token Plan requests stop on that date?",
+        answer: `The model list says: "${MINIMAX_ROUTE}" It also says: "${MINIMAX_NAMES}" And: "${MINIMAX_ALLOWANCES}" Pay-as-you-go requests are the ones that stop.`,
+      },
+      {
+        question: "Why does the Retired Models table list these ids before November 18?",
+        answer: `The model list's Retired Models table includes the four November 18 ids and says: "${MINIMAX_TABLE}" The retirement notice on the same page gives ${when} for the M2.5 and M2.7 family, and October 19, 2026 as the day new users lose them. SunsetDiff keeps the November 18 ids in the deprecated table until that date. Older ids in the Retired Models table have no printed shutdown date, so they stay in the retired table.`,
+      },
+      {
+        question: "What changes in the request besides the model id?",
+        answer: `The text generation guide says MiniMax-M3.1-Flash has a 1,000,000-token context window and tunable thinking depth. Thinking cannot be turned off. The page prints this 400: ${MINIMAX_THINKING}. The OpenAI-compatible field is reasoning_effort. The Anthropic-compatible field is output_config.effort. Allowed values are low, medium, high, xhigh, and max. Omitting effort defaults to max. The model list does not print those fields for the M2.5 and M2.7 ids.`,
+      },
+    ],
+    citations: [MINIMAX_MODELS, MINIMAX_TEXT],
   };
 }
