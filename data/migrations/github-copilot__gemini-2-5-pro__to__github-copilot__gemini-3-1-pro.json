@@ -6,8 +6,8 @@
   },
   "to": {
     "provider": "github-copilot",
-    "model_id": "Gemini 3.1 Pro (Preview)",
-    "slug": "gemini-3-1-pro-preview"
+    "model_id": "Gemini 3.1 Pro",
+    "slug": "gemini-3-1-pro"
   },
   "price_diff": {
     "input_pct_change": null,
@@ -57,7 +57,7 @@
   "migration_checklist": [
     "Read the Copilot date for Gemini 2.5 Pro on the linked GitHub page.",
     "This date is for models Copilot offers in chat and agent features. It can differ from the original provider's API date.",
-    "Choose Gemini 3.1 Pro (Preview) in the Copilot Chat model selector.",
+    "Choose Gemini 3.1 Pro in the Copilot Chat model selector.",
     "The linked changelog does not print a request sample."
   ],
   "confidence": "partial",
@@ -82,10 +82,22 @@
       "excerpt": "Gemini 2.5 Pro | Gemini 3.1 Pro (Preview)"
     },
     {
-      "url": "https://github.blog/changelog/2026-07-31-gemini-2-5-pro-and-gemini-3-flash-deprecated",
-      "label": "Named as an official replacement",
+      "url": "https://docs.github.com/en/copilot/reference/ai-models/supported-models",
+      "label": "GitHub Copilot supported models",
       "last_checked": "2026-10-31",
-      "excerpt": "Named as an official replacement for Gemini 2.5 Pro."
+      "excerpt": "Gemini 3.1 Pro | 2026-09-01 | Latest Gemini Flash model"
+    },
+    {
+      "url": "https://github.blog/changelog/2026-07-31-upcoming-august-2026-model-deprecations-in-github-copilot",
+      "label": "GitHub Changelog",
+      "last_checked": "2026-10-31",
+      "excerpt": "Gemini 3.1 Pro | Gemini 3.6 Flash"
+    },
+    {
+      "url": "https://github.blog/changelog/2026-08-31-selected-github-copilot-models-deprecated",
+      "label": "GitHub Changelog",
+      "last_checked": "2026-10-31",
+      "excerpt": "Gemini 3.1 Pro | Gemini 3.7 Flash"
     }
   ]
 }

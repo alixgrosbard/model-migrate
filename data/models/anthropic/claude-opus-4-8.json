@@ -9,7 +9,7 @@
   "deprecation_date": null,
   "shutdown_date": "2027-05-28",
   "shutdown_date_kind": "not_before",
-  "region_or_platform_notes": null,
+  "region_or_platform_notes": "Fast mode on Claude Opus 4.8 is deprecated and will be removed on November 30, 2026. After removal, requests to claude-opus-4-8 with speed: \"fast\" will return an error. To continue using fast mode, migrate to Claude Opus 5.5.",
   "replacements": [],
   "sources": [
     {
@@ -23,6 +23,12 @@
       "label": "Anthropic model docs",
       "last_checked": "2026-10-31",
       "excerpt": "Model ID: claude-opus-4-8 | context window 1000000 | max output 128000 | input $5/MTok | output $25/MTok"
+    },
+    {
+      "url": "https://platform.claude.com/docs/en/build-with-claude/fast-mode",
+      "label": "Anthropic fast mode",
+      "last_checked": "2026-10-31",
+      "excerpt": "Fast mode on Claude Opus 4.8 is deprecated and will be removed on November 30, 2026. After removal, requests to claude-opus-4-8 with speed: \"fast\" will return an error. To continue using fast mode, migrate to Claude Opus 5.5."
     }
   ],
   "specs": {
@@ -68,5 +74,5 @@
     }
   },
   "first_seen": "2026-10-17T15:59:19.574Z",
-  "updated_at": "2026-10-24T04:39:18.299Z"
+  "updated_at": "2026-10-31T12:00:00.000Z"
 }

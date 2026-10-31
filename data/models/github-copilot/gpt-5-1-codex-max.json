@@ -9,7 +9,10 @@
   "deprecation_date": null,
   "shutdown_date": "2026-04-01",
   "shutdown_date_kind": "exact",
-  "region_or_platform_notes": "Supported models page suggested alternative: Latest GPT Codex model.",
+  "region_or_platform_notes": "Supported models page suggested alternative: Latest GPT Codex model. Copilot CLI model id: gpt-5.1-codex-max.",
+  "lookup_aliases": [
+    "gpt-5.1-codex-max"
+  ],
   "replacements": [
     {
       "model_id": "GPT-5.3-Codex",
@@ -36,6 +39,12 @@
       "label": "GitHub Changelog",
       "last_checked": "2026-10-31",
       "excerpt": "GPT-5.1-Codex-Max | GPT-5.3-Codex"
+    },
+    {
+      "url": "https://github.com/github/copilot-cli/blob/main/changelog.md",
+      "label": "GitHub Copilot CLI changelog",
+      "last_checked": "2026-10-31",
+      "excerpt": "Remove support for gpt-5.1-codex, gpt-5.1-codex-mini, and gpt-5.1-codex-max models"
     }
   ],
   "specs": {
@@ -60,5 +69,5 @@
     "specs_sources": {}
   },
   "first_seen": "2026-10-29T12:00:00.000Z",
-  "updated_at": "2026-10-29T12:00:00.000Z"
+  "updated_at": "2026-10-31T12:00:00.000Z"
 }

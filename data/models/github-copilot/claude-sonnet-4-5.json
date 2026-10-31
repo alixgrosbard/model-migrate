@@ -9,7 +9,10 @@
   "deprecation_date": null,
   "shutdown_date": "2026-09-01",
   "shutdown_date_kind": "exact",
-  "region_or_platform_notes": "Supported models page suggested alternative: Latest Claude Sonnet model.",
+  "region_or_platform_notes": "Supported models page suggested alternative: Latest Claude Sonnet model. Copilot CLI model id: claude-sonnet-4.5.",
+  "lookup_aliases": [
+    "claude-sonnet-4.5"
+  ],
   "replacements": [
     {
       "model_id": "Claude Sonnet 5",
@@ -36,6 +39,12 @@
       "label": "GitHub Changelog",
       "last_checked": "2026-10-31",
       "excerpt": "Claude Sonnet 4.5 | Claude Sonnet 5"
+    },
+    {
+      "url": "https://github.com/github/copilot-cli/blob/main/changelog.md",
+      "label": "GitHub Copilot CLI changelog",
+      "last_checked": "2026-10-31",
+      "excerpt": "Automatically migrate users from claude-sonnet-4.5 to the current default model on startup"
     }
   ],
   "specs": {
@@ -60,5 +69,5 @@
     "specs_sources": {}
   },
   "first_seen": "2026-10-29T12:00:00.000Z",
-  "updated_at": "2026-10-29T12:00:00.000Z"
+  "updated_at": "2026-10-31T12:00:00.000Z"
 }

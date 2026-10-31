@@ -2423,4 +2423,125 @@ const { text } = await generateText({
       "https://sunsetdiff.com/data/models.json",
     ],
   },
+  {
+    slug: "claude-opus-4-8-fast-mode-removed",
+    provider: "anthropic",
+    cause: "speed fast on claude-opus-4-8 after November 30, 2026.",
+    title: "claude-opus-4-8 fast mode removed | SunsetDiff",
+    description:
+      "Fast mode on Claude Opus 4.8 is removed on November 30, 2026. Anthropic has not published the error sentence. Drop speed fast, or send claude-opus-5-5. Source: Anthropic's fast mode docs.",
+    h1: "Fast mode on claude-opus-4-8 is removed on November 30, 2026",
+    lead: "Anthropic's fast mode page says fast mode on Claude Opus 4.8 is deprecated and will be removed on November 30, 2026. The model's own shutdown date does not change. Only speed fast goes away.",
+    errorQuoted: false,
+    errorText:
+      "Anthropic has not published the error sentence for this removal. The fast mode page says that after November 30, 2026, a request to claude-opus-4-8 with speed set to fast will return an error. This page will be updated after that date if Anthropic publishes the sentence.",
+    rule: 'Fast mode on Claude Opus 4.8 is deprecated and will be removed on November 30, 2026. After removal, requests to claude-opus-4-8 with speed: "fast" will return an error. To continue using fast mode, migrate to Claude Opus 5.5.',
+    ruleSourceLabel: "Claude fast mode",
+    ruleSourceUrl: "https://platform.claude.com/docs/en/build-with-claude/fast-mode",
+    checked: "2026-10-31",
+    modelsCaption: "Models named on the fast mode page for this removal.",
+    models: [
+      {
+        id: "claude-opus-4-8",
+        provider: "anthropic",
+        slug: "claude-opus-4-8",
+        note: "Fast mode is removed on November 30, 2026. The model id stays. The page does not print the error sentence.",
+      },
+      {
+        id: "claude-opus-5-5",
+        provider: "anthropic",
+        slug: "claude-opus-5-5",
+        note: "The fast mode page says to migrate here to keep using speed fast.",
+      },
+    ],
+    fixes: [
+      {
+        heading: "Raw SDK",
+        text: [
+          "Leave speed off a request to claude-opus-4-8. The fast mode page says a request that still sends speed fast will return an error after November 30, 2026. It does not print that request. To keep fast mode, use the page's Python sample, which sends speed fast on claude-opus-5-5.",
+        ],
+        samples: [
+          {
+            caption: "Python, from the fast mode page",
+            code: `client = anthropic.Anthropic()
+
+response = client.messages.create(
+    model="claude-opus-5-5",
+    max_tokens=4096,
+    speed="fast",
+    messages=[
+        {"role": "user", "content": "Refactor this module to use dependency injection"}
+    ],
+)
+`,
+          },
+        ],
+        sourceLabel: "Claude fast mode",
+        sourceUrl: "https://platform.claude.com/docs/en/build-with-claude/fast-mode",
+      },
+      {
+        heading: "LiteLLM",
+        text: [
+          "LiteLLM's Anthropic page lists claude-opus-4-8 and claude-opus-5-5. It does not name speed or the November 30, 2026 removal. Do not send speed fast on claude-opus-4-8 after that date. Anthropic's fast mode page says to use claude-opus-5-5 to keep fast mode.",
+        ],
+        samples: [],
+        sourceLabel: "LiteLLM Anthropic provider",
+        sourceUrl: "https://docs.litellm.ai/docs/providers/anthropic",
+      },
+      {
+        heading: "Vercel AI SDK",
+        text: [
+          "The AI SDK Anthropic docs list speed as fast or standard. The Fast Mode sample sets speed fast on claude-opus-4-6. That page does not mention the November 30, 2026 removal. Do not send speed fast on claude-opus-4-8 after that date.",
+        ],
+        samples: [
+          {
+            caption: "Fast Mode sample, claude-opus-4-6",
+            code: `import { anthropic, AnthropicProviderOptions } from '@ai-sdk/anthropic';
+import { generateText } from 'ai';
+
+const { text } = await generateText({
+  model: anthropic('claude-opus-4-6'),
+  prompt: 'Write a short poem about the sea.',
+  providerOptions: {
+    anthropic: {
+      speed: 'fast',
+    } satisfies AnthropicProviderOptions,
+  },
+});
+`,
+          },
+        ],
+        sourceLabel: "AI SDK Anthropic provider",
+        sourceUrl: "https://ai-sdk.dev/v5/providers/ai-sdk-providers/anthropic",
+      },
+    ],
+    guides: [],
+    seeAlso: [
+      { href: "/models/anthropic/claude-opus-4-8/", label: "claude-opus-4-8" },
+      { href: "/models/anthropic/claude-opus-5-5/", label: "claude-opus-5-5" },
+      { href: "https://platform.claude.com/docs/en/build-with-claude/fast-mode", label: "Claude fast mode" },
+    ],
+    faqs: [
+      {
+        question: "Does claude-opus-4-8 itself shut down on November 30, 2026?",
+        answer:
+          "Anthropic's fast mode page removes fast mode on that date. The model row on this site keeps the shutdown date from Anthropic's model deprecations page.",
+      },
+      {
+        question: "What error text comes back?",
+        answer:
+          "Not published yet. The fast mode page says the request will return an error. It does not print the sentence. This page does not invent one.",
+      },
+      {
+        question: "What is the fix?",
+        answer:
+          "Drop speed fast to stay on claude-opus-4-8, or send claude-opus-5-5 with speed fast. Both options are on the fast mode page.",
+      },
+    ],
+    citations: [
+      "https://platform.claude.com/docs/en/build-with-claude/fast-mode",
+      "https://docs.litellm.ai/docs/providers/anthropic",
+      "https://ai-sdk.dev/v5/providers/ai-sdk-providers/anthropic",
+    ],
+  },
 ];

@@ -26,6 +26,7 @@ import { replacementApiFields } from "../src/lib/replacement-chain.ts";
 import { canonicalizeModel } from "../src/lib/stable-export.ts";
 import { featuredModelLinks } from "../src/lib/featured.ts";
 import { lookupDiskPaths } from "../src/lib/lookup-path.ts";
+import { lookupRecords } from "../src/lib/lookup-index.ts";
 
 const site = siteOrigin();
 const publicDir = path.join(process.cwd(), "public");
@@ -112,12 +113,7 @@ async function main() {
     const key = `${migration.from.provider}__${migration.from.slug}__to__${migration.to.provider}__${migration.to.slug}`;
     await writeJson(path.join(publicDir, "api/v1/migrations", `${key}.json`), migration);
   }
-  const byId = new Map<string, typeof models>();
-  for (const model of models) {
-    const list = byId.get(model.id) ?? [];
-    list.push(model);
-    byId.set(model.id, list);
-  }
+  const byId = lookupRecords(models);
   for (const [id, list] of byId) {
     const body = list.length === 1
       ? { ...list[0], ...replacementApiFields(list[0], models) }

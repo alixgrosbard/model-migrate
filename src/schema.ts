@@ -90,6 +90,8 @@ export const modelSchema = z.object({
   shutdown_date: isoDate.nullable(),
   shutdown_date_kind: z.enum(["exact", "not_before", "month_only", "none", "via_snapshots"]),
   region_or_platform_notes: z.string().nullable(),
+  /** Other ids that resolve to this row on /api/v1/lookup/. Omitted when empty. */
+  lookup_aliases: z.array(z.string().min(1)).optional(),
   replacements: z.array(replacementSchema),
   sources: z.array(sourceSchema).min(1),
   specs: specsSchema,

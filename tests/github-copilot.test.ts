@@ -8,6 +8,7 @@ import {
   parseCopilot,
   type CopilotPost,
 } from "../scrapers/github-copilot.ts";
+import { lookupRecords } from "../src/lib/lookup-index.ts";
 import { llmsTxt } from "../src/lib/llms.ts";
 import { loadModels, loadProviders } from "../src/lib/load.ts";
 import { requestErrorsForProvider } from "../src/lib/request-errors.ts";
@@ -82,6 +83,33 @@ describe("GitHub Copilot retirements", () => {
       expect(JSON.stringify(model)).not.toMatch(/[—–]/);
     }
     expect(models.some((model) => model.sources.some((source) => source.url === SUPPORTED_URL))).toBe(true);
+    const active = [
+      "Claude Fable 5",
+      "Claude Fable 5.1",
+      "Claude Haiku 5.5",
+      "Claude Opus 4.8 (fast mode) (preview)",
+      "Claude Sonnet 5.5",
+      "GPT-5.4 nano",
+      "GPT-5.6 Luna",
+      "GPT-5.6 Sol",
+      "GPT-6 Astra",
+      "GPT-6 Sol",
+      "GPT-6.1 Terra",
+      "Gemini 4 Argon",
+      "Grok 4.6",
+    ];
+    for (const id of active) expect(models.find((model) => model.id === id)?.status, id).toBe("active");
+    expect(models.some((model) => model.id === "Opus 4.8 (fast)")).toBe(false);
+    expect(models.some((model) => model.id === "Gemini 3.1 Pro (Preview)")).toBe(false);
+    expect(models.find((model) => model.id === "Gemini 2.5 Pro")?.replacements.map((item) => item.model_id)).toEqual(["Gemini 3.1 Pro"]);
+    expect(models.find((model) => model.id === "Opus 4.6 (fast)")?.replacements.map((item) => item.model_id)).toEqual([
+      "Claude Opus 4.8 (fast mode) (preview)",
+    ]);
+    const sonnet46 = models.find((model) => model.id === "Claude Sonnet 4.6");
+    expect(sonnet46?.region_or_platform_notes).toContain("annual Copilot Pro and Copilot Pro+ plans");
+    expect(sonnet46?.region_or_platform_notes).toContain("not available to subscribers on monthly plans");
+    expect(models.find((model) => model.id === "Claude Opus 4.6")?.lookup_aliases).toEqual(["claude-opus-4.6"]);
+    expect(models.find((model) => model.id === "GPT-5.4")?.lookup_aliases).toEqual(["gpt-5.4"]);
   });
 
   it("keeps stored rows when a required page is missing", () => {
@@ -140,5 +168,19 @@ describe("GitHub Copilot records", () => {
     const run = readFileSync("scrapers/run.ts", "utf8");
     expect(run).toContain("GitHub Copilot pages were not applied. Stored GitHub Copilot rows stay.");
     expect(run).toContain('if (provider === "github-copilot") continue;');
+  });
+
+  it("resolves Copilot CLI ids on lookup, including ids another provider already uses", async () => {
+    const models = await loadModels();
+    const groups = lookupRecords(models);
+    const opus = groups.get("claude-opus-4.6");
+    expect(opus?.map((model) => model.provider)).toEqual(["github-copilot"]);
+    expect(opus?.[0]?.status).toBe("retired");
+    expect(opus?.[0]?.shutdown_date).toBe("2026-09-01");
+    const gpt = groups.get("gpt-5.4");
+    expect(gpt?.map((model) => `${model.provider}:${model.status}`)).toEqual(["openai:active", "github-copilot:retired"]);
+    expect(gpt?.find((model) => model.provider === "github-copilot")?.shutdown_date).toBe("2026-10-19");
+    const haiku = groups.get("claude-haiku-4.5");
+    expect(haiku?.some((model) => model.provider === "github-copilot" && model.id === "Claude Haiku 4.5")).toBe(true);
   });
 });

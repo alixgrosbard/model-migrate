@@ -1,17 +1,23 @@
 {
-  "id": "Opus 4.8 (fast)",
-  "slug": "opus-4-8-fast",
+  "id": "Claude Opus 4.8 (fast mode) (preview)",
+  "slug": "claude-opus-4-8-fast-mode-preview",
   "provider": "github-copilot",
-  "display_name": "Opus 4.8 (fast)",
+  "display_name": "Claude Opus 4.8 (fast mode) (preview)",
   "family": null,
   "status": "active",
   "announced_date": null,
   "deprecation_date": null,
   "shutdown_date": null,
   "shutdown_date_kind": "none",
-  "region_or_platform_notes": "Named as an official replacement for Opus 4.6 (fast). No shutdown date was published for this name on the supported models retirement table.",
+  "region_or_platform_notes": "Named as an official replacement for Opus 4.6 (fast). No shutdown date was published for this name on the supported models retirement table. The supported models table lists this name. Release status on that page: GA.",
   "replacements": [],
   "sources": [
+    {
+      "url": "https://docs.github.com/en/copilot/reference/ai-models/supported-models",
+      "label": "GitHub Copilot supported models",
+      "last_checked": "2026-10-31",
+      "excerpt": "Claude Opus 4.8 (fast mode) (preview) | GA"
+    },
     {
       "url": "https://github.blog/changelog/2026-06-18-upcoming-deprecation-of-opus-4-6-fast",
       "label": "Named as an official replacement",
@@ -40,6 +46,6 @@
     "endpoints": null,
     "specs_sources": {}
   },
-  "first_seen": "2026-10-29T12:00:00.000Z",
-  "updated_at": "2026-10-29T12:00:00.000Z"
+  "first_seen": "2026-10-31T12:00:00.000Z",
+  "updated_at": "2026-10-31T12:00:00.000Z"
 }

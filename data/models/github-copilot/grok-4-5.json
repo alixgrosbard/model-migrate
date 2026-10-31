@@ -9,7 +9,10 @@
   "deprecation_date": null,
   "shutdown_date": "2026-10-19",
   "shutdown_date_kind": "exact",
-  "region_or_platform_notes": "The supported models table on that page still lists this name. An earlier changelog named Grok 4.6: https://github.blog/changelog/2026-09-18-upcoming-deprecation-of-selected-github-copilot-models-in-mid-october",
+  "region_or_platform_notes": "The supported models table on that page still lists this name. An earlier changelog named Grok 4.6: https://github.blog/changelog/2026-09-18-upcoming-deprecation-of-selected-github-copilot-models-in-mid-october Copilot CLI model id: grok-4.5.",
+  "lookup_aliases": [
+    "grok-4.5"
+  ],
   "replacements": [
     {
       "model_id": "Grok 4.7",
@@ -30,6 +33,12 @@
       "label": "GitHub Changelog",
       "last_checked": "2026-10-31",
       "excerpt": "Grok 4.5 | 2026-10-19"
+    },
+    {
+      "url": "https://github.com/github/copilot-cli/blob/main/changelog.md",
+      "label": "GitHub Copilot CLI changelog",
+      "last_checked": "2026-10-31",
+      "excerpt": "Add support for the grok-4.5 model"
     }
   ],
   "specs": {
@@ -54,5 +63,5 @@
     "specs_sources": {}
   },
   "first_seen": "2026-10-29T12:00:00.000Z",
-  "updated_at": "2026-10-29T12:00:00.000Z"
+  "updated_at": "2026-10-31T12:00:00.000Z"
 }
