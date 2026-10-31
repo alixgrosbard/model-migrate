@@ -103,9 +103,11 @@ const openaiGuides = provider.id === "openai"
       Pay-as-you-go API requests stop working once they are retired.
       M Plan and Token Plan requests are automatically routed to M3.1 Flash, and the existing model names keep working.
       The Retired Models table on the same page lists those ids as Retired.
-      Other rows in that table have no shutdown date.
+      On this page the November 18 ids stay in the deprecated table.
+      MiniMax-M2, MiniMax-M2.1, MiniMax-M2.1-highspeed, M2-her, and the music rows are in the retired table, because that page does not print a shutdown date for them.
       The <a href={provider.pricing_url}>pricing page</a> is not parsed for these rows.
       {minimaxNov18 ? <><a href={shutdownEventPath(minimaxNov18)}>November 18, 2026 shutdowns</a>. </> : null}
+      <a href="/guides/minimax-m2-5-m2-7-shutdown-november-18-2026/">M2.5 and M2.7 shutdown guide</a>.
       <a href="/#soonest">Soonest shutdowns on the homepage</a>.
     </p>
   ) : provider.id === "cloudflare-workers-ai" ? (

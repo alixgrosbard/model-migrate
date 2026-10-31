@@ -5,7 +5,9 @@ import {
   datasetShutdownGuides,
   isDecember11OpenAiShutdown,
   isJanuary2027Gpt4Shutdown,
+  isMinimaxNov18Shutdown,
   JANUARY_2027_GPT4_GUIDE_SLUG,
+  MINIMAX_NOV18_GUIDE_SLUG,
 } from "./dataset-guides.ts";
 import type { FaqItem } from "./format.ts";
 
@@ -2406,6 +2408,7 @@ export function guidesForModel(model: ModelRecord, catalog: ModelRecord[]): Mode
   };
   if (isDecember11OpenAiShutdown(model)) add(DECEMBER_11_GUIDE_SLUG);
   if (isJanuary2027Gpt4Shutdown(model)) add(JANUARY_2027_GPT4_GUIDE_SLUG);
+  if (isMinimaxNov18Shutdown(model)) add(MINIMAX_NOV18_GUIDE_SLUG);
   if (model.provider === "nvidia") add("nvidia-hosted-api-vs-nim-containers");
   if (aliasSnapshotView(model, catalog)) add("model-aliases-vs-pinned-snapshots");
   if (model.shutdown_date && model.shutdown_date_kind !== "none") {

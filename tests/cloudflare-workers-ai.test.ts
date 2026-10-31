@@ -159,7 +159,9 @@ describe("Cloudflare Workers AI changelog", () => {
     expect(migration.code_change.snippets.curl.after).toContain("Where did the phrase Hello World come from");
     expect(migration.api_changes.map((change) => change.source_url)).toEqual([REST_URL, POST_URL]);
     expect(migration.migration_checklist.join(" ")).toContain("higher price");
-    expect(requestErrorsForProvider("cloudflare-workers-ai")).toEqual([]);
+    expect(requestErrorsForProvider("cloudflare-workers-ai").map((page) => page.slug)).toEqual([
+      "cloudflare-workers-ai-model-deprecated-410",
+    ]);
   });
 });
 

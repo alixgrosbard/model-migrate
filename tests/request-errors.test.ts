@@ -97,7 +97,7 @@ describe("request error pages", () => {
   it("lists both pages in llms.txt, lastmod, and JSON-LD", () => {
     const text = llmsTxt("https://sunsetdiff.com", [], []);
     const full = llmsFull("https://sunsetdiff.com", []);
-    expect(requestErrors.length).toBe(19);
+    expect(requestErrors.length).toBe(20);
     expect(text).toContain(REQUEST_ERRORS_INDEX);
     expect(full).toContain(REQUEST_ERRORS_INDEX);
     expect(lastmodForUrl(`https://sunsetdiff.com${REQUEST_ERRORS_INDEX}`)).toBe(requestErrorsIndexChecked());
@@ -214,5 +214,22 @@ describe("request error pages", () => {
     expect(JSON.stringify(userField)).not.toContain("sk-");
     expect(JSON.stringify(userField)).not.toContain("api_key");
     expect(JSON.stringify(userField)).not.toContain("Bearer");
+    const cloudflareGone = requestErrors.find((page) => page.slug === "cloudflare-workers-ai-model-deprecated-410");
+    expect(cloudflareGone?.checked).toBe("2026-10-31");
+    expect(cloudflareGone?.errorQuoted).toBe(true);
+    expect(cloudflareGone?.errorText).toBe(
+      '{"success":false,"errors":[{"code":5028,"message":"AiError: Model has been deprecated"}],"messages":[],"result":null}',
+    );
+    expect(cloudflareGone?.quoteSourceUrl).toBe("https://github.com/lichengiggs/free-proxy/issues/30");
+    expect(cloudflareGone?.rule).toContain("does not list internal code 5028 or HTTP 410");
+    expect(cloudflareGone?.rule).toContain("AiError: 5028: This model was deprecated on 2026-05-30. Please use an alternative model");
+    expect(cloudflareGone?.citations).toContain("https://developers.cloudflare.com/workers-ai/features/json-mode/");
+    expect(cloudflareGone?.rule).toContain("JSON Mode page");
+    expect(cloudflareGone?.models.map((item) => item.id)).toContain("@cf/meta/llama-3.1-8b-instruct");
+    expect(cloudflareGone?.models.map((item) => item.id)).toContain("@cf/moonshotai/kimi-k2.5");
+    expect(cloudflareGone?.models.find((item) => item.id === "@cf/meta/llama-3.1-8b-instruct")?.note).toContain("does not print a replacement");
+    expect(cloudflareGone?.shutdowns).toEqual([{ provider: "cloudflare-workers-ai", date: "2026-05-30" }]);
+    expect(JSON.stringify(cloudflareGone)).not.toContain("sk-");
+    expect(JSON.stringify(cloudflareGone)).not.toContain("Bearer");
   });
 });

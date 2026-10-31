@@ -2174,4 +2174,253 @@ const { text } = await generateText({
       "https://sunsetdiff.com/data/models.json",
     ],
   },
+  {
+    slug: "cloudflare-workers-ai-model-deprecated-410",
+    provider: "cloudflare-workers-ai",
+    checked: "2026-10-31",
+    cause: "A Workers AI request still sends a model id the May 30, 2026 changelog lists as deprecated.",
+    title: "Cloudflare Workers AI model deprecated HTTP 410 | SunsetDiff",
+    description:
+      "A public report says /chat/completions for @cf/meta/llama-3.1-8b-instruct returns HTTP 410 and code 5028 after the May 30, 2026 removal. The Workers AI errors page does not list that code.",
+    h1: "Cloudflare Workers AI HTTP 410",
+    lead: "A call that still sends a model from the May 30, 2026 Workers AI list can fail. GitHub issue lichengiggs/free-proxy#30 says a 2026-10-29 call to /chat/completions for @cf/meta/llama-3.1-8b-instruct returned HTTP 410 and code 5028. The JSON below is the body that issue writes in its acceptance section. The Workers AI errors page does not list this code.",
+    errorQuoted: true,
+    errorText:
+      '{"success":false,"errors":[{"code":5028,"message":"AiError: Model has been deprecated"}],"messages":[],"result":null}',
+    quoteSourceLabel: "free-proxy issue 30",
+    quoteSourceUrl: "https://github.com/lichengiggs/free-proxy/issues/30",
+    rule: "The May 8, 2026 changelog says to update apps to remove references to the listed models before the deprecation date. The heading is Models deprecated on May 30, 2026. That list includes @cf/meta/llama-3.1-8b-instruct and does not print a replacement arrow for it. The only arrow on the list is @cf/moonshotai/kimi-k2.5 to @cf/moonshotai/kimi-k2.6. The same post says requests will be automatically aliased to Kimi K2.6 on May 30, 2026, which has a higher price. It also says the -fast and -lora variants of models will remain active, including @cf/meta/llama-3.1-8b-instruct-fast. GitHub issue lichengiggs/free-proxy#30 says a 2026-10-29 call to /chat/completions on @cf/meta/llama-3.1-8b-instruct returned HTTP 410 and code 5028, and that the model was removed on 2026-05-30. The goal section does not paste a JSON body. The acceptance section writes the JSON in the Error text block for that HTTP 410. GitHub issue cloudflare/cloudflare-docs#32501 prints a different sentence from the Workers console: AiError: 5028: This model was deprecated on 2026-05-30. Please use an alternative model. That issue names cf/meta/llama-3.1-8b-instruct, without the @, and it does not print HTTP 410. The Workers AI errors page, last updated Sep 17, 2026, lists internal codes and HTTP codes. It does not list internal code 5028 or HTTP 410. The JSON Mode page, last updated Sep 14, 2026, still lists @cf/meta/llama-3.1-8b-instruct, @cf/meta/llama-3-8b-instruct, and @hf/nousresearch/hermes-2-pro-mistral-7b. Those three ids are on the May 30 list. The same page also lists @hf/thebloke/deepseek-coder-6.7b-instruct-awq, which the Workers AI changelog places in the October 1, 2025 deprecation set, and @cf/deepseek-ai/deepseek-r1-distill-qwen-32b, which this site does not store as a Cloudflare Workers AI row. The OpenAI-compatible endpoints page, last updated Sep 18, 2026, still sets model to @cf/meta/llama-3.1-8b-instruct on POST https://api.cloudflare.com/client/v4/accounts/{account_id}/ai/v1/chat/completions. The REST API getting started page, last updated Sep 15, 2026, still runs @cf/meta/llama-3.1-8b-instruct at /ai/run/. GitHub issue fringe4life/larder#17 says the JSON Mode page lists @cf/meta/llama-3.1-8b-instruct. This page does not treat the October 1, 2025 ids as confirmed 410 responses.",
+    ruleSourceLabel: "Cloudflare changelog, May 8, 2026",
+    ruleSourceUrl: "https://developers.cloudflare.com/changelog/post/2026-05-08-planned-model-deprecations/",
+    modelsCaption: "Models the May 8, 2026 changelog lists under Models deprecated on May 30, 2026. A replacement is stored only where that list prints an arrow.",
+    models: [
+      {
+        id: "@cf/meta/llama-3.1-8b-instruct",
+        provider: "cloudflare-workers-ai",
+        slug: "cf-meta-llama-3-1-8b-instruct",
+        note: "Named in free-proxy issue 30 and in cloudflare-docs issue 32501. The changelog lists it on May 30, 2026 and does not print a replacement. JSON Mode, the OpenAI-compatible example, and the REST getting started page still include this id.",
+      },
+      {
+        id: "@cf/meta/llama-3-8b-instruct",
+        provider: "cloudflare-workers-ai",
+        slug: "cf-meta-llama-3-8b-instruct",
+        note: "On the May 30, 2026 list, with no arrow. The JSON Mode page still lists it.",
+      },
+      {
+        id: "@hf/nousresearch/hermes-2-pro-mistral-7b",
+        provider: "cloudflare-workers-ai",
+        slug: "hf-nousresearch-hermes-2-pro-mistral-7b",
+        note: "On the May 30, 2026 list, with no arrow. The JSON Mode page still lists it.",
+      },
+      {
+        id: "@cf/moonshotai/kimi-k2.5",
+        provider: "cloudflare-workers-ai",
+        slug: "cf-moonshotai-kimi-k2-5",
+        note: "The May 30 list prints an arrow to @cf/moonshotai/kimi-k2.6. The post says requests are automatically aliased to Kimi K2.6 on May 30, 2026, which has a higher price.",
+      },
+      {
+        id: "@cf/meta/llama-3.1-8b-instruct-awq",
+        provider: "cloudflare-workers-ai",
+        slug: "cf-meta-llama-3-1-8b-instruct-awq",
+        note: "On the May 30, 2026 list, with no arrow.",
+      },
+      {
+        id: "@cf/meta/llama-3.1-70b-instruct",
+        provider: "cloudflare-workers-ai",
+        slug: "cf-meta-llama-3-1-70b-instruct",
+        note: "On the May 30, 2026 list, with no arrow.",
+      },
+      {
+        id: "@cf/meta/llama-3-8b-instruct-awq",
+        provider: "cloudflare-workers-ai",
+        slug: "cf-meta-llama-3-8b-instruct-awq",
+        note: "On the May 30, 2026 list, with no arrow.",
+      },
+      {
+        id: "@cf/meta/llama-2-7b-chat-fp16",
+        provider: "cloudflare-workers-ai",
+        slug: "cf-meta-llama-2-7b-chat-fp16",
+        note: "On the May 30, 2026 list, with no arrow.",
+      },
+      {
+        id: "@cf/meta/llama-2-7b-chat-int8",
+        provider: "cloudflare-workers-ai",
+        slug: "cf-meta-llama-2-7b-chat-int8",
+        note: "On the May 30, 2026 list, with no arrow.",
+      },
+      {
+        id: "@hf/meta-llama/meta-llama-3-8b-instruct",
+        provider: "cloudflare-workers-ai",
+        slug: "hf-meta-llama-meta-llama-3-8b-instruct",
+        note: "On the May 30, 2026 list, with no arrow.",
+      },
+      {
+        id: "@cf/mistral/mistral-7b-instruct-v0.1",
+        provider: "cloudflare-workers-ai",
+        slug: "cf-mistral-mistral-7b-instruct-v0-1",
+        note: "On the May 30, 2026 list, with no arrow.",
+      },
+      {
+        id: "@hf/mistral/mistral-7b-instruct-v0.2",
+        provider: "cloudflare-workers-ai",
+        slug: "hf-mistral-mistral-7b-instruct-v0-2",
+        note: "On the May 30, 2026 list, with no arrow.",
+      },
+      {
+        id: "@hf/google/gemma-7b-it",
+        provider: "cloudflare-workers-ai",
+        slug: "hf-google-gemma-7b-it",
+        note: "On the May 30, 2026 list, with no arrow.",
+      },
+      {
+        id: "@cf/google/gemma-3-12b-it",
+        provider: "cloudflare-workers-ai",
+        slug: "cf-google-gemma-3-12b-it",
+        note: "On the May 30, 2026 list, with no arrow.",
+      },
+      {
+        id: "@cf/microsoft/phi-2",
+        provider: "cloudflare-workers-ai",
+        slug: "cf-microsoft-phi-2",
+        note: "On the May 30, 2026 list, with no arrow.",
+      },
+      {
+        id: "@cf/defog/sqlcoder-7b-2",
+        provider: "cloudflare-workers-ai",
+        slug: "cf-defog-sqlcoder-7b-2",
+        note: "On the May 30, 2026 list, with no arrow.",
+      },
+      {
+        id: "@cf/unum/uform-gen2-qwen-500m",
+        provider: "cloudflare-workers-ai",
+        slug: "cf-unum-uform-gen2-qwen-500m",
+        note: "On the May 30, 2026 list, with no arrow.",
+      },
+      {
+        id: "@cf/facebook/bart-large-cnn",
+        provider: "cloudflare-workers-ai",
+        slug: "cf-facebook-bart-large-cnn",
+        note: "On the May 30, 2026 list, with no arrow.",
+      },
+    ],
+    fixes: [
+      {
+        heading: "Raw SDK",
+        text: [
+          "Read the model id in the failing call. Open that id on the Cloudflare Workers AI provider page. A replacement is stored only when the changelog prints an arrow. The only arrow on the May 30 list is @cf/moonshotai/kimi-k2.5 to @cf/moonshotai/kimi-k2.6. @cf/meta/llama-3.1-8b-instruct has no stored replacement.",
+          "The changelog says @cf/meta/llama-3.1-8b-instruct-fast remains active. That is a different id. It is not stored as the replacement for @cf/meta/llama-3.1-8b-instruct. The OpenAI-compatible page posts to https://api.cloudflare.com/client/v4/accounts/{account_id}/ai/v1/chat/completions and its example still uses the retired id. This sample changes only the model field. The official example also sends an Authorization header. This sample leaves that header out.",
+        ],
+        samples: [
+          {
+            caption: "Chat completions, model field only",
+            code: `curl --request POST \\
+  --url https://api.cloudflare.com/client/v4/accounts/{account_id}/ai/v1/chat/completions \\
+  --header "Content-Type: application/json" \\
+  --data '{"model":"@cf/meta/llama-3.1-8b-instruct-fast","messages":[{"role":"user","content":"Hello"}]}'
+`,
+          },
+        ],
+        sourceLabel: "OpenAI compatible API endpoints",
+        sourceUrl: "https://developers.cloudflare.com/workers-ai/configuration/open-ai-compatibility/",
+      },
+      {
+        heading: "REST run path",
+        text: [
+          "The REST getting started page calls https://api.cloudflare.com/client/v4/accounts/{ACCOUNT_ID}/ai/run/ plus the model id. Its example still uses @cf/meta/llama-3.1-8b-instruct. This sample keeps that path and that prompt, and changes the model id to one the changelog says remains active. It leaves out the Authorization header from the official example.",
+        ],
+        samples: [
+          {
+            caption: "REST run path, model field only",
+            code: `curl https://api.cloudflare.com/client/v4/accounts/{ACCOUNT_ID}/ai/run/@cf/meta/llama-3.1-8b-instruct-fast \\
+  -d '{ "prompt": "Where did the phrase Hello World come from" }'
+`,
+          },
+        ],
+        sourceLabel: "Workers AI REST API",
+        sourceUrl: "https://developers.cloudflare.com/workers-ai/get-started/rest-api/",
+      },
+      {
+        heading: "LiteLLM",
+        text: [
+          "This page does not show a LiteLLM call. The OpenAI-compatible page says to set the base URL to https://api.cloudflare.com/client/v4/accounts/{account_id}/ai/v1 and to change the model field.",
+        ],
+        samples: [],
+        sourceLabel: "OpenAI compatible API endpoints",
+        sourceUrl: "https://developers.cloudflare.com/workers-ai/configuration/open-ai-compatibility/",
+      },
+      {
+        heading: "Vercel AI SDK",
+        text: [
+          "This page does not show an AI SDK call. Change the model id in the request. Use a replacement only when the SunsetDiff row names one.",
+        ],
+        samples: [],
+        sourceLabel: "Cloudflare Workers AI provider page",
+        sourceUrl: "https://sunsetdiff.com/providers/cloudflare-workers-ai/",
+      },
+      {
+        heading: "Checklist",
+        text: [
+          "Search the repo for the model id in the error. Open its SunsetDiff model page and the Cloudflare Workers AI provider page. If the replacement cell names an id, switch to that id and test it. If the cell says Not published, stop sending the retired id.",
+          "Do not copy a model id from the JSON Mode page, the OpenAI-compatible example, or the REST getting started example until you check the shutdown date. Those three pages still include @cf/meta/llama-3.1-8b-instruct. The -fast and -lora ids the changelog says remain active are separate rows.",
+        ],
+        samples: [
+          {
+            caption: "SunsetDiff JSON",
+            code: `curl -fsSL https://sunsetdiff.com/data/models.json
+`,
+          },
+        ],
+        sourceLabel: "SunsetDiff models.json",
+        sourceUrl: "https://sunsetdiff.com/data/models.json",
+      },
+    ],
+    guides: [
+      {
+        href: "/migrate/cloudflare-workers-ai__cf-moonshotai-kimi-k2-5__to__cloudflare-workers-ai__cf-moonshotai-kimi-k2-6/",
+        label: "@cf/moonshotai/kimi-k2.5 to @cf/moonshotai/kimi-k2.6",
+      },
+    ],
+    seeAlso: [
+      { href: "/providers/cloudflare-workers-ai/", label: "Cloudflare Workers AI" },
+      { href: "/shutdowns/cloudflare-workers-ai-2026-05-30/", label: "May 30, 2026 shutdowns" },
+      { href: "/models/cloudflare-workers-ai/cf-meta-llama-3-1-8b-instruct/", label: "@cf/meta/llama-3.1-8b-instruct" },
+      { href: "/models/cloudflare-workers-ai/cf-meta-llama-3-1-8b-instruct-fast/", label: "@cf/meta/llama-3.1-8b-instruct-fast" },
+      { href: "/models/cloudflare-workers-ai/cf-moonshotai-kimi-k2-5/", label: "@cf/moonshotai/kimi-k2.5" },
+      { href: "https://developers.cloudflare.com/workers-ai/features/json-mode/", label: "JSON Mode" },
+      { href: "https://developers.cloudflare.com/workers-ai/platform/errors/", label: "Workers AI errors" },
+      { href: "https://github.com/fringe4life/larder/issues/17", label: "larder issue 17" },
+      { href: "https://github.com/cloudflare/cloudflare-docs/issues/32501", label: "cloudflare-docs issue 32501" },
+    ],
+    shutdowns: [{ provider: "cloudflare-workers-ai", date: "2026-05-30" }],
+    faqs: [
+      {
+        question: "Does Cloudflare's errors page list HTTP 410 or code 5028?",
+        answer:
+          "No. The [Workers AI errors page](https://developers.cloudflare.com/workers-ai/platform/errors/), last updated Sep 17, 2026, does not list internal code 5028 or HTTP 410. [free-proxy issue 30](https://github.com/lichengiggs/free-proxy/issues/30) says a 2026-10-29 call to /chat/completions for @cf/meta/llama-3.1-8b-instruct returned HTTP 410 and code 5028. The JSON in the Error text block is the body that issue writes in its acceptance section. [cloudflare-docs issue 32501](https://github.com/cloudflare/cloudflare-docs/issues/32501) prints AiError: 5028: This model was deprecated on 2026-05-30. Please use an alternative model. That issue does not print HTTP 410.",
+      },
+      {
+        question: "What replaces @cf/meta/llama-3.1-8b-instruct?",
+        answer:
+          "The [changelog](https://developers.cloudflare.com/changelog/post/2026-05-08-planned-model-deprecations/) does not print a replacement arrow for that id. SunsetDiff stores no replacement on [@cf/meta/llama-3.1-8b-instruct](/models/cloudflare-workers-ai/cf-meta-llama-3-1-8b-instruct/). The same post says [@cf/meta/llama-3.1-8b-instruct-fast](/models/cloudflare-workers-ai/cf-meta-llama-3-1-8b-instruct-fast/) remains active. That is a different id, not a stored replacement. The only stored replacement on the May 30 list is @cf/moonshotai/kimi-k2.6 for [@cf/moonshotai/kimi-k2.5](/models/cloudflare-workers-ai/cf-moonshotai-kimi-k2-5/). The full list is [Cloudflare Workers AI](/providers/cloudflare-workers-ai/).",
+      },
+      {
+        question: "Why do Cloudflare's own docs still show the old model?",
+        answer:
+          "The [JSON Mode page](https://developers.cloudflare.com/workers-ai/features/json-mode/), last updated Sep 14, 2026, still lists @cf/meta/llama-3.1-8b-instruct. [larder issue 17](https://github.com/fringe4life/larder/issues/17) says that. The [OpenAI-compatible endpoints page](https://developers.cloudflare.com/workers-ai/configuration/open-ai-compatibility/) and the [REST getting started page](https://developers.cloudflare.com/workers-ai/get-started/rest-api/) still use the same id. The [May 8, 2026 changelog](https://developers.cloudflare.com/changelog/post/2026-05-08-planned-model-deprecations/) lists it as deprecated on May 30, 2026.",
+      },
+    ],
+    citations: [
+      "https://developers.cloudflare.com/changelog/post/2026-05-08-planned-model-deprecations/",
+      "https://developers.cloudflare.com/workers-ai/platform/errors/",
+      "https://developers.cloudflare.com/workers-ai/features/json-mode/",
+      "https://developers.cloudflare.com/workers-ai/configuration/open-ai-compatibility/",
+      "https://developers.cloudflare.com/workers-ai/get-started/rest-api/",
+      "https://developers.cloudflare.com/workers-ai/changelog/",
+      "https://github.com/lichengiggs/free-proxy/issues/30",
+      "https://github.com/fringe4life/larder/issues/17",
+      "https://github.com/cloudflare/cloudflare-docs/issues/32501",
+      "https://sunsetdiff.com/providers/cloudflare-workers-ai/",
+      "https://sunsetdiff.com/data/models.json",
+    ],
+  },
 ];
