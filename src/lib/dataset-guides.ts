@@ -19,6 +19,10 @@ export const JANUARY_2027_GPT4_GUIDE_SLUG = "openai-gpt-4-1-gpt-4o-shutdown-janu
 export const MINIMAX_NOV18_SHUTDOWN_DATE = "2026-11-18";
 export const MINIMAX_NOV18_GUIDE_SLUG = "minimax-m2-5-m2-7-shutdown-november-18-2026";
 
+/** Checked against the Bedrock legacy lifecycle page. The slug uses this date. */
+export const BEDROCK_NOV13_SHUTDOWN_DATE = "2026-11-13";
+export const BEDROCK_NOV13_GUIDE_SLUG = "amazon-bedrock-claude-3-shutdown-november-13-2026";
+
 const MINIMAX_MODELS = "https://platform.minimax.io/docs/faq/models";
 const MINIMAX_TEXT = "https://platform.minimax.io/docs/guides/text-generation";
 const MINIMAX_NEW_USERS = "These models will no longer be available to new users.";
@@ -29,6 +33,42 @@ const MINIMAX_NAMES = "Existing model names will continue to work for backward c
 const MINIMAX_ALLOWANCES = "Your plan’s usage allowances will remain unchanged.";
 const MINIMAX_TABLE = "The following models have been retired and are no longer available.";
 const MINIMAX_THINKING = 'model "MiniMax-M3.1-Flash" requires adaptive thinking';
+
+const BEDROCK_LEGACY = "https://docs.aws.amazon.com/bedrock/latest/userguide/model-lifecycle-legacy.html";
+const BEDROCK_HAIKU_CARD = "https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-anthropic-claude-3-haiku.html";
+const BEDROCK_REGIONS = "https://docs.aws.amazon.com/bedrock/latest/userguide/models-region-compatibility.html";
+const BEDROCK_LIMITED = "https://docs.aws.amazon.com/bedrock/latest/userguide/inference-profiles-limited-model-selection.html";
+const CLAUDE_VERSIONING = "https://platform.claude.com/docs/en/api/versioning";
+const SONNET_MIGRATION = "https://platform.claude.com/docs/en/models/sonnet-5-5/migration-guide";
+const ISSUE_AGENT_SQUAD = "https://github.com/2FastLabs/agent-squad/issues/721";
+const ISSUE_CLAUDE_CODE_ACTION = "https://github.com/anthropics/claude-code-action/issues/1850";
+const BEDROCK_HAIKU_US = "us.anthropic.claude-3-haiku-20240307-v1:0";
+const BEDROCK_HAIKU_EU = "eu.anthropic.claude-3-haiku-20240307-v1:0";
+const BEDROCK_V2_US = "us.anthropic.claude-3-5-sonnet-20241022-v2:0";
+const BEDROCK_V2_GLOBAL = "global.anthropic.claude-3-5-sonnet-20241022-v2:0";
+const BEDROCK_EOL_ERROR = "ResourceNotFoundException: This model version has reached the end of its life.";
+const BEDROCK_EOL_LONGER =
+  "404 ResourceNotFoundException: This model version has reached the end of its life. Please refer to the AWS documentation for more details.";
+const BEDROCK_MIGRATE =
+  "You will need to migrate to the latest model by updating your application code before the EOL date. Migration will not happen automatically.";
+const BEDROCK_ONLY_DATES = "For Amazon Bedrock usage, only the dates on this page apply.";
+const BEDROCK_REGION_SPLIT =
+  "Model lifecycle state can differ by AWS Region. The Regions column in the following tables lists only the Regions covered by a model's announced EOL date.";
+const BEDROCK_FAIL =
+  "On, or soon after the EOL date, the model is no longer available for use in all AWS Regions and requests made to this version will fail, unless there is a private arrangement between you and the provider for continued access.";
+const BEDROCK_LEGACY_ACCESS =
+  "New customers can't use Legacy models and existing customers may lose access to Legacy models after 15 days of inactivity.";
+const BEDROCK_NO_THROUGHPUT = "You can't create a new Provisioned Throughput for models in the Legacy state.";
+const BEDROCK_PROFILE_GAP =
+  "When a model reaches its End-of-Life date, it's no longer available through the inference profile. A replacement model might not be offered through the same inference profile for you to migrate to.";
+const BEDROCK_HAIKU_NOW =
+  "Claude 3 Haiku reached end of life on September 10, 2026 in most Regions, where requests now fail with ResourceNotFoundException: This model version has reached the end of its life.";
+const BEDROCK_HAIKU_LATER =
+  "These Regions have an upcoming end of life of November 13, 2026, after which requests in these Regions will also fail.";
+const BEDROCK_VERSIONING =
+  "On Amazon Bedrock, it's available for Claude 4.7 and later models. For other models on Bedrock, see the migration guide.";
+const AGENT_SQUAD_DEFAULT =
+  "Since BedrockClassifier is the orchestrator's default classifier, a default setup in us-east-1 fails.";
 
 /** Longer ids first so a mini alias is not treated as the shorter one. */
 const JANUARY_ALIASES = ["gpt-4o-mini", "gpt-4.1-mini", "gpt-4o", "gpt-4.1"] as const;
@@ -75,6 +115,12 @@ export function isDecember11OpenAiShutdown(model: ModelRecord): boolean {
 export function isMinimaxNov18Shutdown(model: ModelRecord): boolean {
   return model.provider === "minimax"
     && model.shutdown_date === MINIMAX_NOV18_SHUTDOWN_DATE
+    && model.shutdown_date_kind === "exact";
+}
+
+export function isBedrockNov13Shutdown(model: ModelRecord): boolean {
+  return model.provider === "aws-bedrock"
+    && model.shutdown_date === BEDROCK_NOV13_SHUTDOWN_DATE
     && model.shutdown_date_kind === "exact";
 }
 
@@ -163,6 +209,8 @@ export function datasetShutdownGuides(catalog: ModelRecord[] = readCatalog()): G
   if (january.length) pages.push(januaryGuide(january, catalog));
   const minimax = rowsFor(isMinimaxNov18Shutdown, catalog);
   if (minimax.length) pages.push(minimaxGuide(minimax, catalog));
+  const bedrock = rowsFor(isBedrockNov13Shutdown, catalog);
+  if (bedrock.length) pages.push(bedrockGuide(bedrock, catalog));
   const slugs = new Set(pages.map((page) => page.slug));
   for (const page of pages) {
     page.related = page.related.filter((link) => {
@@ -524,5 +572,245 @@ response = client.chat.completions.create(
       },
     ],
     citations: [MINIMAX_MODELS, MINIMAX_TEXT],
+  };
+}
+
+function bedrockTable(rows: ModelRecord[], catalog: ModelRecord[]): string[][] {
+  return rows.map((model) => [
+    modelLink(model),
+    deprecationCell(model),
+    shutdownCell(model),
+    model.region_or_platform_notes ?? "Not published",
+    replacementText(model, catalog),
+  ]);
+}
+
+function bedrockSearch(ids: string[]): string {
+  const unique = [...new Set(ids)];
+  return `rg -n -w ${unique.map((id) => `-e '${id}'`).join(" ")}\n`;
+}
+
+function bedrockGuide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePage {
+  const when = longDate(BEDROCK_NOV13_SHUTDOWN_DATE);
+  const checked = "2026-10-31";
+  const earlier = catalog
+    .filter((model) => model.provider === "aws-bedrock" && model.id === "anthropic.claude-3-haiku-20240307-v1:0" && !isBedrockNov13Shutdown(model))
+    .sort((a, b) => a.slug.localeCompare(b.slug));
+  const sources = [
+    { label: "Amazon Bedrock model lifecycle (legacy)", url: BEDROCK_LEGACY },
+    { label: "Claude 3 Haiku model card", url: BEDROCK_HAIKU_CARD },
+    { label: "Regional availability by models", url: BEDROCK_REGIONS },
+    { label: "Inference profiles with limited model selection", url: BEDROCK_LIMITED },
+  ];
+  return {
+    slug: BEDROCK_NOV13_GUIDE_SLUG,
+    title: `Amazon Bedrock Claude 3 shutdown on ${when} | SunsetDiff`,
+    description: `Bedrock Claude 3 Haiku, Claude 3 Sonnet, Claude 3.5 Sonnet, Claude 3.5 Sonnet v2, and Claude 3.7 Sonnet reach end of life on ${BEDROCK_NOV13_SHUTDOWN_DATE} in the Regions on the lifecycle page. AWS does not name a replacement model ID.`,
+    h1: `Amazon Bedrock Claude 3 shutdown on ${when}`,
+    summary: `The Bedrock ids in the dataset with shutdown date ${BEDROCK_NOV13_SHUTDOWN_DATE}, the Regions stored on each row, and the inference profile ids the Claude 3 Haiku model card prints.`,
+    answer: `The dataset has ${rows.length} Amazon Bedrock ids with shutdown date ${BEDROCK_NOV13_SHUTDOWN_DATE}: Claude 3 Haiku, Claude 3 Sonnet, Claude 3.5 Sonnet, Claude 3.5 Sonnet v2, and Claude 3.7 Sonnet. The lifecycle page lists that end of life only for the Regions on each row. Claude 3 Haiku already reached end of life on September 10, 2026 in other Regions, including us-east-1. The replacement field on every row is empty. The lifecycle page says: "${BEDROCK_MIGRATE}" It does not name a model ID.`,
+    checked,
+    steps: [
+      {
+        name: "Read the ids and the Regions",
+        text: `The first table is every Bedrock id in the dataset whose shutdown date is ${BEDROCK_NOV13_SHUTDOWN_DATE}. The Regions column is the note stored from the lifecycle page. A Region that is not on that row keeps its own date. Open the model page before you change a call.`,
+      },
+      {
+        name: "Find hardcoded ids and hidden defaults",
+        text: "Search your repository for the bare model ids and for the cross-Region ids below. Also check SDK defaults, framework classifiers, orchestrators, and agent configs. A library can send an id you never wrote down.",
+      },
+      {
+        name: "Swap the id and check the new request",
+        text: "Put the id you will call into the modelId field. AWS does not name a replacement on the lifecycle page. On a newer Claude model, check temperature, top_p, and top_k before you assume the old request still works.",
+      },
+      {
+        name: "Test before the date",
+        text: `Call that id from the Region you use, with the prompts you send now. Do that before ${when} for a row that is still ahead. Claude 3 Haiku in the September 10, 2026 Regions is already past end of life.`,
+      },
+    ],
+    sections: [
+      {
+        heading: "Models shutting down",
+        paragraphs: [
+          `These rows are every Amazon Bedrock model in the dataset with shutdown date ${BEDROCK_NOV13_SHUTDOWN_DATE}. The model id links to its SunsetDiff model page. The Legacy date column is the deprecation_date stored on the row. The Regions column is region_or_platform_notes. That note can list more than one Legacy date. The replacement column is the official replacement stored on the row. Not published means the field is empty.`,
+          `The lifecycle page says: "${BEDROCK_ONLY_DATES}" It also says: "${BEDROCK_REGION_SPLIT}" To check the Region you call, use ListFoundationModels or GetFoundationModel and read modelLifecycle.`,
+          `The same page says: "${BEDROCK_MIGRATE}" The recommended replacement on each row is Not published because the stored replacements list is empty. This guide does not fill one in.`,
+        ],
+        table: {
+          caption: `${rows.length} Bedrock model ids with shutdown date ${BEDROCK_NOV13_SHUTDOWN_DATE}.`,
+          headers: ["Model id", "Legacy date stored", "Shutdown date", "Regions", "Recommended replacement"],
+          rows: bedrockTable(rows, catalog),
+        },
+        sources: [{ label: "Amazon Bedrock model lifecycle (legacy)", url: BEDROCK_LEGACY }],
+      },
+      {
+        heading: "Regions that already reached end of life",
+        paragraphs: [
+          "Claude 3 Haiku uses one model id on two dataset rows. The row above is the November 13, 2026 Regions. The row below is the Regions whose shutdown date is already past.",
+          `The Claude 3 Haiku model card says: "${BEDROCK_HAIKU_NOW}" It then names ap-northeast-2, ap-south-1, ap-southeast-1, ca-central-1, eu-central-2, and sa-east-1 as still in Legacy, and says: "${BEDROCK_HAIKU_LATER}"`,
+          "The same card's sample code still sends anthropic.claude-3-haiku-20240307-v1:0 with region_name us-east-1. The card says that Region reached end of life on September 10, 2026.",
+        ],
+        table: earlier.length
+          ? {
+              caption: "Claude 3 Haiku rows in the dataset whose shutdown date is not November 13, 2026.",
+              headers: ["Model id", "Legacy date stored", "Shutdown date", "Regions", "Recommended replacement"],
+              rows: bedrockTable(earlier, catalog),
+            }
+          : undefined,
+        sources: [
+          { label: "Claude 3 Haiku model card", url: BEDROCK_HAIKU_CARD },
+          { label: "Amazon Bedrock model lifecycle (legacy)", url: BEDROCK_LEGACY },
+        ],
+      },
+      {
+        heading: "Cross-Region inference profile ids",
+        paragraphs: [
+          `The dataset stores the in-Region model ids. It does not store a us. or eu. prefix. The Claude 3 Haiku model card prints two geo inference ids and says the global inference id is N/A. Geo, US: ${BEDROCK_HAIKU_US}. Geo, EU: ${BEDROCK_HAIKU_EU}. The card's regional table marks Geo end of life on September 10, 2026 for the US and EU source Regions it lists. Those prefixed ids are not a November 13 id.`,
+          "The card says this model is offered through inference profiles with limited model selection. The limited model selection page lists ca-central-1, ca-west-1, ap-northeast-2, ap-southeast-1, eu-west-2, eu-central-2, and sa-east-1. Several of those codes are also on the November 13 rows. ap-south-1 is on the November 13 rows and is not in that limited-selection table.",
+          `That page says: "${BEDROCK_PROFILE_GAP}"`,
+          `The regional availability page uses Claude 3.5 Sonnet v2 as the modelId format example. It prints anthropic.claude-3-5-sonnet-20241022-v2:0, ${BEDROCK_V2_US}, and ${BEDROCK_V2_GLOBAL}. That row shows the shape of an id. It is not a list of profiles that are still offered, and the dataset does not store the prefixed ids. Models at a glance does not link a model card for Claude 3 Sonnet, Claude 3.5 Sonnet, Claude 3.5 Sonnet v2, or Claude 3.7 Sonnet, so this guide does not invent geo or global ids for them.`,
+        ],
+        table: {
+          caption: "Inference ids printed on the Claude 3 Haiku model card.",
+          headers: ["ID kind", "ID"],
+          rows: [
+            ["In-Region model ID", "anthropic.claude-3-haiku-20240307-v1:0"],
+            ["Geo inference ID, US", BEDROCK_HAIKU_US],
+            ["Geo inference ID, EU", BEDROCK_HAIKU_EU],
+            ["Global inference ID", "N/A"],
+          ],
+        },
+        sources: [
+          { label: "Claude 3 Haiku model card", url: BEDROCK_HAIKU_CARD },
+          { label: "Inference profiles with limited model selection", url: BEDROCK_LIMITED },
+          { label: "Regional availability by models", url: BEDROCK_REGIONS },
+        ],
+      },
+      {
+        heading: "What the regional availability page prints",
+        paragraphs: [
+          `The lifecycle page is the source for the dates in the tables above. On the same day, the regional availability page does not print ${BEDROCK_NOV13_SHUTDOWN_DATE} for Claude 3 Sonnet, Claude 3.5 Sonnet, Claude 3.5 Sonnet v2, or Claude 3.7 Sonnet. The cells it fills for those names say EOL: 2026-07-30.`,
+          "For Claude 3 Haiku, that page prints EOL: 2026-11-13 in the In-Region column for ap-northeast-2, ap-south-1, and ap-southeast-1. It prints EOL: 2026-09-10 for the Regions that already ended. ca-central-1, eu-central-2, and sa-east-1 are blank on that Haiku table. The lifecycle page and the Haiku model card still name November 13, 2026 for those three Regions.",
+          `The lifecycle page says: "${BEDROCK_ONLY_DATES}" Call GetFoundationModel in the Region you use and read modelLifecycle before you treat a blank cell as still active.`,
+        ],
+        sources: [
+          { label: "Regional availability by models", url: BEDROCK_REGIONS },
+          { label: "Amazon Bedrock model lifecycle (legacy)", url: BEDROCK_LEGACY },
+          { label: "Claude 3 Haiku model card", url: BEDROCK_HAIKU_CARD },
+        ],
+      },
+      {
+        heading: "What breaks",
+        paragraphs: [
+          `The lifecycle page says: "${BEDROCK_FAIL}" It also says: "${BEDROCK_MIGRATE}" It does not print an exception name.`,
+          `The Claude 3 Haiku model card does. It says requests in most Regions now fail with ${BEDROCK_EOL_ERROR} The full page is [This model version has reached the end of its life](/errors/bedrock-model-version-has-reached-the-end-of-its-life/). The card's November 13 sentence says requests in the remaining Regions will also fail. It does not repeat the exception name on that sentence.`,
+          `GitHub issue [anthropics/claude-code-action#1850](${ISSUE_CLAUDE_CODE_ACTION}) records a Converse call in us-west-2 for anthropic.claude-3-7-sonnet-20250219-v1:0. The line is: ${BEDROCK_EOL_LONGER} The lifecycle page does not list us-west-2 on the Claude 3.7 Sonnet row. It lists ap-south-1 and eu-west-2 with end of life ${BEDROCK_NOV13_SHUTDOWN_DATE}. The regional availability page prints EOL: 2026-07-30 for us-west-2 on that model.`,
+          `While a model is Legacy, the lifecycle page says: "${BEDROCK_LEGACY_ACCESS}" And: "${BEDROCK_NO_THROUGHPUT}"`,
+        ],
+        sources: [
+          ...sources,
+          { label: "claude-code-action issue 1850", url: ISSUE_CLAUDE_CODE_ACTION },
+        ],
+      },
+      {
+        heading: "Find the model ids in your code",
+        paragraphs: [
+          "Search the repository for the bare ids in the tables, then for the Haiku geo ids, then for the two Claude 3.5 Sonnet v2 prefixes from the format example. A hit is a candidate, not proof the call still runs. [How to find every model ID in your codebase](/guides/find-model-ids-in-your-codebase/) covers SDK argument names. The [scan page](/scan/) builds a search from dataset ids that have a shutdown date.",
+          "Also look where an SDK, a framework classifier, an orchestrator, or an agent config sets a model id when you do not. A default is easy to miss because the string is not in your own config.",
+          `GitHub issue [2FastLabs/agent-squad#721](${ISSUE_AGENT_SQUAD}) says the TypeScript and Python defaults are anthropic.claude-3-haiku-20240307-v1:0 for the agents, anthropic.claude-3-sonnet-20240229-v1:0 for the inline agent foundation model, and anthropic.claude-3-5-sonnet-20240620-v1:0 for the classifier. It says: "${AGENT_SQUAD_DEFAULT}"`,
+        ],
+        codes: [{
+          caption: "ripgrep, dataset ids plus the Haiku geo ids and the v2 format examples",
+          code: bedrockSearch([
+            ...rows.map((model) => model.id),
+            ...earlier.map((model) => model.id),
+            BEDROCK_HAIKU_US,
+            BEDROCK_HAIKU_EU,
+            BEDROCK_V2_US,
+            BEDROCK_V2_GLOBAL,
+          ]),
+        }],
+        sources: [
+          { label: "Amazon Bedrock model lifecycle (legacy)", url: BEDROCK_LEGACY },
+          { label: "Claude 3 Haiku model card", url: BEDROCK_HAIKU_CARD },
+          { label: "Regional availability by models", url: BEDROCK_REGIONS },
+          { label: "agent-squad issue 721", url: ISSUE_AGENT_SQUAD },
+        ],
+      },
+      {
+        heading: "Request fields on a newer Claude model",
+        paragraphs: [
+          "Changing the model id is not the whole request. Two SunsetDiff pages record Anthropic's rules for newer Claude models. They are not the end-of-life exception above.",
+          "A non-default temperature, top_p, or top_k on claude-sonnet-5-5 returns HTTP 400. The sentence and the fix are on [temperature is deprecated for this model](/errors/claude-temperature-is-deprecated-for-this-model/). Source: Anthropic's Sonnet 5.5 migration guide.",
+          `API version 2026-10-21 returns a 400 for temperature, top_p, and top_k on every model, even at the default value. That page is [API version 2026-10-21 sampling parameters](/errors/claude-api-2026-10-21-sampling-params-400/). The versioning page says: "${BEDROCK_VERSIONING}"`,
+        ],
+        sources: [
+          { label: "Claude Sonnet 5.5 migration guide", url: SONNET_MIGRATION },
+          { label: "Claude API versioning", url: CLAUDE_VERSIONING },
+        ],
+      },
+      {
+        heading: "Test the replacement before the cutoff",
+        paragraphs: [
+          `The lifecycle page tells you to update application code before the EOL date. It does not name the id to send. Pick the id you will call, then send one real prompt from the Region you use before ${when}. Read modelLifecycle in that Region first.`,
+          "For Claude 3 Haiku in the September 10, 2026 Regions, that date has passed. The model card says requests there now fail with the exception above. Do not copy the sample on that card that still targets us-east-1.",
+          "The [pre-migration test checklist](/guides/pre-migration-test-checklist/) is the longer list: evals, rejected fields, token limits, tools, price, and latency. These Bedrock rows do not store a price.",
+        ],
+        sources: [
+          { label: "Amazon Bedrock model lifecycle (legacy)", url: BEDROCK_LEGACY },
+          { label: "Claude 3 Haiku model card", url: BEDROCK_HAIKU_CARD },
+        ],
+      },
+    ],
+    related: [
+      { href: "/shutdowns/aws-bedrock-2026-11-13/", label: `Bedrock shutdowns on ${when}` },
+      { href: "/providers/aws-bedrock/", label: "Amazon Bedrock provider page" },
+      { href: "/errors/bedrock-model-version-has-reached-the-end-of-its-life/", label: "This model version has reached the end of its life" },
+      { href: "/errors/claude-temperature-is-deprecated-for-this-model/", label: "temperature is deprecated for this model" },
+      { href: "/errors/claude-api-2026-10-21-sampling-params-400/", label: "API version 2026-10-21 sampling parameters" },
+      { href: "/guides/find-model-ids-in-your-codebase/", label: "Find model ids in your codebase" },
+      { href: "/guides/pre-migration-test-checklist/", label: "Pre-migration test checklist" },
+      { href: "/scan/", label: "Scan retiring ids" },
+    ],
+    faqs: [
+      {
+        question: `Which Bedrock model ids reach end of life on ${when}?`,
+        answer: `The dataset lists ${idList(rows)} with shutdown date ${BEDROCK_NOV13_SHUTDOWN_DATE}. The Regions on each row are the ones the lifecycle page names for that date. Claude 3 Haiku in other Regions is a separate row with shutdown date 2026-09-10.`,
+      },
+      {
+        question: "Does November 13, 2026 apply in every AWS Region?",
+        answer: `No. The lifecycle page says: "${BEDROCK_REGION_SPLIT}" Claude 3 Haiku's November 13, 2026 Regions on the stored row are ap-northeast-2, ap-south-1, ap-southeast-1, eu-central-2, sa-east-1, and ca-central-1. The same id already reached end of life on September 10, 2026 in the Regions on the other Haiku row, including us-east-1.`,
+      },
+      {
+        question: "What is the official recommended replacement?",
+        answer: `Not published. ${replacementFaq(rows, catalog)} The lifecycle page says: "${BEDROCK_MIGRATE}" It does not name a model ID. The limited model selection page says: "${BEDROCK_PROFILE_GAP}"`,
+      },
+      {
+        question: "Which cross-Region inference profile ids does AWS print?",
+        answer: `The Claude 3 Haiku model card prints ${BEDROCK_HAIKU_US} and ${BEDROCK_HAIKU_EU}, and it says the global inference id is N/A. The regional availability page's format example prints ${BEDROCK_V2_US} and ${BEDROCK_V2_GLOBAL} next to anthropic.claude-3-5-sonnet-20241022-v2:0. The dataset does not store those prefixed ids. This guide does not invent a us. or global. id for Claude 3 Sonnet or Claude 3.7 Sonnet.`,
+      },
+      {
+        question: "What error does Bedrock return after end of life?",
+        answer: `The Claude 3 Haiku model card says requests in most Regions now fail with ${BEDROCK_EOL_ERROR} Issue [anthropics/claude-code-action#1850](${ISSUE_CLAUDE_CODE_ACTION}) records this line for anthropic.claude-3-7-sonnet-20250219-v1:0 on a Converse call in us-west-2: ${BEDROCK_EOL_LONGER} The lifecycle page says requests fail after the EOL date and does not print that exception. The page for the quote is [This model version has reached the end of its life](/errors/bedrock-model-version-has-reached-the-end-of-its-life/).`,
+      },
+      {
+        question: "Why can a default setup fail in us-east-1?",
+        answer: `Claude 3 Haiku reached end of life on September 10, 2026 in us-east-1. GitHub issue [2FastLabs/agent-squad#721](${ISSUE_AGENT_SQUAD}) says: "${AGENT_SQUAD_DEFAULT}" The issue says the classifier default is anthropic.claude-3-5-sonnet-20240620-v1:0, and the agent default is anthropic.claude-3-haiku-20240307-v1:0.`,
+      },
+      {
+        question: "What should I check besides the model id?",
+        answer: `On claude-sonnet-5-5, a non-default temperature, top_p, or top_k returns HTTP 400. See [temperature is deprecated for this model](/errors/claude-temperature-is-deprecated-for-this-model/). API version 2026-10-21 rejects those three fields on every model, even at the default. The versioning page says: "${BEDROCK_VERSIONING}" See [API version 2026-10-21 sampling parameters](/errors/claude-api-2026-10-21-sampling-params-400/).`,
+      },
+    ],
+    citations: [
+      BEDROCK_LEGACY,
+      BEDROCK_HAIKU_CARD,
+      BEDROCK_REGIONS,
+      BEDROCK_LIMITED,
+      ISSUE_AGENT_SQUAD,
+      ISSUE_CLAUDE_CODE_ACTION,
+      SONNET_MIGRATION,
+      CLAUDE_VERSIONING,
+    ],
   };
 }

@@ -66,7 +66,9 @@ const shutdownGuide = guideBySlug(
       ? "openai-gpt-4-1-gpt-4o-shutdown-january-2027"
       : event.slug === "minimax-2026-11-18"
         ? "minimax-m2-5-m2-7-shutdown-november-18-2026"
-        : undefined,
+        : event.slug === "aws-bedrock-2026-11-13"
+          ? "amazon-bedrock-claude-3-shutdown-november-13-2026"
+          : undefined,
 );
 const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
 const rows = event.models.map((model) => ({

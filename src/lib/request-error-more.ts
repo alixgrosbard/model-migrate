@@ -2544,4 +2544,109 @@ const { text } = await generateText({
       "https://ai-sdk.dev/v5/providers/ai-sdk-providers/anthropic",
     ],
   },
+  {
+    slug: "bedrock-model-version-has-reached-the-end-of-its-life",
+    provider: "aws-bedrock",
+    cause: "Calling Claude 3 Haiku on Bedrock after the end of life on its model card, or Claude 3.7 Sonnet in us-west-2.",
+    title: "This model version has reached the end of its life | SunsetDiff",
+    description:
+      "Bedrock returns ResourceNotFoundException: This model version has reached the end of its life. The Claude 3 Haiku model card prints that sentence. A public issue records it for Claude 3.7 Sonnet in us-west-2.",
+    h1: "This model version has reached the end of its life",
+    lead: "The Claude 3 Haiku model card says requests in most Regions now fail with ResourceNotFoundException: This model version has reached the end of its life. Those Regions reached end of life on September 10, 2026.",
+    errorQuoted: true,
+    errorText: "ResourceNotFoundException: This model version has reached the end of its life.",
+    quoteSourceLabel: "Claude 3 Haiku model card",
+    quoteSourceUrl: "https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-anthropic-claude-3-haiku.html",
+    checked: "2026-10-31",
+    rule: "The Claude 3 Haiku model card says Claude 3 Haiku reached end of life on September 10, 2026 in most Regions, where requests now fail with ResourceNotFoundException: This model version has reached the end of its life. The same card says ap-northeast-2, ap-south-1, ap-southeast-1, ca-central-1, eu-central-2, and sa-east-1 stay in Legacy until November 13, 2026, after which requests in these Regions will also fail. It does not repeat the exception name on that sentence. The legacy lifecycle page says that on, or soon after the EOL date, requests made to this version will fail, unless there is a private arrangement with the provider. It says you migrate by updating application code before the EOL date, and that migration will not happen automatically. It does not name a replacement model ID, and it does not print this exception. GitHub issue anthropics/claude-code-action#1850 records a Converse call in us-west-2 for anthropic.claude-3-7-sonnet-20250219-v1:0: 404 ResourceNotFoundException: This model version has reached the end of its life. Please refer to the AWS documentation for more details. The lifecycle page does not list us-west-2 on the Claude 3.7 Sonnet row. It lists ap-south-1 and eu-west-2 with end of life November 13, 2026. The regional availability page prints EOL: 2026-07-30 for us-west-2 on that model.",
+    ruleSourceLabel: "Amazon Bedrock model lifecycle (legacy)",
+    ruleSourceUrl: "https://docs.aws.amazon.com/bedrock/latest/userguide/model-lifecycle-legacy.html",
+    modelsCaption: "The quoted sentence is on the Claude 3 Haiku model card. The Claude 3.7 Sonnet row is the id in the public issue.",
+    models: [
+      {
+        id: "anthropic.claude-3-haiku-20240307-v1:0",
+        provider: "aws-bedrock",
+        slug: "anthropic-claude-3-haiku-20240307-v1-0-2",
+        note: "Shutdown date 2026-09-10. The model card says requests in most Regions now fail with this exception. The Regions include us-east-1.",
+      },
+      {
+        id: "anthropic.claude-3-haiku-20240307-v1:0",
+        provider: "aws-bedrock",
+        slug: "anthropic-claude-3-haiku-20240307-v1-0",
+        note: "Shutdown date 2026-11-13 in the Regions stored on this row. The card says requests there will also fail after that date. It does not repeat the exception name on that sentence.",
+      },
+      {
+        id: "anthropic.claude-3-7-sonnet-20250219-v1:0",
+        provider: "aws-bedrock",
+        slug: "anthropic-claude-3-7-sonnet-20250219-v1-0",
+        note: "Issue 1850 records the longer 404 sentence for a Converse call in us-west-2. The lifecycle page lists end of life on 2026-11-13 for ap-south-1 and eu-west-2.",
+      },
+    ],
+    fixes: [
+      {
+        heading: "Stop calling the id",
+        text: [
+          "Read the model id in the failed request. The Haiku card says requests in the September 10, 2026 Regions now fail with this exception. Retrying the same id does not bring that version back.",
+        ],
+        samples: [],
+        sourceLabel: "Claude 3 Haiku model card",
+        sourceUrl: "https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-anthropic-claude-3-haiku.html",
+      },
+      {
+        heading: "Check the Region",
+        text: [
+          "Call ListFoundationModels or GetFoundationModel in the Region you use and read modelLifecycle. The lifecycle page says state can differ by Region. The Regions column lists only the Regions covered by that EOL date.",
+        ],
+        samples: [],
+        sourceLabel: "Amazon Bedrock model lifecycle (legacy)",
+        sourceUrl: "https://docs.aws.amazon.com/bedrock/latest/userguide/model-lifecycle-legacy.html",
+      },
+      {
+        heading: "Change the id, then test",
+        text: [
+          "The lifecycle page says to update application code before the EOL date. Migration will not happen automatically. It does not name a replacement model ID. Search hardcoded ids, SDK defaults, framework classifiers, orchestrators, and agent configs. The steps and the hidden-default example are in the November 13 guide. On a newer Claude model, check temperature, top_p, and top_k.",
+        ],
+        samples: [],
+        sourceLabel: "Amazon Bedrock model lifecycle (legacy)",
+        sourceUrl: "https://docs.aws.amazon.com/bedrock/latest/userguide/model-lifecycle-legacy.html",
+      },
+    ],
+    guides: [],
+    seeAlso: [
+      { href: "/guides/amazon-bedrock-claude-3-shutdown-november-13-2026/", label: "Amazon Bedrock Claude 3 shutdown on November 13, 2026" },
+      { href: "/shutdowns/aws-bedrock-2026-11-13/", label: "Bedrock shutdowns on November 13, 2026" },
+      { href: "/errors/claude-temperature-is-deprecated-for-this-model/", label: "temperature is deprecated for this model" },
+      { href: "/errors/claude-api-2026-10-21-sampling-params-400/", label: "API version 2026-10-21 sampling parameters" },
+      { href: "https://github.com/anthropics/claude-code-action/issues/1850", label: "claude-code-action issue 1850" },
+    ],
+    shutdowns: [{ provider: "aws-bedrock", date: "2026-11-13" }],
+    faqs: [
+      {
+        question: "What is the exact error text?",
+        answer:
+          "The Claude 3 Haiku model card says requests now fail with ResourceNotFoundException: This model version has reached the end of its life. Issue [anthropics/claude-code-action#1850](https://github.com/anthropics/claude-code-action/issues/1850) records a longer line for anthropic.claude-3-7-sonnet-20250219-v1:0 in us-west-2: 404 ResourceNotFoundException: This model version has reached the end of its life. Please refer to the AWS documentation for more details.",
+      },
+      {
+        question: "Does the lifecycle page print this exception?",
+        answer:
+          "No. The legacy lifecycle page says requests made to this version will fail after the EOL date, unless there is a private arrangement with the provider. It does not print ResourceNotFoundException.",
+      },
+      {
+        question: "Which Claude 3 Haiku Regions already fail?",
+        answer:
+          "The model card says most Regions reached end of life on September 10, 2026, including us-east-1. It says ap-northeast-2, ap-south-1, ap-southeast-1, ca-central-1, eu-central-2, and sa-east-1 stay in Legacy until November 13, 2026, and that requests there will also fail after that date.",
+      },
+      {
+        question: "What id should I send instead?",
+        answer:
+          "Not published. The lifecycle page says to migrate by updating application code before the EOL date. It does not name a model ID. The [November 13 guide](/guides/amazon-bedrock-claude-3-shutdown-november-13-2026/) lists the stored rows.",
+      },
+    ],
+    citations: [
+      "https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-anthropic-claude-3-haiku.html",
+      "https://docs.aws.amazon.com/bedrock/latest/userguide/model-lifecycle-legacy.html",
+      "https://docs.aws.amazon.com/bedrock/latest/userguide/models-region-compatibility.html",
+      "https://github.com/anthropics/claude-code-action/issues/1850",
+    ],
+  },
 ];
