@@ -44,8 +44,12 @@ export function canonicalizeModel<T extends ModelRecord>(model: T): T {
   const specs_sources = Object.fromEntries(
     Object.entries(model.specs.specs_sources).sort(([a], [b]) => a.localeCompare(b)),
   );
+  const lookup_aliases = model.lookup_aliases?.length
+    ? [...new Set(model.lookup_aliases.filter((alias) => alias !== model.id))].sort((a, b) => a.localeCompare(b))
+    : undefined;
   return {
     ...model,
+    lookup_aliases,
     sources: [...model.sources].sort(compareSources),
     specs: { ...model.specs, specs_sources },
   };

@@ -97,7 +97,14 @@ describe("request error pages", () => {
   it("lists both pages in llms.txt, lastmod, and JSON-LD", () => {
     const text = llmsTxt("https://sunsetdiff.com", [], []);
     const full = llmsFull("https://sunsetdiff.com", []);
-    expect(requestErrors.length).toBe(20);
+    expect(requestErrors.length).toBe(21);
+    const opusFast = requestErrors.find((page) => page.slug === "claude-opus-4-8-fast-mode-removed");
+    expect(opusFast?.errorQuoted).toBe(false);
+    expect(opusFast?.checked).toBe("2026-10-31");
+    expect(opusFast?.errorText).toContain("has not published the error sentence");
+    expect(opusFast?.rule).toContain("November 30, 2026");
+    expect(opusFast?.ruleSourceUrl).toBe("https://platform.claude.com/docs/en/build-with-claude/fast-mode");
+    expect(opusFast?.models.map((item) => item.id)).toEqual(["claude-opus-4-8", "claude-opus-5-5"]);
     expect(text).toContain(REQUEST_ERRORS_INDEX);
     expect(full).toContain(REQUEST_ERRORS_INDEX);
     expect(lastmodForUrl(`https://sunsetdiff.com${REQUEST_ERRORS_INDEX}`)).toBe(requestErrorsIndexChecked());

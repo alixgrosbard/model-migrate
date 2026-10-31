@@ -14,6 +14,7 @@ export interface ModelRow {
   replacements: { model_id: string; provider: string; kind: string; source_url: string }[];
   sources: { url: string; label: string; last_checked: string; excerpt: string }[];
   specs: Record<string, unknown>;
+  lookup_aliases?: string[];
 }
 
 let cache: Promise<ModelRow[]> | undefined;

@@ -9,7 +9,10 @@
   "deprecation_date": null,
   "shutdown_date": "2026-10-02",
   "shutdown_date_kind": "exact",
-  "region_or_platform_notes": "Supported models page suggested alternative: Latest Gemini Flash model.",
+  "region_or_platform_notes": "Supported models page suggested alternative: Latest Gemini Flash model. Copilot CLI model id: gemini-3.6-flash.",
+  "lookup_aliases": [
+    "gemini-3.6-flash"
+  ],
   "replacements": [
     {
       "model_id": "Gemini 3.8 Flash",
@@ -36,6 +39,12 @@
       "label": "GitHub Changelog",
       "last_checked": "2026-10-31",
       "excerpt": "Gemini 3.6 Flash | Gemini 3.8 Flash"
+    },
+    {
+      "url": "https://github.com/github/copilot-cli/blob/main/changelog.md",
+      "label": "GitHub Copilot CLI changelog",
+      "last_checked": "2026-10-31",
+      "excerpt": "Adding support for gemini-3.6-flash"
     }
   ],
   "specs": {
@@ -60,5 +69,5 @@
     "specs_sources": {}
   },
   "first_seen": "2026-10-29T12:00:00.000Z",
-  "updated_at": "2026-10-29T12:00:00.000Z"
+  "updated_at": "2026-10-31T12:00:00.000Z"
 }

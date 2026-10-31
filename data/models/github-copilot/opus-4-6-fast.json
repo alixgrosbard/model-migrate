@@ -12,7 +12,7 @@
   "region_or_platform_notes": null,
   "replacements": [
     {
-      "model_id": "Opus 4.8 (fast)",
+      "model_id": "Claude Opus 4.8 (fast mode) (preview)",
       "provider": "github-copilot",
       "kind": "official",
       "source_url": "https://github.blog/changelog/2026-06-18-upcoming-deprecation-of-opus-4-6-fast"
@@ -48,5 +48,5 @@
     "specs_sources": {}
   },
   "first_seen": "2026-10-29T12:00:00.000Z",
-  "updated_at": "2026-10-29T12:00:00.000Z"
+  "updated_at": "2026-10-31T12:00:00.000Z"
 }

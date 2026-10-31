@@ -33,7 +33,44 @@ const NAME_ALIASES: Record<string, string> = {
   "gpt o1 mini": "o1-mini",
   "gpt o3 mini": "o3-mini",
   "gpt o4 mini": "o4-mini",
+  // June 18, 2026 changelog cell. The supported-models table spells the same model this way.
+  "opus 4.8 (fast)": "claude opus 4.8 (fast mode) (preview)",
+  // July 31, 2026 changelog cell. The retirement table spells the same model without "(Preview)".
+  "gemini 3.1 pro (preview)": "gemini 3.1 pro",
 };
+
+const CLI_DOCS = "https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-command-reference";
+const CLI_CHANGELOG = "https://github.com/github/copilot-cli/blob/main/changelog.md";
+
+/** CLI ids printed by GitHub. The display name is the Copilot row id. */
+const CLI_ALIASES: { id: string; alias: string; url: string; excerpt: string }[] = [
+  { id: "Claude Haiku 4.5", alias: "claude-haiku-4.5", url: CLI_DOCS, excerpt: "claude-haiku-4.5 | Fast, lightweight operations" },
+  { id: "Claude Haiku 5.5", alias: "claude-haiku-5.5", url: CLI_DOCS, excerpt: "claude-haiku-5.5 | Fast, lightweight operations" },
+  { id: "Claude Opus 4.6", alias: "claude-opus-4.6", url: CLI_CHANGELOG, excerpt: "Add support for claude-opus-4.6 model" },
+  { id: "Claude Opus 4.7", alias: "claude-opus-4.7", url: CLI_CHANGELOG, excerpt: "Rubber-duck(claude-opus-4.7)" },
+  { id: "Claude Opus 5.5", alias: "claude-opus-5.5", url: CLI_DOCS, excerpt: "claude-opus-5.5 | Recommended, high-capability complex tasks" },
+  { id: "Claude Sonnet 4.5", alias: "claude-sonnet-4.5", url: CLI_CHANGELOG, excerpt: "Automatically migrate users from claude-sonnet-4.5 to the current default model on startup" },
+  { id: "Claude Sonnet 4.6", alias: "claude-sonnet-4.6", url: CLI_DOCS, excerpt: "code-review | claude-sonnet-4.6" },
+  { id: "Claude Sonnet 5.5", alias: "claude-sonnet-5.5", url: CLI_DOCS, excerpt: "claude-sonnet-5.5 | General-purpose coding (default)" },
+  { id: "Claude Fable 5.1", alias: "claude-fable-5.1", url: CLI_CHANGELOG, excerpt: "Adding support for claude-fable-5.1" },
+  { id: "Gemini 3 Pro", alias: "gemini-3-pro-preview", url: CLI_CHANGELOG, excerpt: "Remove support for gemini-3-pro-preview model" },
+  { id: "Gemini 3.6 Flash", alias: "gemini-3.6-flash", url: CLI_CHANGELOG, excerpt: "Adding support for gemini-3.6-flash" },
+  { id: "Gemini 3.8 Flash", alias: "gemini-3.8-flash", url: CLI_DOCS, excerpt: "gemini-3.8-flash | Fast Google Gemini responses" },
+  { id: "GPT-5", alias: "gpt-5", url: CLI_CHANGELOG, excerpt: "Deprecate gpt-5 model" },
+  { id: "GPT-5.1-Codex", alias: "gpt-5.1-codex", url: CLI_CHANGELOG, excerpt: "Remove support for gpt-5.1-codex, gpt-5.1-codex-mini, and gpt-5.1-codex-max models" },
+  { id: "GPT-5.1-Codex-Mini", alias: "gpt-5.1-codex-mini", url: CLI_CHANGELOG, excerpt: "Remove support for gpt-5.1-codex, gpt-5.1-codex-mini, and gpt-5.1-codex-max models" },
+  { id: "GPT-5.1-Codex-Max", alias: "gpt-5.1-codex-max", url: CLI_CHANGELOG, excerpt: "Remove support for gpt-5.1-codex, gpt-5.1-codex-mini, and gpt-5.1-codex-max models" },
+  { id: "GPT-5.3-Codex", alias: "gpt-5.3-codex", url: CLI_DOCS, excerpt: "gpt-5.3-codex | Code-focused tasks" },
+  { id: "GPT-5.4", alias: "gpt-5.4", url: CLI_CHANGELOG, excerpt: "Add support for GPT-5.4 model" },
+  { id: "GPT-5.4 mini", alias: "gpt-5.4-mini", url: CLI_CHANGELOG, excerpt: "Add support for gpt-5.4-mini model" },
+  { id: "GPT-5.6 Luna", alias: "gpt-5.6-luna", url: CLI_DOCS, excerpt: "explore | gpt-5.6-luna" },
+  { id: "GPT-6 Astra", alias: "gpt-6-astra", url: CLI_DOCS, excerpt: "gpt-6-astra | Recommended, opt-in (not the automatic default)" },
+  { id: "GPT-6 Luna", alias: "gpt-6-luna", url: CLI_DOCS, excerpt: "gpt-6-luna | Recommended, opt-in (not the automatic default)" },
+  { id: "GPT-6.1 Sol", alias: "gpt-6.1-sol", url: CLI_DOCS, excerpt: "gpt-6.1-sol | Recommended, opt-in (not the automatic default)" },
+  { id: "Grok 4.5", alias: "grok-4.5", url: CLI_CHANGELOG, excerpt: "Add support for the grok-4.5 model" },
+  { id: "Kimi K2.7 Code", alias: "kimi-k2.7-code", url: CLI_CHANGELOG, excerpt: "Add support for the kimi-k2.7-code model" },
+  { id: "Kimi K3", alias: "kimi-k3", url: CLI_CHANGELOG, excerpt: "Add support for the kimi-k3 model" },
+];
 
 export interface CopilotPost {
   url: string;
@@ -50,6 +87,11 @@ interface TableRow {
   date: string | null;
   alternative: string;
   footnote: string;
+}
+
+interface AvailableRow {
+  name: string;
+  status: string;
 }
 
 interface ChangelogHit {
@@ -104,7 +146,7 @@ export function parseCopilot(docsHtml: string, posts: CopilotPost[], checked: st
   if (!changelogRows.length) return null;
 
   const spellings = new Map<string, string>();
-  for (const name of docs.available) spellings.set(nameKey(name), name);
+  for (const row of docs.available) spellings.set(nameKey(row.name), row.name);
   for (const row of docs.retired) spellings.set(nameKey(row.name), row.name);
 
   const byKey = new Map<string, Built>();
@@ -116,7 +158,7 @@ export function parseCopilot(docsHtml: string, posts: CopilotPost[], checked: st
       docs: true,
       docsAlternative: row.alternative,
       footnote: row.footnote,
-      stillListed: docs.available.some((name) => nameKey(name) === key),
+      stillListed: docs.available.some((row) => nameKey(row.name) === key),
       changelogDates: [],
       changelogAlts: [],
       exceptions: [],
@@ -136,7 +178,7 @@ export function parseCopilot(docsHtml: string, posts: CopilotPost[], checked: st
         docs: false,
         docsAlternative: "",
         footnote: "",
-        stillListed: docs.available.some((name) => nameKey(name) === key),
+        stillListed: docs.available.some((row) => nameKey(row.name) === key),
         changelogDates: [],
         changelogAlts: [],
         exceptions: [],
@@ -160,8 +202,12 @@ export function parseCopilot(docsHtml: string, posts: CopilotPost[], checked: st
     built.replacements = chooseReplacements(built, byKey, spellings);
   }
 
-  const models = [...byKey.values()].map((built) => toScraped(built, checked));
-  return addStubs(models, byKey, docs.available, checked);
+  const retiredModels = [...byKey.values()].map((built) => toScraped(built, checked));
+  const listed = addAvailable(retiredModels, docs.available, checked);
+  const models = addStubs([...retiredModels, ...listed], byKey, docs.available.map((row) => row.name), checked);
+  applyPageFootnotes(models, docs.footnotes, docs.rowFootnotes);
+  applyCliAliases(models, checked);
+  return models;
 }
 
 /**
@@ -238,7 +284,7 @@ async function changelogPostUrls(fetchText: (url: string) => Promise<string>): P
   return [...found].sort();
 }
 
-function parseDocs(html: string): { retired: TableRow[]; available: string[] } | null {
+function parseDocs(html: string): { retired: TableRow[]; available: AvailableRow[]; footnotes: string[]; rowFootnotes: Map<string, string[]> } | null {
   if (!html.includes("Model retirement history")) return null;
   const $ = loadHtml(html);
   const root = $("[data-article-body]").first();
@@ -262,17 +308,17 @@ function parseDocs(html: string): { retired: TableRow[]; available: string[] } |
     ];
   });
   if (!retired.length) return null;
-  const available: string[] = [];
+  const available: AvailableRow[] = [];
   if (availableHeading) {
     const table = tableAfter($, availableHeading);
     if (table && headersMatch(table.rows[0] ?? [], ["model name", "provider"])) {
       for (const cells of table.rows.slice(1)) {
         const name = cleanName(cells[0] ?? "");
-        if (name) available.push(name);
+        if (name) available.push({ name, status: clean(cells[2] ?? "") });
       }
     }
   }
-  return { retired, available };
+  return { retired, available, footnotes: pageFootnotes($), rowFootnotes: footnotesByName($) };
 }
 
 function parseChangelogPost(post: CopilotPost): ChangelogHit[] {
@@ -484,12 +530,126 @@ function disagreeDates(built: Built): { date: string; url: string }[] {
   return [...byDate.values()].sort((a, b) => a.date.localeCompare(b.date));
 }
 
+function addAvailable(models: ScrapedModel[], available: AvailableRow[], checked: string): ScrapedModel[] {
+  const ids = new Set(models.map((model) => nameKey(model.id)));
+  const listed: ScrapedModel[] = [];
+  for (const row of [...available].sort((a, b) => a.name.localeCompare(b.name))) {
+    if (ids.has(nameKey(row.name))) continue;
+    ids.add(nameKey(row.name));
+    const statusLabel = row.status || "GA";
+    listed.push(
+      baseModel({
+        id: row.name,
+        provider: "github-copilot",
+        displayName: row.name,
+        status: "active",
+        kind: "none",
+        notes: `The supported models table lists this name. Release status on that page: ${statusLabel}.`,
+        sourceUrl: SUPPORTED_URL,
+        sourceLabel: DOCS_LABEL,
+        checked,
+        excerpt: excerpt([`${row.name} | ${statusLabel}`]),
+      }),
+    );
+  }
+  return listed;
+}
+
+function applyPageFootnotes(models: ScrapedModel[], footnotes: string[], rowFootnotes: Map<string, string[]>) {
+  const ids = models.map((model) => model.id);
+  for (const model of models) {
+    const notes = model.region_or_platform_notes ?? "";
+    const linked = rowFootnotes.get(model.id) ?? [];
+    const extra = [...linked, ...footnotes.filter((text) => standaloneMention(text, model.id, ids))].filter(
+      (text, index, all) => text && !notes.includes(text) && all.indexOf(text) === index,
+    );
+    if (!extra.length) continue;
+    model.region_or_platform_notes = [notes, ...extra].filter(Boolean).join(" ");
+  }
+}
+
+/** True when `id` appears and that spot is not the start of a longer model name. */
+function standaloneMention(text: string, id: string, ids: string[]): boolean {
+  const escaped = id.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const re = new RegExp(`(?:^|[^A-Za-z0-9.-])${escaped}(?=$|[^A-Za-z0-9.-])`, "gi");
+  const longer = ids.filter((other) => other.length > id.length && other.toLowerCase().startsWith(id.toLowerCase()));
+  for (const match of text.matchAll(re)) {
+    const start = (match.index ?? 0) + match[0].length - id.length;
+    const slice = text.slice(start);
+    if (!longer.some((other) => slice.toLowerCase().startsWith(other.toLowerCase()))) return true;
+  }
+  return false;
+}
+
+function applyCliAliases(models: ScrapedModel[], checked: string) {
+  for (const entry of CLI_ALIASES) {
+    const model = models.find((item) => item.id === entry.id);
+    if (!model) continue;
+    const aliases = new Set(model.lookup_aliases ?? []);
+    aliases.add(entry.alias);
+    model.lookup_aliases = [...aliases].sort((a, b) => a.localeCompare(b));
+    const sentence = `Copilot CLI model id: ${entry.alias}.`;
+    if (!model.region_or_platform_notes?.includes(sentence)) {
+      model.region_or_platform_notes = [model.region_or_platform_notes, sentence].filter(Boolean).join(" ");
+    }
+    if (!model.sources.some((source) => source.url === entry.url && source.excerpt.includes(entry.alias))) {
+      model.sources.push({
+        url: entry.url,
+        label: entry.url === CLI_DOCS ? "GitHub Copilot CLI command reference" : "GitHub Copilot CLI changelog",
+        last_checked: checked,
+        excerpt: excerpt([entry.excerpt]),
+      });
+    }
+  }
+}
+
+function footnotesByName($: ReturnType<typeof loadHtml>): Map<string, string[]> {
+  const map = new Map<string, string[]>();
+  $("table").each((_, table) => {
+    $(table)
+      .find("tr")
+      .each((__, tr) => {
+        const cell = $(tr).find("th, td").first();
+        const copy = cell.clone();
+        copy.find("sup").remove();
+        const name = cleanName(copy.text());
+        if (!name) return;
+        const texts: string[] = [];
+        cell.find("a[href*='user-content-fn-']").each((___, anchor) => {
+          const id = ($(anchor).attr("href") ?? "").replace(/^#/, "");
+          const text = id ? readableFootnote($, id) : "";
+          if (text && !texts.includes(text)) texts.push(text);
+        });
+        if (!texts.length) return;
+        const list = map.get(name) ?? [];
+        for (const text of texts) if (!list.includes(text)) list.push(text);
+        map.set(name, list);
+      });
+  });
+  return map;
+}
+
+function pageFootnotes($: ReturnType<typeof loadHtml>): string[] {
+  const texts: string[] = [];
+  $("[id^='user-content-fn-']").each((_, node) => {
+    const id = $(node).attr("id") ?? "";
+    const text = readableFootnote($, id);
+    if (text && !texts.includes(text)) texts.push(text);
+  });
+  return texts;
+}
+
+function readableFootnote($: ReturnType<typeof loadHtml>, id: string): string {
+  const node = $(`#${cssEscape(id)}`);
+  const copy = node.clone();
+  copy.find("a[data-footnote-backref], a[href*='user-content-fnref-']").remove();
+  return clean(copy.text()).replace(/↩/g, "").replace(/\s+/g, " ").trim();
+}
+
 function addStubs(models: ScrapedModel[], byKey: Map<string, Built>, available: string[], checked: string): ScrapedModel[] {
-  const ids = new Set(models.map((model) => model.id));
   const named = new Map<string, { url: string; parents: string[] }>();
   for (const model of models) {
     for (const replacement of model.replacements) {
-      if (ids.has(replacement.model_id)) continue;
       const row = named.get(replacement.model_id) ?? { url: replacement.source_url, parents: [] };
       if (!row.parents.includes(model.id)) row.parents.push(model.id);
       named.set(replacement.model_id, row);
@@ -499,6 +659,25 @@ function addStubs(models: ScrapedModel[], byKey: Map<string, Built>, available: 
   for (const [id, info] of [...named.entries()].sort((a, b) => a[0].localeCompare(b[0]))) {
     const parents = [...info.parents].sort();
     const listed = available.some((name) => nameKey(name) === nameKey(id));
+    const existing = models.find((model) => model.id === id);
+    if (existing) {
+      if (!existing.shutdown_date) {
+        const sentence = `Named as an official replacement for ${parents.join(", ")}.`;
+        if (!existing.region_or_platform_notes?.includes(sentence)) {
+          const extra = [sentence, "No shutdown date was published for this name on the supported models retirement table."];
+          existing.region_or_platform_notes = [...extra, existing.region_or_platform_notes].filter(Boolean).join(" ");
+        }
+        if (!existing.sources.some((source) => source.url === info.url)) {
+          existing.sources.push({
+            url: info.url,
+            label: STUB_LABEL,
+            last_checked: checked,
+            excerpt: excerpt([`Named as an official replacement for ${parents[0]}.`]),
+          });
+        }
+      }
+      continue;
+    }
     const record = baseModel({
       id,
       provider: "github-copilot",

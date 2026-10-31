@@ -9,9 +9,24 @@
   "deprecation_date": null,
   "shutdown_date": null,
   "shutdown_date_kind": "none",
-  "region_or_platform_notes": "Named as an official replacement for GPT-5 mini, GPT-5.4 mini, GPT-5.6 Terra. No shutdown date was published for this name on the supported models retirement table. The supported models table lists this name.",
+  "region_or_platform_notes": "Named as an official replacement for GPT-5 mini, GPT-5.4 mini, GPT-5.6 Terra. No shutdown date was published for this name on the supported models retirement table. The supported models table lists this name. Release status on that page: GA. Copilot CLI model id: gpt-6-luna.",
+  "lookup_aliases": [
+    "gpt-6-luna"
+  ],
   "replacements": [],
   "sources": [
+    {
+      "url": "https://docs.github.com/en/copilot/reference/ai-models/supported-models",
+      "label": "GitHub Copilot supported models",
+      "last_checked": "2026-10-31",
+      "excerpt": "GPT-6 Luna | GA"
+    },
+    {
+      "url": "https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-command-reference",
+      "label": "GitHub Copilot CLI command reference",
+      "last_checked": "2026-10-31",
+      "excerpt": "gpt-6-luna | Recommended, opt-in (not the automatic default)"
+    },
     {
       "url": "https://github.blog/changelog/2026-10-19-github-copilot-models-deprecated-on-october-19-2026",
       "label": "Named as an official replacement",
@@ -41,5 +56,5 @@
     "specs_sources": {}
   },
   "first_seen": "2026-10-29T12:00:00.000Z",
-  "updated_at": "2026-10-29T12:00:00.000Z"
+  "updated_at": "2026-10-31T12:00:00.000Z"
 }

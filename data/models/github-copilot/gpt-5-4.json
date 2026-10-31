@@ -9,7 +9,10 @@
   "deprecation_date": null,
   "shutdown_date": "2026-10-19",
   "shutdown_date_kind": "exact",
-  "region_or_platform_notes": "Supported models page suggested alternative: Latest GPT Sol model. An earlier changelog named GPT-5.6 Sol: https://github.blog/changelog/2026-09-18-upcoming-deprecation-of-selected-github-copilot-models-in-mid-october",
+  "region_or_platform_notes": "Supported models page suggested alternative: Latest GPT Sol model. An earlier changelog named GPT-5.6 Sol: https://github.blog/changelog/2026-09-18-upcoming-deprecation-of-selected-github-copilot-models-in-mid-october Copilot CLI model id: gpt-5.4.",
+  "lookup_aliases": [
+    "gpt-5.4"
+  ],
   "replacements": [
     {
       "model_id": "GPT-6.1 Sol",
@@ -36,6 +39,12 @@
       "label": "GitHub Changelog",
       "last_checked": "2026-10-31",
       "excerpt": "GPT-5.4 | GPT-6.1 Sol"
+    },
+    {
+      "url": "https://github.com/github/copilot-cli/blob/main/changelog.md",
+      "label": "GitHub Copilot CLI changelog",
+      "last_checked": "2026-10-31",
+      "excerpt": "Add support for GPT-5.4 model"
     }
   ],
   "specs": {
@@ -60,5 +69,5 @@
     "specs_sources": {}
   },
   "first_seen": "2026-10-29T12:00:00.000Z",
-  "updated_at": "2026-10-29T12:00:00.000Z"
+  "updated_at": "2026-10-31T12:00:00.000Z"
 }

@@ -9,7 +9,10 @@
   "deprecation_date": null,
   "shutdown_date": "2026-10-02",
   "shutdown_date_kind": "exact",
-  "region_or_platform_notes": "Supported models page suggested alternative: Latest Kimi model.",
+  "region_or_platform_notes": "Supported models page suggested alternative: Latest Kimi model. Copilot CLI model id: kimi-k2.7-code.",
+  "lookup_aliases": [
+    "kimi-k2.7-code"
+  ],
   "replacements": [
     {
       "model_id": "Kimi K3",
@@ -36,6 +39,12 @@
       "label": "GitHub Changelog",
       "last_checked": "2026-10-31",
       "excerpt": "Kimi K2.7 Code | Kimi K3"
+    },
+    {
+      "url": "https://github.com/github/copilot-cli/blob/main/changelog.md",
+      "label": "GitHub Copilot CLI changelog",
+      "last_checked": "2026-10-31",
+      "excerpt": "Add support for the kimi-k2.7-code model"
     }
   ],
   "specs": {
@@ -60,5 +69,5 @@
     "specs_sources": {}
   },
   "first_seen": "2026-10-29T12:00:00.000Z",
-  "updated_at": "2026-10-29T12:00:00.000Z"
+  "updated_at": "2026-10-31T12:00:00.000Z"
 }

@@ -1,4 +1,5 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { matchesLookup } from "../../src/lib/lookup-index.ts";
 import { loadMigrations, loadModelRows, type ModelRow } from "./data.js";
 import {
   MCP_SERVER_NAME,
@@ -24,7 +25,7 @@ export function createMcpServer(): McpServer {
     },
     async ({ model_id, provider }) => {
       const models = await loadModelRows();
-      const matches = models.filter((model) => model.id === model_id && (!provider || model.provider === provider));
+      const matches = models.filter((model) => matchesLookup(model, model_id) && (!provider || model.provider === provider));
       if (!matches.length) return text({ found: false, model_id });
       return text(matches.map(summary));
     },
@@ -99,9 +100,13 @@ export function findIds(source: string, models: ModelRow[]): ModelRow[] {
   const found: ModelRow[] = [];
   const seen = new Set<string>();
   for (const model of ordered) {
-    const escaped = model.id.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    const pattern = new RegExp(`(^|[^A-Za-z0-9._:-])${escaped}(?=$|[^A-Za-z0-9._:-])`);
-    if (pattern.test(source) && !seen.has(`${model.provider}:${model.id}`)) {
+    const keys = [model.id, ...(model.lookup_aliases ?? [])].sort((a, b) => b.length - a.length);
+    const hit = keys.some((key) => {
+      const escaped = key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const pattern = new RegExp(`(^|[^A-Za-z0-9._:-])${escaped}(?=$|[^A-Za-z0-9._:-])`);
+      return pattern.test(source);
+    });
+    if (hit && !seen.has(`${model.provider}:${model.id}`)) {
       seen.add(`${model.provider}:${model.id}`);
       found.push(model);
     }

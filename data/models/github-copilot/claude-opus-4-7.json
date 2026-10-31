@@ -9,7 +9,10 @@
   "deprecation_date": null,
   "shutdown_date": "2026-10-02",
   "shutdown_date_kind": "exact",
-  "region_or_platform_notes": "Supported models page suggested alternative: Latest Claude Opus model. An earlier changelog named Claude Opus 5: https://github.blog/changelog/2026-09-03-upcoming-deprecation-of-selected-github-copilot-models",
+  "region_or_platform_notes": "Supported models page suggested alternative: Latest Claude Opus model. An earlier changelog named Claude Opus 5: https://github.blog/changelog/2026-09-03-upcoming-deprecation-of-selected-github-copilot-models Copilot CLI model id: claude-opus-4.7.",
+  "lookup_aliases": [
+    "claude-opus-4.7"
+  ],
   "replacements": [
     {
       "model_id": "Claude Opus 5.5",
@@ -36,6 +39,12 @@
       "label": "GitHub Changelog",
       "last_checked": "2026-10-31",
       "excerpt": "Claude Opus 4.7 | Claude Opus 5.5"
+    },
+    {
+      "url": "https://github.com/github/copilot-cli/blob/main/changelog.md",
+      "label": "GitHub Copilot CLI changelog",
+      "last_checked": "2026-10-31",
+      "excerpt": "Rubber-duck(claude-opus-4.7)"
     }
   ],
   "specs": {
@@ -60,5 +69,5 @@
     "specs_sources": {}
   },
   "first_seen": "2026-10-29T12:00:00.000Z",
-  "updated_at": "2026-10-29T12:00:00.000Z"
+  "updated_at": "2026-10-31T12:00:00.000Z"
 }

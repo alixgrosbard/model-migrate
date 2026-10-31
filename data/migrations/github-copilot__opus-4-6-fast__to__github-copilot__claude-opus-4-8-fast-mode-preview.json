@@ -6,8 +6,8 @@
   },
   "to": {
     "provider": "github-copilot",
-    "model_id": "Opus 4.8 (fast)",
-    "slug": "opus-4-8-fast"
+    "model_id": "Claude Opus 4.8 (fast mode) (preview)",
+    "slug": "claude-opus-4-8-fast-mode-preview"
   },
   "price_diff": {
     "input_pct_change": null,
@@ -57,7 +57,7 @@
   "migration_checklist": [
     "Read the Copilot date for Opus 4.6 (fast) on the linked GitHub page.",
     "This date is for models Copilot offers in chat and agent features. It can differ from the original provider's API date.",
-    "Choose Opus 4.8 (fast) in the Copilot Chat model selector.",
+    "Choose Claude Opus 4.8 (fast mode) (preview) in the Copilot Chat model selector.",
     "The linked changelog does not print a request sample."
   ],
   "confidence": "partial",
@@ -70,10 +70,10 @@
       "excerpt": "Opus 4.6 (fast) | 2026-06-29"
     },
     {
-      "url": "https://github.blog/changelog/2026-06-18-upcoming-deprecation-of-opus-4-6-fast",
-      "label": "Named as an official replacement",
+      "url": "https://docs.github.com/en/copilot/reference/ai-models/supported-models",
+      "label": "GitHub Copilot supported models",
       "last_checked": "2026-10-31",
-      "excerpt": "Named as an official replacement for Opus 4.6 (fast)."
+      "excerpt": "Claude Opus 4.8 (fast mode) (preview) | GA"
     }
   ]
 }
