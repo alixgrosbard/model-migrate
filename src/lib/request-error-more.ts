@@ -2584,31 +2584,66 @@ const { text } = await generateText({
     ],
     fixes: [
       {
-        heading: "Stop calling the id",
+        heading: "Raw SDK",
         text: [
-          "Read the model id in the failed request. The Haiku card says requests in the September 10, 2026 Regions now fail with this exception. Retrying the same id does not bring that version back.",
+          "The Claude 3 Haiku model card's Converse sample still sends modelId anthropic.claude-3-haiku-20240307-v1:0 with region_name us-east-1. The same card says that Region reached end of life on September 10, 2026. Change modelId. The lifecycle page says to update application code before the EOL date, and that migration will not happen automatically. It does not name a replacement model ID.",
+          "Call ListFoundationModels or GetFoundationModel in the Region you use and read modelLifecycle before you keep an id.",
         ],
-        samples: [],
+        samples: [
+          {
+            caption: "Converse sample on the Haiku card. That id is past end of life in us-east-1.",
+            code: `import boto3
+
+client = boto3.client("bedrock-runtime", region_name="us-east-1")
+response = client.converse(
+    modelId="anthropic.claude-3-haiku-20240307-v1:0",
+    messages=[{"role": "user", "content": [{"text": "Hello"}]}],
+)
+`,
+          },
+        ],
         sourceLabel: "Claude 3 Haiku model card",
         sourceUrl: "https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-anthropic-claude-3-haiku.html",
       },
       {
-        heading: "Check the Region",
+        heading: "LiteLLM",
         text: [
-          "Call ListFoundationModels or GetFoundationModel in the Region you use and read modelLifecycle. The lifecycle page says state can differ by Region. The Regions column lists only the Regions covered by that EOL date.",
+          "LiteLLM's Bedrock page lists completion(model='bedrock/anthropic.claude-3-haiku-20240307-v1:0', messages=messages) for Anthropic Claude-V3 Haiku, and completion(model='bedrock/anthropic.claude-3-sonnet-20240229-v1:0', messages=messages) for Anthropic Claude-V3 sonnet. Change the id after bedrock/. The lifecycle page does not name the id to put there. A newer row on the LiteLLM table is not labeled as the replacement for these ids.",
         ],
-        samples: [],
-        sourceLabel: "Amazon Bedrock model lifecycle (legacy)",
-        sourceUrl: "https://docs.aws.amazon.com/bedrock/latest/userguide/model-lifecycle-legacy.html",
+        samples: [
+          {
+            caption: "LiteLLM still lists this Claude 3 Haiku string",
+            code: `import litellm
+response = litellm.completion(
+    model="bedrock/anthropic.claude-3-haiku-20240307-v1:0",
+    messages=[{"role": "user", "content": "Hello"}],
+)
+`,
+          },
+        ],
+        sourceLabel: "LiteLLM AWS Bedrock",
+        sourceUrl: "https://docs.litellm.ai/docs/providers/bedrock",
       },
       {
-        heading: "Change the id, then test",
+        heading: "Vercel AI SDK",
         text: [
-          "The lifecycle page says to update application code before the EOL date. Migration will not happen automatically. It does not name a replacement model ID. Search hardcoded ids, SDK defaults, framework classifiers, orchestrators, and agent configs. The steps and the hidden-default example are in the November 13 guide. On a newer Claude model, check temperature, top_p, and top_k.",
+          "The AI SDK Bedrock page says the first argument is the model id. One sample passes anthropic.claude-3-sonnet-20240229-v1:0. That id is on the November 13, 2026 lifecycle rows. Change the argument. The lifecycle page does not name the new id.",
         ],
-        samples: [],
-        sourceLabel: "Amazon Bedrock model lifecycle (legacy)",
-        sourceUrl: "https://docs.aws.amazon.com/bedrock/latest/userguide/model-lifecycle-legacy.html",
+        samples: [
+          {
+            caption: "The docs still pass this id. It is on the November 13 list.",
+            code: `import { amazonBedrock } from "@ai-sdk/amazon-bedrock";
+import { generateText } from "ai";
+
+const { text } = await generateText({
+  model: amazonBedrock("anthropic.claude-3-sonnet-20240229-v1:0"),
+  prompt: "Hello",
+});
+`,
+          },
+        ],
+        sourceLabel: "AI SDK Amazon Bedrock",
+        sourceUrl: "https://ai-sdk.dev/providers/ai-sdk-providers/amazon-bedrock",
       },
     ],
     guides: [],
@@ -2647,6 +2682,8 @@ const { text } = await generateText({
       "https://docs.aws.amazon.com/bedrock/latest/userguide/model-lifecycle-legacy.html",
       "https://docs.aws.amazon.com/bedrock/latest/userguide/models-region-compatibility.html",
       "https://github.com/anthropics/claude-code-action/issues/1850",
+      "https://docs.litellm.ai/docs/providers/bedrock",
+      "https://ai-sdk.dev/providers/ai-sdk-providers/amazon-bedrock",
     ],
   },
 ];

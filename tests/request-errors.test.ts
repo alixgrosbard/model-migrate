@@ -105,6 +105,7 @@ describe("request error pages", () => {
     expect(bedrockEol?.provider).toBe("aws-bedrock");
     expect(bedrockEol?.errorText).toBe("ResourceNotFoundException: This model version has reached the end of its life.");
     expect(bedrockEol?.quoteSourceUrl).toBe("https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-anthropic-claude-3-haiku.html");
+    expect(bedrockEol?.fixes.map((fix) => fix.heading)).toEqual(["Raw SDK", "LiteLLM", "Vercel AI SDK"]);
     expect(bedrockEol?.shutdowns).toEqual([{ provider: "aws-bedrock", date: "2026-11-13" }]);
     expect(bedrockEol?.models.map((item) => item.slug)).toEqual([
       "anthropic-claude-3-haiku-20240307-v1-0-2",
