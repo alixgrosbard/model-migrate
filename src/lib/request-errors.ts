@@ -42,6 +42,7 @@ export const requestErrorProviders = [
   { id: "deepseek", name: "DeepSeek" },
   { id: "nvidia", name: "NVIDIA" },
   { id: "cloudflare-workers-ai", name: "Cloudflare Workers AI" },
+  { id: "aws-bedrock", name: "Amazon Bedrock" },
 ] as const;
 
 export const requestErrorHubFaqs: FaqItem[] = [
@@ -58,7 +59,7 @@ export const requestErrorHubFaqs: FaqItem[] = [
   {
     question: "Which shutdowns do these pages cover?",
     answer:
-      "The OpenAI pages cover the October 23, 2026 batch, max_tokens on o-series models, temperature when reasoning effort is not none, function tools on Chat Completions for gpt-6-luna, gpt-6.1-sol, and gpt-6-astra, and the Chat Completions and Responses user field. The Gemini API pages cover the October 22, 2026 batch, the new-user 404 recorded for gemini-2.5-flash, and the thinking budget 400 recorded for gemini-4-argon on Vertex. The Claude pages cover claude-sonnet-5-5 request settings, API version 2026-10-21, which returns a 400 for temperature, top_p, and top_k on every model, and fast mode on claude-opus-4-8, which Anthropic removes on November 30, 2026. That fast mode page does not print an error sentence. The Azure OpenAI page covers 410 Gone after retirement, including the November 19, 2026 o-series rows stored on this site. The DeepSeek page covers a missing model id after deepseek-chat and deepseek-reasoner were discontinued on 2026-07-24. The NVIDIA page covers 410 Gone after a hosted model on integrate.api.nvidia.com reaches end of life. The Cloudflare Workers AI page covers HTTP 410 and internal code 5028 reported for a model the May 30, 2026 changelog lists as deprecated. The Workers AI errors page does not list that code.",
+      "The OpenAI pages cover the October 23, 2026 batch, max_tokens on o-series models, temperature when reasoning effort is not none, function tools on Chat Completions for gpt-6-luna, gpt-6.1-sol, and gpt-6-astra, and the Chat Completions and Responses user field. The Gemini API pages cover the October 22, 2026 batch, the new-user 404 recorded for gemini-2.5-flash, and the thinking budget 400 recorded for gemini-4-argon on Vertex. The Claude pages cover claude-sonnet-5-5 request settings, API version 2026-10-21, which returns a 400 for temperature, top_p, and top_k on every model, and fast mode on claude-opus-4-8, which Anthropic removes on November 30, 2026. That fast mode page does not print an error sentence. The Azure OpenAI page covers 410 Gone after retirement, including the November 19, 2026 o-series rows stored on this site. The DeepSeek page covers a missing model id after deepseek-chat and deepseek-reasoner were discontinued on 2026-07-24. The NVIDIA page covers 410 Gone after a hosted model on integrate.api.nvidia.com reaches end of life. The Cloudflare Workers AI page covers HTTP 410 and internal code 5028 reported for a model the May 30, 2026 changelog lists as deprecated. The Workers AI errors page does not list that code. The Amazon Bedrock page quotes the Claude 3 Haiku model card: ResourceNotFoundException: This model version has reached the end of its life.",
   },
 ];
 

@@ -106,7 +106,9 @@ const checked = new Date(`${requestErrorChecked(page)}T00:00:00Z`).toLocaleDateS
                     ? "Azure OpenAI November 19, 2026 batch"
                     : item.provider === "cloudflare-workers-ai"
                       ? "Cloudflare Workers AI May 30, 2026 batch"
-                      : `${item.provider} ${item.date}`}
+                      : item.provider === "aws-bedrock" && item.date === "2026-11-13"
+                        ? "Bedrock Claude 3, 3.5 and 3.7 on November 13, 2026"
+                        : `${item.provider} ${item.date}`}
             </a>
           </li>
         ))}

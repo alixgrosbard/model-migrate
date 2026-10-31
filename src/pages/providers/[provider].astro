@@ -131,6 +131,15 @@ const openaiGuides = provider.id === "openai"
       {providers.some((item) => item.id === "xai") ? <><a href="/providers/xai/">xAI</a> · </> : null}
       <a href="/#soonest">Soonest shutdowns on the homepage</a>.
     </p>
+  ) : provider.id === "aws-bedrock" ? (
+    <p>
+      Official source: <a href={provider.deprecations_url}>{provider.deprecations_url}</a>.
+      November 13, 2026 is the end of life the lifecycle page lists for Claude 3 Haiku, Claude 3 Sonnet, Claude 3.5 Sonnet, Claude 3.5 Sonnet v2, and Claude 3.7 Sonnet in some Regions.
+      <a href="/shutdowns/aws-bedrock-2026-11-13/">November 13, 2026 shutdowns</a>.
+      <a href="/guides/amazon-bedrock-claude-3-shutdown-november-13-2026/">Claude 3 shutdown guide</a>.
+      <a href="/errors/bedrock-model-version-has-reached-the-end-of-its-life/">End of life error</a>.
+      <a href="/#soonest">Soonest shutdowns on the homepage</a>.
+    </p>
   ) : (
     <p>Official source: <a href={provider.deprecations_url}>{provider.deprecations_url}</a>. <a href="/#soonest">Soonest shutdowns on the homepage</a>.</p>
   )}

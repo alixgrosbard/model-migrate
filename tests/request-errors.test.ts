@@ -7,6 +7,7 @@ import { lastmodForUrl } from "../src/lib/lastmod.ts";
 import { requestErrorGraph } from "../src/jsonld.ts";
 import { existsSync } from "node:fs";
 import nodePath from "node:path";
+import { sitemapSection } from "../src/lib/sitemaps.ts";
 import { REQUEST_ERRORS_CHECKED, REQUEST_ERRORS_INDEX, requestErrorChecked, requestErrorPath, requestErrors, requestErrorsIndexChecked } from "../src/lib/request-errors.ts";
 
 const sonnetFile = "data/migrations/anthropic__claude-sonnet-4-5-20250929__to__anthropic__claude-sonnet-5-5.json";
@@ -97,7 +98,21 @@ describe("request error pages", () => {
   it("lists both pages in llms.txt, lastmod, and JSON-LD", () => {
     const text = llmsTxt("https://sunsetdiff.com", [], []);
     const full = llmsFull("https://sunsetdiff.com", []);
-    expect(requestErrors.length).toBe(21);
+    expect(requestErrors.length).toBe(22);
+    const bedrockEol = requestErrors.find((page) => page.slug === "bedrock-model-version-has-reached-the-end-of-its-life");
+    expect(bedrockEol?.errorQuoted).toBe(true);
+    expect(bedrockEol?.checked).toBe("2026-10-31");
+    expect(bedrockEol?.provider).toBe("aws-bedrock");
+    expect(bedrockEol?.errorText).toBe("ResourceNotFoundException: This model version has reached the end of its life.");
+    expect(bedrockEol?.quoteSourceUrl).toBe("https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-anthropic-claude-3-haiku.html");
+    expect(bedrockEol?.fixes.map((fix) => fix.heading)).toEqual(["Raw SDK", "LiteLLM", "Vercel AI SDK"]);
+    expect(bedrockEol?.shutdowns).toEqual([{ provider: "aws-bedrock", date: "2026-11-13" }]);
+    expect(bedrockEol?.models.map((item) => item.slug)).toEqual([
+      "anthropic-claude-3-haiku-20240307-v1-0-2",
+      "anthropic-claude-3-haiku-20240307-v1-0",
+      "anthropic-claude-3-7-sonnet-20250219-v1-0",
+    ]);
+    expect(sitemapSection(requestErrorPath(bedrockEol!.slug))).toBe("sitemap-guides.xml");
     const opusFast = requestErrors.find((page) => page.slug === "claude-opus-4-8-fast-mode-removed");
     expect(opusFast?.errorQuoted).toBe(false);
     expect(opusFast?.checked).toBe("2026-10-31");
