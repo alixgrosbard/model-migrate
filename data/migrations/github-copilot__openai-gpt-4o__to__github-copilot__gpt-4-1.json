@@ -61,36 +61,36 @@
     "The linked changelog does not print a request sample."
   ],
   "confidence": "partial",
-  "last_checked": "2026-10-30",
+  "last_checked": "2026-10-31",
   "sources": [
     {
       "url": "https://github.blog/changelog/2025-06-20-upcoming-deprecation-of-o1-gpt-4-5-o3-mini-and-gpt-4o",
       "label": "GitHub Changelog",
-      "last_checked": "2026-10-30",
+      "last_checked": "2026-10-31",
       "excerpt": "OpenAI GPT-4o | OpenAI GPT-4.1"
     },
     {
       "url": "https://github.blog/changelog/2025-08-06-deprecation-of-gpt-4o-in-copilot-chat",
       "label": "GitHub Changelog",
-      "last_checked": "2026-10-30",
+      "last_checked": "2026-10-31",
       "excerpt": "OpenAI GPT-4o | 2025-08-06"
     },
     {
       "url": "https://docs.github.com/en/copilot/reference/ai-models/supported-models",
       "label": "GitHub Copilot supported models",
-      "last_checked": "2026-10-30",
+      "last_checked": "2026-10-31",
       "excerpt": "GPT-4.1 | 2026-06-01 | Latest GPT model"
     },
     {
       "url": "https://github.blog/changelog/2026-05-07-upcoming-deprecation-of-gpt-4-1",
       "label": "GitHub Changelog",
-      "last_checked": "2026-10-30",
+      "last_checked": "2026-10-31",
       "excerpt": "GPT-4.1 | GPT-5.5"
     },
     {
       "url": "https://github.blog/changelog/2026-06-02-gpt-4-1-deprecated",
       "label": "GitHub Changelog",
-      "last_checked": "2026-10-30",
+      "last_checked": "2026-10-31",
       "excerpt": "GPT-4.1 | GPT-5.5"
     }
   ]

@@ -61,18 +61,18 @@
     "Ship the change before the published shutdown date."
   ],
   "confidence": "partial",
-  "last_checked": "2026-10-30",
+  "last_checked": "2026-10-31",
   "sources": [
     {
       "url": "https://docs.x.ai/developers/migration/may-15-retirement",
       "label": "xAI model deprecations",
-      "last_checked": "2026-10-30",
+      "last_checked": "2026-10-31",
       "excerpt": "* `grok-4-0709` * `grok-code-fast-1` * `grok-3` * `grok-imagine-image-pro` > [!CAUTION] > > After **May 15, 2026 at 12:00 PM PT**, requests to the retired model slugs above will automatically redirect to `grok-4.3`."
     },
     {
       "url": "https://docs.x.ai/developers/models",
       "label": "xAI model docs",
-      "last_checked": "2026-10-30",
+      "last_checked": "2026-10-31",
       "excerpt": "M $2.50 $0.40 $5.00 grok-build-0.1 (< 200k prompt tokens) 256k $1.00 $0.20 $2.00 grok-build-0.1 (≥ 200k prompt tokens) 256k $2.00 $0.40 $4.00 grok-4.20-multi-agent-0309 (< 200k prompt tokens) 1M $1.25 $0.20 $2.50 grok-4.20-multi-agent-03"
     }
   ]

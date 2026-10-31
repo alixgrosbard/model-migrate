@@ -15,7 +15,7 @@
     {
       "url": "https://api-docs.deepseek.com/quick_start/pricing",
       "label": "DeepSeek models and pricing",
-      "last_checked": "2026-10-30",
+      "last_checked": "2026-10-31",
       "excerpt": "deepseek-v4-pro | DeepSeek-V4-Pro-0813 | context 1000000 | max output 384000 | peak cache miss $1.32 | peak output $3.96"
     }
   ],
@@ -41,43 +41,43 @@
     "specs_sources": {
       "cached_input_price_per_mtok": {
         "url": "https://api-docs.deepseek.com/quick_start/pricing",
-        "last_checked": "2026-10-30"
+        "last_checked": "2026-10-31"
       },
       "context_window_tokens": {
         "url": "https://api-docs.deepseek.com/quick_start/pricing",
-        "last_checked": "2026-10-30"
+        "last_checked": "2026-10-31"
       },
       "input_price_per_mtok": {
         "url": "https://api-docs.deepseek.com/quick_start/pricing",
-        "last_checked": "2026-10-30"
+        "last_checked": "2026-10-31"
       },
       "max_output_tokens": {
         "url": "https://api-docs.deepseek.com/quick_start/pricing",
-        "last_checked": "2026-10-30"
+        "last_checked": "2026-10-31"
       },
       "output_price_per_mtok": {
         "url": "https://api-docs.deepseek.com/quick_start/pricing",
-        "last_checked": "2026-10-30"
+        "last_checked": "2026-10-31"
       },
       "reasoning": {
         "url": "https://api-docs.deepseek.com/quick_start/pricing",
-        "last_checked": "2026-10-30"
+        "last_checked": "2026-10-31"
       },
       "supports_json_schema": {
         "url": "https://api-docs.deepseek.com/quick_start/pricing",
-        "last_checked": "2026-10-30"
+        "last_checked": "2026-10-31"
       },
       "supports_prompt_caching": {
         "url": "https://api-docs.deepseek.com/quick_start/pricing",
-        "last_checked": "2026-10-30"
+        "last_checked": "2026-10-31"
       },
       "supports_tools": {
         "url": "https://api-docs.deepseek.com/quick_start/pricing",
-        "last_checked": "2026-10-30"
+        "last_checked": "2026-10-31"
       },
       "supports_vision": {
         "url": "https://api-docs.deepseek.com/quick_start/pricing",
-        "last_checked": "2026-10-30"
+        "last_checked": "2026-10-31"
       }
     }
   },

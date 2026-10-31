@@ -61,30 +61,30 @@
     "The linked changelog does not print a request sample."
   ],
   "confidence": "partial",
-  "last_checked": "2026-10-30",
+  "last_checked": "2026-10-31",
   "sources": [
     {
       "url": "https://docs.github.com/en/copilot/reference/ai-models/supported-models",
       "label": "GitHub Copilot supported models",
-      "last_checked": "2026-10-30",
+      "last_checked": "2026-10-31",
       "excerpt": "Gemini 2.5 Pro | 2026-07-31 | Latest Gemini Flash model"
     },
     {
       "url": "https://github.blog/changelog/2026-07-02-upcoming-deprecation-of-gemini-2-5-pro-and-gemini-3-flash",
       "label": "GitHub Changelog",
-      "last_checked": "2026-10-30",
+      "last_checked": "2026-10-31",
       "excerpt": "Gemini 2.5 Pro | Gemini 3.1 Pro"
     },
     {
       "url": "https://github.blog/changelog/2026-07-31-gemini-2-5-pro-and-gemini-3-flash-deprecated",
       "label": "GitHub Changelog",
-      "last_checked": "2026-10-30",
+      "last_checked": "2026-10-31",
       "excerpt": "Gemini 2.5 Pro | Gemini 3.1 Pro (Preview)"
     },
     {
       "url": "https://github.blog/changelog/2026-07-31-gemini-2-5-pro-and-gemini-3-flash-deprecated",
       "label": "Named as an official replacement",
-      "last_checked": "2026-10-30",
+      "last_checked": "2026-10-31",
       "excerpt": "Named as an official replacement for Gemini 2.5 Pro."
     }
   ]

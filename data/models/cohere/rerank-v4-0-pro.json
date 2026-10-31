@@ -15,7 +15,7 @@
     {
       "url": "https://docs.cohere.com/docs/models",
       "label": "Cohere model docs",
-      "last_checked": "2026-10-30",
+      "last_checked": "2026-10-31",
       "excerpt": "rerank-v4.0-pro Previous generation. A highly performant multilingual model for English and non-English documents and semi-structured data (JSON). For new projects, we recomme"
     }
   ],
@@ -43,11 +43,11 @@
     "specs_sources": {
       "context_window_tokens": {
         "url": "https://docs.cohere.com/docs/models",
-        "last_checked": "2026-10-30"
+        "last_checked": "2026-10-31"
       },
       "modalities_in": {
         "url": "https://docs.cohere.com/docs/models",
-        "last_checked": "2026-10-30"
+        "last_checked": "2026-10-31"
       }
     }
   },

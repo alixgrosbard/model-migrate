@@ -59,18 +59,18 @@
     "Point your requests at accounts/fireworks/models/qwen3-8b and test before you send traffic."
   ],
   "confidence": "partial",
-  "last_checked": "2026-10-30",
+  "last_checked": "2026-10-31",
   "sources": [
     {
       "url": "https://docs.fireworks.ai/updates/changelog",
       "label": "Fireworks AI changelog",
-      "last_checked": "2026-10-30",
+      "last_checked": "2026-10-31",
       "excerpt": "GPT OSS 20B - migrate to GPT OSS 120B or Qwen3 8B for lower-latency workloads"
     },
     {
       "url": "https://docs.fireworks.ai/updates/changelog",
       "label": "Named as an official replacement",
-      "last_checked": "2026-10-30",
+      "last_checked": "2026-10-31",
       "excerpt": "Named as an official replacement for accounts/fireworks/models/gpt-oss-20b."
     }
   ]

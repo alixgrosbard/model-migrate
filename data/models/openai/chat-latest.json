@@ -15,7 +15,7 @@
     {
       "url": "https://developers.openai.com/api/docs/models/chat-latest.md",
       "label": "OpenAI model docs",
-      "last_checked": "2026-10-30",
+      "last_checked": "2026-10-31",
       "excerpt": "Model ID: chat-latest | Latest Instant model used in ChatGPT"
     }
   ],
@@ -41,23 +41,23 @@
     "specs_sources": {
       "cached_input_price_per_mtok": {
         "url": "https://developers.openai.com/api/docs/models/chat-latest.md",
-        "last_checked": "2026-10-30"
+        "last_checked": "2026-10-31"
       },
       "context_window_tokens": {
         "url": "https://developers.openai.com/api/docs/models/chat-latest.md",
-        "last_checked": "2026-10-30"
+        "last_checked": "2026-10-31"
       },
       "input_price_per_mtok": {
         "url": "https://developers.openai.com/api/docs/models/chat-latest.md",
-        "last_checked": "2026-10-30"
+        "last_checked": "2026-10-31"
       },
       "max_output_tokens": {
         "url": "https://developers.openai.com/api/docs/models/chat-latest.md",
-        "last_checked": "2026-10-30"
+        "last_checked": "2026-10-31"
       },
       "output_price_per_mtok": {
         "url": "https://developers.openai.com/api/docs/models/chat-latest.md",
-        "last_checked": "2026-10-30"
+        "last_checked": "2026-10-31"
       }
     }
   },

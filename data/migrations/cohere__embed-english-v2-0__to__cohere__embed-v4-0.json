@@ -61,18 +61,18 @@
     "Ship the change before the published shutdown date."
   ],
   "confidence": "partial",
-  "last_checked": "2026-10-30",
+  "last_checked": "2026-10-31",
   "sources": [
     {
       "url": "https://docs.cohere.com/docs/deprecations",
       "label": "Cohere model deprecations",
-      "last_checked": "2026-10-30",
+      "last_checked": "2026-10-31",
       "excerpt": "ng models will be retired: * `embed-english-v2.0` * `embed-english-light-v2.0` * `embed-multilingual-v2.0` * `c4ai-aya-expanse-8b` * `c4ai-aya-vision-8b`"
     },
     {
       "url": "https://docs.cohere.com/docs/models",
       "label": "Cohere model docs",
-      "last_checked": "2026-10-30",
+      "last_checked": "2026-10-31",
       "excerpt": "embed-v4.0 A model that allows for text and images to be classified or turned into embeddings Text, Images, Mixed texts/images (i.e. PDFs) 128000"
     }
   ]

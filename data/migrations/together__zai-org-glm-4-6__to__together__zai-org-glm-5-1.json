@@ -66,18 +66,18 @@
     "Point your requests at zai-org/GLM-5.1 and test before you send traffic."
   ],
   "confidence": "partial",
-  "last_checked": "2026-10-30",
+  "last_checked": "2026-10-31",
   "sources": [
     {
       "url": "https://docs.together.ai/docs/deprecations",
       "label": "Together AI deprecations",
-      "last_checked": "2026-10-30",
+      "last_checked": "2026-10-31",
       "excerpt": "2026-07-29 | `zai-org/GLM-4.6` | `zai-org/GLM-5.1`"
     },
     {
       "url": "https://docs.together.ai/docs/deprecations",
       "label": "Together AI deprecations",
-      "last_checked": "2026-10-30",
+      "last_checked": "2026-10-31",
       "excerpt": "2026-07-10 | `zai-org/GLM-5.1` | Yes"
     }
   ]

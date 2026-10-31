@@ -55,30 +55,30 @@
     "Ship the change before the published shutdown date."
   ],
   "confidence": "official",
-  "last_checked": "2026-10-30",
+  "last_checked": "2026-10-31",
   "sources": [
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "OpenAI deprecations",
-      "last_checked": "2026-10-30",
+      "last_checked": "2026-10-31",
       "excerpt": "2026-05-07 | gpt-4o-audio-preview | gpt-audio-1.5"
     },
     {
       "url": "https://developers.openai.com/api/docs/models/gpt-4o-audio-preview.md",
       "label": "OpenAI model docs",
-      "last_checked": "2026-10-30",
+      "last_checked": "2026-10-31",
       "excerpt": "Model ID: gpt-4o-audio-preview | context window 128000 | max output 16384 | input $2.5 | output $10 | Default snapshot gpt-4o-audio-preview-2025-06-03"
     },
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "Named as an official replacement",
-      "last_checked": "2026-10-30",
+      "last_checked": "2026-10-31",
       "excerpt": "Named as an official replacement for gpt-audio. No shutdown date was published for this id on that page."
     },
     {
       "url": "https://developers.openai.com/api/docs/models/gpt-audio-1.5.md",
       "label": "OpenAI model docs",
-      "last_checked": "2026-10-30",
+      "last_checked": "2026-10-31",
       "excerpt": "Model ID: gpt-audio-1.5 | context window 128000 | max output 16384 | input $2.5 | output $10"
     }
   ]

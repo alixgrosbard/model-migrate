@@ -28,13 +28,13 @@
     {
       "url": "https://docs.x.ai/developers/models",
       "label": "xAI model docs",
-      "last_checked": "2026-10-30",
+      "last_checked": "2026-10-31",
       "excerpt": "g Mode Cost --- --- Speech to Speech (grok-voice-2.0) - Deprecated $0.08 / min ($4.80 / hr)<br />$0.004 / text input Speech to Speech (grok-voice-3.0) $0.08 / min ($4.80 / hr)<br />$0.004 / text input Speech to Text $0.10 / hr (REST), $0.20 / hr"
     },
     {
       "url": "https://docs.x.ai/developers/release-notes",
       "label": "xAI model deprecations",
-      "last_checked": "2026-10-30",
+      "last_checked": "2026-10-31",
       "excerpt": "ice 2.0 deprecation `grok-voice-2.0` is deprecated. To upgrade, set `model` to `grok-voice-3.0` or `grok-voice-latest`, at the same price. See [Upgrading from Grok Voice 2.0](/developers/model-capabilities/audio/speech-to-speech#u"
     }
   ],
@@ -64,11 +64,11 @@
     "specs_sources": {
       "modalities_in": {
         "url": "https://docs.x.ai/developers/models",
-        "last_checked": "2026-10-30"
+        "last_checked": "2026-10-31"
       },
       "modalities_out": {
         "url": "https://docs.x.ai/developers/models",
-        "last_checked": "2026-10-30"
+        "last_checked": "2026-10-31"
       }
     }
   },

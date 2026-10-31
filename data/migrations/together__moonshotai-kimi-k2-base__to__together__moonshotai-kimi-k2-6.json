@@ -66,18 +66,18 @@
     "Point your requests at moonshotai/Kimi-K2.6 and test before you send traffic."
   ],
   "confidence": "partial",
-  "last_checked": "2026-10-30",
+  "last_checked": "2026-10-31",
   "sources": [
     {
       "url": "https://docs.together.ai/docs/deprecations",
       "label": "Together AI deprecations",
-      "last_checked": "2026-10-30",
+      "last_checked": "2026-10-31",
       "excerpt": "2026-07-29 | `moonshotai/Kimi-K2-Base` | `moonshotai/Kimi-K2.6`"
     },
     {
       "url": "https://docs.together.ai/docs/deprecations",
       "label": "Together AI deprecations",
-      "last_checked": "2026-10-30",
+      "last_checked": "2026-10-31",
       "excerpt": "2026-08-19 | `moonshotai/Kimi-K2.6` | Yes"
     }
   ]

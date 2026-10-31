@@ -22,7 +22,7 @@
     {
       "url": "https://docs.tokenfactory.nebius.com/august-2026-deprecation-notice",
       "label": "Nebius Token Factory model deprecations",
-      "last_checked": "2026-10-30",
+      "last_checked": "2026-10-31",
       "excerpt": "| [`MiniMaxAI/MiniMax-M2.5`](https://tokenfactory.nebius.com/models/catalog/text2text/MiniMaxAI%2FMiniMax-M2.5) | [`MiniMaxAI/MiniMax-M3`](https://tokenfactory.nebius.com/models/catalog/text2text/MiniMaxAI%2FMiniMax-M3) |"
     }
   ],

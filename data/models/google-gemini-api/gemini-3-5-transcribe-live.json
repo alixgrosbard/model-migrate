@@ -15,7 +15,7 @@
     {
       "url": "https://ai.google.dev/gemini-api/docs/deprecations",
       "label": "Gemini API deprecations",
-      "last_checked": "2026-10-30",
+      "last_checked": "2026-10-31",
       "excerpt": "gemini-3.5-transcribe-live | August 2026 | No shutdown date announced"
     }
   ],
@@ -41,11 +41,11 @@
     "specs_sources": {
       "input_price_per_mtok": {
         "url": "https://ai.google.dev/gemini-api/docs/pricing",
-        "last_checked": "2026-10-30"
+        "last_checked": "2026-10-31"
       },
       "output_price_per_mtok": {
         "url": "https://ai.google.dev/gemini-api/docs/pricing",
-        "last_checked": "2026-10-30"
+        "last_checked": "2026-10-31"
       }
     }
   },

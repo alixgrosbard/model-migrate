@@ -22,19 +22,19 @@
     {
       "url": "https://docs.github.com/en/copilot/reference/ai-models/supported-models",
       "label": "GitHub Copilot supported models",
-      "last_checked": "2026-10-30",
+      "last_checked": "2026-10-31",
       "excerpt": "GPT-5.4 | 2026-10-19 | Latest GPT Sol model"
     },
     {
       "url": "https://github.blog/changelog/2026-09-18-upcoming-deprecation-of-selected-github-copilot-models-in-mid-october",
       "label": "GitHub Changelog",
-      "last_checked": "2026-10-30",
+      "last_checked": "2026-10-31",
       "excerpt": "GPT-5.4 | GPT-5.6 Sol"
     },
     {
       "url": "https://github.blog/changelog/2026-10-19-github-copilot-models-deprecated-on-october-19-2026",
       "label": "GitHub Changelog",
-      "last_checked": "2026-10-30",
+      "last_checked": "2026-10-31",
       "excerpt": "GPT-5.4 | GPT-6.1 Sol"
     }
   ],

@@ -22,13 +22,13 @@
     {
       "url": "https://docs.mistral.ai/models",
       "label": "Mistral models",
-      "last_checked": "2026-10-30",
+      "last_checked": "2026-10-31",
       "excerpt": "Codestral Mamba 7B | 0.1 | open-codestral-mamba | 6/6/2025 6/6/2025 | Codestral"
     },
     {
       "url": "https://docs.mistral.ai/models/codestral-mamba-7b-0-1",
       "label": "Mistral model docs",
-      "last_checked": "2026-10-30",
+      "last_checked": "2026-10-31",
       "excerpt": "open-codestral-mamba | Context 256k"
     }
   ],
@@ -54,7 +54,7 @@
     "specs_sources": {
       "context_window_tokens": {
         "url": "https://docs.mistral.ai/models/codestral-mamba-7b-0-1",
-        "last_checked": "2026-10-30"
+        "last_checked": "2026-10-31"
       }
     }
   },

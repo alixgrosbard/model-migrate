@@ -22,7 +22,7 @@
     {
       "url": "https://docs.tokenfactory.nebius.com/august-2026-deprecation-notice",
       "label": "Nebius Token Factory model deprecations",
-      "last_checked": "2026-10-30",
+      "last_checked": "2026-10-31",
       "excerpt": "| [`Qwen/Qwen3-32B`](https://tokenfactory.nebius.com/models/catalog/text2text/Qwen%2FQwen3-32B) | [`nvidia/Nemotron-3_5-Lightning`](https://tokenfactory.nebius.com/models/catalog/text2text/nvidia%2FNemotron-3_5-Lightning) |"
     }
   ],

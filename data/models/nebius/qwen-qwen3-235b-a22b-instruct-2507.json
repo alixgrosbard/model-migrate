@@ -22,7 +22,7 @@
     {
       "url": "https://docs.tokenfactory.nebius.com/model-deprecations-november-2026",
       "label": "Nebius Token Factory model deprecations",
-      "last_checked": "2026-10-30",
+      "last_checked": "2026-10-31",
       "excerpt": "| [`Qwen/Qwen3-235B-A22B-Instruct-2507`](https://tokenfactory.nebius.com/models/catalog/text2text/Qwen%2FQwen3-235B-A22B-Instruct-2507) | [`Qwen/Qwen3-30B-A3B-Instruct-2507`](https://tokenfactory.nebius.com/models/catalog/text2text/Qwen%2FQwen3-30B-A3B-Instruct-2507) |"
     }
   ],

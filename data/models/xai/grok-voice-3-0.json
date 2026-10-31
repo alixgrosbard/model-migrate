@@ -15,13 +15,13 @@
     {
       "url": "https://docs.x.ai/developers/models",
       "label": "xAI model docs",
-      "last_checked": "2026-10-30",
+      "last_checked": "2026-10-31",
       "excerpt": "$0.004 / text input Speech to Speech (grok-voice-3.0) $0.08 / min ($4.80 / hr)<br />$0.004 / text input Speech to Text $0.10 / hr (REST), $0.20 / hr (Streaming) Text to Speech $15.00 / 1M chars ## Which model should I choose? Your ch"
     },
     {
       "url": "https://docs.x.ai/developers/release-notes",
       "label": "xAI release notes",
-      "last_checked": "2026-10-30",
+      "last_checked": "2026-10-31",
       "excerpt": "e 3.0 is available `grok-voice-3.0` is now available with Speech to Speech, at the same price as Grok Voice 2.0. `grok-voice-latest` now points to `grok-voice-3.0`, so sessions that use the alias are upgraded autom"
     }
   ],
@@ -51,11 +51,11 @@
     "specs_sources": {
       "modalities_in": {
         "url": "https://docs.x.ai/developers/models",
-        "last_checked": "2026-10-30"
+        "last_checked": "2026-10-31"
       },
       "modalities_out": {
         "url": "https://docs.x.ai/developers/models",
-        "last_checked": "2026-10-30"
+        "last_checked": "2026-10-31"
       }
     }
   },

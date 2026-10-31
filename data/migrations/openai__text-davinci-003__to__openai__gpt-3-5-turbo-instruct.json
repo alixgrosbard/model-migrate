@@ -55,24 +55,24 @@
     "Ship the change before the published shutdown date."
   ],
   "confidence": "partial",
-  "last_checked": "2026-10-30",
+  "last_checked": "2026-10-31",
   "sources": [
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "OpenAI deprecations",
-      "last_checked": "2026-10-30",
+      "last_checked": "2026-10-31",
       "excerpt": "2024-01-04 | text-davinci-003 | $20.00 / 1M tokens | gpt-3.5-turbo-instruct"
     },
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "OpenAI deprecations",
-      "last_checked": "2026-10-30",
+      "last_checked": "2026-10-31",
       "excerpt": "2026-09-28 | gpt-3.5-turbo-instruct | gpt-5.6-terra"
     },
     {
       "url": "https://developers.openai.com/api/docs/models/gpt-3.5-turbo-instruct.md",
       "label": "OpenAI model docs",
-      "last_checked": "2026-10-30",
+      "last_checked": "2026-10-31",
       "excerpt": "Model ID: gpt-3.5-turbo-instruct | context window 4096 | max output 4096 | input $1.5 | output $2"
     }
   ]

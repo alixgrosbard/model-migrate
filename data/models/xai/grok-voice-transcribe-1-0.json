@@ -22,7 +22,7 @@
     {
       "url": "https://docs.x.ai/developers/release-notes",
       "label": "xAI model deprecations",
-      "last_checked": "2026-10-30",
+      "last_checked": "2026-10-31",
       "excerpt": "grok-voice-20). ### grok-voice-transcribe-1.0 end of life `grok-voice-transcribe-1.0` is deprecated and reaches end of life on October 2, 2026. All requests to that slug are routed to `grok-voice-transcribe-2.0` at the same p"
     }
   ],

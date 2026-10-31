@@ -22,13 +22,13 @@
     {
       "url": "https://docs.mistral.ai/models",
       "label": "Mistral models",
-      "last_checked": "2026-10-30",
+      "last_checked": "2026-10-31",
       "excerpt": "Voxtral Mini | 25.07 | voxtral-mini-2507 | 2/27/2026 5/31/2026 | Voxtral Mini Transcribe 2"
     },
     {
       "url": "https://docs.mistral.ai/models/voxtral-mini-25-07",
       "label": "Mistral model docs",
-      "last_checked": "2026-10-30",
+      "last_checked": "2026-10-31",
       "excerpt": "voxtral-mini-2507 | Context 32k"
     },
     {
@@ -60,7 +60,7 @@
     "specs_sources": {
       "context_window_tokens": {
         "url": "https://docs.mistral.ai/models/voxtral-mini-25-07",
-        "last_checked": "2026-10-30"
+        "last_checked": "2026-10-31"
       }
     }
   },

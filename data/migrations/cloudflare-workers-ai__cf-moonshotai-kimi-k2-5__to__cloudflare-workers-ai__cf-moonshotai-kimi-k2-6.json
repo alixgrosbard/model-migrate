@@ -66,18 +66,18 @@
     "Point the REST path at @cf/moonshotai/kimi-k2.6 and test before you send traffic."
   ],
   "confidence": "partial",
-  "last_checked": "2026-10-30",
+  "last_checked": "2026-10-31",
   "sources": [
     {
       "url": "https://developers.cloudflare.com/changelog/post/2026-05-08-planned-model-deprecations/",
       "label": "Cloudflare changelog",
-      "last_checked": "2026-10-30",
+      "last_checked": "2026-10-31",
       "excerpt": "- @cf/moonshotai/kimi-k2.5 --> @cf/moonshotai/kimi-k2.6"
     },
     {
       "url": "https://developers.cloudflare.com/changelog/post/2026-05-08-planned-model-deprecations/",
       "label": "Named as an official replacement",
-      "last_checked": "2026-10-30",
+      "last_checked": "2026-10-31",
       "excerpt": "@cf/moonshotai/kimi-k2.5 --> @cf/moonshotai/kimi-k2.6"
     }
   ]

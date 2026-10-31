@@ -22,13 +22,13 @@
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "OpenAI deprecations",
-      "last_checked": "2026-10-30",
+      "last_checked": "2026-10-31",
       "excerpt": "Jan 20, 2027 | gpt-audio | gpt-audio-2025-08-28 | gpt-audio-1.5"
     },
     {
       "url": "https://developers.openai.com/api/docs/models/gpt-audio.md",
       "label": "OpenAI model docs",
-      "last_checked": "2026-10-30",
+      "last_checked": "2026-10-31",
       "excerpt": "Model ID: gpt-audio | context window 128000 | max output 16384 | input $2.5 | output $10 | Default snapshot gpt-audio-2025-08-28"
     }
   ],
@@ -54,11 +54,11 @@
     "specs_sources": {
       "context_window_tokens": {
         "url": "https://developers.openai.com/api/docs/models/gpt-audio.md",
-        "last_checked": "2026-10-30"
+        "last_checked": "2026-10-31"
       },
       "max_output_tokens": {
         "url": "https://developers.openai.com/api/docs/models/gpt-audio.md",
-        "last_checked": "2026-10-30"
+        "last_checked": "2026-10-31"
       }
     }
   },

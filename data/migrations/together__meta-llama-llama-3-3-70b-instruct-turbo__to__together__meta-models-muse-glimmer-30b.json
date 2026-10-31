@@ -60,30 +60,30 @@
     "Point your requests at meta-models/Muse-Glimmer-30B and test before you send traffic."
   ],
   "confidence": "partial",
-  "last_checked": "2026-10-30",
+  "last_checked": "2026-10-31",
   "sources": [
     {
       "url": "https://docs.together.ai/docs/changelog",
       "label": "Together AI changelog",
-      "last_checked": "2026-10-30",
+      "last_checked": "2026-10-31",
       "excerpt": "Use meta-models/Muse-Glimmer-30B"
     },
     {
       "url": "https://docs.together.ai/docs/deprecations",
       "label": "Together AI deprecations",
-      "last_checked": "2026-10-30",
+      "last_checked": "2026-10-31",
       "excerpt": "2026-10-22 | `meta-llama/Llama-3.3-70B-Instruct-Turbo` | Yes"
     },
     {
       "url": "https://docs.together.ai/docs/changelog",
       "label": "Named as an official replacement",
-      "last_checked": "2026-10-30",
+      "last_checked": "2026-10-31",
       "excerpt": "Named as an official replacement for meta-llama/Llama-3.3-70B-Instruct-Turbo."
     },
     {
       "url": "https://docs.together.ai/docs/serverless/models",
       "label": "Together AI serverless models",
-      "last_checked": "2026-10-30",
+      "last_checked": "2026-10-31",
       "excerpt": "meta-models/Muse-Glimmer-30B | input 0.35 | output 1.5"
     }
   ]

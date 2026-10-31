@@ -22,13 +22,13 @@
     {
       "url": "https://docs.mistral.ai/models",
       "label": "Mistral models",
-      "last_checked": "2026-10-30",
+      "last_checked": "2026-10-31",
       "excerpt": "Devstral Small 1.0 | 25.05 | devstral-small-2505 | 10/31/2025 11/30/2025 | Mistral Medium 3.5"
     },
     {
       "url": "https://docs.mistral.ai/models/devstral-small-1-0-25-05",
       "label": "Mistral model docs",
-      "last_checked": "2026-10-30",
+      "last_checked": "2026-10-31",
       "excerpt": "devstral-small-2505 | Context 128k"
     }
   ],
@@ -54,7 +54,7 @@
     "specs_sources": {
       "context_window_tokens": {
         "url": "https://docs.mistral.ai/models/devstral-small-1-0-25-05",
-        "last_checked": "2026-10-30"
+        "last_checked": "2026-10-31"
       }
     }
   },

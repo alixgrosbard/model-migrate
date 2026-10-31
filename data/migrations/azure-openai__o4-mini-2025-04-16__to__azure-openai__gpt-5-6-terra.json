@@ -55,30 +55,30 @@
     "Ship the change before the published shutdown date."
   ],
   "confidence": "partial",
-  "last_checked": "2026-10-30",
+  "last_checked": "2026-10-31",
   "sources": [
     {
       "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule",
       "label": "Azure OpenAI retirement schedule",
-      "last_checked": "2026-10-30",
+      "last_checked": "2026-10-31",
       "excerpt": "o4-mini | 2025-04-16 | Deprecated | 2026-11-19 | gpt-5.6-terra"
     },
     {
       "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule",
       "label": "Azure OpenAI retirement schedule",
-      "last_checked": "2026-10-30",
+      "last_checked": "2026-10-31",
       "excerpt": "o4-mini | 2025-04-16 | No earlier than 2027-05-191 | 2027-11-19"
     },
     {
       "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirements",
       "label": "Azure OpenAI model retirements",
-      "last_checked": "2026-10-30",
+      "last_checked": "2026-10-31",
       "excerpt": "o4-mini | 2025-04-16 | No earlier than 2027-04-161 | 2027-10-16"
     },
     {
       "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule",
       "label": "Named as an official replacement",
-      "last_checked": "2026-10-30",
+      "last_checked": "2026-10-31",
       "excerpt": "Named as an official replacement for o3-mini-2025-01-31. No shutdown date was published for this id on that page."
     }
   ]

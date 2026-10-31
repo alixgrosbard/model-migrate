@@ -61,18 +61,18 @@
     "Ship the change before the published shutdown date."
   ],
   "confidence": "partial",
-  "last_checked": "2026-10-30",
+  "last_checked": "2026-10-31",
   "sources": [
     {
       "url": "https://docs.x.ai/developers/release-notes",
       "label": "xAI model deprecations",
-      "last_checked": "2026-10-30",
+      "last_checked": "2026-10-31",
       "excerpt": "grok-voice-20). ### grok-voice-transcribe-1.0 end of life `grok-voice-transcribe-1.0` is deprecated and reaches end of life on October 2, 2026. All requests to that slug are routed to `grok-voice-transcribe-2.0` at the same p"
     },
     {
       "url": "https://docs.x.ai/developers/release-notes",
       "label": "xAI release notes",
-      "last_checked": "2026-10-30",
+      "last_checked": "2026-10-31",
       "excerpt": "slug are routed to `grok-voice-transcribe-2.0` at the same price, with higher accuracy. See the [Speech to Text docs](/developers/model-capabilities/audio/speech-to-text). ## September ### safety\\_identifier request field You"
     }
   ]

@@ -66,18 +66,18 @@
     "Point your requests at MiniMaxAI/MiniMax-M3 and test before you send traffic."
   ],
   "confidence": "partial",
-  "last_checked": "2026-10-30",
+  "last_checked": "2026-10-31",
   "sources": [
     {
       "url": "https://docs.tokenfactory.nebius.com/august-2026-deprecation-notice",
       "label": "Nebius Token Factory model deprecations",
-      "last_checked": "2026-10-30",
+      "last_checked": "2026-10-31",
       "excerpt": "| [`nvidia/Cosmos3-Super-Reasoner`](https://tokenfactory.nebius.com/models/catalog/image2text/nvidia%2FCosmos3-Super-Reasoner) | [`MiniMaxAI/MiniMax-M3`](https://tokenfactory.nebius.com/models/catalog/text2text/MiniMaxAI%2FMiniMax-M3) |"
     },
     {
       "url": "https://docs.tokenfactory.nebius.com/august-2026-deprecation-notice",
       "label": "Named as an official replacement",
-      "last_checked": "2026-10-30",
+      "last_checked": "2026-10-31",
       "excerpt": "Named as an official replacement for MiniMaxAI/MiniMax-M2.5."
     }
   ]

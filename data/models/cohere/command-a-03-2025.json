@@ -15,7 +15,7 @@
     {
       "url": "https://docs.cohere.com/docs/models",
       "label": "Cohere model docs",
-      "last_checked": "2026-10-30",
+      "last_checked": "2026-10-31",
       "excerpt": "command-a-03-2025 Live Command A is our most performant model to date, excelling at tool use, agents, retrieval augmented generation (RAG), and multilingual use cases. Command A"
     }
   ],
@@ -45,23 +45,23 @@
     "specs_sources": {
       "context_window_tokens": {
         "url": "https://docs.cohere.com/docs/models",
-        "last_checked": "2026-10-30"
+        "last_checked": "2026-10-31"
       },
       "max_output_tokens": {
         "url": "https://docs.cohere.com/docs/models",
-        "last_checked": "2026-10-30"
+        "last_checked": "2026-10-31"
       },
       "modalities_in": {
         "url": "https://docs.cohere.com/docs/models",
-        "last_checked": "2026-10-30"
+        "last_checked": "2026-10-31"
       },
       "modalities_out": {
         "url": "https://docs.cohere.com/docs/models",
-        "last_checked": "2026-10-30"
+        "last_checked": "2026-10-31"
       },
       "supports_tools": {
         "url": "https://docs.cohere.com/docs/models",
-        "last_checked": "2026-10-30"
+        "last_checked": "2026-10-31"
       }
     }
   },

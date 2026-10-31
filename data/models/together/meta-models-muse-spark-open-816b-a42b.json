@@ -15,13 +15,13 @@
     {
       "url": "https://docs.together.ai/docs/deprecations",
       "label": "Named as an official replacement",
-      "last_checked": "2026-10-30",
+      "last_checked": "2026-10-31",
       "excerpt": "Named as an official replacement for thinkingmachines/Inkling."
     },
     {
       "url": "https://docs.together.ai/docs/serverless/models",
       "label": "Together AI serverless models",
-      "last_checked": "2026-10-30",
+      "last_checked": "2026-10-31",
       "excerpt": "meta-models/Muse-Spark-Open-816B-A42B | input 1.25 | output 4.25"
     }
   ],
@@ -47,31 +47,31 @@
     "specs_sources": {
       "cached_input_price_per_mtok": {
         "url": "https://docs.together.ai/docs/serverless/models",
-        "last_checked": "2026-10-30"
+        "last_checked": "2026-10-31"
       },
       "context_window_tokens": {
         "url": "https://docs.together.ai/docs/serverless/models",
-        "last_checked": "2026-10-30"
+        "last_checked": "2026-10-31"
       },
       "input_price_per_mtok": {
         "url": "https://docs.together.ai/docs/serverless/models",
-        "last_checked": "2026-10-30"
+        "last_checked": "2026-10-31"
       },
       "output_price_per_mtok": {
         "url": "https://docs.together.ai/docs/serverless/models",
-        "last_checked": "2026-10-30"
+        "last_checked": "2026-10-31"
       },
       "supports_json_schema": {
         "url": "https://docs.together.ai/docs/serverless/models",
-        "last_checked": "2026-10-30"
+        "last_checked": "2026-10-31"
       },
       "supports_prompt_caching": {
         "url": "https://docs.together.ai/docs/serverless/models",
-        "last_checked": "2026-10-30"
+        "last_checked": "2026-10-31"
       },
       "supports_tools": {
         "url": "https://docs.together.ai/docs/serverless/models",
-        "last_checked": "2026-10-30"
+        "last_checked": "2026-10-31"
       }
     }
   },

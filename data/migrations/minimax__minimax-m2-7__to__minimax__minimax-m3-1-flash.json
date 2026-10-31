@@ -66,18 +66,18 @@
     "Point your requests at MiniMax-M3.1-Flash and test before you send traffic."
   ],
   "confidence": "partial",
-  "last_checked": "2026-10-30",
+  "last_checked": "2026-10-31",
   "sources": [
     {
       "url": "https://platform.minimax.io/docs/faq/models",
       "label": "MiniMax model list",
-      "last_checked": "2026-10-30",
+      "last_checked": "2026-10-31",
       "excerpt": "November 18, 2026: These models will be retired. | MiniMax-M2.7 | LLM | Retired |"
     },
     {
       "url": "https://platform.minimax.io/docs/faq/models",
       "label": "Named as an official replacement",
-      "last_checked": "2026-10-30",
+      "last_checked": "2026-10-31",
       "excerpt": "MiniMax-M3.1-Flash is listed under Available Models."
     }
   ]

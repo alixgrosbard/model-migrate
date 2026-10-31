@@ -15,13 +15,13 @@
     {
       "url": "https://docs.x.ai/developers/models",
       "label": "xAI model docs",
-      "last_checked": "2026-10-30",
+      "last_checked": "2026-10-31",
       "excerpt": "$4.00 $1.00 $12.00 grok-4.5 (< 200k prompt tokens) 500k $2.00 $0.30 $6.00 grok-4.5 (≥ 200k prompt tokens) 500k $4.00 $0.60 $12.00 grok-4.3 (< 200k prompt tokens) 1M $1.25 $0.20 $2.50 grok-4.3 (≥ 200k prompt tokens) 1M $2.50 $0.40"
     },
     {
       "url": "https://docs.x.ai/developers/release-notes",
       "label": "xAI release notes",
-      "last_checked": "2026-10-30",
+      "last_checked": "2026-10-31",
       "excerpt": "output tokens, with configurable reasoning effort (low, medium, or high; default high). See the [Grok 4.5 overview](/developers/grok-4-5) and the [announcement](https://x.ai/news/grok-4-5). ## June"
     }
   ],
@@ -47,35 +47,35 @@
     "specs_sources": {
       "batch_discount_pct": {
         "url": "https://docs.x.ai/developers/pricing",
-        "last_checked": "2026-10-30"
+        "last_checked": "2026-10-31"
       },
       "cached_input_price_per_mtok": {
         "url": "https://docs.x.ai/developers/models",
-        "last_checked": "2026-10-30"
+        "last_checked": "2026-10-31"
       },
       "context_window_tokens": {
         "url": "https://docs.x.ai/developers/models",
-        "last_checked": "2026-10-30"
+        "last_checked": "2026-10-31"
       },
       "input_price_per_mtok": {
         "url": "https://docs.x.ai/developers/models",
-        "last_checked": "2026-10-30"
+        "last_checked": "2026-10-31"
       },
       "output_price_per_mtok": {
         "url": "https://docs.x.ai/developers/models",
-        "last_checked": "2026-10-30"
+        "last_checked": "2026-10-31"
       },
       "reasoning": {
         "url": "https://docs.x.ai/developers/release-notes",
-        "last_checked": "2026-10-30"
+        "last_checked": "2026-10-31"
       },
       "supports_batch": {
         "url": "https://docs.x.ai/developers/pricing",
-        "last_checked": "2026-10-30"
+        "last_checked": "2026-10-31"
       },
       "supports_prompt_caching": {
         "url": "https://docs.x.ai/developers/models",
-        "last_checked": "2026-10-30"
+        "last_checked": "2026-10-31"
       }
     }
   },
