@@ -178,8 +178,12 @@ describe("official snapshots", () => {
     expect(o4?.shutdown_date).toBe("2026-11-19");
     expect(o4?.shutdown_date_kind).toBe("exact");
     expect(o4?.replacements.map((item) => item.model_id)).toEqual(["gpt-5.6-terra"]);
+    expect(o4?.region_or_platform_notes).toContain("No earlier than 2027-05-19");
     expect(o4?.region_or_platform_notes).toContain("Deployment retirement: 2027-11-19");
+    expect(o4?.region_or_platform_notes).toContain("No earlier than 2027-04-16");
     expect(o4?.region_or_platform_notes).toContain("deployment retirement 2027-10-16");
+    expect(o4?.region_or_platform_notes).not.toContain("2027-05-191");
+    expect(o4?.region_or_platform_notes).not.toContain("2027-04-161");
     expect(o4?.sources[0]?.excerpt).toContain("Deprecated");
     expect(o4?.sources[0]?.excerpt).toContain("2026-11-19");
     for (const id of ["gpt-4.1-2025-04-14", "gpt-4.1-mini-2025-04-14", "gpt-4.1-nano-2025-04-14"]) {

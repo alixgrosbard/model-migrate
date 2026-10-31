@@ -129,6 +129,16 @@ const openaiGuides = provider.id === "openai"
       {providers.some((item) => item.id === "anthropic") ? <><a href="/providers/anthropic/">Anthropic</a> · </> : null}
       {providers.some((item) => item.id === "google-gemini-api") ? <><a href="/providers/google-gemini-api/">Google Gemini API</a> · </> : null}
       {providers.some((item) => item.id === "xai") ? <><a href="/providers/xai/">xAI</a> · </> : null}
+      <a href="/guides/github-copilot-model-retirements-november-16-2026/">November 16, 2026 model guide</a>.
+      <a href="/#soonest">Soonest shutdowns on the homepage</a>.
+    </p>
+  ) : provider.id === "azure-openai" ? (
+    <p>
+      Official pages: <a href={provider.deprecations_url}>{provider.deprecations_url}</a>.
+      November 19, 2026 is the retirement date the schedule lists for o1 2024-12-17, o1-pro 2025-03-19, o3 2025-04-16, o3-deep-research 2025-06-26, o3-mini 2025-01-31, o3-pro 2025-06-10, and o4-mini 2025-04-16.
+      <a href="/shutdowns/azure-openai-2026-11-19/">November 19, 2026 shutdowns</a>.
+      <a href="/guides/azure-openai-o-series-retirement-november-19-2026/">o-series retirement guide</a>.
+      <a href="/errors/azure-openai-retired-model-410-gone/">410 Gone</a>.
       <a href="/#soonest">Soonest shutdowns on the homepage</a>.
     </p>
   ) : provider.id === "aws-bedrock" ? (

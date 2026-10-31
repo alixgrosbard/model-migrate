@@ -50,7 +50,8 @@ export function parseAzure(scheduleHtml: string, policyHtml = "", checked = toda
       const rows = tableRows(policy, table);
       const header = (rows[0] ?? []).join(" ").toLowerCase();
       if (!header.includes("training retirement") || !header.includes("deployment retirement")) return;
-      for (const row of rows.slice(1)) {
+      for (const raw of rows.slice(1)) {
+        const row = raw.map(withoutFootnoteDigit);
         const id = azureId(row[0] ?? "", row[1] ?? "");
         if (!id) continue;
         const training = parseDate(row[2] ?? "");
@@ -89,6 +90,11 @@ export function parseAzure(scheduleHtml: string, policyHtml = "", checked = toda
   return [...models.values()];
 }
 
+/** Microsoft prints a footnote marker in a <sup> after an ISO date. text() glues that digit onto the date. */
+function withoutFootnoteDigit(value: string): string {
+  return value.replace(/(\d{4}-\d{2}-\d{2})\d+/g, "$1");
+}
+
 function addRows(
   models: Map<string, ScrapedModel>,
   baseIds: Set<string>,
@@ -97,7 +103,8 @@ function addRows(
   url: string,
   checked: string,
 ) {
-  for (const row of rows.slice(1)) {
+  for (const raw of rows.slice(1)) {
+    const row = raw.map(withoutFootnoteDigit);
     const name = row[0]?.trim();
     const version = row[1]?.trim();
     if (!name) continue;

@@ -68,7 +68,11 @@ const shutdownGuide = guideBySlug(
         ? "minimax-m2-5-m2-7-shutdown-november-18-2026"
         : event.slug === "aws-bedrock-2026-11-13"
           ? "amazon-bedrock-claude-3-shutdown-november-13-2026"
-          : undefined,
+          : event.slug === "azure-openai-2026-11-19"
+            ? "azure-openai-o-series-retirement-november-19-2026"
+            : event.slug === "github-copilot-2026-11-16"
+              ? "github-copilot-model-retirements-november-16-2026"
+              : undefined,
 );
 const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
 const rows = event.models.map((model) => ({

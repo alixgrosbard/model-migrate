@@ -1699,6 +1699,7 @@ const { text } = await generateText({
     ],
     seeAlso: [
       { href: "/shutdowns/azure-openai-2026-11-19/", label: "Azure OpenAI November 19, 2026 batch" },
+      { href: "/guides/azure-openai-o-series-retirement-november-19-2026/", label: "Azure OpenAI o-series retirement on November 19, 2026" },
       { href: "/models/azure-openai/o4-mini-2025-04-16/", label: "o4-mini 2025-04-16" },
       { href: "/guides/silent-failures-after-model-shutdown/", label: "Silent failures after a model shutdown" },
       { href: "/guides/catch-a-retired-model-before-your-users-do/", label: "Catch a retired model before your users do" },

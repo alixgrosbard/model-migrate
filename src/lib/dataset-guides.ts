@@ -23,6 +23,16 @@ export const MINIMAX_NOV18_GUIDE_SLUG = "minimax-m2-5-m2-7-shutdown-november-18-
 export const BEDROCK_NOV13_SHUTDOWN_DATE = "2026-11-13";
 export const BEDROCK_NOV13_GUIDE_SLUG = "amazon-bedrock-claude-3-shutdown-november-13-2026";
 
+/** Checked against the Azure OpenAI retirement schedule. The slug uses this date. */
+export const AZURE_NOV19_SHUTDOWN_DATE = "2026-11-19";
+export const AZURE_NOV19_GUIDE_SLUG = "azure-openai-o-series-retirement-november-19-2026";
+export const AZURE_CODEX_MINI_DATE = "2026-11-15";
+export const AZURE_CHAT_LATEST_DATE = "2026-11-17";
+
+/** Checked against GitHub's October 15, 2026 Copilot changelog. The slug uses this date. */
+export const COPILOT_NOV16_SHUTDOWN_DATE = "2026-11-16";
+export const COPILOT_NOV16_GUIDE_SLUG = "github-copilot-model-retirements-november-16-2026";
+
 const MINIMAX_MODELS = "https://platform.minimax.io/docs/faq/models";
 const MINIMAX_TEXT = "https://platform.minimax.io/docs/guides/text-generation";
 const MINIMAX_NEW_USERS = "These models will no longer be available to new users.";
@@ -124,6 +134,29 @@ export function isBedrockNov13Shutdown(model: ModelRecord): boolean {
     && model.shutdown_date_kind === "exact";
 }
 
+export function isAzureNov19OSeries(model: ModelRecord): boolean {
+  return model.provider === "azure-openai"
+    && model.shutdown_date === AZURE_NOV19_SHUTDOWN_DATE
+    && model.shutdown_date_kind === "exact";
+}
+
+export function isAzureCodexMini(model: ModelRecord): boolean {
+  return model.provider === "azure-openai" && model.id === "codex-mini-2025-05-16";
+}
+
+export function isAzureChatLatestNov17(model: ModelRecord): boolean {
+  return model.provider === "azure-openai"
+    && model.family === "gpt-chat-latest"
+    && model.shutdown_date === AZURE_CHAT_LATEST_DATE
+    && model.shutdown_date_kind === "exact";
+}
+
+export function isCopilotNov16Shutdown(model: ModelRecord): boolean {
+  return model.provider === "github-copilot"
+    && model.shutdown_date === COPILOT_NOV16_SHUTDOWN_DATE
+    && model.shutdown_date_kind === "exact";
+}
+
 export function isJanuary2027Gpt4Shutdown(model: ModelRecord): boolean {
   if (model.provider !== "openai" || model.shutdown_date !== JANUARY_2027_SHUTDOWN_DATE) return false;
   if (model.shutdown_date_kind !== "exact" && model.shutdown_date_kind !== "via_snapshots") return false;
@@ -211,6 +244,10 @@ export function datasetShutdownGuides(catalog: ModelRecord[] = readCatalog()): G
   if (minimax.length) pages.push(minimaxGuide(minimax, catalog));
   const bedrock = rowsFor(isBedrockNov13Shutdown, catalog);
   if (bedrock.length) pages.push(bedrockGuide(bedrock, catalog));
+  const azure = rowsFor(isAzureNov19OSeries, catalog);
+  if (azure.length) pages.push(azureOSeriesGuide(azure, catalog));
+  const copilot = rowsFor(isCopilotNov16Shutdown, catalog);
+  if (copilot.length) pages.push(copilotNov16Guide(copilot, catalog));
   const slugs = new Set(pages.map((page) => page.slug));
   for (const page of pages) {
     page.related = page.related.filter((link) => {
@@ -811,6 +848,384 @@ function bedrockGuide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePage {
       ISSUE_CLAUDE_CODE_ACTION,
       SONNET_MIGRATION,
       CLAUDE_VERSIONING,
+    ],
+  };
+}
+const AZURE_SCHEDULE = "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule";
+const AZURE_RETIREMENTS = "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirements";
+const AZURE_WORKING = "https://learn.microsoft.com/en-us/azure/foundry/openai/how-to/working-with-models";
+const AZURE_VERSIONS = "https://learn.microsoft.com/en-us/azure/ai-foundry/model-inference/concepts/model-versions";
+const AZURE_RETIRED = "Removed from service. All inference requests return 410 Gone.";
+const AZURE_AUTO = "For Global Standard, Data Zone Standard, and Standard deployment types, Microsoft manages automatic upgrades when a model version is retired:";
+const AZURE_PROVISIONED = "Provisioned deployments are NOT auto-upgraded. Provisioned customers must manually migrate to the replacement model.";
+const AZURE_STANDARD_ONLY = "Automatic model updates are only supported for Standard deployment types.";
+const AZURE_EXPIRED = "Once the retirement date is reached the model deployment automatically upgrades to the current default version.";
+const AZURE_NO_AUTO = "The model deployment never automatically upgrades. Once the retirement date is reached the model deployment stops working.";
+const AZURE_NULL = "null is equivalent to OnceCurrentVersionExpired.";
+const AZURE_SPECIFIC = "When you select a specific model version for a deployment, this version remains selected until you either choose to manually update yourself, or once you reach the retirement date for the model.";
+const AZURE_THEN_DEFAULT = "When the retirement date is reached the model will automatically upgrade to the default version at the time of retirement.";
+const AZURE_LIST = "To query the current model deployment settings including the deployment upgrade configuration for a given resource use Deployments List.";
+const AZURE_NULL_FIELD = "If the value is null, you won't see a versionUpgradeOption property.";
+const AZURE_PORTAL = "Go to your deployment in the Foundry portal, then open the Details tab to see the current model version.";
+const AZURE_REST_VERSION = "Query the deployments endpoint for your resource. The response includes the model version for each deployment.";
+const AZURE_PREVIEW_END = "all preview deployments are either upgraded or terminated.";
+const AZURE_NO_REPLACEMENT = "If no replacement exists, customers get 30 days notice before the model retires and inference returns 410 Gone.";
+const AZURE_PREVIEW_NOTE = "Preview models aren't recommended for production workloads.";
+const AZURE_FINE_FOOT = "For existing customers only. Otherwise, training retirement occurs at base model retirement.";
+const AZURE_REPLACEMENT_COL = "The Replacement column identifies Microsoft's recommended replacement and, where supported, the target for automatic upgrades at retirement.";
+
+const COPILOT_CHANGELOG = "https://github.blog/changelog/2026-10-15-upcoming-deprecation-of-selected-github-copilot-models-in-mid-november";
+const COPILOT_SUPPORTED = "https://docs.github.com/en/copilot/reference/ai-models/supported-models";
+const COPILOT_CHAT_MODEL = "https://docs.github.com/en/copilot/how-tos/use-ai-models/change-the-chat-model";
+const COPILOT_INLINE = "https://docs.github.com/en/copilot/how-tos/use-ai-models/change-the-completion-model";
+const COPILOT_ORG_MODELS = "https://docs.github.com/en/copilot/how-tos/administer-copilot/manage-for-organization/manage-default-models";
+const COPILOT_CLI = "https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-command-reference";
+const COPILOT_AGENTS = "https://docs.github.com/en/copilot/reference/custom-agents-configuration";
+const COPILOT_CLI_CONFIG = "https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-config-dir-reference";
+const COPILOT_DEPRECATE = "We will deprecate the following models across all GitHub Copilot experiences (including Copilot Chat, inline edits, ask and agent modes, and code completions) on November 16th, 2026:";
+const COPILOT_ANNUAL = "Claude Opus 4.8 will remain available to individual GitHub Copilot subscribers on annual plans so they retain an Opus offering. The deprecation of Claude Opus 4.8 does not apply to these customers.";
+const COPILOT_UPDATE = "Please update your workflows and integrations to use the supported models before this date.";
+const COPILOT_DEFAULT = "Under default model enablement, the suggested alternatives are automatically enabled for Copilot Enterprise and Copilot Business customers unless an administrator has turned off the global default or explicitly disabled the model.";
+const COPILOT_POLICIES = "If you've turned off the global default, you can enable access to the alternative models through their model policies in Copilot settings.";
+const COPILOT_SELECTOR = "Once enabled, users will see the model in the Copilot Chat model selector in supported GitHub Copilot experiences.";
+const COPILOT_NO_ACTION = "No action is required to remove the models after they have been deprecated.";
+const COPILOT_SUBJECT = "Model availability is subject to change. Some models may be replaced or updated over time.";
+const COPILOT_CHAT_CHANGE = "Copilot allows you to change the model during a chat and have the alternative model used to generate responses to your prompts.";
+const COPILOT_BUSINESS = "If you access Copilot Chat through a Copilot Business subscription, your organization must grant members the ability to switch to a different model.";
+const COPILOT_NOT_INLINE = "Changing the model used by Copilot Chat does not affect the model used for Copilot inline suggestions.";
+const COPILOT_EXTENSIONS = "If you use Copilot Extensions, they may override the model you select.";
+const COPILOT_TEAMS_PREVIEW = "If your enterprise has opted in to the enterprise teams model access preview, your organization will not be able to access model settings.";
+const COPILOT_ORG_ENABLED = "The model is available to members of your organization.";
+const COPILOT_ORG_DISABLED = "The model is not available to members of your organization.";
+const COPILOT_CLI_FLAG = "Use --model=MODEL or the COPILOT_MODEL environment variable to select the AI model.";
+const COPILOT_CLI_SLASH = "You can also switch models during an interactive session using the /model slash command.";
+const COPILOT_AGENT_MODEL = "Model to use when this custom agent executes. If unset, inherits the default model.";
+const COPILOT_ALLOWLIST = "Restrict which built-in models a repository can use with a plain-text allowlist at .github/allowed_models.txt";
+const COPILOT_REPO_MODEL = "Pin the default model for this repo.";
+
+function otherChatLatest(catalog: ModelRecord[]): ModelRecord[] {
+  return catalog
+    .filter((model) => model.provider === "azure-openai" && model.family === "gpt-chat-latest" && model.shutdown_date !== AZURE_CHAT_LATEST_DATE)
+    .sort((a, b) => a.id.localeCompare(b.id));
+}
+
+function azureOSeriesGuide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePage {
+  const when = longDate(AZURE_NOV19_SHUTDOWN_DATE);
+  const checked = "2026-10-31";
+  const codex = rowsFor(isAzureCodexMini, catalog);
+  const chat = rowsFor(isAzureChatLatestNov17, catalog);
+  const laterChat = otherChatLatest(catalog);
+  const sources = [
+    { label: "Azure OpenAI retirement schedule", url: AZURE_SCHEDULE },
+    { label: "Foundry Models lifecycle", url: AZURE_RETIREMENTS },
+  ];
+  const findRows = [...rows, ...codex, ...chat];
+  return {
+    slug: AZURE_NOV19_GUIDE_SLUG,
+    title: `Azure OpenAI o-series retirement on ${when} | SunsetDiff`,
+    description: `Azure OpenAI o1, o1-pro, o3, o3-deep-research, o3-mini, o3-pro, and o4-mini versions retire on ${AZURE_NOV19_SHUTDOWN_DATE}. The schedule names gpt-5.6-sol or gpt-5.6-terra. codex-mini retires November 15. Two gpt-chat-latest versions retire November 17 with no replacement named.`,
+    h1: `Azure OpenAI o-series retirement on ${when}`,
+    summary: `The Azure OpenAI versions in the dataset with shutdown date ${AZURE_NOV19_SHUTDOWN_DATE}, the replacement on the retirement schedule, and what a deployment does that day.`,
+    answer: `The dataset has ${rows.length} Azure OpenAI ids with shutdown date ${AZURE_NOV19_SHUTDOWN_DATE}: ${idList(rows)}. The retirement schedule lists each as Deprecated, retirement date ${AZURE_NOV19_SHUTDOWN_DATE}. The replacement column is the official replacement stored on each row. The lifecycle page says a Retired model is removed from service and all inference requests return 410 Gone. Standard deployments can auto-upgrade. A deployment set to NoAutoUpgrade stops working. Provisioned deployments are not auto-upgraded.${codex.length ? ` ${idList(codex)} is stored with shutdown date ${codex[0]?.shutdown_date ?? "Not published"}. The schedule does not name a replacement.` : ""}${chat.length ? ` ${idList(chat)} ${chat.length === 1 ? "is" : "are"} stored with shutdown date ${AZURE_CHAT_LATEST_DATE}. The schedule does not name a replacement.` : ""}`,
+    checked,
+    steps: [
+      {
+        name: "Read the versions",
+        text: `The first table is every Azure OpenAI id in the dataset whose shutdown date is ${AZURE_NOV19_SHUTDOWN_DATE}. The replacement cell is the official replacement stored from the retirement schedule. Not published means that field is empty. Open the model page before you change a deployment.`,
+      },
+      {
+        name: "List deployments on the resource",
+        text: "Call Deployments List, or Get-AzCognitiveServicesAccountDeployment, for each Azure OpenAI resource. Read properties.model.name and properties.model.version. A deployment name can differ from the model name.",
+      },
+      {
+        name: "Read versionUpgradeOption",
+        text: "OnceCurrentVersionExpired upgrades the deployment when the retirement date is reached. null means the same thing. NoAutoUpgrade never upgrades, and that deployment stops working. Provisioned deployments are not auto-upgraded.",
+      },
+      {
+        name: "Call the named replacement",
+        text: `Where the table names gpt-5.6-sol or gpt-5.6-terra, deploy that version and send one real prompt before ${when}. Where the cell says Not published, Microsoft did not name a replacement on the schedule.`,
+      },
+    ],
+    sections: [
+      {
+        heading: "Models retiring on November 19",
+        paragraphs: [
+          `These rows are every Azure OpenAI model in the dataset with shutdown date ${AZURE_NOV19_SHUTDOWN_DATE}. The model id links to its SunsetDiff model page. Deprecation date, shutdown date, and replacement are the fields stored on that row. Not published means the field is empty. These rows do not store a deprecation_date. The schedule's Lifecycle column says Deprecated for each of them.`,
+          `The schedule says: "${AZURE_REPLACEMENT_COL}" The replacement on each row is that column: gpt-5.6-sol or gpt-5.6-terra. This guide does not add a replacement the schedule does not print.`,
+        ],
+        table: {
+          caption: `${rows.length} Azure OpenAI model ids with shutdown date ${AZURE_NOV19_SHUTDOWN_DATE}.`,
+          headers: ["Model id", "Deprecation date", "Shutdown date", "Recommended replacement"],
+          rows: tableRows(rows, catalog),
+        },
+        sources,
+      },
+      {
+        heading: "codex-mini on November 15 and gpt-chat-latest on November 17",
+        paragraphs: [
+          codex.length
+            ? `codex-mini version 2025-05-16 is in the dataset with shutdown date ${codex[0]?.shutdown_date ?? "Not published"}. The schedule lists it as Deprecated with retirement date ${AZURE_CODEX_MINI_DATE}. The replacement cell on that row is empty, so the table says Not published.`
+            : "The dataset has no codex-mini-2025-05-16 row.",
+          chat.length
+            ? `These gpt-chat-latest rows are the ones whose stored shutdown date is ${AZURE_CHAT_LATEST_DATE}. The schedule lists both as Preview. The replacement cell is empty. The lifecycle page says: "${AZURE_PREVIEW_NOTE}" It also says ${AZURE_PREVIEW_END} And: "${AZURE_NO_REPLACEMENT}" The schedule does not name a replacement, so this page does not pick the upgrade path or the no-replacement path for you.`
+            : `The dataset has no gpt-chat-latest row with shutdown date ${AZURE_CHAT_LATEST_DATE}.`,
+          laterChat.length
+            ? `Other gpt-chat-latest versions in the dataset have a different shutdown date, or none. The schedule does not name them as the replacement for the ${AZURE_CHAT_LATEST_DATE} rows. ${laterChat.map((model) => `${model.id}: ${model.shutdown_date ?? "Not published"}`).join(". ")}.`
+            : "The dataset has no other gpt-chat-latest version rows.",
+        ],
+        table: codex.length || chat.length
+          ? {
+              caption: "Azure OpenAI rows for codex-mini and for gpt-chat-latest versions retiring on 2026-11-17.",
+              headers: ["Model id", "Deprecation date", "Shutdown date", "Recommended replacement"],
+              rows: tableRows([...codex, ...chat], catalog),
+            }
+          : undefined,
+        sources,
+      },
+      {
+        heading: "What happens to a deployment that day",
+        paragraphs: [
+          `The lifecycle table says Retired means: "${AZURE_RETIRED}" New deployments are not allowed, and existing deployments do not work. The same page says the API value lifecycleStatus Deprecated means the model is retired and inference returns 410 Gone. The docs stage Deprecated is lifecycleStatus Deprecating, and inference still works. The sentences and the status map are on [Azure OpenAI retired models return 410 Gone](/errors/azure-openai-retired-model-410-gone/). The batch of stored rows is [Azure OpenAI shutdowns on ${when}](/shutdowns/azure-openai-2026-11-19/).`,
+          `The lifecycle page says: "${AZURE_AUTO}" It also says: "${AZURE_PROVISIONED}"`,
+          `Working with models says: "${AZURE_STANDARD_ONLY}" OnceCurrentVersionExpired means: "${AZURE_EXPIRED}" NoAutoUpgrade means: "${AZURE_NO_AUTO}" And: "${AZURE_NULL}"`,
+          `The same page says: "${AZURE_SPECIFIC}" Then: "${AZURE_THEN_DEFAULT}" A deployment you pinned to one of these versions can still move on the retirement date unless versionUpgradeOption is NoAutoUpgrade. NoAutoUpgrade does not move, and the deployment stops.`,
+        ],
+        sources: [
+          ...sources,
+          { label: "Working with Azure OpenAI models", url: AZURE_WORKING },
+        ],
+      },
+      {
+        heading: "Find deployments that use these versions",
+        paragraphs: [
+          `Working with models says: "${AZURE_LIST}" ${AZURE_NULL_FIELD} The model versions page says: "${AZURE_PORTAL}" And: "${AZURE_REST_VERSION}"`,
+          "The example response puts the model name and version on properties.model. The deployment's own name is the name field next to that object. Match properties.model.name and properties.model.version to the ids in the tables. o1 version 2024-12-17 is the dataset id o1-2024-12-17.",
+          "Also search the repository. A hit is a candidate, not proof a deployment still uses that version. [How to find every model ID in your codebase](/guides/find-model-ids-in-your-codebase/) covers SDK argument names. The [scan page](/scan/) builds a search from dataset ids that have a shutdown date.",
+        ],
+        codes: [
+          {
+            caption: "Azure PowerShell, list deployments for one account",
+            code: `Get-AzCognitiveServicesAccountDeployment -ResourceGroupName {ResourceGroupName} -AccountName {AccountName}\n`,
+          },
+          {
+            caption: "Deployments List",
+            code: `GET https://management.azure.com/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.CognitiveServices/accounts/{accountName}/deployments?api-version=2023-05-01\n`,
+          },
+          { caption: "ripgrep", code: searchCode(findRows) },
+        ],
+        sources: [
+          { label: "Working with Azure OpenAI models", url: AZURE_WORKING },
+          { label: "Model versions", url: AZURE_VERSIONS },
+        ],
+      },
+      {
+        heading: "Fine-tuned o4-mini dates",
+        paragraphs: [
+          `The base row for o4-mini version 2025-04-16 on the retirement schedule is Deprecated, retirement ${AZURE_NOV19_SHUTDOWN_DATE}, replacement gpt-5.6-terra. That is the shutdown date and replacement stored on the dataset row.`,
+          `The schedule's fine-tuned table lists a different pair of dates for that same version: training retirement no earlier than 2027-05-19, deployment retirement 2027-11-19. The lifecycle page's fine-tuned table lists training retirement no earlier than 2027-04-16 and deployment retirement 2027-10-16. Those two Microsoft pages do not print the same fine-tune dates. SunsetDiff keeps both in the note on the model page and does not replace the base shutdown date with either one.`,
+          `Both pages say: "${AZURE_FINE_FOOT}" The base model retirement date on the schedule is ${AZURE_NOV19_SHUTDOWN_DATE}.`,
+        ],
+        sources,
+      },
+      {
+        heading: "Test the replacement before the cutoff",
+        paragraphs: [
+          `The schedule's replacement is the target for automatic upgrades where that is supported. Call gpt-5.6-sol or gpt-5.6-terra, the one on the same row, with the prompts you send now. Do that before ${when}. A deployment set to NoAutoUpgrade will not move itself.`,
+          "codex-mini and the two November 17 gpt-chat-latest versions have no replacement on the schedule. This guide does not name one.",
+          "The [pre-migration test checklist](/guides/pre-migration-test-checklist/) is the longer list: evals, rejected fields, token limits, tools, price, and latency. These Azure rows do not store a price.",
+        ],
+        sources: [
+          { label: "Azure OpenAI retirement schedule", url: AZURE_SCHEDULE },
+          { label: "Foundry Models lifecycle", url: AZURE_RETIREMENTS },
+        ],
+      },
+    ],
+    related: [
+      { href: "/shutdowns/azure-openai-2026-11-19/", label: `Azure OpenAI shutdowns on ${when}` },
+      { href: "/providers/azure-openai/", label: "Azure OpenAI provider page" },
+      { href: "/errors/azure-openai-retired-model-410-gone/", label: "Azure OpenAI retired models return 410 Gone" },
+      { href: "/guides/find-model-ids-in-your-codebase/", label: "Find model ids in your codebase" },
+      { href: "/guides/pre-migration-test-checklist/", label: "Pre-migration test checklist" },
+      { href: "/scan/", label: "Scan retiring ids" },
+    ],
+    faqs: [
+      {
+        question: `Which Azure OpenAI versions retire on ${when}?`,
+        answer: `The dataset lists ${idList(rows)} with shutdown date ${AZURE_NOV19_SHUTDOWN_DATE}. The retirement schedule lists those versions as Deprecated with that retirement date.`,
+      },
+      {
+        question: "What is the official replacement?",
+        answer: `${replacementFaq(rows, catalog)} The schedule says: "${AZURE_REPLACEMENT_COL}"`,
+      },
+      {
+        question: "What does Azure return after retirement?",
+        answer: `The lifecycle page says a Retired model is removed from service and: "${AZURE_RETIRED}" See [Azure OpenAI retired models return 410 Gone](/errors/azure-openai-retired-model-410-gone/).`,
+      },
+      {
+        question: "Will every deployment upgrade itself?",
+        answer: `The lifecycle page says: "${AZURE_AUTO}" And: "${AZURE_PROVISIONED}" Working with models says: "${AZURE_STANDARD_ONLY}" NoAutoUpgrade means: "${AZURE_NO_AUTO}" ${AZURE_NULL}`,
+      },
+      {
+        question: "How do I find deployments that still use these versions?",
+        answer: `Working with models says: "${AZURE_LIST}" Read properties.model.name and properties.model.version. The model versions page says: "${AZURE_PORTAL}"`,
+      },
+      {
+        question: "What about codex-mini and gpt-chat-latest?",
+        answer: `codex-mini 2025-05-16 has shutdown date ${AZURE_CODEX_MINI_DATE} and no stored replacement. ${idList(chat)} have shutdown date ${AZURE_CHAT_LATEST_DATE} and no stored replacement. The lifecycle page says ${AZURE_PREVIEW_END}`,
+      },
+      {
+        question: "Does the o4-mini fine-tune date replace November 19, 2026?",
+        answer: `No. The stored shutdown date is the base row, ${AZURE_NOV19_SHUTDOWN_DATE}, replacement gpt-5.6-terra. The schedule's fine-tune deployment date is 2027-11-19. The lifecycle page's fine-tune deployment date is 2027-10-16. Both pages say: "${AZURE_FINE_FOOT}"`,
+      },
+    ],
+    citations: [AZURE_SCHEDULE, AZURE_RETIREMENTS, AZURE_WORKING, AZURE_VERSIONS],
+  };
+}
+
+function copilotNov16Guide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePage {
+  const when = longDate(COPILOT_NOV16_SHUTDOWN_DATE);
+  const checked = "2026-10-31";
+  const sources = [
+    { label: "GitHub Changelog, October 15, 2026", url: COPILOT_CHANGELOG },
+    { label: "Supported AI models in GitHub Copilot", url: COPILOT_SUPPORTED },
+  ];
+  return {
+    slug: COPILOT_NOV16_GUIDE_SLUG,
+    title: `GitHub Copilot model retirements on ${when} | SunsetDiff`,
+    description: `GitHub's changelog deprecates Claude Opus 4.8, Claude Opus 5, and GPT-5.6 Terra in Copilot on ${COPILOT_NOV16_SHUTDOWN_DATE}. Opus alternatives are Claude Opus 5.5. GPT-5.6 Terra lists GPT-6.1 Sol or GPT-6 Luna.`,
+    h1: `GitHub Copilot model retirements on ${when}`,
+    summary: `The GitHub Copilot models in the dataset with shutdown date ${COPILOT_NOV16_SHUTDOWN_DATE}, the suggested alternative on the changelog, and where to change the picker and model policy.`,
+    answer: `The dataset has ${rows.length} GitHub Copilot models with shutdown date ${COPILOT_NOV16_SHUTDOWN_DATE}: ${idList(rows)}. GitHub's October 15, 2026 changelog says it will deprecate them across Copilot Chat, inline edits, ask and agent modes, and code completions on November 16th, 2026. Claude Opus 4.8 and Claude Opus 5 list Claude Opus 5.5. GPT-5.6 Terra lists GPT-6.1 Sol or GPT-6 Luna. Claude Opus 4.8 stays available to individual subscribers on annual plans. The supported models table still lists these three names. Its retirement history table does not.`,
+    checked,
+    steps: [
+      {
+        name: "Read the three names",
+        text: `The table is every GitHub Copilot model in the dataset whose shutdown date is ${COPILOT_NOV16_SHUTDOWN_DATE}. The replacement cell is the suggested alternative stored from the changelog. Open the model page before you change a picker or a config file.`,
+      },
+      {
+        name: "Switch the chat picker",
+        text: "In Visual Studio Code, open Copilot Chat and use the model dropdown at the bottom of the chat view. A Copilot Business subscription can switch only if the organization allows it. Changing the chat model does not change the model used for inline suggestions.",
+      },
+      {
+        name: "Check the org model policy",
+        text: "Organization owners open Settings, Copilot, Models. Enabled means members can use the model. Disabled means they cannot. If the enterprise turned on the teams preview, the organization page says it cannot open those settings.",
+      },
+      {
+        name: "Update hard-coded names",
+        text: "Search workflows, custom agent files, Copilot CLI --model flags, COPILOT_MODEL, .github/copilot/settings.json, and .github/allowed_models.txt for the three names. The changelog says to update workflows and integrations before the date.",
+      },
+    ],
+    sections: [
+      {
+        heading: "Models retiring",
+        paragraphs: [
+          `These rows are every GitHub Copilot model in the dataset with shutdown date ${COPILOT_NOV16_SHUTDOWN_DATE}. The model id links to its SunsetDiff model page. Deprecation date, shutdown date, and replacement are the fields stored on that row. Not published means the field is empty. These rows do not store a deprecation_date. The changelog prints the date in the deprecation date column of its table.`,
+          `GitHub's changelog says: "${COPILOT_DEPRECATE}" The suggested alternative for Claude Opus 4.8 and for Claude Opus 5 is Claude Opus 5.5. For GPT-5.6 Terra the cell says GPT-6.1 Sol or GPT-6 Luna. The changelog does not prefer one of those two.`,
+          `The same post says: "${COPILOT_ANNUAL}" That sentence names Claude Opus 4.8 only. It does not say the same for Claude Opus 5 or GPT-5.6 Terra.`,
+          `The supported models page says: "${COPILOT_SUBJECT}" Its supported models table still lists Claude Opus 4.8, Claude Opus 5, and GPT-5.6 Terra. The retirement history table on that page does not list those three names. The date in this guide is the date on the changelog.`,
+        ],
+        table: {
+          caption: `${rows.length} GitHub Copilot models with shutdown date ${COPILOT_NOV16_SHUTDOWN_DATE}.`,
+          headers: ["Model", "Deprecation date", "Shutdown date", "Suggested alternative"],
+          rows: tableRows(rows, catalog),
+        },
+        sources,
+      },
+      {
+        heading: "What Copilot users see",
+        paragraphs: [
+          `The changelog says: "${COPILOT_DEPRECATE}" The surfaces it names are Copilot Chat, inline edits, ask and agent modes, and code completions.`,
+          `It also says: "${COPILOT_SELECTOR}" And: "${COPILOT_NO_ACTION}"`,
+          `The chat model page says: "${COPILOT_CHAT_CHANGE}" And: "${COPILOT_BUSINESS}" And: "${COPILOT_NOT_INLINE}" And: "${COPILOT_EXTENSIONS}"`,
+          "In Visual Studio Code, open Copilot Chat from the chat icon in the title bar. At the bottom of the chat view, open the model dropdown and click the model you want. For inline suggestions in Visual Studio Code, open the command palette and run GitHub Copilot: Change Completions Model. The inline page says you can switch when an alternative model is currently available.",
+        ],
+        sources: [
+          { label: "GitHub Changelog, October 15, 2026", url: COPILOT_CHANGELOG },
+          { label: "Changing the AI model for Copilot Chat", url: COPILOT_CHAT_MODEL },
+          { label: "Changing the AI model for inline suggestions", url: COPILOT_INLINE },
+        ],
+      },
+      {
+        heading: "What org admins change",
+        paragraphs: [
+          `The changelog says: "${COPILOT_UPDATE}" Then: "${COPILOT_DEFAULT}" Then: "${COPILOT_POLICIES}"`,
+          `The organization models page says: "${COPILOT_TEAMS_PREVIEW}" When the organization can open the page, the path is: profile picture, Organizations, the organization, Settings, Copilot, Models. Next to a model, Enabled means: "${COPILOT_ORG_ENABLED}" Disabled means: "${COPILOT_ORG_DISABLED}" The same page says you can set the Default availability for released models policy for models nobody has configured.`,
+          "The batch of stored rows is [GitHub Copilot shutdowns on November 16, 2026](/shutdowns/github-copilot-2026-11-16/). The provider page is [GitHub Copilot](/providers/github-copilot/).",
+        ],
+        sources: [
+          { label: "GitHub Changelog, October 15, 2026", url: COPILOT_CHANGELOG },
+          { label: "Managing the availability of models in an organization", url: COPILOT_ORG_MODELS },
+        ],
+      },
+      {
+        heading: "Tools with a hard-coded model list",
+        paragraphs: [
+          `The changelog says: "${COPILOT_UPDATE}" The chat model page says: "${COPILOT_EXTENSIONS}" A tool that still sends one of these three names can keep doing so after the picker shows a different model.`,
+          `The custom agents reference says the model property is: "${COPILOT_AGENT_MODEL}" That property is for agent profiles on GitHub.com, in the Copilot CLI, and in supported IDEs.`,
+          `The Copilot CLI command reference says: "${COPILOT_CLI_FLAG}" And: "${COPILOT_CLI_SLASH}" Its supported models table lists claude-opus-5.5, gpt-6.1-sol, and gpt-6-luna. It does not list Claude Opus 4.8, Claude Opus 5, or GPT-5.6 Terra.`,
+          `The CLI configuration reference says a repository file .github/copilot/settings.json can set model, described as: "${COPILOT_REPO_MODEL}" The same page says: "${COPILOT_ALLOWLIST}" Each line is a model id or a glob. A fallback: line names the model to use when the requested model is not allowed. The allowlist covers built-in models.`,
+          "Search the repository for the three names in the table. A hit in a workflow, an agent file, a settings file, or a script is a candidate. [How to find every model ID in your codebase](/guides/find-model-ids-in-your-codebase/) covers SDK argument names. The [scan page](/scan/) builds a search from dataset ids that have a shutdown date. The supported models page lists these as display names and does not publish a separate API id.",
+        ],
+        codes: [{ caption: "ripgrep", code: searchCode(rows) }],
+        sources: [
+          { label: "GitHub Changelog, October 15, 2026", url: COPILOT_CHANGELOG },
+          { label: "Changing the AI model for Copilot Chat", url: COPILOT_CHAT_MODEL },
+          { label: "Custom agents configuration", url: COPILOT_AGENTS },
+          { label: "GitHub Copilot CLI command reference", url: COPILOT_CLI },
+          { label: "GitHub Copilot CLI configuration directory", url: COPILOT_CLI_CONFIG },
+          { label: "Supported AI models in GitHub Copilot", url: COPILOT_SUPPORTED },
+        ],
+      },
+    ],
+    related: [
+      { href: "/shutdowns/github-copilot-2026-11-16/", label: `GitHub Copilot shutdowns on ${when}` },
+      { href: "/providers/github-copilot/", label: "GitHub Copilot provider page" },
+      { href: "/models/github-copilot/claude-opus-5-5/", label: "Claude Opus 5.5" },
+      { href: "/models/github-copilot/gpt-6-1-sol/", label: "GPT-6.1 Sol" },
+      { href: "/models/github-copilot/gpt-6-luna/", label: "GPT-6 Luna" },
+      { href: "/guides/find-model-ids-in-your-codebase/", label: "Find model ids in your codebase" },
+      { href: "/guides/pre-migration-test-checklist/", label: "Pre-migration test checklist" },
+      { href: "/scan/", label: "Scan retiring ids" },
+    ],
+    faqs: [
+      {
+        question: `Which Copilot models retire on ${when}?`,
+        answer: `The dataset lists ${idList(rows)} with shutdown date ${COPILOT_NOV16_SHUTDOWN_DATE}. The changelog says: "${COPILOT_DEPRECATE}"`,
+      },
+      {
+        question: "What does GitHub suggest instead?",
+        answer: `${replacementFaq(rows, catalog)} The changelog writes GPT-6.1 Sol or GPT-6 Luna for GPT-5.6 Terra and does not prefer one. Claude Opus 4.8 and Claude Opus 5 both list Claude Opus 5.5.`,
+      },
+      {
+        question: "Does Claude Opus 4.8 retire for every subscriber?",
+        answer: `The changelog says: "${COPILOT_ANNUAL}" That exception names Claude Opus 4.8. The same sentence is not printed for Claude Opus 5 or GPT-5.6 Terra.`,
+      },
+      {
+        question: "Where do I switch the model?",
+        answer: `The chat model page says: "${COPILOT_CHAT_CHANGE}" In Visual Studio Code the dropdown is at the bottom of the chat view. The same page says: "${COPILOT_NOT_INLINE}" Inline suggestions in Visual Studio Code use the command GitHub Copilot: Change Completions Model. The changelog says: "${COPILOT_SELECTOR}"`,
+      },
+      {
+        question: "What does an org admin change?",
+        answer: `The changelog says: "${COPILOT_DEFAULT}" And: "${COPILOT_POLICIES}" The organization page says Enabled means: "${COPILOT_ORG_ENABLED}" Disabled means: "${COPILOT_ORG_DISABLED}" It also says: "${COPILOT_TEAMS_PREVIEW}"`,
+      },
+      {
+        question: "What if a tool hard-codes the model name?",
+        answer: `The changelog says: "${COPILOT_UPDATE}" The chat page says: "${COPILOT_EXTENSIONS}" Custom agents have a model property. The CLI accepts --model and COPILOT_MODEL. A repo can pin model in .github/copilot/settings.json and can list model ids in .github/allowed_models.txt. The CLI command reference does not list these three names in its supported models table.`,
+      },
+      {
+        question: "Does the supported models page list November 16, 2026 for these models?",
+        answer: `No. The supported models table still lists the three names, and the retirement history table does not list them. The page says: "${COPILOT_SUBJECT}" The November 16, 2026 date is on the October 15, 2026 changelog.`,
+      },
+    ],
+    citations: [
+      COPILOT_CHANGELOG,
+      COPILOT_SUPPORTED,
+      COPILOT_CHAT_MODEL,
+      COPILOT_INLINE,
+      COPILOT_ORG_MODELS,
+      COPILOT_CLI,
+      COPILOT_AGENTS,
+      COPILOT_CLI_CONFIG,
     ],
   };
 }
