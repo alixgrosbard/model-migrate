@@ -1,10 +1,16 @@
 import type { ModelRecord } from "../schema.ts";
 import { aliasSnapshotView } from "./aliases.ts";
 import {
+  AZURE_NOV19_GUIDE_SLUG,
   BEDROCK_NOV13_GUIDE_SLUG,
+  COPILOT_NOV16_GUIDE_SLUG,
   DECEMBER_11_GUIDE_SLUG,
   datasetShutdownGuides,
+  isAzureChatLatestNov17,
+  isAzureCodexMini,
+  isAzureNov19OSeries,
   isBedrockNov13Shutdown,
+  isCopilotNov16Shutdown,
   isDecember11OpenAiShutdown,
   isJanuary2027Gpt4Shutdown,
   isMinimaxNov18Shutdown,
@@ -2414,6 +2420,8 @@ export function guidesForModel(model: ModelRecord, catalog: ModelRecord[]): Mode
   if (isBedrockNov13Shutdown(model) || (model.provider === "aws-bedrock" && model.id === "anthropic.claude-3-haiku-20240307-v1:0")) {
     add(BEDROCK_NOV13_GUIDE_SLUG);
   }
+  if (isAzureNov19OSeries(model) || isAzureCodexMini(model) || isAzureChatLatestNov17(model)) add(AZURE_NOV19_GUIDE_SLUG);
+  if (isCopilotNov16Shutdown(model)) add(COPILOT_NOV16_GUIDE_SLUG);
   if (model.provider === "nvidia") add("nvidia-hosted-api-vs-nim-containers");
   if (aliasSnapshotView(model, catalog)) add("model-aliases-vs-pinned-snapshots");
   if (model.shutdown_date && model.shutdown_date_kind !== "none") {

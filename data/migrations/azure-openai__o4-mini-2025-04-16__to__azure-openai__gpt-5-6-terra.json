@@ -67,13 +67,13 @@
       "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule",
       "label": "Azure OpenAI retirement schedule",
       "last_checked": "2026-10-31",
-      "excerpt": "o4-mini | 2025-04-16 | No earlier than 2027-05-191 | 2027-11-19"
+      "excerpt": "o4-mini | 2025-04-16 | No earlier than 2027-05-19 | 2027-11-19"
     },
     {
       "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirements",
       "label": "Azure OpenAI model retirements",
       "last_checked": "2026-10-31",
-      "excerpt": "o4-mini | 2025-04-16 | No earlier than 2027-04-161 | 2027-10-16"
+      "excerpt": "o4-mini | 2025-04-16 | No earlier than 2027-04-16 | 2027-10-16"
     },
     {
       "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule",

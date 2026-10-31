@@ -44,6 +44,8 @@ const ALLOWED_HOSTS = new Set([
   "deepseek.com",
   "console.groq.com",
   "platform.minimax.io",
+  "docs.github.com",
+  "github.blog",
 ]);
 
 describe("guides", () => {
@@ -410,5 +412,110 @@ describe("guides", () => {
     const shutdownPage = readFileSync("src/pages/shutdowns/[slug].astro", "utf8");
     expect(providerPage).toContain("/guides/amazon-bedrock-claude-3-shutdown-november-13-2026/");
     expect(shutdownPage).toContain("amazon-bedrock-claude-3-shutdown-november-13-2026");
+  });
+
+  it("builds the Azure OpenAI November 19 guide from the dataset", async () => {
+    const models = await loadModels();
+    const rows = models
+      .filter((model) => model.provider === "azure-openai" && model.shutdown_date === "2026-11-19")
+      .sort((a, b) => a.id.localeCompare(b.id));
+    expect(rows.map((model) => model.id)).toEqual([
+      "o1-2024-12-17",
+      "o1-pro-2025-03-19",
+      "o3-2025-04-16",
+      "o3-deep-research-2025-06-26",
+      "o3-mini-2025-01-31",
+      "o3-pro-2025-06-10",
+      "o4-mini-2025-04-16",
+    ]);
+    const guide = guides.find((item) => item.slug === "azure-openai-o-series-retirement-november-19-2026");
+    expect(guide).toBeTruthy();
+    if (!guide) return;
+    expect(guidePath(guide.slug)).toBe("/guides/azure-openai-o-series-retirement-november-19-2026/");
+    expect(guideChecked(guide)).toBe("2026-10-31");
+    expect(guide.h1).toContain("November 19, 2026");
+    const table = guide.sections.find((section) => section.heading === "Models retiring on November 19")?.table;
+    expect(table?.headers).toEqual(["Model id", "Deprecation date", "Shutdown date", "Recommended replacement"]);
+    expect(table?.rows.map((row) => row[0])).toEqual(
+      rows.map((model) => `[${model.id}](/models/${model.provider}/${model.slug}/)`),
+    );
+    expect(table?.rows.map((row) => row[3])).toEqual([
+      "[gpt-5.6-sol](/models/azure-openai/gpt-5-6-sol/)",
+      "[gpt-5.6-sol](/models/azure-openai/gpt-5-6-sol/)",
+      "[gpt-5.6-sol](/models/azure-openai/gpt-5-6-sol/)",
+      "[gpt-5.6-sol](/models/azure-openai/gpt-5-6-sol/)",
+      "[gpt-5.6-terra](/models/azure-openai/gpt-5-6-terra/)",
+      "[gpt-5.6-sol](/models/azure-openai/gpt-5-6-sol/)",
+      "[gpt-5.6-terra](/models/azure-openai/gpt-5-6-terra/)",
+    ]);
+    const nearby = guide.sections.find((section) => section.heading.startsWith("codex-mini"))?.table;
+    expect(nearby?.rows.map((row) => row[2])).toEqual(["2026-11-15", "2026-11-17", "2026-11-17"]);
+    expect(nearby?.rows.every((row) => row[3] === "Not published")).toBe(true);
+    const blob = JSON.stringify(guide);
+    expect(blob).toContain("All inference requests return 410 Gone.");
+    expect(blob).toContain("Provisioned deployments are NOT auto-upgraded.");
+    expect(blob).toContain("The model deployment never automatically upgrades.");
+    expect(blob).toContain("https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule");
+    expect(blob).toContain("https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirements");
+    expect(blob).toContain("https://learn.microsoft.com/en-us/azure/foundry/openai/how-to/working-with-models");
+    expect(blob).toContain("/errors/azure-openai-retired-model-410-gone/");
+    expect(blob).toContain("/shutdowns/azure-openai-2026-11-19/");
+    expect(blob).toContain("2027-11-19");
+    expect(blob).toContain("2027-10-16");
+    expect(blob).not.toContain("2027-05-191");
+    expect(sitemapSection(guidePath(guide.slug))).toBe("sitemap-guides.xml");
+    expect(guidesForModel(rows[0], models).map((link) => link.href)).toContain(guidePath(guide.slug));
+    const codex = models.find((model) => model.id === "codex-mini-2025-05-16" && model.provider === "azure-openai");
+    expect(guidesForModel(codex!, models).map((link) => link.href)).toContain(guidePath(guide.slug));
+    const graph = guideGraph("https://sunsetdiff.com/", guide);
+    expect(graph.some((node) => node["@type"] === "FAQPage")).toBe(true);
+    const providerPage = readFileSync("src/pages/providers/[provider].astro", "utf8");
+    const shutdownPage = readFileSync("src/pages/shutdowns/[slug].astro", "utf8");
+    expect(providerPage).toContain("/guides/azure-openai-o-series-retirement-november-19-2026/");
+    expect(shutdownPage).toContain("azure-openai-o-series-retirement-november-19-2026");
+    const text = llmsTxt("https://sunsetdiff.com", [], []);
+    expect(text).toContain("/guides/azure-openai-o-series-retirement-november-19-2026/");
+  });
+
+  it("builds the GitHub Copilot November 16 guide from the dataset", async () => {
+    const models = await loadModels();
+    const rows = models
+      .filter((model) => model.provider === "github-copilot" && model.shutdown_date === "2026-11-16")
+      .sort((a, b) => a.id.localeCompare(b.id));
+    expect(rows.map((model) => model.id)).toEqual(["Claude Opus 4.8", "Claude Opus 5", "GPT-5.6 Terra"]);
+    const guide = guides.find((item) => item.slug === "github-copilot-model-retirements-november-16-2026");
+    expect(guide).toBeTruthy();
+    if (!guide) return;
+    expect(guidePath(guide.slug)).toBe("/guides/github-copilot-model-retirements-november-16-2026/");
+    expect(guideChecked(guide)).toBe("2026-10-31");
+    expect(guide.h1).toContain("November 16, 2026");
+    const table = guide.sections.find((section) => section.heading === "Models retiring")?.table;
+    expect(table?.rows.map((row) => row[0])).toEqual(
+      rows.map((model) => `[${model.id}](/models/${model.provider}/${model.slug}/)`),
+    );
+    expect(table?.rows.map((row) => row[3])).toEqual([
+      "[Claude Opus 5.5](/models/github-copilot/claude-opus-5-5/)",
+      "[Claude Opus 5.5](/models/github-copilot/claude-opus-5-5/)",
+      "[GPT-6.1 Sol](/models/github-copilot/gpt-6-1-sol/), [GPT-6 Luna](/models/github-copilot/gpt-6-luna/)",
+    ]);
+    const blob = JSON.stringify(guide);
+    expect(blob).toContain("on November 16th, 2026");
+    expect(blob).toContain("does not apply to these customers");
+    expect(blob).toContain("Copilot Chat model selector");
+    expect(blob).toContain("Change Completions Model");
+    expect(blob).toContain(".github/allowed_models.txt");
+    expect(blob).toContain("https://github.blog/changelog/2026-10-15-upcoming-deprecation-of-selected-github-copilot-models-in-mid-november");
+    expect(blob).toContain("https://docs.github.com/en/copilot/reference/ai-models/supported-models");
+    expect(blob).toContain("/shutdowns/github-copilot-2026-11-16/");
+    expect(blob).toContain("/providers/github-copilot/");
+    expect(blob).toContain("retirement history table does not");
+    expect(sitemapSection(guidePath(guide.slug))).toBe("sitemap-guides.xml");
+    expect(guidesForModel(rows[0], models).map((link) => link.href)).toContain(guidePath(guide.slug));
+    const graph = guideGraph("https://sunsetdiff.com/", guide);
+    expect(graph.some((node) => node["@type"] === "FAQPage")).toBe(true);
+    const providerPage = readFileSync("src/pages/providers/[provider].astro", "utf8");
+    const shutdownPage = readFileSync("src/pages/shutdowns/[slug].astro", "utf8");
+    expect(providerPage).toContain("/guides/github-copilot-model-retirements-november-16-2026/");
+    expect(shutdownPage).toContain("github-copilot-model-retirements-november-16-2026");
   });
 });

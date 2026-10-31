@@ -9,7 +9,7 @@
   "deprecation_date": null,
   "shutdown_date": "2027-04-14",
   "shutdown_date_kind": "exact",
-  "region_or_platform_notes": "Training retirement: No earlier than 2027-04-141. Deployment retirement: 2027-10-14. Fine-tuned deployments: training retirement No earlier than 2027-04-141 (not_before); deployment retirement 2027-10-14.",
+  "region_or_platform_notes": "Training retirement: No earlier than 2027-04-14. Deployment retirement: 2027-10-14. Fine-tuned deployments: training retirement No earlier than 2027-04-14 (not_before); deployment retirement 2027-10-14.",
   "replacements": [],
   "sources": [
     {
@@ -22,13 +22,13 @@
       "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule",
       "label": "Azure OpenAI retirement schedule",
       "last_checked": "2026-10-31",
-      "excerpt": "gpt-4.1 | 2025-04-14 | No earlier than 2027-04-141 | 2027-10-14"
+      "excerpt": "gpt-4.1 | 2025-04-14 | No earlier than 2027-04-14 | 2027-10-14"
     },
     {
       "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirements",
       "label": "Azure OpenAI model retirements",
       "last_checked": "2026-10-31",
-      "excerpt": "gpt-4.1 | 2025-04-14 | No earlier than 2027-04-141 | 2027-10-14"
+      "excerpt": "gpt-4.1 | 2025-04-14 | No earlier than 2027-04-14 | 2027-10-14"
     }
   ],
   "specs": {
