@@ -1,0 +1,73 @@
+{
+  "from": {
+    "provider": "openai",
+    "model_id": "whisper-1",
+    "slug": "whisper-1"
+  },
+  "to": {
+    "provider": "openai",
+    "model_id": "gpt-transcribe",
+    "slug": "gpt-transcribe"
+  },
+  "price_diff": {
+    "input_pct_change": null,
+    "output_pct_change": null,
+    "example_monthly_cost_old": null,
+    "example_monthly_cost_new": null,
+    "currency": "USD",
+    "example_label": "Example monthly cost for 10M input tokens and 2M output tokens. Labeled example, not a bill."
+  },
+  "context_diff": {
+    "old_tokens": null,
+    "new_tokens": null,
+    "change_pct": null
+  },
+  "max_output_diff": {
+    "old_tokens": null,
+    "new_tokens": null,
+    "change_pct": null
+  },
+  "capability_changes": [],
+  "api_changes": [],
+  "code_change": {
+    "language": "python",
+    "before": "from openai import OpenAI\nclient = OpenAI()\naudio_file = open(\"audio.wav\", \"rb\")\ntranscription = client.audio.transcriptions.create(\n    model=\"whisper-1\", file=audio_file\n)\n",
+    "after": "from openai import OpenAI\nclient = OpenAI()\naudio_file = open(\"audio.wav\", \"rb\")\ntranscription = client.audio.transcriptions.create(\n    model=\"gpt-transcribe\", file=audio_file\n)\n",
+    "snippets": {
+      "python": {
+        "before": "from openai import OpenAI\nclient = OpenAI()\naudio_file = open(\"audio.wav\", \"rb\")\ntranscription = client.audio.transcriptions.create(\n    model=\"whisper-1\", file=audio_file\n)\n",
+        "after": "from openai import OpenAI\nclient = OpenAI()\naudio_file = open(\"audio.wav\", \"rb\")\ntranscription = client.audio.transcriptions.create(\n    model=\"gpt-transcribe\", file=audio_file\n)\n"
+      },
+      "typescript": {
+        "before": "import fs from \"fs\";\nimport OpenAI from \"openai\";\nconst openai = new OpenAI();\nconst transcription = await openai.audio.transcriptions.create({\n  file: fs.createReadStream(\"audio.mp3\"),\n  model: \"whisper-1\",\n});\n",
+        "after": "import fs from \"fs\";\nimport OpenAI from \"openai\";\nconst openai = new OpenAI();\nconst transcription = await openai.audio.transcriptions.create({\n  file: fs.createReadStream(\"audio.mp3\"),\n  model: \"gpt-transcribe\",\n});\n"
+      },
+      "curl": {
+        "before": "curl --request POST \\\n  --url https://api.openai.com/v1/audio/transcriptions \\\n  --header \"Authorization: Bearer $OPENAI_API_KEY\" \\\n  --header \"Content-Type: multipart/form-data\" \\\n  --form file=@/path/to/file/audio.mp3 \\\n  --form model=whisper-1\n",
+        "after": "curl --request POST \\\n  --url https://api.openai.com/v1/audio/transcriptions \\\n  --header \"Authorization: Bearer $OPENAI_API_KEY\" \\\n  --header \"Content-Type: multipart/form-data\" \\\n  --form file=@/path/to/file/audio.mp3 \\\n  --form model=gpt-transcribe\n"
+      }
+    }
+  },
+  "migration_checklist": [
+    "Read the shutdown date for whisper-1 on the linked official page.",
+    "Point your requests at gpt-transcribe.",
+    "Re-check price, context, and parameters on the provider pages linked here.",
+    "Ship the change before the published shutdown date."
+  ],
+  "confidence": "partial",
+  "last_checked": "2026-10-31",
+  "sources": [
+    {
+      "url": "https://developers.openai.com/api/docs/deprecations",
+      "label": "OpenAI deprecations",
+      "last_checked": "2026-10-31",
+      "excerpt": "Feb 26, 2027 | whisper-1 | gpt-live-transcribe or gpt-transcribe"
+    },
+    {
+      "url": "https://developers.openai.com/api/docs/deprecations",
+      "label": "Named as an official replacement",
+      "last_checked": "2026-10-31",
+      "excerpt": "Named as an official replacement for whisper-1. No shutdown date was published for this id on that page."
+    }
+  ]
+}

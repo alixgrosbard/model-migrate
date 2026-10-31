@@ -1,0 +1,85 @@
+{
+  "from": {
+    "provider": "azure-openai",
+    "model_id": "o4-mini-2025-04-16",
+    "slug": "o4-mini-2025-04-16"
+  },
+  "to": {
+    "provider": "azure-openai",
+    "model_id": "gpt-5.6-terra",
+    "slug": "gpt-5-6-terra"
+  },
+  "price_diff": {
+    "input_pct_change": null,
+    "output_pct_change": null,
+    "example_monthly_cost_old": null,
+    "example_monthly_cost_new": null,
+    "currency": "USD",
+    "example_label": "Example monthly cost for 10M input tokens and 2M output tokens. Labeled example, not a bill."
+  },
+  "context_diff": {
+    "old_tokens": null,
+    "new_tokens": null,
+    "change_pct": null
+  },
+  "max_output_diff": {
+    "old_tokens": null,
+    "new_tokens": null,
+    "change_pct": null
+  },
+  "capability_changes": [],
+  "api_changes": [],
+  "code_change": {
+    "language": "python",
+    "before": "from openai import OpenAI\nclient = OpenAI()\nresponse = client.chat.completions.create(\n    model=\"o4-mini-2025-04-16\",\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n)\n",
+    "after": "from openai import OpenAI\nclient = OpenAI()\nresponse = client.chat.completions.create(\n    model=\"gpt-5.6-terra\",\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n)\n",
+    "snippets": {
+      "python": {
+        "before": "from openai import OpenAI\nclient = OpenAI()\nresponse = client.chat.completions.create(\n    model=\"o4-mini-2025-04-16\",\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n)\n",
+        "after": "from openai import OpenAI\nclient = OpenAI()\nresponse = client.chat.completions.create(\n    model=\"gpt-5.6-terra\",\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n)\n"
+      },
+      "typescript": {
+        "before": "import OpenAI from \"openai\";\nconst client = new OpenAI();\nconst response = await client.chat.completions.create({\n  model: \"o4-mini-2025-04-16\",\n  messages: [{ role: \"user\", content: \"Hello\" }],\n});\n",
+        "after": "import OpenAI from \"openai\";\nconst client = new OpenAI();\nconst response = await client.chat.completions.create({\n  model: \"gpt-5.6-terra\",\n  messages: [{ role: \"user\", content: \"Hello\" }],\n});\n"
+      },
+      "curl": {
+        "before": "curl https://api.openai.com/v1/chat/completions \\\n  -H \"Authorization: Bearer $OPENAI_API_KEY\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"model\":\"o4-mini-2025-04-16\",\"messages\":[{\"role\":\"user\",\"content\":\"Hello\"}]}'\n",
+        "after": "curl https://api.openai.com/v1/chat/completions \\\n  -H \"Authorization: Bearer $OPENAI_API_KEY\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"model\":\"gpt-5.6-terra\",\"messages\":[{\"role\":\"user\",\"content\":\"Hello\"}]}'\n"
+      }
+    }
+  },
+  "migration_checklist": [
+    "Read the shutdown date for o4-mini-2025-04-16 on the linked official page.",
+    "Point your requests at gpt-5.6-terra.",
+    "Re-check price, context, and parameters on the provider pages linked here.",
+    "Ship the change before the published shutdown date."
+  ],
+  "confidence": "partial",
+  "last_checked": "2026-10-31",
+  "sources": [
+    {
+      "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule",
+      "label": "Azure OpenAI retirement schedule",
+      "last_checked": "2026-10-31",
+      "excerpt": "o4-mini | 2025-04-16 | Deprecated | 2026-11-19 | gpt-5.6-terra"
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule",
+      "label": "Azure OpenAI retirement schedule",
+      "last_checked": "2026-10-31",
+      "excerpt": "o4-mini | 2025-04-16 | No earlier than 2027-05-191 | 2027-11-19"
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirements",
+      "label": "Azure OpenAI model retirements",
+      "last_checked": "2026-10-31",
+      "excerpt": "o4-mini | 2025-04-16 | No earlier than 2027-04-161 | 2027-10-16"
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule",
+      "label": "Named as an official replacement",
+      "last_checked": "2026-10-31",
+      "excerpt": "Named as an official replacement for o3-mini-2025-01-31. No shutdown date was published for this id on that page."
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "id": "openai/gpt-oss-safeguard-20b",
+  "slug": "openai-gpt-oss-safeguard-20b",
+  "provider": "groq",
+  "display_name": "openai/gpt-oss-safeguard-20b",
+  "family": null,
+  "status": "active",
+  "announced_date": null,
+  "deprecation_date": null,
+  "shutdown_date": null,
+  "shutdown_date_kind": "none",
+  "region_or_platform_notes": "The models page lists this id under Preview Models. Preview models are intended for evaluation purposes only and should not be used in production environments as they may be discontinued at short notice. No shutdown date is published.",
+  "replacements": [],
+  "sources": [
+    {
+      "url": "https://console.groq.com/docs/models",
+      "label": "Groq supported models",
+      "last_checked": "2026-10-31",
+      "excerpt": "openai/gpt-oss-safeguard-20b | preview | context 131072 | max completion 65536 | input $0.075 | output $0.3"
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": 0.075,
+    "output_price_per_mtok": 0.3,
+    "cached_input_price_per_mtok": null,
+    "batch_discount_pct": null,
+    "currency": "USD",
+    "context_window_tokens": 131072,
+    "max_output_tokens": 65536,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {
+      "context_window_tokens": {
+        "url": "https://console.groq.com/docs/models",
+        "last_checked": "2026-10-31"
+      },
+      "input_price_per_mtok": {
+        "url": "https://console.groq.com/docs/models",
+        "last_checked": "2026-10-31"
+      },
+      "max_output_tokens": {
+        "url": "https://console.groq.com/docs/models",
+        "last_checked": "2026-10-31"
+      },
+      "output_price_per_mtok": {
+        "url": "https://console.groq.com/docs/models",
+        "last_checked": "2026-10-31"
+      }
+    }
+  },
+  "first_seen": "2026-10-26T12:00:00.000Z",
+  "updated_at": "2026-10-26T12:00:00.000Z"
+}

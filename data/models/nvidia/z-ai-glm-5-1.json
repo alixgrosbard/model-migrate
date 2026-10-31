@@ -1,0 +1,45 @@
+{
+  "id": "z-ai/glm-5.1",
+  "slug": "z-ai-glm-5-1",
+  "provider": "nvidia",
+  "display_name": "z-ai/glm-5.1",
+  "family": null,
+  "status": "active",
+  "announced_date": null,
+  "deprecation_date": null,
+  "shutdown_date": null,
+  "shutdown_date_kind": "none",
+  "region_or_platform_notes": "Named as the successor for z-ai/glm5. The notice does not publish a shutdown date for this id. https://build.nvidia.com/z-ai/glm-5.1 did not show the NIM endpoint deprecation sentence on 2026-10-27.",
+  "replacements": [],
+  "sources": [
+    {
+      "url": "https://github.com/NVIDIA/NemoClaw/commit/db665834691ecf35c55deaa6f64c9227463ef080",
+      "label": "NVIDIA NemoClaw commit migrating GLM-5",
+      "last_checked": "2026-10-27",
+      "excerpt": "Swap every curated z-ai/glm5 reference to z-ai/glm-5.1 ahead of the May 9, 2026 full-deprecation date."
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": null,
+    "output_price_per_mtok": null,
+    "cached_input_price_per_mtok": null,
+    "batch_discount_pct": null,
+    "currency": null,
+    "context_window_tokens": null,
+    "max_output_tokens": null,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {}
+  },
+  "first_seen": "2026-10-27T12:00:00.000Z",
+  "updated_at": "2026-10-27T12:00:00.000Z"
+}

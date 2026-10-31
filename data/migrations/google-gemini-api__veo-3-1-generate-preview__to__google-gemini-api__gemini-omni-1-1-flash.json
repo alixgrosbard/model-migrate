@@ -1,0 +1,79 @@
+{
+  "from": {
+    "provider": "google-gemini-api",
+    "model_id": "veo-3.1-generate-preview",
+    "slug": "veo-3-1-generate-preview"
+  },
+  "to": {
+    "provider": "google-gemini-api",
+    "model_id": "gemini-omni-1.1-flash",
+    "slug": "gemini-omni-1-1-flash"
+  },
+  "price_diff": {
+    "input_pct_change": null,
+    "output_pct_change": null,
+    "example_monthly_cost_old": null,
+    "example_monthly_cost_new": 33,
+    "currency": "USD",
+    "example_label": "Example monthly cost for 10M input tokens and 2M output tokens. Labeled example, not a bill."
+  },
+  "context_diff": {
+    "old_tokens": null,
+    "new_tokens": null,
+    "change_pct": null
+  },
+  "max_output_diff": {
+    "old_tokens": null,
+    "new_tokens": null,
+    "change_pct": null
+  },
+  "capability_changes": [],
+  "api_changes": [
+    {
+      "kind": "endpoint_change",
+      "detail": "The Veo guide's samples call client.models.generate_videos and POST https://generativelanguage.googleapis.com/v1beta/models/{id}:predictLongRunning with a Veo model id. The same page says to migrate to gemini-omni-1.1-flash and says this feature is currently only available with the generateContent API. No generate_videos sample for gemini-omni-1.1-flash was found on that page, so this page does not show a model-id swap.",
+      "source_url": "https://ai.google.dev/gemini-api/docs/veo"
+    }
+  ],
+  "code_change": {
+    "language": "python",
+    "before": "",
+    "after": "",
+    "snippets": {
+      "python": {
+        "before": "",
+        "after": ""
+      },
+      "typescript": {
+        "before": "",
+        "after": ""
+      },
+      "curl": {
+        "before": "",
+        "after": ""
+      }
+    }
+  },
+  "migration_checklist": [
+    "Read the shutdown date for veo-3.1-generate-preview on the linked official page.",
+    "Point your requests at gemini-omni-1.1-flash.",
+    "Re-check price, context, and parameters on the provider pages linked here.",
+    "Ship the change before the published shutdown date."
+  ],
+  "confidence": "partial",
+  "last_checked": "2026-10-31",
+  "sources": [
+    {
+      "url": "https://ai.google.dev/gemini-api/docs/deprecations",
+      "label": "Gemini API deprecations",
+      "last_checked": "2026-10-31",
+      "excerpt": "veo-3.1-generate-preview | October 15, 2025 | October 22, 2026 | gemini-omni-1.1-flash"
+    },
+    {
+      "url": "https://ai.google.dev/gemini-api/docs/deprecations",
+      "label": "Gemini API deprecations",
+      "last_checked": "2026-10-31",
+      "excerpt": "gemini-omni-1.1-flash | August 27, 2026 | No shutdown date announced"
+    }
+  ]
+}

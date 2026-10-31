@@ -1,0 +1,703 @@
+import { readdirSync, readFileSync } from "node:fs";
+import { describe, expect, it } from "vitest";
+import { newestRollingName, snapshotsToPrune } from "../scrapers/lib/fetch.ts";
+import { parseAnthropic } from "../scrapers/anthropic.ts";
+import { parseAzure } from "../scrapers/azure-openai.ts";
+import { parseBedrock } from "../scrapers/aws-bedrock.ts";
+import { DEPRECATIONS_URL, parseGemini } from "../scrapers/google-gemini-api.ts";
+import { parseDeepSeek, UPDATES_URL as DEEPSEEK_UPDATES } from "../scrapers/deepseek.ts";
+import { DEPRECATIONS_URL as GROQ_DEPRECATIONS, MODELS_URL as GROQ_MODELS, parseGroq } from "../scrapers/groq.ts";
+import { buildMigration } from "../scrapers/migrations.ts";
+import { modelSchema } from "../src/schema.ts";
+import { parseMistral } from "../scrapers/mistral.ts";
+import { parseOpenAI } from "../scrapers/openai.ts";
+import { parseVertex } from "../scrapers/google-vertex.ts";
+import { sanityCheck } from "../scrapers/sanity.ts";
+import { carryForwardDocumentedModels } from "../scrapers/carry.ts";
+import { addDocumentedOpenAIModels, applyCodexPlatformNotes, documentedOpenAIIds } from "../scrapers/openai-catalog.ts";
+import { baseModel } from "../scrapers/lib/model.ts";
+import { loadModels } from "../src/lib/load.ts";
+import { parseDate } from "../scrapers/lib/dates.ts";
+import { isModelId, loadHtml } from "../scrapers/lib/html.ts";
+import {
+  parseAnthropicModelDoc,
+  parseGeminiModelDocs,
+  parseMistralModelDoc,
+  parseOpenAIModelDoc,
+  parseVertexModelDoc,
+  parseVertexPricing,
+} from "../scrapers/docs.ts";
+
+function vertexReplacementIds(html: string, modelId: string): string[] {
+  const $ = loadHtml(html);
+  let ids: string[] = [];
+  $("table").each((_, table) => {
+    const header = $(table)
+      .find("tr")
+      .first()
+      .find("th, td")
+      .map((__, cell) => $(cell).text().toLowerCase())
+      .get();
+    const idIdx = header.findIndex((cell) => cell.includes("model id"));
+    const replaceIdx = header.findIndex((cell) => cell.includes("replacement") || cell.includes("upgrade"));
+    if (idIdx < 0 || replaceIdx < 0) return;
+    $(table)
+      .find("tr")
+      .slice(1)
+      .each((__, tr) => {
+        const cells = $(tr).find("th, td").toArray();
+        const id = $(cells[idIdx]).find("code").first().text().trim();
+        if (id !== modelId) return;
+        ids = $(cells[replaceIdx])
+          .find("code")
+          .map((___, node) => $(node).text().trim())
+          .get()
+          .filter(isModelId);
+      });
+  });
+  return ids;
+}
+
+const checked = "2026-10-17";
+const read = (file: string) => readFileSync(file, "utf8");
+const fixture = (provider: string, file: string) => `snapshots/fixtures/${provider}/${file}`;
+
+function newestSnapshot(provider: string, suffix = ""): string {
+  const dir = `snapshots/${provider}`;
+  const name = newestRollingName(readdirSync(dir), suffix);
+  if (!name) throw new Error(`No dated snapshot in ${dir}`);
+  return `${dir}/${name}`;
+}
+
+describe("official snapshots", () => {
+  it("parses OpenAI shutdown tables", () => {
+    const models = parseOpenAI(read(fixture("openai", "2026-10-17.html")), read(fixture("openai", "pricing-2026-10-17.md")), checked);
+    expect(models.length).toBeGreaterThan(40);
+    const gpt = models.find((model) => model.id === "gpt-4o-2024-08-06");
+    expect(gpt?.shutdown_date).toBe("2027-01-14");
+    expect(gpt?.replacements[0]?.model_id).toBe("gpt-6-luna");
+    expect(gpt?.sources[0]?.last_checked).toBe(checked);
+    expect(models.find((model) => model.id === "gpt-4")?.display_name).toBe("gpt-4");
+    const ids = models.flatMap((model) => [model.id, ...model.replacements.map((item) => item.model_id)]);
+    expect(ids.some((id) => id.includes("*"))).toBe(false);
+  });
+
+  it("parses Anthropic status and not-sooner-than dates", () => {
+    const models = parseAnthropic(read(fixture("anthropic", "2026-10-17.html")), read(fixture("anthropic", "pricing-2026-10-17.html")), checked);
+    expect(models.length).toBeGreaterThan(15);
+    const sonnet = models.find((model) => model.id === "claude-sonnet-4-5-20250929");
+    expect(sonnet?.status).toBe("deprecated");
+    expect(sonnet?.shutdown_date).toBe("2026-11-30");
+    expect(sonnet?.replacements[0]?.model_id).toBe("claude-sonnet-5-5");
+    expect(sonnet?.specs.input_price_per_mtok).toBe(3);
+    const fable = models.find((model) => model.id === "claude-fable-5-1");
+    expect(fable?.status).toBe("active");
+    expect(fable?.shutdown_date_kind).toBe("not_before");
+    expect(fable?.shutdown_date).toBe("2027-09-01");
+  });
+
+  it("parses Gemini, Vertex, Bedrock, Azure, and Mistral", () => {
+    const gemini = parseGemini(read(fixture("google-gemini-api", "2026-10-17.html")), read(fixture("google-gemini-api", "pricing-2026-10-17.html")), checked);
+    expect(gemini.find((model) => model.id === "gemini-2.0-flash")?.shutdown_date).toBe("2026-06-01");
+    const vertex = parseVertex(read(fixture("google-vertex", "2026-10-17.html")), checked);
+    expect(vertex.find((model) => model.id === "gemini-2.5-pro")?.shutdown_date).toBe("2026-10-20");
+    const vertexFile = newestSnapshot("google-vertex");
+    const vertexHtml = read(vertexFile);
+    const vertexNow = parseVertex(vertexHtml, vertexFile.match(/\d{4}-\d{2}-\d{2}/)?.[0] ?? checked);
+    // The refresh keeps the newest dated Vertex page and deletes older ones.
+    // This reads that newest page. The code tags are the official ids.
+    // A shorter Google list still matches, and a parser that drops one of those tags does not.
+    for (const id of ["gemini-2.5-pro", "gemini-2.5-flash", "gemini-2.5-flash-lite"]) {
+      const model = vertexNow.find((item) => item.id === id);
+      expect(model?.replacements.map((item) => item.model_id)).toEqual(vertexReplacementIds(vertexHtml, id));
+      expect(model?.replacements.every((item) => item.kind === "official" && item.provider === "google-vertex")).toBe(true);
+    }
+    const geminiNow = parseGemini(read(fixture("google-gemini-api", "2026-10-19.html")), "", "2026-10-19");
+    for (const id of ["veo-3.1-generate-preview", "veo-3.1-fast-generate-preview", "veo-3.1-lite-generate-preview"]) {
+      expect(geminiNow.find((model) => model.id === id)?.replacements.map((item) => item.model_id)).toEqual(["gemini-omni-1.1-flash"]);
+    }
+    const bedrock = parseBedrock(read(fixture("aws-bedrock", "2026-10-17-legacy.html")), checked);
+    const jamba = bedrock.find((model) => model.id === "ai21.jamba-1-5-large-v1:0");
+    expect(jamba?.deprecation_date).toBe("2026-05-26");
+    expect(jamba?.shutdown_date).toBe("2026-11-26");
+    const haiku = bedrock.filter((model) => model.id === "anthropic.claude-3-haiku-20240307-v1:0");
+    const haikuNov = haiku.find((model) => model.shutdown_date === "2026-11-13");
+    const haikuSep = haiku.find((model) => model.shutdown_date === "2026-09-10");
+    expect(haikuNov?.region_or_platform_notes).toContain("eu-central-2");
+    expect(haikuNov?.region_or_platform_notes).toContain("sa-east-1");
+    expect(haikuNov?.region_or_platform_notes).toContain("ca-central-1");
+    expect(haikuSep?.region_or_platform_notes).toContain("us-east-1");
+    expect(haikuSep?.region_or_platform_notes).toContain("us-west-2");
+    expect(haikuSep?.region_or_platform_notes).toContain("us-gov-east-1");
+    const sonnet3 = bedrock.find((model) => model.id === "anthropic.claude-3-sonnet-20240229-v1:0" && model.shutdown_date === "2026-11-13");
+    expect(sonnet3?.region_or_platform_notes).toContain("sa-east-1");
+    expect(sonnet3?.region_or_platform_notes).toContain("ca-central-1");
+    for (const id of [
+      "anthropic.claude-3-5-sonnet-20240620-v1:0",
+      "anthropic.claude-3-5-sonnet-20241022-v2:0",
+      "anthropic.claude-3-7-sonnet-20250219-v1:0",
+    ]) {
+      expect(bedrock.find((model) => model.id === id)?.region_or_platform_notes).toContain("legacy 2026-10-10");
+    }
+    expect(bedrock.some((model) => /\s/.test(model.id) || model.id.includes("("))).toBe(false);
+    const deepseek = bedrock.filter((model) => model.id === "deepseek.v3-v1:0" || model.id === "deepseek.v3.1");
+    expect(deepseek.map((model) => model.id).sort()).toEqual(["deepseek.v3-v1:0", "deepseek.v3.1"]);
+    expect(deepseek.every((model) => model.shutdown_date === "2027-03-30" && model.deprecation_date === "2026-09-30")).toBe(true);
+    expect(deepseek.find((model) => model.id === "deepseek.v3-v1:0")?.region_or_platform_notes).toContain("bedrock-runtime");
+    expect(deepseek.find((model) => model.id === "deepseek.v3.1")?.region_or_platform_notes).toContain("bedrock-mantle");
+    expect(bedrock.map((model) => model.id)).toEqual(
+      expect.arrayContaining([
+        "moonshot.kimi-k2-thinking",
+        "moonshotai.kimi-k2-thinking",
+        "qwen.qwen3-coder-30b-a3b-v1:0",
+        "qwen.qwen3-coder-30b-a3b-instruct",
+        "qwen.qwen3-coder-480b-a35b-v1:0",
+        "qwen.qwen3-coder-480b-a35b-instruct",
+      ]),
+    );
+    const azure = parseAzure(read(fixture("azure-openai", "2026-10-17-schedule.html")), read(fixture("azure-openai", "2026-10-17.html")), checked);
+    expect(azure.find((model) => model.id === "codex-mini-2025-05-16")?.shutdown_date).toBe("2026-11-15");
+    expect(azure.find((model) => model.id === "codex-mini-2025-05-16")?.status).toBe("deprecated");
+    const mistral = parseMistral(read(fixture("mistral", "2026-10-17.html")), read(fixture("mistral", "pricing-2026-10-17.html")), checked);
+    const medium = mistral.find((model) => model.id === "mistral-medium-2508");
+    expect(medium?.deprecation_date).toBe("2026-05-22");
+    expect(medium?.shutdown_date).toBe("2026-08-31");
+  });
+
+  it("keeps Azure base-table dates when the fine-tune table and a later duplicate row disagree", () => {
+    const schedule = read(fixture("azure-openai", "base-and-finetune.html"));
+    const policy = read(fixture("azure-openai", "2026-10-17.html"));
+    const azure = parseAzure(schedule, policy, "2026-10-29");
+    const one = (id: string) => {
+      const rows = azure.filter((model) => model.id === id);
+      expect(rows).toHaveLength(1);
+      return rows[0];
+    };
+    const o4 = one("o4-mini-2025-04-16");
+    expect(o4?.status).toBe("deprecated");
+    expect(o4?.shutdown_date).toBe("2026-11-19");
+    expect(o4?.shutdown_date_kind).toBe("exact");
+    expect(o4?.replacements.map((item) => item.model_id)).toEqual(["gpt-5.6-terra"]);
+    expect(o4?.region_or_platform_notes).toContain("Deployment retirement: 2027-11-19");
+    expect(o4?.region_or_platform_notes).toContain("deployment retirement 2027-10-16");
+    expect(o4?.sources[0]?.excerpt).toContain("Deprecated");
+    expect(o4?.sources[0]?.excerpt).toContain("2026-11-19");
+    for (const id of ["gpt-4.1-2025-04-14", "gpt-4.1-mini-2025-04-14", "gpt-4.1-nano-2025-04-14"]) {
+      const model = one(id);
+      expect(model?.status).toBe("deprecated");
+      expect(model?.shutdown_date).toBe("2027-04-14");
+      expect(model?.region_or_platform_notes).toContain("2027-10-14");
+    }
+    const gpt4o = one("gpt-4o-2024-08-06");
+    expect(gpt4o?.status).toBe("deprecated");
+    expect(gpt4o?.shutdown_date).toBe("2027-04-14");
+    expect(gpt4o?.replacements.map((item) => item.model_id)).toEqual(["gpt-5.1"]);
+    expect(gpt4o?.region_or_platform_notes).toContain("Deployment retirement: 2027-10-01");
+    const mini = one("gpt-4o-mini-2024-07-18");
+    expect(mini?.status).toBe("deprecated");
+    expect(mini?.shutdown_date).toBe("2027-04-14");
+    expect(mini?.region_or_platform_notes).toContain("2027-10-01");
+    const realtimeOctober = one("gpt-realtime-mini-2025-10-06");
+    expect(realtimeOctober?.status).toBe("active");
+    expect(realtimeOctober?.shutdown_date).toBe("2027-04-06");
+    const realtimeDecember = one("gpt-realtime-mini-2025-12-15");
+    expect(realtimeDecember?.status).toBe("active");
+    expect(realtimeDecember?.shutdown_date).toBe("2027-06-15");
+    expect(azure.some((model) => model.id.startsWith("FLUX"))).toBe(false);
+
+    const live = parseAzure(
+      read(fixture("azure-openai", "2026-10-17-schedule.html")),
+      policy,
+      "2026-10-29",
+    );
+    expect(live.find((model) => model.id === "o4-mini-2025-04-16")?.shutdown_date).toBe("2026-11-19");
+    expect(live.find((model) => model.id === "o4-mini-2025-04-16")?.status).toBe("deprecated");
+    expect(live.find((model) => model.id === "gpt-realtime-mini-2025-10-06")?.shutdown_date).toBe("2027-04-06");
+    expect(live.find((model) => model.id === "gpt-realtime-mini-2025-10-06")?.status).toBe("active");
+  });
+
+  it("fills a replacement when a deprecations cell says requests auto-route", () => {
+    const models = parseGemini(read(fixture("google-gemini-api", "2026-10-17.html")), "", checked);
+    const flash37 = models.find((model) => model.id === "gemini-3.7-flash");
+    const flash35 = models.find((model) => model.id === "gemini-3.5-flash");
+    expect(flash37?.status).toBe("deprecated");
+    expect(flash37?.shutdown_date).toBeNull();
+    expect(flash37?.shutdown_date_kind).toBe("none");
+    expect(flash37?.replacements).toEqual([
+      { model_id: "gemini-3.8-flash", provider: "google-gemini-api", kind: "official", source_url: DEPRECATIONS_URL },
+    ]);
+    expect(flash37?.region_or_platform_notes).toBe(
+      "Release date on the deprecations page: 2026-08-13. Deprecated, requests auto-routed to gemini-3.8-flash, no shutdown date.",
+    );
+    expect(flash35?.status).toBe("deprecated");
+    expect(flash35?.replacements.map((item) => item.model_id)).toEqual(["gemini-3.6-flash"]);
+    expect(flash35?.region_or_platform_notes).toContain("requests auto-routed to gemini-3.6-flash");
+    expect(models.find((model) => model.id === "gemini-3.8-flash")?.status).toBe("active");
+    expect(models.find((model) => model.id === "gemini-3.8-flash")?.replacements).toEqual([]);
+    expect(models.find((model) => model.id === "gemini-3.6-flash")?.replacements).toEqual([]);
+    expect(models.find((model) => model.id === "gemini-3.1-flash-lite")?.replacements.map((item) => item.model_id)).toEqual([
+      "gemini-3.5-flash-lite",
+    ]);
+    const madeUp = `
+      <table>
+        <tr><th>Model</th><th>Release date</th><th>Shutdown date</th><th>Recommended replacement</th></tr>
+        <tr>
+          <td><code>example-old-1</code></td>
+          <td>January 2, 2026</td>
+          <td>N/A</td>
+          <td><code>example-new-9</code> (the endpoint is not shutting down and auto-routes to <code>example-new-9</code>)</td>
+        </tr>
+        <tr>
+          <td><code>example-dated-2</code></td>
+          <td>January 2, 2026</td>
+          <td>June 1, 2026</td>
+          <td>example-keep-3 (automatically routes API requests to example-keep-3)</td>
+        </tr>
+      </table>`;
+    const parsed = parseGemini(madeUp, "", "2026-10-22");
+    expect(parsed.find((model) => model.id === "example-old-1")?.status).toBe("deprecated");
+    expect(parsed.find((model) => model.id === "example-old-1")?.replacements.map((item) => item.model_id)).toEqual(["example-new-9"]);
+    expect(parsed.find((model) => model.id === "example-old-1")?.region_or_platform_notes).toContain(
+      "requests auto-routed to example-new-9",
+    );
+    const dated = parsed.find((model) => model.id === "example-dated-2");
+    expect(dated?.status).toBe("retired");
+    expect(dated?.replacements.map((item) => item.model_id)).toEqual(["example-keep-3"]);
+    expect(dated?.region_or_platform_notes).not.toContain("no shutdown date");
+    const live = parseGemini(read(newestSnapshot("google-gemini-api")), "", "2026-10-22");
+    for (const [id, slug] of [
+      ["gemini-3.7-flash", "gemini-3-7-flash"],
+      ["gemini-3.5-flash", "gemini-3-5-flash"],
+    ] as const) {
+      const parsed = live.find((model) => model.id === id);
+      const stored = JSON.parse(read(`data/models/google-gemini-api/${slug}.json`)) as {
+        status: string;
+        replacements: { model_id: string; kind: string }[];
+        region_or_platform_notes: string;
+        shutdown_date: string | null;
+      };
+      expect(stored.status).toBe(parsed?.status);
+      expect(stored.shutdown_date).toBe(parsed?.shutdown_date ?? null);
+      expect(stored.replacements).toEqual(parsed?.replacements);
+      expect(stored.region_or_platform_notes).toBe(parsed?.region_or_platform_notes);
+      expect(stored.status).not.toBe("active");
+    }
+  });
+
+  it("keeps the last Vertex replacement id and skips a name that is not an id", () => {
+    const html = `
+      <h2>Latest available models</h2>
+      <table>
+        <tr><th>Model ID</th><th>Release date</th><th>Retirement date</th><th>Replacement model ID</th></tr>
+        <tr>
+          <td><code>gemini-2.5-flash</code></td>
+          <td>June 17, 2025</td>
+          <td>October 20, 2026</td>
+          <td><code>gemini-3.8-flash</code> or <code>gemini-3.5-flash-lite</code> or <code>gemini-3.1-flash-lite</code></td>
+        </tr>
+        <tr>
+          <td><code>gemini-2.5-flash-lite</code></td>
+          <td>July 22, 2025</td>
+          <td>October 20, 2026</td>
+          <td><code>gemini-3.8-flash</code> or <code>gemini-3.5-flash-lite</code> or Gemma 4</td>
+        </tr>
+      </table>`;
+    const models = parseVertex(html, "2026-10-19");
+    expect(models.find((model) => model.id === "gemini-2.5-flash")?.replacements.map((item) => item.model_id)).toEqual([
+      "gemini-3.8-flash",
+      "gemini-3.5-flash-lite",
+      "gemini-3.1-flash-lite",
+    ]);
+    expect(models.find((model) => model.id === "gemini-2.5-flash-lite")?.replacements.map((item) => item.model_id)).toEqual([
+      "gemini-3.8-flash",
+      "gemini-3.5-flash-lite",
+    ]);
+  });
+});
+
+describe("refresh pipeline", () => {
+  it("keeps documented active models the deprecations scrape does not emit", async () => {
+    const models = await loadModels();
+    const sol = models.find((model) => model.provider === "openai" && model.id === "gpt-6.1-sol");
+    const astra = models.find((model) => model.provider === "openai" && model.id === "gpt-6-astra");
+    expect(sol?.shutdown_date).toBeNull();
+    expect(astra?.shutdown_date).toBeNull();
+    const scraped = models.filter((model) => model.id !== "gpt-6.1-sol" && model.id !== "gpt-6-astra");
+    const kept = carryForwardDocumentedModels(models, scraped);
+    expect(kept.find((model) => model.id === "gpt-6.1-sol")).toBe(sol);
+    expect(kept.find((model) => model.id === "gpt-6-astra")).toBe(astra);
+    expect(kept.filter((model) => model.id === "gpt-6.1-sol")).toHaveLength(1);
+
+    const snapshotId = "gpt-4o-mini-2024-07-18";
+    const withoutSnapshot = carryForwardDocumentedModels(
+      models,
+      models.filter((model) => model.id !== snapshotId),
+    );
+    expect(withoutSnapshot.some((model) => model.id === snapshotId)).toBe(false);
+
+    const retiredIds = [
+      "ft-babbage-002",
+      "ft-davinci-002",
+      "ft-gpt-3.5-turbo",
+      "ft-gpt-4",
+      "ft-gpt-4.1-nano-2025-04-14",
+    ];
+    const withoutRetired = carryForwardDocumentedModels(
+      models,
+      models.filter((model) => !(model.provider === "openai" && retiredIds.includes(model.id))),
+      "2026-10-27",
+    );
+    for (const id of retiredIds) {
+      const row = withoutRetired.find((model) => model.provider === "openai" && model.id === id);
+      expect(row?.status).toBe("retired");
+      expect(row?.shutdown_date).toBe("2026-10-23");
+      expect(row?.sources[0]?.url).toBe("https://developers.openai.com/api/docs/deprecations");
+    }
+    expect(withoutRetired).toHaveLength(models.length);
+  });
+
+  it("keeps a documented OpenAI id that has no dated snapshot", () => {
+    const index = [
+      "- [GPT-4o](/api/docs/models/gpt-4o.md): Existing alias. Status stays on the deprecations record.",
+      "- [GPT-5.5](/api/docs/models/gpt-5.5.md): A new class of intelligence for coding and professional work.",
+      "- [Chat Latest](/api/docs/models/chat-latest.md): Latest Instant model used in ChatGPT",
+      "Chat Latest is mentioned here with no model link and must not be invented twice.",
+    ].join("\n");
+    const present = baseModel({
+      id: "gpt-4o",
+      provider: "openai",
+      status: "active",
+      kind: "none",
+      sourceUrl: "https://developers.openai.com/api/docs/deprecations",
+      sourceLabel: "OpenAI deprecations",
+      checked: "2026-10-26",
+      excerpt: "gpt-4o alias already in the scrape",
+    });
+    const retired = baseModel({
+      id: "gpt-4",
+      provider: "openai",
+      status: "retired",
+      shutdown: "2026-10-23",
+      kind: "exact",
+      sourceUrl: "https://developers.openai.com/api/docs/deprecations",
+      sourceLabel: "OpenAI deprecations",
+      checked: "2026-10-26",
+      excerpt: "gpt-4 shutdown row",
+    });
+    const models = addDocumentedOpenAIModels([present, retired], index, "2026-10-26");
+    const added = models.find((model) => model.id === "gpt-5.5");
+    expect(added?.status).toBe("active");
+    expect(added?.shutdown_date).toBeNull();
+    expect(added?.shutdown_date_kind).toBe("none");
+    expect(added?.replacements).toEqual([]);
+    expect(added?.sources[0]?.url).toBe("https://developers.openai.com/api/docs/models/gpt-5.5.md");
+    expect(models.some((model) => /^gpt-5\.5-\d{4}-\d{2}-\d{2}$/.test(model.id))).toBe(false);
+    expect(models.filter((model) => model.id === "gpt-4o")).toHaveLength(1);
+    expect(models.find((model) => model.id === "gpt-4o")?.status).toBe("active");
+    expect(models.find((model) => model.id === "gpt-4")?.status).toBe("retired");
+    expect(models.find((model) => model.id === "gpt-4")?.shutdown_date).toBe("2026-10-23");
+    expect(models.filter((model) => model.id === "chat-latest")).toHaveLength(1);
+
+    applyCodexPlatformNotes(models, "2026-10-26");
+    expect(added?.status).toBe("active");
+    expect(added?.replacements).toEqual([]);
+    expect(added?.region_or_platform_notes).toContain("OpenAI API still serves gpt-5.5");
+    expect(added?.region_or_platform_notes).toContain("ChatGPT sign-in");
+    expect(added?.region_or_platform_notes).toContain("19:00 UTC");
+    expect(added?.sources.some((source) => source.url === "https://developers.openai.com/codex/models")).toBe(true);
+    const mini = baseModel({
+      id: "gpt-5.4-mini",
+      provider: "openai",
+      status: "deprecated",
+      kind: "none",
+      sourceUrl: "https://developers.openai.com/api/docs/deprecations",
+      sourceLabel: "OpenAI deprecations",
+      checked: "2026-10-26",
+      excerpt: "would stay deprecated",
+    });
+    applyCodexPlatformNotes([mini], "2026-10-26");
+    expect(mini.status).toBe("deprecated");
+    expect(mini.region_or_platform_notes).toContain("OpenAI API still serves gpt-5.4-mini");
+    expect(mini.replacements).toEqual([]);
+
+    const proseOnly = documentedOpenAIIds("Chat Latest is a heading, not a link.");
+    expect(proseOnly).toEqual([]);
+    const saved = readFileSync("snapshots/fixtures/openai/models-2026-10-26.md", "utf8");
+    const ids = documentedOpenAIIds(saved).map((entry) => entry.id);
+    for (const id of ["gpt-5.5", "gpt-5.4", "gpt-5.4-mini", "gpt-5.2", "text-embedding-3-large", "gpt-oss-120b", "omni-moderation-latest"]) {
+      expect(ids).toContain(id);
+    }
+  });
+
+  it("adds documented OpenAI models before enrich copies the provider list", () => {
+    const source = readFileSync("scrapers/run.ts", "utf8");
+    const add = source.indexOf("addDocumentedOpenAIModels(openaiModels, index, checked)");
+    const flat = source.indexOf("const flat = [...groups.values()].flat()");
+    expect(add).toBeGreaterThan(0);
+    expect(flat).toBeGreaterThan(add);
+  });
+
+  it("builds undated aliases after model docs are attached", () => {
+    const source = readFileSync("scrapers/run.ts", "utf8");
+    const enrich = source.indexOf("await enrichSpecs");
+    const stubs = source.indexOf("addUndatedAliasStubs(groups, checked)");
+    expect(enrich).toBeGreaterThan(0);
+    expect(stubs).toBeGreaterThan(enrich);
+  });
+});
+
+describe("sanity gate", () => {
+  it("does not accept an empty scrape", () => {
+    expect(sanityCheck("openai", 0, 100).ok).toBe(false);
+  });
+  it("does not accept a drop of more than 30 percent", () => {
+    expect(sanityCheck("openai", 60, 100).ok).toBe(false);
+    expect(sanityCheck("openai", 70, 100).ok).toBe(true);
+  });
+});
+
+describe("official model docs", () => {
+  it("reads OpenAI price, context, and max output from the model page", () => {
+    const spec = parseOpenAIModelDoc(read(fixture("openai", "model-gpt-4o-2026-10-17.md")));
+    expect(spec?.ids).toEqual(["gpt-4o"]);
+    expect(spec?.context).toBe(128000);
+    expect(spec?.maxOutput).toBe(16384);
+    expect(spec?.input).toBe(2.5);
+    expect(spec?.output).toBe(10);
+    expect(spec?.cached).toBe(1.25);
+    expect(spec?.limitIds).toContain("gpt-4o-2024-08-06");
+  });
+
+  it("reads Anthropic specs from the model overview", () => {
+    const spec = parseAnthropicModelDoc(read(fixture("anthropic", "model-sonnet-5-5-2026-10-17.md")));
+    expect(spec?.ids).toContain("claude-sonnet-5-5");
+    expect(spec?.context).toBe(1_000_000);
+    expect(spec?.maxOutput).toBe(128_000);
+    expect(spec?.input).toBe(2);
+    expect(spec?.output).toBe(10);
+    expect(spec?.cached).toBe(0.1);
+  });
+
+  it("reads Gemini token limits from the model table", () => {
+    const specs = parseGeminiModelDocs(read(fixture("google-gemini-api", "model-gemini-2-5-flash-2026-10-17.html")));
+    expect(specs[0]?.ids).toEqual(["gemini-2.5-flash"]);
+    expect(specs[0]?.context).toBe(1_048_576);
+    expect(specs[0]?.maxOutput).toBe(65_536);
+  });
+
+  it("reads Vertex token limits and the standard price tier", () => {
+    const doc = parseVertexModelDoc(read(fixture("google-vertex", "model-gemini-2-5-pro-2026-10-17.html")));
+    expect(doc?.id).toBe("gemini-2.5-pro");
+    expect(doc?.title).toBe("Gemini 2.5 Pro");
+    expect(doc?.context).toBe(1_048_576);
+    expect(doc?.maxOutput).toBe(65_536);
+    const prices = parseVertexPricing(read(fixture("google-vertex", "pricing-sample-2026-10-17.html")));
+    expect(prices.get("gemini 2.5 pro")?.input).toBe(1.25);
+    expect(prices.get("gemini 2.5 pro")?.output).toBe(10);
+    expect(prices.get("gemini 2.5 pro")?.cached).toBe(0.125);
+  });
+
+  it("reads a labeled Mistral context window and does not invent a price", () => {
+    const doc = parseMistralModelDoc(read(fixture("mistral", "model-card-snippet-2026-10-17.html")));
+    expect(doc?.id).toBe("mistral-medium-3-5");
+    expect(doc?.context).toBe(256_000);
+  });
+
+  it("reads context when the Context label is the span text", () => {
+    const html = `<button title="Click to copy: mistral-medium-2508">mistral-medium-2508</button><span class="uppercase">Context</span><div class="text-lg font-bold font-mono text-primary-soft">128k</div><span class="text-primary-soft">$1.5</span>`;
+    const doc = parseMistralModelDoc(html);
+    expect(doc?.id).toBe("mistral-medium-2508");
+    expect(doc?.context).toBe(128_000);
+  });
+});
+
+describe("snapshot retention", () => {
+  it("deletes old dated scrape files and keeps fixture names", () => {
+    const files = [
+      "2026-10-17.html",
+      "2026-10-18-pricing.html",
+      "2026-10-18.html",
+      "2026-10-19.html",
+      "2026-10-20.html",
+      "model-card-snippet-2026-10-17.html",
+      "models-2026-10-17.html",
+      "pricing-2026-10-17.html",
+    ];
+    expect(snapshotsToPrune(files, 3)).toEqual(["2026-10-17.html", "2026-10-18-pricing.html"]);
+    expect(snapshotsToPrune(files, 3)).not.toContain("pricing-2026-10-17.html");
+    expect(newestRollingName(files, "-pricing")).toBe("2026-10-18-pricing.html");
+    expect(newestRollingName(files, "")).toBe("2026-10-20.html");
+  });
+});
+
+describe("deepseek", () => {
+  const updates = read(fixture("deepseek", "updates-2026-10-25.html"));
+  const pricing = read(fixture("deepseek", "pricing-2026-10-25.html"));
+  const news = read(fixture("deepseek", "news-2026-04-24.html"));
+
+  it("records the 2026-07-24 discontinuation and the named replacement", () => {
+    const models = parseDeepSeek(updates, pricing, news, "2026-10-25");
+    const chat = models.find((model) => model.id === "deepseek-chat");
+    const reasoner = models.find((model) => model.id === "deepseek-reasoner");
+    expect(chat?.status).toBe("retired");
+    expect(chat?.shutdown_date).toBe("2026-07-24");
+    expect(chat?.shutdown_date_kind).toBe("exact");
+    expect(chat?.replacements).toEqual([
+      { model_id: "deepseek-v4-flash", provider: "deepseek", kind: "official", source_url: DEEPSEEK_UPDATES },
+    ]);
+    expect(chat?.region_or_platform_notes).toContain("15:59");
+    expect(reasoner?.replacements[0]?.model_id).toBe("deepseek-v4-flash");
+    expect(reasoner?.region_or_platform_notes).toContain("thinking mode");
+    expect(parseDeepSeek(updates, pricing, news, "2026-07-24").find((model) => model.id === "deepseek-chat")?.status).toBe("deprecated");
+  });
+
+  it("keeps the current pricing ids and leaves the retired flash names without a shutdown day", () => {
+    const models = parseDeepSeek(updates, pricing, news, "2026-10-25");
+    const flash = models.find((model) => model.id === "deepseek-flash");
+    const pro = models.find((model) => model.id === "deepseek-v4-pro");
+    const oldFlash = models.find((model) => model.id === "deepseek-v4-flash");
+    expect(flash?.status).toBe("active");
+    expect(flash?.shutdown_date).toBeNull();
+    expect(flash?.specs.context_window_tokens).toBe(1_000_000);
+    expect(flash?.specs.max_output_tokens).toBe(384_000);
+    expect(flash?.specs.input_price_per_mtok).toBe(0.3);
+    expect(flash?.specs.supports_vision).toBe(true);
+    expect(pro?.status).toBe("active");
+    expect(pro?.shutdown_date).toBeNull();
+    expect(pro?.specs.input_price_per_mtok).toBe(1.32);
+    expect(pro?.specs.supports_vision).toBe(false);
+    expect(pro?.region_or_platform_notes).toContain("No shutdown date is published");
+    expect(oldFlash?.status).toBe("retired");
+    expect(oldFlash?.shutdown_date).toBeNull();
+    expect(oldFlash?.replacements[0]?.model_id).toBe("deepseek-flash");
+    expect(models.find((model) => model.id === "deepseek-v4-flash-vision-exp")?.announced_date).toBe("2026-08-21");
+  });
+
+  it("does not invent deepseek-chat when the discontinuation sentence is absent", () => {
+    expect(parseDeepSeek("<html></html>", "<html></html>", "", "2026-10-25")).toEqual([]);
+  });
+
+  it("splits two model ids that share one summary-table cell", () => {
+    const summary = read(fixture("deepseek", "pricing-summary-2026-10-25.html"));
+    const models = parseDeepSeek(updates, summary, news, "2026-10-25");
+    const ids = models.map((model) => model.id);
+    expect(ids.filter((id) => id.startsWith("deepseek"))).toEqual([
+      "deepseek-flash",
+      "deepseek-v4-pro",
+      "deepseek-chat",
+      "deepseek-reasoner",
+      "deepseek-v4-flash",
+      "deepseek-v4-flash-vision-exp",
+    ]);
+    const pro = models.find((model) => model.id === "deepseek-v4-pro");
+    expect(pro?.status).toBe("active");
+    expect(pro?.shutdown_date).toBeNull();
+    expect(pro?.region_or_platform_notes).toContain("No shutdown date is published");
+  });
+});
+
+describe("groq", () => {
+  const deprecations = read(fixture("groq", "deprecations-2026-10-26.md"));
+  const modelsPage = read(fixture("groq", "models-2026-10-26.md"));
+
+  it("retires llama-3.3-70b-versatile after the shutdown day and keeps both official replacements", () => {
+    const models = parseGroq(deprecations, modelsPage, "2026-10-26");
+    const llama = models.find((model) => model.id === "llama-3.3-70b-versatile");
+    expect(llama?.status).toBe("retired");
+    expect(llama?.shutdown_date).toBe("2026-08-16");
+    expect(llama?.announced_date).toBe("2026-06-17");
+    expect(llama?.shutdown_date_kind).toBe("exact");
+    expect(llama?.replacements.map((item) => item.model_id)).toEqual(["openai/gpt-oss-120b", "qwen/qwen3.6-27b"]);
+    expect(llama?.replacements.every((item) => item.source_url === GROQ_DEPRECATIONS)).toBe(true);
+    expect(llama?.region_or_platform_notes).toContain("enterprise customers with a committed-spend contract are not affected");
+    expect(llama?.region_or_platform_notes).toContain("Production Models");
+    expect(llama?.specs.context_window_tokens).toBe(131072);
+    expect(llama?.specs.max_output_tokens).toBe(32768);
+    expect(llama?.specs.input_price_per_mtok).toBeNull();
+    expect(llama?.sources[0]?.url).toBe(GROQ_DEPRECATIONS);
+    expect(parseGroq(deprecations, modelsPage, "2026-08-16").find((model) => model.id === "llama-3.3-70b-versatile")?.status).toBe("deprecated");
+  });
+
+  it("keeps listed production ids active and does not store hourly speech prices as token prices", () => {
+    const models = parseGroq(deprecations, modelsPage, "2026-10-26");
+    const oss = models.find((model) => model.id === "openai/gpt-oss-120b");
+    const small = models.find((model) => model.id === "llama-3.1-8b-instant");
+    const whisper = models.find((model) => model.id === "whisper-large-v3");
+    const qwen = models.find((model) => model.id === "qwen/qwen3.8-27b");
+    expect(oss?.status).toBe("active");
+    expect(oss?.shutdown_date).toBeNull();
+    expect(oss?.specs.input_price_per_mtok).toBe(0.15);
+    expect(oss?.specs.output_price_per_mtok).toBe(0.6);
+    expect(oss?.specs.context_window_tokens).toBe(131072);
+    expect(oss?.specs.max_output_tokens).toBe(65536);
+    expect(oss?.sources[0]?.url).toBe(GROQ_MODELS);
+    expect(small?.replacements.map((item) => item.model_id)).toEqual(["openai/gpt-oss-20b"]);
+    expect(small?.shutdown_date).toBe("2026-08-16");
+    expect(whisper?.status).toBe("active");
+    expect(whisper?.specs.input_price_per_mtok).toBeNull();
+    expect(whisper?.region_or_platform_notes).toContain("$0.111 per hour");
+    expect(qwen?.status).toBe("active");
+    expect(qwen?.specs.input_price_per_mtok).toBe(0.8);
+    expect(qwen?.specs.output_price_per_mtok).toBe(4);
+    expect(qwen?.specs.supports_tools).toBe(true);
+    expect(qwen?.specs.supports_json_schema).toBe(true);
+    expect(qwen?.region_or_platform_notes).toContain("Preview Models");
+    expect(qwen?.region_or_platform_notes).toContain("No shutdown date is published");
+  });
+
+  it("keeps the first shutdown date when a later section repeats an id", () => {
+    const models = parseGroq(deprecations, modelsPage, "2026-10-26");
+    const specdec = models.find((model) => model.id === "deepseek-r1-distill-llama-70b-specdec");
+    const kimi = models.find((model) => model.id === "moonshotai/kimi-k2-instruct");
+    const compound = models.find((model) => model.id === "groq/compound");
+    const llava = models.find((model) => model.id === "llava-v1.5-7b-4096-preview");
+    const playai = models.find((model) => model.id === "playai-tts");
+    const tool = models.find((model) => model.id === "llama3-groq-70b-8192-tool-use-preview");
+    expect(specdec?.shutdown_date).toBe("2025-04-14");
+    expect(specdec?.region_or_platform_notes).toContain("2025-03-24");
+    expect(kimi?.replacements.map((item) => item.model_id)).toEqual(["openai/gpt-oss-120b", "moonshotai/kimi-k2-instruct-0905"]);
+    expect(kimi?.region_or_platform_notes).toContain("in favor of moonshotai/kimi-k2-instruct-0905");
+    expect(compound?.shutdown_date).toBe("2026-09-21");
+    expect(compound?.announced_date).toBe("2026-08-24");
+    expect(compound?.replacements).toEqual([]);
+    expect(compound?.status).toBe("retired");
+    expect(llava?.shutdown_date).toBe("2024-10-28");
+    expect(llava?.announced_date).toBeNull();
+    expect(playai?.announced_date).toBe("2025-12-23");
+    expect(playai?.shutdown_date).toBe("2025-12-31");
+    expect(playai?.replacements[0]?.model_id).toBe("canopylabs/orpheus-v1-english");
+    expect(tool?.announced_date).toBeNull();
+    expect(tool?.region_or_platform_notes).toContain("llama-3.30-70b-versatile");
+    expect(models.some((model) => model.id === "llama-3.30-70b-versatile")).toBe(false);
+    expect(parseGroq("", "", "2026-10-26")).toEqual([]);
+  });
+
+  it("writes a Groq chat migration that only changes the model field", () => {
+    const models = parseGroq(deprecations, modelsPage, "2026-10-26").map((model) =>
+      modelSchema.parse({ ...model, first_seen: "2026-10-26T12:00:00.000Z", updated_at: "2026-10-26T12:00:00.000Z" }),
+    );
+    const from = models.find((model) => model.id === "llama-3.3-70b-versatile");
+    const to = models.find((model) => model.id === "openai/gpt-oss-120b");
+    const speechFrom = models.find((model) => model.id === "playai-tts");
+    const speechTo = models.find((model) => model.id === "canopylabs/orpheus-v1-english");
+    const audioFrom = models.find((model) => model.id === "distil-whisper-large-v3-en");
+    const audioTo = models.find((model) => model.id === "whisper-large-v3-turbo");
+    if (!from || !to || !speechFrom || !speechTo || !audioFrom || !audioTo) throw new Error("missing groq pair");
+    const chat = buildMigration(from, to, "2026-10-26");
+    expect(chat.code_change.snippets.curl.after).toContain("https://api.groq.com/openai/v1/chat/completions");
+    expect(chat.code_change.snippets.python.after).toContain('model="openai/gpt-oss-120b"');
+    expect(JSON.stringify(chat)).not.toContain("Bearer");
+    expect(chat.api_changes[0]?.source_url).toBe("https://console.groq.com/docs/api-reference");
+    expect(buildMigration(speechFrom, speechTo, "2026-10-26").code_change.snippets.curl.after).toContain("/audio/speech");
+    expect(buildMigration(audioFrom, audioTo, "2026-10-26").code_change.snippets.curl.after).toContain("/audio/transcriptions");
+  });
+});
+
+describe("dates", () => {
+  it("parses provider date styles", () => {
+    expect(parseDate("January 14, 2027")).toEqual({ date: "2027-01-14", kind: "exact" });
+    expect(parseDate("Not sooner than September 1, 2027").kind).toBe("not_before");
+    expect(parseDate("August 2026").kind).toBe("month_only");
+    expect(parseDate("No shutdown date announced").kind).toBe("none");
+  });
+});

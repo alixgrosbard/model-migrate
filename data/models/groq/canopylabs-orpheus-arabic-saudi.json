@@ -1,0 +1,54 @@
+{
+  "id": "canopylabs/orpheus-arabic-saudi",
+  "slug": "canopylabs-orpheus-arabic-saudi",
+  "provider": "groq",
+  "display_name": "canopylabs/orpheus-arabic-saudi",
+  "family": null,
+  "status": "active",
+  "announced_date": null,
+  "deprecation_date": null,
+  "shutdown_date": null,
+  "shutdown_date_kind": "none",
+  "region_or_platform_notes": "The models page lists this id under Preview Models. Preview models are intended for evaluation purposes only and should not be used in production environments as they may be discontinued at short notice. No shutdown date is published. The models page lists the price as $40.00 per 1M characters, not per million tokens.",
+  "replacements": [],
+  "sources": [
+    {
+      "url": "https://console.groq.com/docs/models",
+      "label": "Groq supported models",
+      "last_checked": "2026-10-31",
+      "excerpt": "canopylabs/orpheus-arabic-saudi | preview | context 4000 | max completion 50000"
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": null,
+    "output_price_per_mtok": null,
+    "cached_input_price_per_mtok": null,
+    "batch_discount_pct": null,
+    "currency": null,
+    "context_window_tokens": 4000,
+    "max_output_tokens": 50000,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {
+      "context_window_tokens": {
+        "url": "https://console.groq.com/docs/models",
+        "last_checked": "2026-10-31"
+      },
+      "max_output_tokens": {
+        "url": "https://console.groq.com/docs/models",
+        "last_checked": "2026-10-31"
+      }
+    }
+  },
+  "first_seen": "2026-10-26T12:00:00.000Z",
+  "updated_at": "2026-10-26T12:00:00.000Z"
+}

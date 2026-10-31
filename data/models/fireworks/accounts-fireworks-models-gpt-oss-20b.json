@@ -1,0 +1,58 @@
+{
+  "id": "accounts/fireworks/models/gpt-oss-20b",
+  "slug": "accounts-fireworks-models-gpt-oss-20b",
+  "provider": "fireworks",
+  "display_name": "GPT OSS 20B",
+  "family": null,
+  "status": "retired",
+  "announced_date": null,
+  "deprecation_date": null,
+  "shutdown_date": "2026-08-27",
+  "shutdown_date_kind": "exact",
+  "region_or_platform_notes": "Changelog section: Serverless deprecation: MiniMax M2.7, GPT OSS 20B, Kimi K2.6 Turbo/Fast, Kimi K2.7 Code Fast, DeepSeek V4 Pro.",
+  "replacements": [
+    {
+      "model_id": "accounts/fireworks/models/gpt-oss-120b",
+      "provider": "fireworks",
+      "kind": "official",
+      "source_url": "https://docs.fireworks.ai/updates/changelog"
+    },
+    {
+      "model_id": "accounts/fireworks/models/qwen3-8b",
+      "provider": "fireworks",
+      "kind": "official",
+      "source_url": "https://docs.fireworks.ai/updates/changelog"
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://docs.fireworks.ai/updates/changelog",
+      "label": "Fireworks AI changelog",
+      "last_checked": "2026-10-31",
+      "excerpt": "GPT OSS 20B - migrate to GPT OSS 120B or Qwen3 8B for lower-latency workloads"
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": null,
+    "output_price_per_mtok": null,
+    "cached_input_price_per_mtok": null,
+    "batch_discount_pct": null,
+    "currency": null,
+    "context_window_tokens": null,
+    "max_output_tokens": null,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {}
+  },
+  "first_seen": "2026-10-28T12:33:26.950Z",
+  "updated_at": "2026-10-28T12:33:26.950Z"
+}

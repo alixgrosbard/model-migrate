@@ -1,0 +1,22 @@
+---
+import Base from "../../layouts/Base.astro";
+import { loadProviders } from "../../lib/load.ts";
+const providers = await loadProviders();
+---
+<Base title="About SunsetDiff" description="How SunsetDiff checks official AI model deprecation pages." crumbs={[{ name: "Home", path: "/" }, { name: "About", path: "/about/" }]}>
+  <h1>About</h1>
+  <p>SunsetDiff is a free site and dataset. It records when an AI model stops working, what the provider names as the replacement, and which published price, context, and code values change.</p>
+  <h2>Method</h2>
+  <p>A GitHub Action checks the official pages every 6 hours. It saves the HTML, parses the tables, and refuses to overwrite data if a page comes back empty or drops by more than 30%. Every date and every diff value links to the page it came from, with a last-checked date. If a value is not on that page, the site says "Not published". The page-by-page account is <a href="/methodology/">Methodology</a>.</p>
+  <h2>Sources</h2>
+  <ul>
+    {providers.map((provider) => (
+      <li><a href={provider.deprecations_url}>{provider.name}</a></li>
+    ))}
+  </ul>
+  <p>Every URL stored on a model record is listed on <a href="/sources/">Sources</a>, with the number of models and the latest last_checked day. Shutdown-alert signup is explained on <a href="/alerts/">Alerts</a>. The GitHub Action inputs are on <a href="/github-action/">GitHub Action</a>.</p>
+  <p>AWS Bedrock's current lifecycle page describes the policy and links to the legacy lifecycle tables. Those tables are the dated source. Azure's retirement policy page links to the model retirement schedule. That schedule is the dated source for Azure OpenAI.</p>
+  <p>The public AWS pricing page did not include model prices in the HTML we could fetch. Those price fields stay empty.</p>
+  <h2>Corrections</h2>
+  <p>Open a GitHub issue on this repository. Publisher: SunsetDiff.</p>
+</Base>

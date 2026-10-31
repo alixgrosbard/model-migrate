@@ -1,0 +1,75 @@
+{
+  "id": "gpt-audio-mini",
+  "slug": "gpt-audio-mini",
+  "provider": "openai",
+  "display_name": "gpt-audio-mini",
+  "family": null,
+  "status": "deprecated",
+  "announced_date": "2026-07-20",
+  "deprecation_date": null,
+  "shutdown_date": "2027-01-20",
+  "shutdown_date_kind": "exact",
+  "region_or_platform_notes": null,
+  "replacements": [
+    {
+      "model_id": "gpt-audio-1.5",
+      "provider": "openai",
+      "kind": "official",
+      "source_url": "https://developers.openai.com/api/docs/deprecations"
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://developers.openai.com/api/docs/deprecations",
+      "label": "OpenAI deprecations",
+      "last_checked": "2026-10-31",
+      "excerpt": "Jan 20, 2027 | gpt-audio-mini | gpt-audio-mini-2025-12-15 | gpt-audio-1.5"
+    },
+    {
+      "url": "https://developers.openai.com/api/docs/models/gpt-audio-mini.md",
+      "label": "OpenAI model docs",
+      "last_checked": "2026-10-31",
+      "excerpt": "Model ID: gpt-audio-mini | context window 128000 | max output 16384 | input $0.6 | output $2.4 | Default snapshot gpt-audio-mini-2025-12-15"
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": 0.6,
+    "output_price_per_mtok": 2.4,
+    "cached_input_price_per_mtok": null,
+    "batch_discount_pct": null,
+    "currency": "USD",
+    "context_window_tokens": 128000,
+    "max_output_tokens": 16384,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {
+      "context_window_tokens": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-audio-mini.md",
+        "last_checked": "2026-10-31"
+      },
+      "input_price_per_mtok": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-audio-mini.md",
+        "last_checked": "2026-10-31"
+      },
+      "max_output_tokens": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-audio-mini.md",
+        "last_checked": "2026-10-31"
+      },
+      "output_price_per_mtok": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-audio-mini.md",
+        "last_checked": "2026-10-31"
+      }
+    }
+  },
+  "first_seen": "2026-10-17T15:59:19.574Z",
+  "updated_at": "2026-10-25T20:53:11.768Z"
+}

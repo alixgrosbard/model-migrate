@@ -1,0 +1,52 @@
+{
+  "id": "deepseek-ai/DeepSeek-R1-Distill-Llama-70B-32k",
+  "slug": "deepseek-ai-deepseek-r1-distill-llama-70b-32k",
+  "provider": "together",
+  "display_name": "deepseek-ai/DeepSeek-R1-Distill-Llama-70B-32k",
+  "family": null,
+  "status": "retired",
+  "announced_date": null,
+  "deprecation_date": null,
+  "shutdown_date": "2026-07-29",
+  "shutdown_date_kind": "exact",
+  "region_or_platform_notes": "This row is the fine-tuning service, not serverless inference. The inference table does not list this id. These models can no longer be used as a base model for a fine-tuning job. The fine-tuning table lists suggested replacement meta-llama/Llama-3.3-70B-Instruct-Reference and removal date 2026-07-29.",
+  "replacements": [
+    {
+      "model_id": "meta-llama/Llama-3.3-70B-Instruct-Reference",
+      "provider": "together",
+      "kind": "official",
+      "source_url": "https://docs.together.ai/docs/deprecations"
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://docs.together.ai/docs/deprecations",
+      "label": "Together AI deprecations",
+      "last_checked": "2026-10-31",
+      "excerpt": "2026-07-29 | `deepseek-ai/DeepSeek-R1-Distill-Llama-70B-32k` | `meta-llama/Llama-3.3-70B-Instruct-Reference`"
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": null,
+    "output_price_per_mtok": null,
+    "cached_input_price_per_mtok": null,
+    "batch_discount_pct": null,
+    "currency": null,
+    "context_window_tokens": null,
+    "max_output_tokens": null,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {}
+  },
+  "first_seen": "2026-10-28T12:33:26.950Z",
+  "updated_at": "2026-10-28T12:33:26.950Z"
+}

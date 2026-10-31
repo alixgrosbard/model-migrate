@@ -1,0 +1,78 @@
+{
+  "id": "gpt-5.5",
+  "slug": "gpt-5-5",
+  "provider": "openai",
+  "display_name": "gpt-5.5",
+  "family": null,
+  "status": "active",
+  "announced_date": null,
+  "deprecation_date": null,
+  "shutdown_date": null,
+  "shutdown_date_kind": "none",
+  "region_or_platform_notes": "The OpenAI API still serves gpt-5.5. Codex retired gpt-5.5 for ChatGPT sign-in on October 14, 2026 at 19:00 UTC. Codex sessions authenticated with an API key are not affected. For ChatGPT sign-in, the Codex models page names gpt-6.1-sol on Plus, Pro, Business, Enterprise, and Edu, and gpt-6-luna on Free and Go.",
+  "replacements": [],
+  "sources": [
+    {
+      "url": "https://developers.openai.com/api/docs/models/gpt-5.5.md",
+      "label": "OpenAI model docs",
+      "last_checked": "2026-10-31",
+      "excerpt": "Model ID: gpt-5.5 | A new class of intelligence for coding and professional work."
+    },
+    {
+      "url": "https://developers.openai.com/codex/changelog#codex-2026-10-14-gpt-55-retirement",
+      "label": "Codex changelog",
+      "last_checked": "2026-10-31",
+      "excerpt": "Effective October 14, 2026, at noon PDT (19:00 UTC), GPT-5.5 retires from Codex for users signed in with ChatGPT. The OpenAI API and Codex sessions authenticated with an API key aren't affected."
+    },
+    {
+      "url": "https://developers.openai.com/codex/models",
+      "label": "Codex models",
+      "last_checked": "2026-10-31",
+      "excerpt": "Effective October 14, 2026, at noon PDT (19:00 UTC), GPT-5.5 retires from Codex for users signed in with ChatGPT. The OpenAI API and Codex sessions authenticated with an API key aren't affected. GPT-5.5 remains available through the OpenAI API and in Codex sessions authenticated with an API key."
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": 5,
+    "output_price_per_mtok": 30,
+    "cached_input_price_per_mtok": 0.5,
+    "batch_discount_pct": null,
+    "currency": "USD",
+    "context_window_tokens": 1050000,
+    "max_output_tokens": 128000,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {
+      "cached_input_price_per_mtok": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-5.5.md",
+        "last_checked": "2026-10-31"
+      },
+      "context_window_tokens": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-5.5.md",
+        "last_checked": "2026-10-31"
+      },
+      "input_price_per_mtok": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-5.5.md",
+        "last_checked": "2026-10-31"
+      },
+      "max_output_tokens": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-5.5.md",
+        "last_checked": "2026-10-31"
+      },
+      "output_price_per_mtok": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-5.5.md",
+        "last_checked": "2026-10-31"
+      }
+    }
+  },
+  "first_seen": "2026-10-26T05:20:22.098Z",
+  "updated_at": "2026-10-26T05:20:22.098Z"
+}

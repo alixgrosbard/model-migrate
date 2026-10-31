@@ -1,0 +1,84 @@
+{
+  "from": {
+    "provider": "minimax",
+    "model_id": "MiniMax-M2.7-highspeed",
+    "slug": "minimax-m2-7-highspeed"
+  },
+  "to": {
+    "provider": "minimax",
+    "model_id": "MiniMax-M3.1-Flash",
+    "slug": "minimax-m3-1-flash"
+  },
+  "price_diff": {
+    "input_pct_change": null,
+    "output_pct_change": null,
+    "example_monthly_cost_old": null,
+    "example_monthly_cost_new": null,
+    "currency": "USD",
+    "example_label": "Example monthly cost for 10M input tokens and 2M output tokens. Labeled example, not a bill."
+  },
+  "context_diff": {
+    "old_tokens": null,
+    "new_tokens": null,
+    "change_pct": null
+  },
+  "max_output_diff": {
+    "old_tokens": null,
+    "new_tokens": null,
+    "change_pct": null
+  },
+  "capability_changes": [],
+  "api_changes": [
+    {
+      "kind": "endpoint_change",
+      "detail": "The text generation guide shows an OpenAI-compatible client with base_url https://api.minimax.io/v1 and POST https://api.minimax.io/v1/chat/completions. This sample only changes the model field.",
+      "source_url": "https://platform.minimax.io/docs/guides/text-generation"
+    },
+    {
+      "kind": "behavior_change",
+      "detail": "The model list says pay-as-you-go API requests stop working once M2.5 and M2.7 are retired. Starting October 19, 2026, M Plan and Token Plan requests are automatically routed to M3.1 Flash, and the existing model names keep working. The guide's sample for MiniMax-M3.1-Flash also sets reasoning_effort to max. This sample does not add that field.",
+      "source_url": "https://platform.minimax.io/docs/faq/models"
+    }
+  ],
+  "code_change": {
+    "language": "python",
+    "before": "from openai import OpenAI\nclient = OpenAI(base_url=\"https://api.minimax.io/v1\", api_key=\"<MINIMAX_API_KEY>\")\nresponse = client.chat.completions.create(\n    model=\"MiniMax-M2.7-highspeed\",\n    messages=[{\"role\": \"user\", \"content\": \"Hi, how are you?\"}],\n)\n",
+    "after": "from openai import OpenAI\nclient = OpenAI(base_url=\"https://api.minimax.io/v1\", api_key=\"<MINIMAX_API_KEY>\")\nresponse = client.chat.completions.create(\n    model=\"MiniMax-M3.1-Flash\",\n    messages=[{\"role\": \"user\", \"content\": \"Hi, how are you?\"}],\n)\n",
+    "snippets": {
+      "python": {
+        "before": "from openai import OpenAI\nclient = OpenAI(base_url=\"https://api.minimax.io/v1\", api_key=\"<MINIMAX_API_KEY>\")\nresponse = client.chat.completions.create(\n    model=\"MiniMax-M2.7-highspeed\",\n    messages=[{\"role\": \"user\", \"content\": \"Hi, how are you?\"}],\n)\n",
+        "after": "from openai import OpenAI\nclient = OpenAI(base_url=\"https://api.minimax.io/v1\", api_key=\"<MINIMAX_API_KEY>\")\nresponse = client.chat.completions.create(\n    model=\"MiniMax-M3.1-Flash\",\n    messages=[{\"role\": \"user\", \"content\": \"Hi, how are you?\"}],\n)\n"
+      },
+      "typescript": {
+        "before": "import OpenAI from \"openai\";\nconst client = new OpenAI({ baseURL: \"https://api.minimax.io/v1\", apiKey: \"<MINIMAX_API_KEY>\" });\nconst response = await client.chat.completions.create({\n  model: \"MiniMax-M2.7-highspeed\",\n  messages: [{ role: \"user\", content: \"Hi, how are you?\" }],\n});\n",
+        "after": "import OpenAI from \"openai\";\nconst client = new OpenAI({ baseURL: \"https://api.minimax.io/v1\", apiKey: \"<MINIMAX_API_KEY>\" });\nconst response = await client.chat.completions.create({\n  model: \"MiniMax-M3.1-Flash\",\n  messages: [{ role: \"user\", content: \"Hi, how are you?\" }],\n});\n"
+      },
+      "curl": {
+        "before": "curl https://api.minimax.io/v1/chat/completions \\\n  -H \"Authorization: Bearer <MINIMAX_API_KEY>\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"model\":\"MiniMax-M2.7-highspeed\",\"messages\":[{\"role\":\"user\",\"content\":\"Hi, how are you?\"}]}'\n",
+        "after": "curl https://api.minimax.io/v1/chat/completions \\\n  -H \"Authorization: Bearer <MINIMAX_API_KEY>\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"model\":\"MiniMax-M3.1-Flash\",\"messages\":[{\"role\":\"user\",\"content\":\"Hi, how are you?\"}]}'\n"
+      }
+    }
+  },
+  "migration_checklist": [
+    "Read the shutdown date for MiniMax-M2.7-highspeed on the MiniMax model list.",
+    "Pay-as-you-go API requests stop working once these models are retired.",
+    "M Plan and Token Plan requests are automatically routed to M3.1 Flash, and the existing model names keep working.",
+    "Point your requests at MiniMax-M3.1-Flash and test before you send traffic."
+  ],
+  "confidence": "partial",
+  "last_checked": "2026-10-31",
+  "sources": [
+    {
+      "url": "https://platform.minimax.io/docs/faq/models",
+      "label": "MiniMax model list",
+      "last_checked": "2026-10-31",
+      "excerpt": "November 18, 2026: These models will be retired. | MiniMax-M2.7-highspeed | LLM | Retired |"
+    },
+    {
+      "url": "https://platform.minimax.io/docs/faq/models",
+      "label": "Named as an official replacement",
+      "last_checked": "2026-10-31",
+      "excerpt": "MiniMax-M3.1-Flash is listed under Available Models."
+    }
+  ]
+}

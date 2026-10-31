@@ -1,0 +1,52 @@
+{
+  "id": "gpt-realtime-mini-2025-10-06",
+  "slug": "gpt-realtime-mini-2025-10-06",
+  "provider": "openai",
+  "display_name": "gpt-realtime-mini-2025-10-06",
+  "family": "gpt-realtime-mini",
+  "status": "retired",
+  "announced_date": "2026-04-22",
+  "deprecation_date": null,
+  "shutdown_date": "2026-07-23",
+  "shutdown_date_kind": "exact",
+  "region_or_platform_notes": null,
+  "replacements": [
+    {
+      "model_id": "gpt-realtime-2.1-mini",
+      "provider": "openai",
+      "kind": "official",
+      "source_url": "https://developers.openai.com/api/docs/deprecations"
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://developers.openai.com/api/docs/deprecations",
+      "label": "OpenAI deprecations",
+      "last_checked": "2026-10-31",
+      "excerpt": "July 23, 2026 | gpt-realtime-mini-2025-10-06 | gpt-realtime-2.1-mini"
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": null,
+    "output_price_per_mtok": null,
+    "cached_input_price_per_mtok": null,
+    "batch_discount_pct": null,
+    "currency": null,
+    "context_window_tokens": null,
+    "max_output_tokens": null,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {}
+  },
+  "first_seen": "2026-10-17T15:59:19.574Z",
+  "updated_at": "2026-10-24T04:39:18.299Z"
+}

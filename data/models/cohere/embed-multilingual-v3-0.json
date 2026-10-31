@@ -1,0 +1,61 @@
+{
+  "id": "embed-multilingual-v3.0",
+  "slug": "embed-multilingual-v3-0",
+  "provider": "cohere",
+  "display_name": "embed-multilingual-v3.0",
+  "family": null,
+  "status": "active",
+  "announced_date": null,
+  "deprecation_date": null,
+  "shutdown_date": null,
+  "shutdown_date_kind": "none",
+  "region_or_platform_notes": "The models page lists this id and does not print a shutdown date. The deprecations page does not give this id a shutdown date.",
+  "replacements": [],
+  "sources": [
+    {
+      "url": "https://docs.cohere.com/docs/models",
+      "label": "Cohere model docs",
+      "last_checked": "2026-10-31",
+      "excerpt": "embed-multilingual-v3.0 Provides multilingual classification and embedding support. [See supported languages here.](/docs/supported-languages) Text, Images 512"
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": null,
+    "output_price_per_mtok": null,
+    "cached_input_price_per_mtok": null,
+    "batch_discount_pct": null,
+    "currency": null,
+    "context_window_tokens": 512,
+    "max_output_tokens": null,
+    "modalities_in": [
+      "text",
+      "image"
+    ],
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": true,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {
+      "context_window_tokens": {
+        "url": "https://docs.cohere.com/docs/models",
+        "last_checked": "2026-10-31"
+      },
+      "modalities_in": {
+        "url": "https://docs.cohere.com/docs/models",
+        "last_checked": "2026-10-31"
+      },
+      "supports_vision": {
+        "url": "https://docs.cohere.com/docs/models",
+        "last_checked": "2026-10-31"
+      }
+    }
+  },
+  "first_seen": "2026-10-27T12:00:00.000Z",
+  "updated_at": "2026-10-27T12:00:00.000Z"
+}

@@ -1,0 +1,16 @@
+---
+import Base from "../../../layouts/Base.astro";
+
+const target = "/models/openai/gpt-4-1/";
+---
+<Base
+  title="gpt-4.1 shutdown status | SunsetDiff"
+  description="gpt-4.1 is listed on its alias page. This duplicate slug redirects there."
+  crumbs={[{ name: "Home", path: "/" }, { name: "gpt-4.1", path: target }]}
+  robots="noindex"
+  refresh={target}
+  canonicalPath={target}
+>
+  <h1>gpt-4.1</h1>
+  <p class="answer"><a href={target}>gpt-4.1</a> is the alias page. This slug was a duplicate of that record.</p>
+</Base>

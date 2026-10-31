@@ -1,0 +1,79 @@
+{
+  "from": {
+    "provider": "groq",
+    "model_id": "qwen-2.5-coder-32b",
+    "slug": "qwen-2-5-coder-32b"
+  },
+  "to": {
+    "provider": "groq",
+    "model_id": "qwen-qwq-32b",
+    "slug": "qwen-qwq-32b"
+  },
+  "price_diff": {
+    "input_pct_change": null,
+    "output_pct_change": null,
+    "example_monthly_cost_old": null,
+    "example_monthly_cost_new": null,
+    "currency": "USD",
+    "example_label": "Example monthly cost for 10M input tokens and 2M output tokens. Labeled example, not a bill."
+  },
+  "context_diff": {
+    "old_tokens": null,
+    "new_tokens": null,
+    "change_pct": null
+  },
+  "max_output_diff": {
+    "old_tokens": null,
+    "new_tokens": null,
+    "change_pct": null
+  },
+  "capability_changes": [],
+  "api_changes": [
+    {
+      "kind": "endpoint_change",
+      "detail": "The Groq API reference says chat completions are POST https://api.groq.com/openai/v1/chat/completions. The sample only changes the model field.",
+      "source_url": "https://console.groq.com/docs/api-reference"
+    }
+  ],
+  "code_change": {
+    "language": "python",
+    "before": "from groq import Groq\nclient = Groq()\nchat_completion = client.chat.completions.create(\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n    model=\"qwen-2.5-coder-32b\",\n)\n",
+    "after": "from groq import Groq\nclient = Groq()\nchat_completion = client.chat.completions.create(\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n    model=\"qwen-qwq-32b\",\n)\n",
+    "snippets": {
+      "python": {
+        "before": "from groq import Groq\nclient = Groq()\nchat_completion = client.chat.completions.create(\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n    model=\"qwen-2.5-coder-32b\",\n)\n",
+        "after": "from groq import Groq\nclient = Groq()\nchat_completion = client.chat.completions.create(\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n    model=\"qwen-qwq-32b\",\n)\n"
+      },
+      "typescript": {
+        "before": "import Groq from \"groq-sdk\";\nconst groq = new Groq();\nconst completion = await groq.chat.completions.create({\n  messages: [{ role: \"user\", content: \"Hello\" }],\n  model: \"qwen-2.5-coder-32b\",\n});\n",
+        "after": "import Groq from \"groq-sdk\";\nconst groq = new Groq();\nconst completion = await groq.chat.completions.create({\n  messages: [{ role: \"user\", content: \"Hello\" }],\n  model: \"qwen-qwq-32b\",\n});\n"
+      },
+      "curl": {
+        "before": "curl https://api.groq.com/openai/v1/chat/completions \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"model\":\"qwen-2.5-coder-32b\",\"messages\":[{\"role\":\"user\",\"content\":\"Hello\"}]}'\n",
+        "after": "curl https://api.groq.com/openai/v1/chat/completions \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"model\":\"qwen-qwq-32b\",\"messages\":[{\"role\":\"user\",\"content\":\"Hello\"}]}'\n"
+      }
+    }
+  },
+  "migration_checklist": [
+    "Read the shutdown date for qwen-2.5-coder-32b on the linked official page.",
+    "Point your requests at qwen-qwq-32b.",
+    "Re-check price, context, and parameters on the provider pages linked here.",
+    "Ship the change before the published shutdown date."
+  ],
+  "confidence": "partial",
+  "last_checked": "2026-10-31",
+  "sources": [
+    {
+      "url": "https://console.groq.com/docs/deprecations",
+      "label": "Groq model deprecations",
+      "last_checked": "2026-10-31",
+      "excerpt": "qwen-2.5-coder-32b | 2025-04-14 | qwen-qwq-32b openai/gpt-oss-120b"
+    },
+    {
+      "url": "https://console.groq.com/docs/deprecations",
+      "label": "Groq model deprecations",
+      "last_checked": "2026-10-31",
+      "excerpt": "qwen-qwq-32b | 2025-07-14 | qwen/qwen3-32b"
+    }
+  ]
+}

@@ -1,0 +1,60 @@
+{
+  "id": "grok-imagine-image",
+  "slug": "grok-imagine-image",
+  "provider": "xai",
+  "display_name": "grok-imagine-image",
+  "family": null,
+  "status": "active",
+  "announced_date": null,
+  "deprecation_date": null,
+  "shutdown_date": null,
+  "shutdown_date_kind": "none",
+  "region_or_platform_notes": "The models page lists this id at $0.02 / image. That price is not per million tokens. The November 2 page says grok-imagine-image (1.0) is not affected by this change. The pricing page says image and video generation are supported in the Batch API but are billed at standard rates.",
+  "replacements": [],
+  "sources": [
+    {
+      "url": "https://docs.x.ai/developers/migration/imagine-image-quality-nov-2",
+      "label": "xAI model deprecations",
+      "last_checked": "2026-10-31",
+      "excerpt": "ine-image` (1.0) is not affected by this change. ### How the redirect works Starting **November 2, 2026**: * Requests to `grok-imagine-image-quality` on `/v1/images/generations` and `/v1/images/edits` are served"
+    },
+    {
+      "url": "https://docs.x.ai/developers/models",
+      "label": "xAI model docs",
+      "last_checked": "2026-10-31",
+      "excerpt": "e-2.0 $0.04 / image grok-imagine-image $0.02 / image grok-imagine-image-quality $0.05 / image grok-imagine-video-1.5 $0.080 / sec grok-imagine-video-1.5-lite $0.020 / sec grok-imagine-video $0.050 / sec ### Voice Pricing Mode Cost -"
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": null,
+    "output_price_per_mtok": null,
+    "cached_input_price_per_mtok": null,
+    "batch_discount_pct": 0,
+    "currency": null,
+    "context_window_tokens": null,
+    "max_output_tokens": null,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": true,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {
+      "batch_discount_pct": {
+        "url": "https://docs.x.ai/developers/pricing",
+        "last_checked": "2026-10-31"
+      },
+      "supports_batch": {
+        "url": "https://docs.x.ai/developers/pricing",
+        "last_checked": "2026-10-31"
+      }
+    }
+  },
+  "first_seen": "2026-10-27T12:00:00.000Z",
+  "updated_at": "2026-10-31T05:44:31.186Z"
+}

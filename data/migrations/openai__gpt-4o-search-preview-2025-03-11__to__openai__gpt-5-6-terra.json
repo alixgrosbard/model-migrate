@@ -1,0 +1,85 @@
+{
+  "from": {
+    "provider": "openai",
+    "model_id": "gpt-4o-search-preview-2025-03-11",
+    "slug": "gpt-4o-search-preview-2025-03-11"
+  },
+  "to": {
+    "provider": "openai",
+    "model_id": "gpt-5.6-terra",
+    "slug": "gpt-5-6-terra"
+  },
+  "price_diff": {
+    "input_pct_change": null,
+    "output_pct_change": null,
+    "example_monthly_cost_old": null,
+    "example_monthly_cost_new": 25,
+    "currency": "USD",
+    "example_label": "Example monthly cost for 10M input tokens and 2M output tokens. Labeled example, not a bill."
+  },
+  "context_diff": {
+    "old_tokens": 128000,
+    "new_tokens": 1050000,
+    "change_pct": 720.3
+  },
+  "max_output_diff": {
+    "old_tokens": 16384,
+    "new_tokens": 128000,
+    "change_pct": 681.3
+  },
+  "capability_changes": [],
+  "api_changes": [],
+  "code_change": {
+    "language": "python",
+    "before": "from openai import OpenAI\nclient = OpenAI()\nresponse = client.chat.completions.create(\n    model=\"gpt-4o-search-preview-2025-03-11\",\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n)\n",
+    "after": "from openai import OpenAI\nclient = OpenAI()\nresponse = client.chat.completions.create(\n    model=\"gpt-5.6-terra\",\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n)\n",
+    "snippets": {
+      "python": {
+        "before": "from openai import OpenAI\nclient = OpenAI()\nresponse = client.chat.completions.create(\n    model=\"gpt-4o-search-preview-2025-03-11\",\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n)\n",
+        "after": "from openai import OpenAI\nclient = OpenAI()\nresponse = client.chat.completions.create(\n    model=\"gpt-5.6-terra\",\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n)\n"
+      },
+      "typescript": {
+        "before": "import OpenAI from \"openai\";\nconst client = new OpenAI();\nconst response = await client.chat.completions.create({\n  model: \"gpt-4o-search-preview-2025-03-11\",\n  messages: [{ role: \"user\", content: \"Hello\" }],\n});\n",
+        "after": "import OpenAI from \"openai\";\nconst client = new OpenAI();\nconst response = await client.chat.completions.create({\n  model: \"gpt-5.6-terra\",\n  messages: [{ role: \"user\", content: \"Hello\" }],\n});\n"
+      },
+      "curl": {
+        "before": "curl https://api.openai.com/v1/chat/completions \\\n  -H \"Authorization: Bearer $OPENAI_API_KEY\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"model\":\"gpt-4o-search-preview-2025-03-11\",\"messages\":[{\"role\":\"user\",\"content\":\"Hello\"}]}'\n",
+        "after": "curl https://api.openai.com/v1/chat/completions \\\n  -H \"Authorization: Bearer $OPENAI_API_KEY\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"model\":\"gpt-5.6-terra\",\"messages\":[{\"role\":\"user\",\"content\":\"Hello\"}]}'\n"
+      }
+    }
+  },
+  "migration_checklist": [
+    "Read the shutdown date for gpt-4o-search-preview-2025-03-11 on the linked official page.",
+    "Point your requests at gpt-5.6-terra.",
+    "Re-check price, context, and parameters on the provider pages linked here.",
+    "Ship the change before the published shutdown date."
+  ],
+  "confidence": "partial",
+  "last_checked": "2026-10-31",
+  "sources": [
+    {
+      "url": "https://developers.openai.com/api/docs/deprecations",
+      "label": "OpenAI deprecations",
+      "last_checked": "2026-10-31",
+      "excerpt": "July 23, 2026 | gpt-4o-search-preview-2025-03-11 | gpt-5.6-terra"
+    },
+    {
+      "url": "https://developers.openai.com/api/docs/models/gpt-4o-search-preview.md",
+      "label": "OpenAI model docs",
+      "last_checked": "2026-10-31",
+      "excerpt": "Model ID: gpt-4o-search-preview | context window 128000 | max output 16384 | input $2.5 | output $10 | Default snapshot gpt-4o-search-preview-2025-03-11"
+    },
+    {
+      "url": "https://developers.openai.com/api/docs/deprecations",
+      "label": "Named as an official replacement",
+      "last_checked": "2026-10-31",
+      "excerpt": "Named as an official replacement for gpt-5-mini. No shutdown date was published for this id on that page."
+    },
+    {
+      "url": "https://developers.openai.com/api/docs/models/gpt-5.6-terra.md",
+      "label": "OpenAI model docs",
+      "last_checked": "2026-10-31",
+      "excerpt": "Model ID: gpt-5.6-terra | context window 1050000 | max output 128000 | input $2 | output $12"
+    }
+  ]
+}

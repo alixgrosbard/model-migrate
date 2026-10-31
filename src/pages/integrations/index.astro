@@ -1,0 +1,58 @@
+---
+import Base from "../../layouts/Base.astro";
+import FaqList from "../../components/FaqList.astro";
+import { integrationsGraph } from "../../jsonld.ts";
+import { guideBySlug } from "../../lib/guides.ts";
+import { INTEGRATIONS_PATH } from "../../lib/mcp-docs.ts";
+import { SWAP_GUIDE_SLUG, SWAP_STACKS, integrationFaqs, integrationGroups, integrationLinks } from "../../lib/integrations.ts";
+import { DEFAULT_SITE_URL } from "../../lib/site.ts";
+
+const swap = guideBySlug(SWAP_GUIDE_SLUG);
+if (!swap) throw new Error("Missing swap guide");
+for (const heading of SWAP_STACKS) {
+  if (!swap.sections.some((section) => section.heading === heading)) {
+    throw new Error(`Swap guide is missing the ${heading} section`);
+  }
+}
+const groups = integrationGroups();
+const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
+const items = integrationLinks().map((link) => ({ name: link.label, path: link.href }));
+---
+<Base
+  title="Integrations | SunsetDiff"
+  description="Use SunsetDiff from an MCP client, the free JSON API, status badges, RSS, the deadline calendar, or the model swap guides."
+  crumbs={[{ name: "Home", path: "/" }, { name: "Integrations", path: INTEGRATIONS_PATH }]}
+  extraGraph={integrationsGraph(site, items, integrationFaqs)}
+>
+  <h1>Integrations</h1>
+  <p class="answer">
+    These are the free ways to use SunsetDiff shutdown dates from another tool.
+    The JSON files and the MCP server need no API key.
+    Publisher: SunsetDiff.
+  </p>
+  {groups.map((group) => (
+    <section>
+      <h2>{group.heading}</h2>
+      {group.heading === "Swap a model" ? (
+        <p>
+          One guide covers swapping a model in LiteLLM, OpenRouter, the Vercel AI SDK, and LangChain.
+          <a href="/frameworks/">Frameworks</a> has one page per library, including Pipecat, n8n, LlamaIndex, and Langflow.
+        </p>
+      ) : null}
+      <ul>
+        {group.links.map((link) => (
+          <li><a href={link.href}>{link.label}</a>. {link.detail}</li>
+        ))}
+      </ul>
+      {group.heading === "GitHub Action" ? (
+        <p>
+          The action file is <code>action/action.yml</code>.
+          Its description is "Flag AI model ids that are deprecated or shutting down."
+          warn-days defaults to 60. fail-days defaults to 14.
+          Inputs and a workflow example are on the <a href="/github-action/">GitHub Action page</a>.
+        </p>
+      ) : null}
+    </section>
+  ))}
+  <FaqList items={integrationFaqs} />
+</Base>

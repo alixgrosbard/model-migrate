@@ -1,0 +1,59 @@
+---
+import Base from "../layouts/Base.astro";
+import FaqList from "../components/FaqList.astro";
+import NewsletterForm from "../components/NewsletterForm.astro";
+import { loadProviders } from "../lib/load.ts";
+import type { FaqItem } from "../lib/format.ts";
+
+const providers = await loadProviders();
+const faqs: FaqItem[] = [
+  {
+    question: "When do OpenAI Evals, Agent Builder, and reusable prompts shut down?",
+    answer: "OpenAI's deprecations page schedules the Evals dashboard and API, Agent Builder, and the reusable prompts API for November 30, 2026. Existing evals become read-only on October 31, 2026.",
+  },
+  {
+    question: "Does ChatKit shut down on the same day?",
+    answer: "No. The Agent Builder notice says ChatKit remains available.",
+  },
+];
+---
+<Base
+  title="OpenAI Evals, Agent Builder, and prompts shut down November 30, 2026 | SunsetDiff"
+  description="OpenAI schedules Evals, Agent Builder, and reusable prompts to shut down on November 30, 2026. Evals become read-only on October 31, 2026."
+  crumbs={[{ name: "Home", path: "/" }, { name: "OpenAI November 30, 2026", path: "/openai-evals-agent-builder-prompts-shutdown-nov-30-2026/" }]}
+  extraGraph={[{
+    "@type": "FAQPage",
+    mainEntity: faqs.map((item) => ({
+      "@type": "Question",
+      name: item.question,
+      acceptedAnswer: { "@type": "Answer", text: item.answer },
+    })),
+  }]}
+>
+  <h1>OpenAI Evals, Agent Builder, and reusable prompts shut down November 30, 2026</h1>
+  <p class="answer">
+    On June 3, 2026, OpenAI announced that the Evals platform, Agent Builder, and reusable prompt objects are deprecated.
+    The Evals dashboard and API, Agent Builder, and the prompts API are scheduled to shut down on November 30, 2026.
+    Existing evals become read-only on October 31, 2026. ChatKit remains available.
+  </p>
+  <p>Source: <a href="https://developers.openai.com/api/docs/deprecations">OpenAI deprecations</a>, checked October 19, 2026.</p>
+  <table>
+    <caption>Product shutdowns named on the OpenAI deprecations page. These are not model IDs.</caption>
+    <thead><tr><th>Product</th><th>Read-only</th><th>Shutdown</th><th>What to do</th></tr></thead>
+    <tbody>
+      <tr><td>Evals dashboard and API</td><td>October 31, 2026</td><td>November 30, 2026</td><td>Move evals. OpenAI links a Promptfoo migration note.</td></tr>
+      <tr><td>Agent Builder</td><td>Not published</td><td>November 30, 2026</td><td>Migrate workflows. ChatKit remains available.</td></tr>
+      <tr><td>Reusable prompts API</td><td>Not published</td><td>November 30, 2026</td><td>Move prompt text into application code.</td></tr>
+    </tbody>
+  </table>
+  <p>
+    Model shutdowns are separate.
+    <a href="/shutdowns/openai-2026-10-23/">October 23, 2026 model IDs</a>
+    {" · "}
+    <a href="/shutdowns/openai-2026-12-01/">December 1, 2026 image models</a>
+    {" · "}
+    <a href="/providers/openai/">OpenAI on SunsetDiff</a>
+  </p>
+  <FaqList items={faqs} />
+  <NewsletterForm providers={providers} sourcePage="/openai-evals-agent-builder-prompts-shutdown-nov-30-2026/" />
+</Base>

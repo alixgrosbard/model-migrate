@@ -1,0 +1,90 @@
+{
+  "from": {
+    "provider": "openai",
+    "model_id": "tts-1",
+    "slug": "tts-1"
+  },
+  "to": {
+    "provider": "openai",
+    "model_id": "gpt-realtime-2.1-mini",
+    "slug": "gpt-realtime-2-1-mini"
+  },
+  "price_diff": {
+    "input_pct_change": null,
+    "output_pct_change": null,
+    "example_monthly_cost_old": null,
+    "example_monthly_cost_new": 10.8,
+    "currency": "USD",
+    "example_label": "Example monthly cost for 10M input tokens and 2M output tokens. Labeled example, not a bill."
+  },
+  "context_diff": {
+    "old_tokens": null,
+    "new_tokens": 128000,
+    "change_pct": null
+  },
+  "max_output_diff": {
+    "old_tokens": null,
+    "new_tokens": 32000,
+    "change_pct": null
+  },
+  "capability_changes": [],
+  "api_changes": [
+    {
+      "kind": "endpoint_change",
+      "detail": "The October 1, 2026 text-to-speech entry says these models are removed on January 6, 2027. Migrate to gpt-realtime-2.1-mini. See the Realtime API guide to plan your migration.",
+      "source_url": "https://developers.openai.com/api/docs/deprecations"
+    },
+    {
+      "kind": "endpoint_change",
+      "detail": "The text-to-speech guide says this is a change of API workflow: gpt-realtime-2.1-mini is not a supported model for /v1/audio/speech. Existing integrations can use the Speech API (client.audio.speech.create, POST /v1/audio/speech) until shutdown. The Realtime API guide is https://developers.openai.com/api/docs/guides/realtime.",
+      "source_url": "https://developers.openai.com/api/docs/guides/text-to-speech"
+    }
+  ],
+  "code_change": {
+    "language": "python",
+    "before": "",
+    "after": "",
+    "snippets": {
+      "python": {
+        "before": "",
+        "after": ""
+      },
+      "typescript": {
+        "before": "",
+        "after": ""
+      },
+      "curl": {
+        "before": "",
+        "after": ""
+      }
+    }
+  },
+  "migration_checklist": [
+    "Read the shutdown date for tts-1 on the linked official page.",
+    "Point your requests at gpt-realtime-2.1-mini.",
+    "Re-check price, context, and parameters on the provider pages linked here.",
+    "Ship the change before the published shutdown date."
+  ],
+  "confidence": "partial",
+  "last_checked": "2026-10-31",
+  "sources": [
+    {
+      "url": "https://developers.openai.com/api/docs/deprecations",
+      "label": "OpenAI deprecations",
+      "last_checked": "2026-10-31",
+      "excerpt": "Jan 6, 2027 | tts-1 | gpt-realtime-2.1-mini"
+    },
+    {
+      "url": "https://developers.openai.com/api/docs/deprecations",
+      "label": "Named as an official replacement",
+      "last_checked": "2026-10-31",
+      "excerpt": "Named as an official replacement for tts-1. No shutdown date was published for this id on that page."
+    },
+    {
+      "url": "https://developers.openai.com/api/docs/models/gpt-realtime-2.1-mini.md",
+      "label": "OpenAI model docs",
+      "last_checked": "2026-10-31",
+      "excerpt": "Model ID: gpt-realtime-2.1-mini | context window 128000 | max output 32000 | input $0.6 | output $2.4"
+    }
+  ]
+}

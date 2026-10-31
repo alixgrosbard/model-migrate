@@ -1,0 +1,95 @@
+---
+import Base from "../../layouts/Base.astro";
+import FaqList from "../../components/FaqList.astro";
+import ShutdownTable from "../../components/ShutdownTable.astro";
+import { scheduleGraph } from "../../jsonld.ts";
+import { clipMeta, today } from "../../lib/format.ts";
+import { monthLabel } from "../../lib/growth.ts";
+import { loadMigrations, loadModels, loadProviders } from "../../lib/load.ts";
+import { DEFAULT_SITE_URL } from "../../lib/site.ts";
+import {
+  groupRowsByMonth,
+  listItems,
+  monthKeyPath,
+  newestUpdated,
+  periodFaqs,
+  periodIntro,
+  PLATFORM_GUIDE_PATH,
+  shutdownsInMonth,
+  shutdownsInYear,
+  shutdownYearList,
+  TIMELINE_PATH,
+  toScheduleRows,
+  yearPath,
+  yearScope,
+} from "../../lib/schedule.ts";
+
+export async function getStaticPaths() {
+  const years = shutdownYearList(await loadModels());
+  return years.map((year) => ({ params: { year } }));
+}
+
+const year = Astro.params.year ?? "";
+if (!/^\d{4}$/.test(year)) throw new Error("Missing year");
+const day = today();
+const models = await loadModels();
+const providers = await loadProviders();
+const migrations = await loadMigrations();
+const selected = shutdownsInYear(models, year);
+if (!selected.length) throw new Error("Missing year");
+const rows = toScheduleRows(selected, models, providers, migrations, day);
+const groups = groupRowsByMonth(rows);
+const scope = yearScope(year);
+const intro = periodIntro(rows, providers, scope);
+const faqs = periodFaqs(rows, providers, scope, day);
+const description = clipMeta(intro);
+const path = yearPath(year);
+const name = `AI models shutting down in ${year}`;
+const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
+const monthLinks = [...new Set(selected.map((model) => model.shutdown_date!.slice(0, 7)))].sort();
+---
+<Base
+  title={`${name} | SunsetDiff`}
+  description={description}
+  crumbs={[{ name: "Home", path: "/" }, { name: "Timeline", path: TIMELINE_PATH }, { name: year, path }]}
+  extraGraph={scheduleGraph(
+    site,
+    {
+      path,
+      name,
+      description,
+      modified: newestUpdated(selected),
+      datasetName: `SunsetDiff AI model shutdowns in ${year}`,
+      temporalCoverage: year,
+      aboutUrl: "/data/models.json",
+    },
+    listItems(rows),
+    faqs,
+  )}
+>
+  <h1>{name}</h1>
+  <p class="answer">{intro}</p>
+  <p>
+    Counts come from the model records for {year}.
+    <a href="/upcoming/">Upcoming</a> lists dates from today forward.
+    <a href="/calendar/">Calendar</a> and <a href="/calendar.ics">calendar.ics</a> are the downloadable calendars.
+    <a href="/feed.xml">RSS</a> lists newly recorded deprecations.
+    The same model id can have a different date on Vertex, the Gemini API, Azure, or Bedrock.
+    <a href={PLATFORM_GUIDE_PATH}>Why shutdown dates differ by platform</a>.
+  </p>
+  <ul>
+    {monthLinks.map((month) => (
+      <li>
+        <a href={monthKeyPath(month)}>{monthLabel(month)}</a>: {shutdownsInMonth(models, month).length} models.
+        Deadline list: <a href={`/deadlines/${month}/`}>{month}</a>.
+      </li>
+    ))}
+  </ul>
+  {groups.map((group) => (
+    <section>
+      <h2 id={group.key}><a href={group.path}>{group.label}</a></h2>
+      <ShutdownTable rows={group.rows} caption={`Published shutdowns in ${group.label}.`} />
+    </section>
+  ))}
+  <FaqList items={faqs} />
+</Base>

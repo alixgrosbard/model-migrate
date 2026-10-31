@@ -1,0 +1,84 @@
+{
+  "from": {
+    "provider": "together",
+    "model_id": "thinkingmachines/Inkling-Small",
+    "slug": "thinkingmachines-inkling-small"
+  },
+  "to": {
+    "provider": "together",
+    "model_id": "zai-org/GLM-5.3-Flash",
+    "slug": "zai-org-glm-5-3-flash"
+  },
+  "price_diff": {
+    "input_pct_change": null,
+    "output_pct_change": null,
+    "example_monthly_cost_old": null,
+    "example_monthly_cost_new": 2.5,
+    "currency": "USD",
+    "example_label": "Example monthly cost for 10M input tokens and 2M output tokens. Labeled example, not a bill."
+  },
+  "context_diff": {
+    "old_tokens": null,
+    "new_tokens": 1048575,
+    "change_pct": null
+  },
+  "max_output_diff": {
+    "old_tokens": null,
+    "new_tokens": null,
+    "change_pct": null
+  },
+  "capability_changes": [],
+  "api_changes": [
+    {
+      "kind": "endpoint_change",
+      "detail": "The quickstart shows POST https://api.together.ai/v1/chat/completions and an OpenAI client base_url of https://api.together.ai/v1. This sample only changes the model field.",
+      "source_url": "https://docs.together.ai/docs/quickstart"
+    }
+  ],
+  "code_change": {
+    "language": "python",
+    "before": "from openai import OpenAI\nclient = OpenAI(base_url=\"https://api.together.ai/v1\")\nresponse = client.chat.completions.create(\n    model=\"thinkingmachines/Inkling-Small\",\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n)\n",
+    "after": "from openai import OpenAI\nclient = OpenAI(base_url=\"https://api.together.ai/v1\")\nresponse = client.chat.completions.create(\n    model=\"zai-org/GLM-5.3-Flash\",\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n)\n",
+    "snippets": {
+      "python": {
+        "before": "from openai import OpenAI\nclient = OpenAI(base_url=\"https://api.together.ai/v1\")\nresponse = client.chat.completions.create(\n    model=\"thinkingmachines/Inkling-Small\",\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n)\n",
+        "after": "from openai import OpenAI\nclient = OpenAI(base_url=\"https://api.together.ai/v1\")\nresponse = client.chat.completions.create(\n    model=\"zai-org/GLM-5.3-Flash\",\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n)\n"
+      },
+      "typescript": {
+        "before": "import OpenAI from \"openai\";\nconst client = new OpenAI({ baseURL: \"https://api.together.ai/v1\" });\nconst response = await client.chat.completions.create({\n  model: \"thinkingmachines/Inkling-Small\",\n  messages: [{ role: \"user\", content: \"Hello\" }],\n});\n",
+        "after": "import OpenAI from \"openai\";\nconst client = new OpenAI({ baseURL: \"https://api.together.ai/v1\" });\nconst response = await client.chat.completions.create({\n  model: \"zai-org/GLM-5.3-Flash\",\n  messages: [{ role: \"user\", content: \"Hello\" }],\n});\n"
+      },
+      "curl": {
+        "before": "curl https://api.together.ai/v1/chat/completions \\\n  -H \"Content-Type: application/json\" \\\n  -H \"Authorization: Bearer $TOGETHER_API_KEY\" \\\n  -d '{\"model\":\"thinkingmachines/Inkling-Small\",\"messages\":[{\"role\":\"user\",\"content\":\"Hello\"}]}'\n",
+        "after": "curl https://api.together.ai/v1/chat/completions \\\n  -H \"Content-Type: application/json\" \\\n  -H \"Authorization: Bearer $TOGETHER_API_KEY\" \\\n  -d '{\"model\":\"zai-org/GLM-5.3-Flash\",\"messages\":[{\"role\":\"user\",\"content\":\"Hello\"}]}'\n"
+      }
+    }
+  },
+  "migration_checklist": [
+    "Read the shutdown date for thinkingmachines/Inkling-Small on the linked official page.",
+    "This date is the serverless inference removal on the Together deprecations page.",
+    "Point your requests at zai-org/GLM-5.3-Flash and test before you send traffic."
+  ],
+  "confidence": "partial",
+  "last_checked": "2026-10-31",
+  "sources": [
+    {
+      "url": "https://docs.together.ai/docs/deprecations",
+      "label": "Together AI deprecations",
+      "last_checked": "2026-10-31",
+      "excerpt": "2026-09-15 | `thinkingmachines/Inkling-Small` | Yes"
+    },
+    {
+      "url": "https://docs.together.ai/docs/deprecations",
+      "label": "Named as an official replacement",
+      "last_checked": "2026-10-31",
+      "excerpt": "Named as an official replacement for google/gemma-4-31B-it."
+    },
+    {
+      "url": "https://docs.together.ai/docs/serverless/models",
+      "label": "Together AI serverless models",
+      "last_checked": "2026-10-31",
+      "excerpt": "zai-org/GLM-5.3-Flash | input 0.15 | output 0.5"
+    }
+  ]
+}

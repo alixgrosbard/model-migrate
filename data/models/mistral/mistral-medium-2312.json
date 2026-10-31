@@ -1,0 +1,63 @@
+{
+  "id": "mistral-medium-2312",
+  "slug": "mistral-medium-2312",
+  "provider": "mistral",
+  "display_name": "Mistral Medium 1.0 (23.12)",
+  "family": null,
+  "status": "retired",
+  "announced_date": null,
+  "deprecation_date": "2024-11-30",
+  "shutdown_date": "2025-06-16",
+  "shutdown_date_kind": "exact",
+  "region_or_platform_notes": "Replacement named on the models page: Mistral Medium 3.5.",
+  "replacements": [
+    {
+      "model_id": "mistral-medium-3-5",
+      "provider": "mistral",
+      "kind": "official",
+      "source_url": "https://docs.mistral.ai/models"
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://docs.mistral.ai/models",
+      "label": "Mistral models",
+      "last_checked": "2026-10-31",
+      "excerpt": "Mistral Medium 1.0 | 23.12 | mistral-medium-2312 | 11/30/2024 6/16/2025 | Mistral Medium 3.5"
+    },
+    {
+      "url": "https://docs.mistral.ai/models/mistral-medium-1-0-23-12",
+      "label": "Mistral model docs",
+      "last_checked": "2026-10-31",
+      "excerpt": "mistral-medium-2312 | Context 32k"
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": null,
+    "output_price_per_mtok": null,
+    "cached_input_price_per_mtok": null,
+    "batch_discount_pct": null,
+    "currency": null,
+    "context_window_tokens": 32000,
+    "max_output_tokens": null,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {
+      "context_window_tokens": {
+        "url": "https://docs.mistral.ai/models/mistral-medium-1-0-23-12",
+        "last_checked": "2026-10-31"
+      }
+    }
+  },
+  "first_seen": "2026-10-17T15:59:19.574Z",
+  "updated_at": "2026-10-30T20:09:35.319Z"
+}

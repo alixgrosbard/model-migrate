@@ -1,0 +1,79 @@
+{
+  "from": {
+    "provider": "openai",
+    "model_id": "gpt-4o-mini-transcribe-2025-03-20",
+    "slug": "gpt-4o-mini-transcribe-2025-03-20"
+  },
+  "to": {
+    "provider": "openai",
+    "model_id": "gpt-4o-mini-transcribe-2025-12-15",
+    "slug": "gpt-4o-mini-transcribe-2025-12-15"
+  },
+  "price_diff": {
+    "input_pct_change": null,
+    "output_pct_change": null,
+    "example_monthly_cost_old": null,
+    "example_monthly_cost_new": null,
+    "currency": "USD",
+    "example_label": "Example monthly cost for 10M input tokens and 2M output tokens. Labeled example, not a bill."
+  },
+  "context_diff": {
+    "old_tokens": null,
+    "new_tokens": 16000,
+    "change_pct": null
+  },
+  "max_output_diff": {
+    "old_tokens": null,
+    "new_tokens": 2000,
+    "change_pct": null
+  },
+  "capability_changes": [],
+  "api_changes": [],
+  "code_change": {
+    "language": "python",
+    "before": "from openai import OpenAI\nclient = OpenAI()\naudio_file = open(\"audio.wav\", \"rb\")\ntranscription = client.audio.transcriptions.create(\n    model=\"gpt-4o-mini-transcribe-2025-03-20\", file=audio_file\n)\n",
+    "after": "from openai import OpenAI\nclient = OpenAI()\naudio_file = open(\"audio.wav\", \"rb\")\ntranscription = client.audio.transcriptions.create(\n    model=\"gpt-4o-mini-transcribe-2025-12-15\", file=audio_file\n)\n",
+    "snippets": {
+      "python": {
+        "before": "from openai import OpenAI\nclient = OpenAI()\naudio_file = open(\"audio.wav\", \"rb\")\ntranscription = client.audio.transcriptions.create(\n    model=\"gpt-4o-mini-transcribe-2025-03-20\", file=audio_file\n)\n",
+        "after": "from openai import OpenAI\nclient = OpenAI()\naudio_file = open(\"audio.wav\", \"rb\")\ntranscription = client.audio.transcriptions.create(\n    model=\"gpt-4o-mini-transcribe-2025-12-15\", file=audio_file\n)\n"
+      },
+      "typescript": {
+        "before": "import fs from \"fs\";\nimport OpenAI from \"openai\";\nconst openai = new OpenAI();\nconst transcription = await openai.audio.transcriptions.create({\n  file: fs.createReadStream(\"audio.mp3\"),\n  model: \"gpt-4o-mini-transcribe-2025-03-20\",\n});\n",
+        "after": "import fs from \"fs\";\nimport OpenAI from \"openai\";\nconst openai = new OpenAI();\nconst transcription = await openai.audio.transcriptions.create({\n  file: fs.createReadStream(\"audio.mp3\"),\n  model: \"gpt-4o-mini-transcribe-2025-12-15\",\n});\n"
+      },
+      "curl": {
+        "before": "curl --request POST \\\n  --url https://api.openai.com/v1/audio/transcriptions \\\n  --header \"Authorization: Bearer $OPENAI_API_KEY\" \\\n  --header \"Content-Type: multipart/form-data\" \\\n  --form file=@/path/to/file/audio.mp3 \\\n  --form model=gpt-4o-mini-transcribe-2025-03-20\n",
+        "after": "curl --request POST \\\n  --url https://api.openai.com/v1/audio/transcriptions \\\n  --header \"Authorization: Bearer $OPENAI_API_KEY\" \\\n  --header \"Content-Type: multipart/form-data\" \\\n  --form file=@/path/to/file/audio.mp3 \\\n  --form model=gpt-4o-mini-transcribe-2025-12-15\n"
+      }
+    }
+  },
+  "migration_checklist": [
+    "Read the shutdown date for gpt-4o-mini-transcribe-2025-03-20 on the linked official page.",
+    "Point your requests at gpt-4o-mini-transcribe-2025-12-15.",
+    "Re-check price, context, and parameters on the provider pages linked here.",
+    "Ship the change before the published shutdown date."
+  ],
+  "confidence": "partial",
+  "last_checked": "2026-10-31",
+  "sources": [
+    {
+      "url": "https://developers.openai.com/api/docs/deprecations",
+      "label": "OpenAI deprecations",
+      "last_checked": "2026-10-31",
+      "excerpt": "Jan 20, 2027 | gpt-4o-mini-transcribe-2025-03-20 | gpt-4o-mini-transcribe-2025-12-15"
+    },
+    {
+      "url": "https://developers.openai.com/api/docs/deprecations",
+      "label": "OpenAI deprecations",
+      "last_checked": "2026-10-31",
+      "excerpt": "Feb 26, 2027 | gpt-4o-mini-transcribe | gpt-4o-mini-transcribe-2025-12-15 | gpt-live-transcribe or gpt-transcribe"
+    },
+    {
+      "url": "https://developers.openai.com/api/docs/models/gpt-4o-mini-transcribe.md",
+      "label": "OpenAI model docs",
+      "last_checked": "2026-10-31",
+      "excerpt": "Model ID: gpt-4o-mini-transcribe | context window 16000 | max output 2000 | Default snapshot gpt-4o-mini-transcribe-2025-12-15"
+    }
+  ]
+}

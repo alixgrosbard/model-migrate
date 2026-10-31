@@ -1,0 +1,45 @@
+{
+  "id": "amazon.nova-canvas-v1:0",
+  "slug": "amazon-nova-canvas-v1-0",
+  "provider": "aws-bedrock",
+  "display_name": "Nova Canvas (amazon.nova-canvas-v1:0)",
+  "family": "amazon.nova-canvas",
+  "status": "retired",
+  "announced_date": null,
+  "deprecation_date": "2026-03-30",
+  "shutdown_date": "2026-09-30",
+  "shutdown_date_kind": "exact",
+  "region_or_platform_notes": "Regions listed on the lifecycle page: ap-northeast-1, eu-west-1, us-east-1 (legacy 2026-03-30).",
+  "replacements": [],
+  "sources": [
+    {
+      "url": "https://docs.aws.amazon.com/bedrock/latest/userguide/model-lifecycle-legacy.html",
+      "label": "Amazon Bedrock model lifecycle (legacy)",
+      "last_checked": "2026-10-31",
+      "excerpt": "Policy page https://docs.aws.amazon.com/bedrock/latest/userguide/model-lifecycle.html | Amazon | Nova Canvas | amazon.nova-canvas-v1:0 | ap-northeast-1, eu-west-1, us-east-1 | March 30, 2026 | September 30, 2026 | —"
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": null,
+    "output_price_per_mtok": null,
+    "cached_input_price_per_mtok": null,
+    "batch_discount_pct": null,
+    "currency": null,
+    "context_window_tokens": null,
+    "max_output_tokens": null,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {}
+  },
+  "first_seen": "2026-10-17T15:59:19.574Z",
+  "updated_at": "2026-10-24T04:39:18.299Z"
+}

@@ -1,0 +1,103 @@
+{
+  "from": {
+    "provider": "github-copilot",
+    "model_id": "Gemini 3 Flash",
+    "slug": "gemini-3-flash"
+  },
+  "to": {
+    "provider": "github-copilot",
+    "model_id": "Gemini 3.6 Flash",
+    "slug": "gemini-3-6-flash"
+  },
+  "price_diff": {
+    "input_pct_change": null,
+    "output_pct_change": null,
+    "example_monthly_cost_old": null,
+    "example_monthly_cost_new": null,
+    "currency": "USD",
+    "example_label": "Example monthly cost for 10M input tokens and 2M output tokens. Labeled example, not a bill."
+  },
+  "context_diff": {
+    "old_tokens": null,
+    "new_tokens": null,
+    "change_pct": null
+  },
+  "max_output_diff": {
+    "old_tokens": null,
+    "new_tokens": null,
+    "change_pct": null
+  },
+  "capability_changes": [],
+  "api_changes": [
+    {
+      "kind": "behavior_change",
+      "detail": "The GitHub changelog says the replacement shows up in the Copilot Chat model selector. That post does not print a request body, so this page does not show code.",
+      "source_url": "https://github.blog/changelog/2026-07-02-upcoming-deprecation-of-gemini-2-5-pro-and-gemini-3-flash"
+    }
+  ],
+  "code_change": {
+    "language": "python",
+    "before": "",
+    "after": "",
+    "snippets": {
+      "python": {
+        "before": "",
+        "after": ""
+      },
+      "typescript": {
+        "before": "",
+        "after": ""
+      },
+      "curl": {
+        "before": "",
+        "after": ""
+      }
+    }
+  },
+  "migration_checklist": [
+    "Read the Copilot date for Gemini 3 Flash on the linked GitHub page.",
+    "This date is for models Copilot offers in chat and agent features. It can differ from the original provider's API date.",
+    "Choose Gemini 3.6 Flash in the Copilot Chat model selector.",
+    "The linked changelog does not print a request sample."
+  ],
+  "confidence": "partial",
+  "last_checked": "2026-10-31",
+  "sources": [
+    {
+      "url": "https://docs.github.com/en/copilot/reference/ai-models/supported-models",
+      "label": "GitHub Copilot supported models",
+      "last_checked": "2026-10-31",
+      "excerpt": "Gemini 3 Flash | 2026-07-31 | Latest Gemini Flash model"
+    },
+    {
+      "url": "https://github.blog/changelog/2026-07-02-upcoming-deprecation-of-gemini-2-5-pro-and-gemini-3-flash",
+      "label": "GitHub Changelog",
+      "last_checked": "2026-10-31",
+      "excerpt": "Gemini 3 Flash | Gemini 3.5 Flash"
+    },
+    {
+      "url": "https://github.blog/changelog/2026-07-31-gemini-2-5-pro-and-gemini-3-flash-deprecated",
+      "label": "GitHub Changelog",
+      "last_checked": "2026-10-31",
+      "excerpt": "Gemini 3 Flash | Gemini 3.6 Flash"
+    },
+    {
+      "url": "https://docs.github.com/en/copilot/reference/ai-models/supported-models",
+      "label": "GitHub Copilot supported models",
+      "last_checked": "2026-10-31",
+      "excerpt": "Gemini 3.6 Flash | 2026-10-02 | Latest Gemini Flash model"
+    },
+    {
+      "url": "https://github.blog/changelog/2026-09-03-upcoming-deprecation-of-selected-github-copilot-models",
+      "label": "GitHub Changelog",
+      "last_checked": "2026-10-31",
+      "excerpt": "Gemini 3.6 Flash | Gemini 3.8 Flash"
+    },
+    {
+      "url": "https://github.blog/changelog/2026-10-02-selected-models-in-github-copilot-deprecated",
+      "label": "GitHub Changelog",
+      "last_checked": "2026-10-31",
+      "excerpt": "Gemini 3.6 Flash | Gemini 3.8 Flash"
+    }
+  ]
+}

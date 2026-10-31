@@ -1,0 +1,70 @@
+{
+  "id": "qwen/qwen3.8-27b",
+  "slug": "qwen-qwen3-8-27b",
+  "provider": "groq",
+  "display_name": "qwen/qwen3.8-27b",
+  "family": null,
+  "status": "active",
+  "announced_date": null,
+  "deprecation_date": null,
+  "shutdown_date": null,
+  "shutdown_date_kind": "none",
+  "region_or_platform_notes": "The models page lists this id under Preview Models. Preview models are intended for evaluation purposes only and should not be used in production environments as they may be discontinued at short notice. No shutdown date is published. The deprecations page calls qwen/qwen3.8-27b a direct successor with tool use and JSON mode.",
+  "replacements": [],
+  "sources": [
+    {
+      "url": "https://console.groq.com/docs/models",
+      "label": "Groq supported models",
+      "last_checked": "2026-10-31",
+      "excerpt": "qwen/qwen3.8-27b | preview | context 131072 | max completion 16384 | input $0.8 | output $4"
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": 0.8,
+    "output_price_per_mtok": 4,
+    "cached_input_price_per_mtok": null,
+    "batch_discount_pct": null,
+    "currency": "USD",
+    "context_window_tokens": 131072,
+    "max_output_tokens": 16384,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": true,
+    "supports_json_schema": true,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {
+      "context_window_tokens": {
+        "url": "https://console.groq.com/docs/models",
+        "last_checked": "2026-10-31"
+      },
+      "input_price_per_mtok": {
+        "url": "https://console.groq.com/docs/models",
+        "last_checked": "2026-10-31"
+      },
+      "max_output_tokens": {
+        "url": "https://console.groq.com/docs/models",
+        "last_checked": "2026-10-31"
+      },
+      "output_price_per_mtok": {
+        "url": "https://console.groq.com/docs/models",
+        "last_checked": "2026-10-31"
+      },
+      "supports_json_schema": {
+        "url": "https://console.groq.com/docs/deprecations",
+        "last_checked": "2026-10-31"
+      },
+      "supports_tools": {
+        "url": "https://console.groq.com/docs/deprecations",
+        "last_checked": "2026-10-31"
+      }
+    }
+  },
+  "first_seen": "2026-10-26T12:00:00.000Z",
+  "updated_at": "2026-10-26T12:00:00.000Z"
+}

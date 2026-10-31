@@ -1,0 +1,79 @@
+{
+  "from": {
+    "provider": "groq",
+    "model_id": "meta-llama/llama-4-maverick-17b-128e-instruct",
+    "slug": "meta-llama-llama-4-maverick-17b-128e-instruct"
+  },
+  "to": {
+    "provider": "groq",
+    "model_id": "openai/gpt-oss-120b",
+    "slug": "openai-gpt-oss-120b"
+  },
+  "price_diff": {
+    "input_pct_change": null,
+    "output_pct_change": null,
+    "example_monthly_cost_old": null,
+    "example_monthly_cost_new": 2.7,
+    "currency": "USD",
+    "example_label": "Example monthly cost for 10M input tokens and 2M output tokens. Labeled example, not a bill."
+  },
+  "context_diff": {
+    "old_tokens": null,
+    "new_tokens": 131072,
+    "change_pct": null
+  },
+  "max_output_diff": {
+    "old_tokens": null,
+    "new_tokens": 65536,
+    "change_pct": null
+  },
+  "capability_changes": [],
+  "api_changes": [
+    {
+      "kind": "endpoint_change",
+      "detail": "The Groq API reference says chat completions are POST https://api.groq.com/openai/v1/chat/completions. The sample only changes the model field.",
+      "source_url": "https://console.groq.com/docs/api-reference"
+    }
+  ],
+  "code_change": {
+    "language": "python",
+    "before": "from groq import Groq\nclient = Groq()\nchat_completion = client.chat.completions.create(\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n    model=\"meta-llama/llama-4-maverick-17b-128e-instruct\",\n)\n",
+    "after": "from groq import Groq\nclient = Groq()\nchat_completion = client.chat.completions.create(\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n    model=\"openai/gpt-oss-120b\",\n)\n",
+    "snippets": {
+      "python": {
+        "before": "from groq import Groq\nclient = Groq()\nchat_completion = client.chat.completions.create(\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n    model=\"meta-llama/llama-4-maverick-17b-128e-instruct\",\n)\n",
+        "after": "from groq import Groq\nclient = Groq()\nchat_completion = client.chat.completions.create(\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n    model=\"openai/gpt-oss-120b\",\n)\n"
+      },
+      "typescript": {
+        "before": "import Groq from \"groq-sdk\";\nconst groq = new Groq();\nconst completion = await groq.chat.completions.create({\n  messages: [{ role: \"user\", content: \"Hello\" }],\n  model: \"meta-llama/llama-4-maverick-17b-128e-instruct\",\n});\n",
+        "after": "import Groq from \"groq-sdk\";\nconst groq = new Groq();\nconst completion = await groq.chat.completions.create({\n  messages: [{ role: \"user\", content: \"Hello\" }],\n  model: \"openai/gpt-oss-120b\",\n});\n"
+      },
+      "curl": {
+        "before": "curl https://api.groq.com/openai/v1/chat/completions \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"model\":\"meta-llama/llama-4-maverick-17b-128e-instruct\",\"messages\":[{\"role\":\"user\",\"content\":\"Hello\"}]}'\n",
+        "after": "curl https://api.groq.com/openai/v1/chat/completions \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"model\":\"openai/gpt-oss-120b\",\"messages\":[{\"role\":\"user\",\"content\":\"Hello\"}]}'\n"
+      }
+    }
+  },
+  "migration_checklist": [
+    "Read the shutdown date for meta-llama/llama-4-maverick-17b-128e-instruct on the linked official page.",
+    "Point your requests at openai/gpt-oss-120b.",
+    "Re-check price, context, and parameters on the provider pages linked here.",
+    "Ship the change before the published shutdown date."
+  ],
+  "confidence": "partial",
+  "last_checked": "2026-10-31",
+  "sources": [
+    {
+      "url": "https://console.groq.com/docs/deprecations",
+      "label": "Groq model deprecations",
+      "last_checked": "2026-10-31",
+      "excerpt": "meta-llama/llama-4-maverick-17b-128e-instruct | 2026-03-09 | openai/gpt-oss-120b"
+    },
+    {
+      "url": "https://console.groq.com/docs/models",
+      "label": "Groq supported models",
+      "last_checked": "2026-10-31",
+      "excerpt": "openai/gpt-oss-120b | production | context 131072 | max completion 65536 | input $0.15 | output $0.6"
+    }
+  ]
+}

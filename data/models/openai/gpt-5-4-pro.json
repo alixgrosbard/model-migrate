@@ -1,0 +1,62 @@
+{
+  "id": "gpt-5.4-pro",
+  "slug": "gpt-5-4-pro",
+  "provider": "openai",
+  "display_name": "gpt-5.4-pro",
+  "family": null,
+  "status": "active",
+  "announced_date": null,
+  "deprecation_date": null,
+  "shutdown_date": null,
+  "shutdown_date_kind": "none",
+  "region_or_platform_notes": null,
+  "replacements": [],
+  "sources": [
+    {
+      "url": "https://developers.openai.com/api/docs/models/gpt-5.4-pro.md",
+      "label": "OpenAI model docs",
+      "last_checked": "2026-10-31",
+      "excerpt": "Model ID: gpt-5.4-pro | Version of GPT-5.4 that produces smarter and more precise responses."
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": 30,
+    "output_price_per_mtok": 180,
+    "cached_input_price_per_mtok": null,
+    "batch_discount_pct": null,
+    "currency": "USD",
+    "context_window_tokens": 1050000,
+    "max_output_tokens": 128000,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {
+      "context_window_tokens": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-5.4-pro.md",
+        "last_checked": "2026-10-31"
+      },
+      "input_price_per_mtok": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-5.4-pro.md",
+        "last_checked": "2026-10-31"
+      },
+      "max_output_tokens": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-5.4-pro.md",
+        "last_checked": "2026-10-31"
+      },
+      "output_price_per_mtok": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-5.4-pro.md",
+        "last_checked": "2026-10-31"
+      }
+    }
+  },
+  "first_seen": "2026-10-26T05:20:22.098Z",
+  "updated_at": "2026-10-26T05:20:22.098Z"
+}

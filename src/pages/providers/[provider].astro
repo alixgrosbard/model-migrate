@@ -1,0 +1,216 @@
+---
+import Base from "../../layouts/Base.astro";
+import { loadModels, loadProviders, providerName } from "../../lib/load.ts";
+import { featuredModelLinks } from "../../lib/featured.ts";
+import { requestErrorPath, requestErrorsForProvider } from "../../lib/request-errors.ts";
+import { formatWhen, isUpcomingShutdown, today } from "../../lib/format.ts";
+import { publicName } from "../../lib/growth.ts";
+import { providersHub } from "../../lib/hubs.ts";
+import { providerStatusPath, STATUS_HUBS } from "../../lib/status-hubs.ts";
+import { COPILOT_NOV16_PATH, COPILOT_NOV16_TITLE, copilotNov16Hit, shutdownEventPath, shutdownEvents } from "../../lib/shutdowns.ts";
+import { guideBySlug, guidePath } from "../../lib/guides.ts";
+import type { ModelRecord } from "../../schema.ts";
+
+export async function getStaticPaths() {
+  const providers = await loadProviders();
+  return providers.map((provider) => ({ params: { provider: provider.id } }));
+}
+const { provider: providerId } = Astro.params;
+const providers = await loadProviders();
+const provider = providers.find((item) => item.id === providerId);
+if (!provider) throw new Error("Missing provider");
+const day = today();
+const allModels = await loadModels();
+const models = allModels.filter((model) => model.provider === provider.id);
+const featured = featuredModelLinks(allModels).filter((item) => item.provider === provider.id);
+const errorPages = requestErrorsForProvider(provider.id);
+const soonest = models
+  .filter((model) => isUpcomingShutdown(model, day))
+  .sort((a, b) => (a.shutdown_date ?? "").localeCompare(b.shutdown_date ?? ""))
+  .slice(0, 8);
+const groups: ModelRecord["status"][] = ["deprecated", "legacy", "retired", "active"];
+const description = `${provider.name} model shutdown dates, grouped by status.`;
+const minimaxNov18 = shutdownEvents(allModels).find((event) => event.slug === "minimax-2026-11-18");
+const openaiGuides = provider.id === "openai"
+  ? ["openai-december-11-2026-shutdowns", "openai-gpt-4-1-gpt-4o-shutdown-january-2027"].flatMap((slug) => {
+      const guide = guideBySlug(slug);
+      return guide ? [guide] : [];
+    })
+  : [];
+---
+<Base
+  title={`${provider.name} model shutdowns and replacements | SunsetDiff`}
+  description={`Shutdown dates and official replacements for ${provider.name} models, with links to each migration diff.`}
+  image={`/og/providers/${provider.id}.svg`}
+  crumbs={[{ name: "Home", path: "/" }, { name: providersHub.nav, path: providersHub.path }, { name: provider.name, path: `/providers/${provider.id}/` }]}
+>
+  <h1>{provider.name}</h1>
+  {provider.id === "github-copilot" && copilotNov16Hit(allModels) ? (
+    <p><a href={COPILOT_NOV16_PATH}>{COPILOT_NOV16_TITLE}</a></p>
+  ) : null}
+  {provider.id === "nvidia" ? (
+    <p>
+      Hosted catalog: <a href={provider.models_url}>{provider.models_url}</a>.
+      A row is here when a build.nvidia.com model page says the hosted NIM endpoint is deprecated, or when an NVIDIA GitHub notice states the shutdown.
+      Pages that do not print a day are stored with no shutdown date.
+      The <a href="https://docs.nvidia.com/ai-enterprise/lifecycle/latest/eol-notices.html">NVIDIA AI Enterprise lifecycle notices</a> are a different list: self-hosted NIM containers and other enterprise components.
+      <a href="/guides/nvidia-hosted-api-vs-nim-containers/">Hosted API vs NIM containers</a>.
+      <a href="/#soonest">Soonest shutdowns on the homepage</a>.
+    </p>
+  ) : provider.id === "openrouter" ? (
+    <p>
+      Models API: <a href={provider.models_url}>{provider.models_url}</a>.
+      A row is here only when that response sets expiration_date.
+      The <a href={provider.deprecations_url}>models guide</a> calls that field the deprecation date for the model endpoint.
+      The <a href="https://openrouter.ai/docs/client-sdks/python/components/model">model schema</a> says it is the date after which the model may be removed, so the stored shutdown kind is not_before.
+      A null expiration_date is not listed. The response does not name a replacement.
+      <a href="/#soonest">Soonest shutdowns on the homepage</a>.
+    </p>
+  ) : provider.id === "nebius" ? (
+    <p>
+      Official notices: <a href={provider.deprecations_url}>{provider.deprecations_url}</a>
+      and <a href="https://docs.tokenfactory.nebius.com/august-2026-deprecation-notice">August 2026 deprecations</a>.
+      This change only affects Serverless usage. Dedicated Endpoints are unaffected.
+      Token Factory does not automatically reroute requests from deprecated models.
+      The <a href={provider.models_url}>quickstart</a> shows the API host.
+      The <a href={provider.pricing_url}>billing page</a> does not print a per-token price.
+      <a href="/#soonest">Soonest shutdowns on the homepage</a>.
+    </p>
+  ) : provider.id === "together" ? (
+    <p>
+      Official page: <a href={provider.deprecations_url}>{provider.deprecations_url}</a>.
+      Rows come from the scheduled serverless table, the inference removal table, the fine-tuning removal table, and the active redirects.
+      A past removal date is retired. A future removal date is deprecated.
+      Redirects have no removal date. Requests to the original model id are routed to the upgraded version.
+      When the scheduled table and the inference table list different dates, the stored shutdown date is the inference table date.
+      The <a href={provider.models_url}>serverless models page</a> supplies a per-million-token price only when it lists that id.
+      <a href="/#soonest">Soonest shutdowns on the homepage</a>.
+    </p>
+  ) : provider.id === "fireworks" ? (
+    <p>
+      Official page: <a href={provider.deprecations_url}>{provider.deprecations_url}</a>.
+      A row is stored when a deprecation links a model page.
+      The model id is accounts/fireworks/models/ plus that slug, the same shape the <a href={provider.models_url}>quickstart</a> uses.
+      A US-only row uses the id on the <a href="https://docs.fireworks.ai/serverless/us-only-serverless">US-only serverless page</a>.
+      A display name with no model link is not stored.
+      Dedicated deployments stay up when the changelog says that.
+      <a href="/#soonest">Soonest shutdowns on the homepage</a>.
+    </p>
+  ) : provider.id === "minimax" ? (
+    <p>
+      Official page: <a href={provider.deprecations_url}>{provider.deprecations_url}</a>.
+      The retirement notice says MiniMax M2.5 and M2.7 are no longer available to new users on October 19, 2026, and are retired on November 18, 2026.
+      Pay-as-you-go API requests stop working once they are retired.
+      M Plan and Token Plan requests are automatically routed to M3.1 Flash, and the existing model names keep working.
+      The Retired Models table on the same page lists those ids as Retired.
+      On this page the November 18 ids stay in the deprecated table.
+      MiniMax-M2, MiniMax-M2.1, MiniMax-M2.1-highspeed, M2-her, and the music rows are in the retired table, because that page does not print a shutdown date for them.
+      The <a href={provider.pricing_url}>pricing page</a> is not parsed for these rows.
+      {minimaxNov18 ? <><a href={shutdownEventPath(minimaxNov18)}>November 18, 2026 shutdowns</a>. </> : null}
+      <a href="/guides/minimax-m2-5-m2-7-shutdown-november-18-2026/">M2.5 and M2.7 shutdown guide</a>.
+      <a href="/#soonest">Soonest shutdowns on the homepage</a>.
+    </p>
+  ) : provider.id === "cloudflare-workers-ai" ? (
+    <p>
+      Official page: <a href={provider.deprecations_url}>{provider.deprecations_url}</a>.
+      There is no separate Workers AI deprecations index. The refresh also reads the <a href="https://developers.cloudflare.com/workers-ai/changelog/">Workers AI changelog</a>.
+      The May 30, 2026 list is deprecated on that day. Only a line with an arrow stores a replacement.
+      The -fast and -lora variants named on that post remain active.
+      The October 1, 2025 changelog list has no per-model replacement id.
+      <a href={provider.models_url}>Model catalog</a>.
+      <a href="/#soonest">Soonest shutdowns on the homepage</a>.
+    </p>
+  ) : provider.id === "github-copilot" ? (
+    <p>
+      Official page: <a href={provider.deprecations_url}>{provider.deprecations_url}</a>.
+      A Copilot retirement is about which models Copilot offers in chat and agent features.
+      That date can differ from the same model's date on the original provider's own API.
+      {providers.some((item) => item.id === "openai") ? <><a href="/providers/openai/">OpenAI</a> · </> : null}
+      {providers.some((item) => item.id === "anthropic") ? <><a href="/providers/anthropic/">Anthropic</a> · </> : null}
+      {providers.some((item) => item.id === "google-gemini-api") ? <><a href="/providers/google-gemini-api/">Google Gemini API</a> · </> : null}
+      {providers.some((item) => item.id === "xai") ? <><a href="/providers/xai/">xAI</a> · </> : null}
+      <a href="/#soonest">Soonest shutdowns on the homepage</a>.
+    </p>
+  ) : (
+    <p>Official source: <a href={provider.deprecations_url}>{provider.deprecations_url}</a>. <a href="/#soonest">Soonest shutdowns on the homepage</a>.</p>
+  )}
+  {openaiGuides.length ? (
+    <p>
+      {openaiGuides.map((guide, index) => (
+        <>
+          {index > 0 ? " · " : null}
+          <a href={guidePath(guide.slug)}>{guide.h1}</a>
+        </>
+      ))}
+    </p>
+  ) : null}
+  <p>
+    {STATUS_HUBS.map((hub) => {
+      const count = models.filter((model) => model.status === hub.kind).length;
+      return count ? <><a href={providerStatusPath(provider.id, hub.kind)}>{hub.nav} {provider.name} models</a> ({count}) · </> : null;
+    })}
+    <a href="/deprecated/">All deprecated models</a> · <a href="/retired/">All retired models</a>
+  </p>
+  {featured.length ? (
+    <>
+      <h2>Often looked up</h2>
+      <ul>
+        {featured.map((item) => <li><a href={item.href}>{item.label}</a></li>)}
+      </ul>
+    </>
+  ) : null}
+  {errorPages.length ? (
+    <>
+      <h2>Request errors</h2>
+      <ul>
+        {errorPages.map((page) => <li><a href={requestErrorPath(page.slug)}>{page.h1}</a></li>)}
+      </ul>
+    </>
+  ) : null}
+  <h2>Soonest shutdowns</h2>
+  <ul>
+    {soonest.length ? soonest.map((model) => (
+        <li>
+          <a href={`/models/${model.provider}/${model.slug}/`}>{publicName(model)}</a>
+          {": "}{formatWhen(model)}
+          {model.provider === "aws-bedrock" && model.region_or_platform_notes ? <> ({model.region_or_platform_notes})</> : null}
+          {model.replacements[0] ? <> · <a href={`/replace/${model.provider}/${model.slug}/`}>replacement diff</a></> : null}
+        </li>
+      )) : <li>No upcoming shutdown dates are published.</li>}
+  </ul>
+  <button type="button" id="sort-shutdown">Sort by shutdown date</button>
+  {groups.map((status) => {
+    const rows = models.filter((model) => model.status === status);
+    if (!rows.length) return null;
+    return (
+      <section>
+        <h2>{status}</h2>
+        <table data-sortable>
+          <caption>{providerName(providers, provider.id)} {status} models</caption>
+          <thead><tr><th>Model</th><th>Shutdown</th><th>Replacement</th></tr></thead>
+          <tbody>
+            {rows.map((model) => (
+              <tr data-shutdown={model.shutdown_date ?? "9999-99-99"}>
+                <td>
+                  <a href={`/models/${model.provider}/${model.slug}/`}>{publicName(model)}</a><br /><code>{model.id}</code>
+                  {model.provider === "aws-bedrock" && model.region_or_platform_notes ? <><br />{model.region_or_platform_notes}</> : null}
+                </td>
+                <td>{formatWhen(model)}</td>
+                <td>{model.replacements[0] ? <a href={`/replace/${model.provider}/${model.slug}/`}>{model.replacements[0].model_id}</a> : "Not published"}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+    );
+  })}
+  <script>
+    document.querySelector("#sort-shutdown")?.addEventListener("click", () => {
+      document.querySelectorAll("[data-sortable] tbody").forEach((body) => {
+        const rows = [...body.querySelectorAll("tr")];
+        rows.sort((a, b) => (a.getAttribute("data-shutdown") ?? "").localeCompare(b.getAttribute("data-shutdown") ?? ""));
+        rows.forEach((row) => body.append(row));
+      });
+    });
+  </script>
+</Base>

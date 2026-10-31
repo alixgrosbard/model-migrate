@@ -1,0 +1,56 @@
+{
+  "id": "labs-mistral-small-creative",
+  "slug": "labs-mistral-small-creative",
+  "provider": "mistral",
+  "display_name": "Mistral Small Creative (25.12)",
+  "family": null,
+  "status": "retired",
+  "announced_date": null,
+  "deprecation_date": "2026-03-31",
+  "shutdown_date": "2026-04-30",
+  "shutdown_date_kind": "exact",
+  "region_or_platform_notes": "Replacement named on the models page: Ministral 3 8B.",
+  "replacements": [],
+  "sources": [
+    {
+      "url": "https://docs.mistral.ai/models",
+      "label": "Mistral models",
+      "last_checked": "2026-10-31",
+      "excerpt": "Mistral Small Creative | 25.12 | labs-mistral-small-creative | 3/31/2026 4/30/2026 | Ministral 3 8B"
+    },
+    {
+      "url": "https://docs.mistral.ai/models/mistral-small-creative-25-12",
+      "label": "Mistral model docs",
+      "last_checked": "2026-10-31",
+      "excerpt": "labs-mistral-small-creative | Context 32k"
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": null,
+    "output_price_per_mtok": null,
+    "cached_input_price_per_mtok": null,
+    "batch_discount_pct": null,
+    "currency": null,
+    "context_window_tokens": 32000,
+    "max_output_tokens": null,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {
+      "context_window_tokens": {
+        "url": "https://docs.mistral.ai/models/mistral-small-creative-25-12",
+        "last_checked": "2026-10-31"
+      }
+    }
+  },
+  "first_seen": "2026-10-17T15:59:19.574Z",
+  "updated_at": "2026-10-24T04:39:18.299Z"
+}

@@ -1,0 +1,81 @@
+services:
+  - type: web
+    name: sunsetdiff-site
+    runtime: static
+    plan: free
+    branch: cursor/sunsetdiff-v1-3cab
+    autoDeploy: true
+    buildCommand: npm ci && npm run build
+    staticPublishPath: dist
+    routes:
+      - type: redirect
+        source: /sitemap.xml
+        destination: /sitemap-index.xml
+    headers:
+      - path: /api/*
+        name: Access-Control-Allow-Origin
+        value: "*"
+      - path: /api/*
+        name: Content-Type
+        value: application/json
+      - path: /openapi.json
+        name: Access-Control-Allow-Origin
+        value: "*"
+      - path: /openapi.json
+        name: Content-Type
+        value: application/json
+      - path: /.well-known/mcp-registry-auth
+        name: Content-Type
+        value: text/plain; charset=utf-8
+      - path: /rss.xml
+        name: Content-Type
+        value: application/rss+xml; charset=utf-8
+      - path: /dataset/*
+        name: Access-Control-Allow-Origin
+        value: "*"
+      # * does not cross slashes. ** matches the provider directory.
+      - path: /badge/**/*.svg
+        name: Content-Type
+        value: image/svg+xml
+      - path: /badge/**/*.svg
+        name: Cache-Control
+        value: public, max-age=3600, stale-while-revalidate=86400
+      - path: /badge/**/*.svg
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /badge/**/*.json
+        name: Content-Type
+        value: application/json; charset=utf-8
+      - path: /badge/**/*.json
+        name: Cache-Control
+        value: public, max-age=3600, stale-while-revalidate=86400
+      - path: /badge/**/*.json
+        name: Access-Control-Allow-Origin
+        value: "*"
+      - path: /_astro/*
+        name: Cache-Control
+        value: public, max-age=31536000, immutable
+  - type: web
+    name: sunsetdiff-api
+    runtime: node
+    plan: free
+    branch: cursor/sunsetdiff-v1-3cab
+    autoDeploy: true
+    buildCommand: npm ci && npm run build:service
+    startCommand: node service/dist/index.js
+    healthCheckPath: /health
+    envVars:
+      - key: RESEND_API_KEY
+        sync: false
+      - key: RESEND_SEGMENT_ID
+        sync: false
+      - key: STATS_TOKEN
+        sync: false
+      - key: SUNSETDIFF_STATS_DATABASE_URL
+        fromDatabase:
+          name: sunsetdiff-stats
+          property: connectionString
+      - key: DATABASE_URL
+        sync: false
+      - key: NODE_VERSION
+        value: "22"

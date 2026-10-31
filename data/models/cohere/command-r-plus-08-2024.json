@@ -1,0 +1,66 @@
+{
+  "id": "command-r-plus-08-2024",
+  "slug": "command-r-plus-08-2024",
+  "provider": "cohere",
+  "display_name": "command-r-plus-08-2024",
+  "family": null,
+  "status": "active",
+  "announced_date": null,
+  "deprecation_date": null,
+  "shutdown_date": null,
+  "shutdown_date_kind": "none",
+  "region_or_platform_notes": "The models page lists this id as Live. The deprecations page does not give this id a shutdown date.",
+  "replacements": [],
+  "sources": [
+    {
+      "url": "https://docs.cohere.com/docs/models",
+      "label": "Cohere model docs",
+      "last_checked": "2026-10-31",
+      "excerpt": "command-r-plus-08-2024 Live `command-r-plus-08-2024` is an update of the Command R+ model, delivered in August 2024. Find more information in the [changelog](https://docs.cohere.com/"
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": null,
+    "output_price_per_mtok": null,
+    "cached_input_price_per_mtok": null,
+    "batch_discount_pct": null,
+    "currency": null,
+    "context_window_tokens": 128000,
+    "max_output_tokens": 4000,
+    "modalities_in": [
+      "text"
+    ],
+    "modalities_out": [
+      "text"
+    ],
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {
+      "context_window_tokens": {
+        "url": "https://docs.cohere.com/docs/models",
+        "last_checked": "2026-10-31"
+      },
+      "max_output_tokens": {
+        "url": "https://docs.cohere.com/docs/models",
+        "last_checked": "2026-10-31"
+      },
+      "modalities_in": {
+        "url": "https://docs.cohere.com/docs/models",
+        "last_checked": "2026-10-31"
+      },
+      "modalities_out": {
+        "url": "https://docs.cohere.com/docs/models",
+        "last_checked": "2026-10-31"
+      }
+    }
+  },
+  "first_seen": "2026-10-27T12:00:00.000Z",
+  "updated_at": "2026-10-27T12:00:00.000Z"
+}

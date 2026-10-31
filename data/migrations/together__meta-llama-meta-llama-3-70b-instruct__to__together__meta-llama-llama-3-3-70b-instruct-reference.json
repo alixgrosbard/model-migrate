@@ -1,0 +1,84 @@
+{
+  "from": {
+    "provider": "together",
+    "model_id": "meta-llama/Meta-Llama-3-70B-Instruct",
+    "slug": "meta-llama-meta-llama-3-70b-instruct"
+  },
+  "to": {
+    "provider": "together",
+    "model_id": "meta-llama/Llama-3.3-70B-Instruct-Reference",
+    "slug": "meta-llama-llama-3-3-70b-instruct-reference"
+  },
+  "price_diff": {
+    "input_pct_change": null,
+    "output_pct_change": null,
+    "example_monthly_cost_old": null,
+    "example_monthly_cost_new": null,
+    "currency": "USD",
+    "example_label": "Example monthly cost for 10M input tokens and 2M output tokens. Labeled example, not a bill."
+  },
+  "context_diff": {
+    "old_tokens": null,
+    "new_tokens": null,
+    "change_pct": null
+  },
+  "max_output_diff": {
+    "old_tokens": null,
+    "new_tokens": null,
+    "change_pct": null
+  },
+  "capability_changes": [],
+  "api_changes": [
+    {
+      "kind": "endpoint_change",
+      "detail": "The quickstart shows POST https://api.together.ai/v1/chat/completions and an OpenAI client base_url of https://api.together.ai/v1. This sample only changes the model field.",
+      "source_url": "https://docs.together.ai/docs/quickstart"
+    },
+    {
+      "kind": "behavior_change",
+      "detail": "The deprecations page says these models can no longer be used as a base model for a fine-tuning job. This row is the fine-tuning service, not serverless inference.",
+      "source_url": "https://docs.together.ai/docs/deprecations"
+    }
+  ],
+  "code_change": {
+    "language": "python",
+    "before": "from openai import OpenAI\nclient = OpenAI(base_url=\"https://api.together.ai/v1\")\nresponse = client.chat.completions.create(\n    model=\"meta-llama/Meta-Llama-3-70B-Instruct\",\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n)\n",
+    "after": "from openai import OpenAI\nclient = OpenAI(base_url=\"https://api.together.ai/v1\")\nresponse = client.chat.completions.create(\n    model=\"meta-llama/Llama-3.3-70B-Instruct-Reference\",\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n)\n",
+    "snippets": {
+      "python": {
+        "before": "from openai import OpenAI\nclient = OpenAI(base_url=\"https://api.together.ai/v1\")\nresponse = client.chat.completions.create(\n    model=\"meta-llama/Meta-Llama-3-70B-Instruct\",\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n)\n",
+        "after": "from openai import OpenAI\nclient = OpenAI(base_url=\"https://api.together.ai/v1\")\nresponse = client.chat.completions.create(\n    model=\"meta-llama/Llama-3.3-70B-Instruct-Reference\",\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n)\n"
+      },
+      "typescript": {
+        "before": "import OpenAI from \"openai\";\nconst client = new OpenAI({ baseURL: \"https://api.together.ai/v1\" });\nconst response = await client.chat.completions.create({\n  model: \"meta-llama/Meta-Llama-3-70B-Instruct\",\n  messages: [{ role: \"user\", content: \"Hello\" }],\n});\n",
+        "after": "import OpenAI from \"openai\";\nconst client = new OpenAI({ baseURL: \"https://api.together.ai/v1\" });\nconst response = await client.chat.completions.create({\n  model: \"meta-llama/Llama-3.3-70B-Instruct-Reference\",\n  messages: [{ role: \"user\", content: \"Hello\" }],\n});\n"
+      },
+      "curl": {
+        "before": "curl https://api.together.ai/v1/chat/completions \\\n  -H \"Content-Type: application/json\" \\\n  -H \"Authorization: Bearer $TOGETHER_API_KEY\" \\\n  -d '{\"model\":\"meta-llama/Meta-Llama-3-70B-Instruct\",\"messages\":[{\"role\":\"user\",\"content\":\"Hello\"}]}'\n",
+        "after": "curl https://api.together.ai/v1/chat/completions \\\n  -H \"Content-Type: application/json\" \\\n  -H \"Authorization: Bearer $TOGETHER_API_KEY\" \\\n  -d '{\"model\":\"meta-llama/Llama-3.3-70B-Instruct-Reference\",\"messages\":[{\"role\":\"user\",\"content\":\"Hello\"}]}'\n"
+      }
+    }
+  },
+  "migration_checklist": [
+    "Read the shutdown date for meta-llama/Meta-Llama-3-70B-Instruct on the linked official page.",
+    "This row is the fine-tuning service, not serverless inference.",
+    "These models can no longer be used as a base model for a fine-tuning job.",
+    "Point your requests at meta-llama/Llama-3.3-70B-Instruct-Reference and test before you send traffic."
+  ],
+  "confidence": "partial",
+  "last_checked": "2026-10-31",
+  "sources": [
+    {
+      "url": "https://docs.together.ai/docs/deprecations",
+      "label": "Together AI deprecations",
+      "last_checked": "2026-10-31",
+      "excerpt": "2026-07-29 | `meta-llama/Meta-Llama-3-70B-Instruct` | `meta-llama/Llama-3.3-70B-Instruct-Reference`"
+    },
+    {
+      "url": "https://docs.together.ai/docs/deprecations",
+      "label": "Named as an official replacement",
+      "last_checked": "2026-10-31",
+      "excerpt": "Named as an official replacement for Qwen/Qwen2-72B."
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "alias": {
+    "id": "sample-floor",
+    "provider": "openai",
+    "status": "active",
+    "shutdown_date": "2027-06-01",
+    "shutdown_date_kind": "not_before"
+  },
+  "snapshot": {
+    "id": "sample-floor-2026-01-01",
+    "provider": "openai",
+    "status": "deprecated",
+    "shutdown_date": "2027-01-14",
+    "shutdown_date_kind": "exact",
+    "replacements": [
+      {
+        "model_id": "gpt-6-luna",
+        "provider": "openai",
+        "kind": "official",
+        "source_url": "https://developers.openai.com/api/docs/deprecations"
+      }
+    ],
+    "sources": [
+      {
+        "url": "https://developers.openai.com/api/docs/deprecations",
+        "label": "OpenAI deprecations",
+        "last_checked": "2026-10-30",
+        "excerpt": "January 14, 2027 | sample-floor-2026-01-01 | gpt-6-luna"
+      }
+    ]
+  }
+}

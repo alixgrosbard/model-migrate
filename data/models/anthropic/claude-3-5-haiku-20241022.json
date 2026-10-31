@@ -1,0 +1,52 @@
+{
+  "id": "claude-3-5-haiku-20241022",
+  "slug": "claude-3-5-haiku-20241022",
+  "provider": "anthropic",
+  "display_name": "claude-3-5-haiku-20241022",
+  "family": "claude-3-5-haiku",
+  "status": "retired",
+  "announced_date": "2025-12-19",
+  "deprecation_date": "2025-12-19",
+  "shutdown_date": "2026-02-19",
+  "shutdown_date_kind": "exact",
+  "region_or_platform_notes": null,
+  "replacements": [
+    {
+      "model_id": "claude-haiku-4-5-20251001",
+      "provider": "anthropic",
+      "kind": "official",
+      "source_url": "https://platform.claude.com/docs/en/about-claude/model-deprecations"
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://platform.claude.com/docs/en/about-claude/model-deprecations",
+      "label": "Anthropic model deprecations",
+      "last_checked": "2026-10-31",
+      "excerpt": "claude-3-5-haiku-20241022 | Retired | December 19, 2025 | February 19, 2026"
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": null,
+    "output_price_per_mtok": null,
+    "cached_input_price_per_mtok": null,
+    "batch_discount_pct": null,
+    "currency": null,
+    "context_window_tokens": null,
+    "max_output_tokens": null,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {}
+  },
+  "first_seen": "2026-10-17T15:59:19.574Z",
+  "updated_at": "2026-10-24T04:39:18.299Z"
+}

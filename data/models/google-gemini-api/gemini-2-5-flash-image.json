@@ -1,0 +1,81 @@
+{
+  "id": "gemini-2.5-flash-image",
+  "slug": "gemini-2-5-flash-image",
+  "provider": "google-gemini-api",
+  "display_name": "gemini-2.5-flash-image",
+  "family": null,
+  "status": "deprecated",
+  "announced_date": null,
+  "deprecation_date": null,
+  "shutdown_date": "2027-03-15",
+  "shutdown_date_kind": "exact",
+  "region_or_platform_notes": "Release date on the deprecations page: 2025-10-02.",
+  "replacements": [
+    {
+      "model_id": "gemini-3.1-flash-lite-image",
+      "provider": "google-gemini-api",
+      "kind": "official",
+      "source_url": "https://ai.google.dev/gemini-api/docs/deprecations"
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://ai.google.dev/gemini-api/docs/deprecations",
+      "label": "Gemini API deprecations",
+      "last_checked": "2026-10-31",
+      "excerpt": "gemini-2.5-flash-image | October 2, 2025 | March 15, 2027 | gemini-3.1-flash-lite-image"
+    },
+    {
+      "url": "https://ai.google.dev/gemini-api/docs/models/gemini-2.5-flash-image",
+      "label": "Gemini model docs",
+      "last_checked": "2026-10-31",
+      "excerpt": "gemini-2.5-flash-image input token limit 65536 | max output tokens 32768"
+    },
+    {
+      "url": "https://ai.google.dev/gemini-api/docs/pricing",
+      "label": "Gemini API pricing",
+      "last_checked": "2026-10-31",
+      "excerpt": "Warning: Gemini 2.5 Flash Image (gemini-2.5-flash-image) is deprecated and will be shut down on March 15, 2027; migrate to Gemini 3.1 Flash Lite Image to avoid service disruption."
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": 0.3,
+    "output_price_per_mtok": 0.039,
+    "cached_input_price_per_mtok": null,
+    "batch_discount_pct": null,
+    "currency": "USD",
+    "context_window_tokens": 65536,
+    "max_output_tokens": 32768,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {
+      "context_window_tokens": {
+        "url": "https://ai.google.dev/gemini-api/docs/models/gemini-2.5-flash-image",
+        "last_checked": "2026-10-31"
+      },
+      "input_price_per_mtok": {
+        "url": "https://ai.google.dev/gemini-api/docs/pricing",
+        "last_checked": "2026-10-31"
+      },
+      "max_output_tokens": {
+        "url": "https://ai.google.dev/gemini-api/docs/models/gemini-2.5-flash-image",
+        "last_checked": "2026-10-31"
+      },
+      "output_price_per_mtok": {
+        "url": "https://ai.google.dev/gemini-api/docs/pricing",
+        "last_checked": "2026-10-31"
+      }
+    }
+  },
+  "first_seen": "2026-10-17T15:59:19.574Z",
+  "updated_at": "2026-10-29T12:16:17.093Z"
+}

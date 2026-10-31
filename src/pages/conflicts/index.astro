@@ -1,0 +1,47 @@
+---
+import Base from "../../layouts/Base.astro";
+import InlineText from "../../components/InlineText.astro";
+import { CONFLICTS_PATH, disagreementNote } from "../../lib/conflicts.ts";
+import { publicName } from "../../lib/growth.ts";
+import { loadModels, loadProviders } from "../../lib/load.ts";
+
+const models = await loadModels();
+const providers = await loadProviders();
+const rows = models
+  .filter((model) => disagreementNote(model.region_or_platform_notes))
+  .sort((a, b) => a.provider.localeCompare(b.provider) || a.id.localeCompare(b.id));
+const providerName = (id: string) => providers.find((item) => item.id === id)?.name ?? id;
+---
+<Base
+  title="Official shutdown dates that disagree | SunsetDiff"
+  description="Models where a provider's official pages list different shutdown dates. The stored shutdown_date stays the deprecations-page date."
+  crumbs={[{ name: "Home", path: "/" }, { name: "Conflicting dates", path: CONFLICTS_PATH }]}
+>
+  <h1>Official shutdown dates that disagree</h1>
+  <p class="answer">
+    These models have official pages that name different shutdown dates.
+    SunsetDiff keeps the deprecations-page date as shutdown_date and quotes both pages.
+    <a href="/deprecated/">Deprecated models</a> are listed separately.
+  </p>
+  {rows.length ? (
+    <table>
+      <caption>{rows.length === 1 ? "1 model where official sources disagree." : `${rows.length} models where official sources disagree.`}</caption>
+      <thead>
+        <tr><th>Model</th><th>Stored shutdown date</th><th>Official pages</th></tr>
+      </thead>
+      <tbody>
+        {rows.map((model) => (
+          <tr>
+            <td>
+              <a href={`/models/${model.provider}/${model.slug}/`}>{publicName(model)}</a>
+              <br />{providerName(model.provider)}
+            </td>
+            <td>{model.shutdown_date ?? "Not published"}</td>
+            <td><InlineText text={disagreementNote(model.region_or_platform_notes) ?? ""} /></td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  ) : <p>No model in the dataset has disagreeing official shutdown dates.</p>}
+  <p>The same note is stored on the model record in <a href="/data/models.json">models.json</a> and in <a href="/api/v1/models/google-gemini-api/gemini-2-5-flash-image.json">/api/v1/models/&lt;provider&gt;/&lt;slug&gt;.json</a>.</p>
+</Base>

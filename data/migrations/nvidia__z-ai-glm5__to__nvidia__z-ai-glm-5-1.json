@@ -1,0 +1,85 @@
+{
+  "from": {
+    "provider": "nvidia",
+    "model_id": "z-ai/glm5",
+    "slug": "z-ai-glm5"
+  },
+  "to": {
+    "provider": "nvidia",
+    "model_id": "z-ai/glm-5.1",
+    "slug": "z-ai-glm-5-1"
+  },
+  "price_diff": {
+    "input_pct_change": null,
+    "output_pct_change": null,
+    "example_monthly_cost_old": null,
+    "example_monthly_cost_new": null,
+    "currency": "USD",
+    "example_label": "Example monthly cost for 10M input tokens and 2M output tokens. Labeled example, not a bill."
+  },
+  "context_diff": {
+    "old_tokens": null,
+    "new_tokens": null,
+    "change_pct": null
+  },
+  "max_output_diff": {
+    "old_tokens": null,
+    "new_tokens": null,
+    "change_pct": null
+  },
+  "capability_changes": [],
+  "api_changes": [
+    {
+      "kind": "endpoint_change",
+      "detail": "The nemotron-4-340b-reward model page OpenAPI lists server https://integrate.api.nvidia.com/v1/ and POST /chat/completions. It says the API is compatible with OpenAI. This sample only changes the model field.",
+      "source_url": "https://build.nvidia.com/nvidia/nemotron-4-340b-reward"
+    }
+  ],
+  "code_change": {
+    "language": "python",
+    "before": "from openai import OpenAI\nclient = OpenAI(base_url=\"https://integrate.api.nvidia.com/v1\")\nresponse = client.chat.completions.create(\n    model=\"z-ai/glm5\",\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n)\n",
+    "after": "from openai import OpenAI\nclient = OpenAI(base_url=\"https://integrate.api.nvidia.com/v1\")\nresponse = client.chat.completions.create(\n    model=\"z-ai/glm-5.1\",\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n)\n",
+    "snippets": {
+      "python": {
+        "before": "from openai import OpenAI\nclient = OpenAI(base_url=\"https://integrate.api.nvidia.com/v1\")\nresponse = client.chat.completions.create(\n    model=\"z-ai/glm5\",\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n)\n",
+        "after": "from openai import OpenAI\nclient = OpenAI(base_url=\"https://integrate.api.nvidia.com/v1\")\nresponse = client.chat.completions.create(\n    model=\"z-ai/glm-5.1\",\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n)\n"
+      },
+      "typescript": {
+        "before": "import OpenAI from \"openai\";\nconst client = new OpenAI({ baseURL: \"https://integrate.api.nvidia.com/v1\" });\nconst response = await client.chat.completions.create({\n  model: \"z-ai/glm5\",\n  messages: [{ role: \"user\", content: \"Hello\" }],\n});\n",
+        "after": "import OpenAI from \"openai\";\nconst client = new OpenAI({ baseURL: \"https://integrate.api.nvidia.com/v1\" });\nconst response = await client.chat.completions.create({\n  model: \"z-ai/glm-5.1\",\n  messages: [{ role: \"user\", content: \"Hello\" }],\n});\n"
+      },
+      "curl": {
+        "before": "curl https://integrate.api.nvidia.com/v1/chat/completions \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"model\":\"z-ai/glm5\",\"messages\":[{\"role\":\"user\",\"content\":\"Hello\"}]}'\n",
+        "after": "curl https://integrate.api.nvidia.com/v1/chat/completions \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"model\":\"z-ai/glm-5.1\",\"messages\":[{\"role\":\"user\",\"content\":\"Hello\"}]}'\n"
+      }
+    }
+  },
+  "migration_checklist": [
+    "Read the shutdown date for z-ai/glm5 on the linked official page.",
+    "Point your requests at z-ai/glm-5.1.",
+    "Re-check price, context, and parameters on the provider pages linked here.",
+    "Ship the change before the published shutdown date."
+  ],
+  "confidence": "partial",
+  "last_checked": "2026-10-31",
+  "sources": [
+    {
+      "url": "https://github.com/NVIDIA/NemoClaw/issues/1744",
+      "label": "NVIDIA NemoClaw API catalog deprecation notice",
+      "last_checked": "2026-10-27",
+      "excerpt": "T-0 Full Deprecation | May 9, 2026 | GLM-5 fully shut down. Successor: GLM-5.1."
+    },
+    {
+      "url": "https://github.com/NVIDIA/NemoClaw/commit/db665834691ecf35c55deaa6f64c9227463ef080",
+      "label": "NVIDIA NemoClaw commit migrating GLM-5",
+      "last_checked": "2026-10-27",
+      "excerpt": "Swap every curated z-ai/glm5 reference to z-ai/glm-5.1 ahead of the May 9, 2026 full-deprecation date."
+    },
+    {
+      "url": "https://github.com/NVIDIA/NemoClaw/commit/db665834691ecf35c55deaa6f64c9227463ef080",
+      "label": "NVIDIA NemoClaw commit migrating GLM-5",
+      "last_checked": "2026-10-27",
+      "excerpt": "Swap every curated z-ai/glm5 reference to z-ai/glm-5.1 ahead of the May 9, 2026 full-deprecation date."
+    }
+  ]
+}

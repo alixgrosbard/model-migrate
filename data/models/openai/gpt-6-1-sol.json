@@ -1,0 +1,78 @@
+{
+  "id": "gpt-6.1-sol",
+  "slug": "gpt-6-1-sol",
+  "provider": "openai",
+  "display_name": "gpt-6.1-sol",
+  "family": null,
+  "status": "active",
+  "announced_date": null,
+  "deprecation_date": null,
+  "shutdown_date": null,
+  "shutdown_date_kind": "none",
+  "region_or_platform_notes": null,
+  "replacements": [],
+  "sources": [
+    {
+      "url": "https://developers.openai.com/api/docs/guides/latest-model",
+      "label": "Using GPT-6",
+      "last_checked": "2026-10-25",
+      "excerpt": "GPT-6.1 Sol supports Chat Completions, but tool calling requires the Responses API. GPT-6.1 Sol does not support reasoning effort none."
+    },
+    {
+      "url": "https://developers.openai.com/api/docs/models/gpt-6.1-sol",
+      "label": "OpenAI model docs",
+      "last_checked": "2026-10-25",
+      "excerpt": "Model ID: gpt-6.1-sol. Use the Responses API for tool calling. Chat Completions is supported without tool calling. none and minimal are not supported. Context 1050000. Max output 128000. Input $2. Cached input $0.1. Output $10. Knowledge cutoff Apr 30, 2026."
+    },
+    {
+      "url": "https://developers.openai.com/api/docs/models/gpt-6.1-sol.md",
+      "label": "OpenAI model docs",
+      "last_checked": "2026-10-31",
+      "excerpt": "Model ID: gpt-6.1-sol | Near-Astra performance for complex work at a lower cost."
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": 2,
+    "output_price_per_mtok": 10,
+    "cached_input_price_per_mtok": 0.1,
+    "batch_discount_pct": null,
+    "currency": "USD",
+    "context_window_tokens": 1050000,
+    "max_output_tokens": 128000,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {
+      "cached_input_price_per_mtok": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-6.1-sol.md",
+        "last_checked": "2026-10-31"
+      },
+      "context_window_tokens": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-6.1-sol.md",
+        "last_checked": "2026-10-31"
+      },
+      "input_price_per_mtok": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-6.1-sol.md",
+        "last_checked": "2026-10-31"
+      },
+      "max_output_tokens": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-6.1-sol.md",
+        "last_checked": "2026-10-31"
+      },
+      "output_price_per_mtok": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-6.1-sol.md",
+        "last_checked": "2026-10-31"
+      }
+    }
+  },
+  "first_seen": "2026-10-25T12:10:00.000Z",
+  "updated_at": "2026-10-26T22:41:37.763Z"
+}

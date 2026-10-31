@@ -1,0 +1,84 @@
+{
+  "from": {
+    "provider": "cloudflare-workers-ai",
+    "model_id": "@cf/moonshotai/kimi-k2.5",
+    "slug": "cf-moonshotai-kimi-k2-5"
+  },
+  "to": {
+    "provider": "cloudflare-workers-ai",
+    "model_id": "@cf/moonshotai/kimi-k2.6",
+    "slug": "cf-moonshotai-kimi-k2-6"
+  },
+  "price_diff": {
+    "input_pct_change": null,
+    "output_pct_change": null,
+    "example_monthly_cost_old": null,
+    "example_monthly_cost_new": null,
+    "currency": "USD",
+    "example_label": "Example monthly cost for 10M input tokens and 2M output tokens. Labeled example, not a bill."
+  },
+  "context_diff": {
+    "old_tokens": null,
+    "new_tokens": null,
+    "change_pct": null
+  },
+  "max_output_diff": {
+    "old_tokens": null,
+    "new_tokens": null,
+    "change_pct": null
+  },
+  "capability_changes": [],
+  "api_changes": [
+    {
+      "kind": "endpoint_change",
+      "detail": "The REST API guide shows POST https://api.cloudflare.com/client/v4/accounts/{ACCOUNT_ID}/ai/run/{model} with Authorization: Bearer {API_TOKEN} and a JSON prompt. This sample only changes the model id in that path.",
+      "source_url": "https://developers.cloudflare.com/workers-ai/get-started/rest-api/"
+    },
+    {
+      "kind": "behavior_change",
+      "detail": "The changelog says requests are automatically aliased to the replacement on May 30, 2026, and that model has a higher price.",
+      "source_url": "https://developers.cloudflare.com/changelog/post/2026-05-08-planned-model-deprecations/"
+    }
+  ],
+  "code_change": {
+    "language": "python",
+    "before": "import json\nimport urllib.request\nrequest = urllib.request.Request(\n    \"https://api.cloudflare.com/client/v4/accounts/{ACCOUNT_ID}/ai/run/@cf/moonshotai/kimi-k2.5\",\n    data=json.dumps({\"prompt\": \"Where did the phrase Hello World come from\"}).encode(),\n    headers={\"Authorization\": \"Bearer {API_TOKEN}\", \"Content-Type\": \"application/json\"},\n)\nurllib.request.urlopen(request)\n",
+    "after": "import json\nimport urllib.request\nrequest = urllib.request.Request(\n    \"https://api.cloudflare.com/client/v4/accounts/{ACCOUNT_ID}/ai/run/@cf/moonshotai/kimi-k2.6\",\n    data=json.dumps({\"prompt\": \"Where did the phrase Hello World come from\"}).encode(),\n    headers={\"Authorization\": \"Bearer {API_TOKEN}\", \"Content-Type\": \"application/json\"},\n)\nurllib.request.urlopen(request)\n",
+    "snippets": {
+      "python": {
+        "before": "import json\nimport urllib.request\nrequest = urllib.request.Request(\n    \"https://api.cloudflare.com/client/v4/accounts/{ACCOUNT_ID}/ai/run/@cf/moonshotai/kimi-k2.5\",\n    data=json.dumps({\"prompt\": \"Where did the phrase Hello World come from\"}).encode(),\n    headers={\"Authorization\": \"Bearer {API_TOKEN}\", \"Content-Type\": \"application/json\"},\n)\nurllib.request.urlopen(request)\n",
+        "after": "import json\nimport urllib.request\nrequest = urllib.request.Request(\n    \"https://api.cloudflare.com/client/v4/accounts/{ACCOUNT_ID}/ai/run/@cf/moonshotai/kimi-k2.6\",\n    data=json.dumps({\"prompt\": \"Where did the phrase Hello World come from\"}).encode(),\n    headers={\"Authorization\": \"Bearer {API_TOKEN}\", \"Content-Type\": \"application/json\"},\n)\nurllib.request.urlopen(request)\n"
+      },
+      "typescript": {
+        "before": "await fetch(\"https://api.cloudflare.com/client/v4/accounts/{ACCOUNT_ID}/ai/run/@cf/moonshotai/kimi-k2.5\", {\n  method: \"POST\",\n  headers: { Authorization: \"Bearer {API_TOKEN}\", \"Content-Type\": \"application/json\" },\n  body: JSON.stringify({ prompt: \"Where did the phrase Hello World come from\" }),\n});\n",
+        "after": "await fetch(\"https://api.cloudflare.com/client/v4/accounts/{ACCOUNT_ID}/ai/run/@cf/moonshotai/kimi-k2.6\", {\n  method: \"POST\",\n  headers: { Authorization: \"Bearer {API_TOKEN}\", \"Content-Type\": \"application/json\" },\n  body: JSON.stringify({ prompt: \"Where did the phrase Hello World come from\" }),\n});\n"
+      },
+      "curl": {
+        "before": "curl https://api.cloudflare.com/client/v4/accounts/{ACCOUNT_ID}/ai/run/@cf/moonshotai/kimi-k2.5 \\\n  -H 'Authorization: Bearer {API_TOKEN}' \\\n  -d '{ \"prompt\": \"Where did the phrase Hello World come from\" }'\n",
+        "after": "curl https://api.cloudflare.com/client/v4/accounts/{ACCOUNT_ID}/ai/run/@cf/moonshotai/kimi-k2.6 \\\n  -H 'Authorization: Bearer {API_TOKEN}' \\\n  -d '{ \"prompt\": \"Where did the phrase Hello World come from\" }'\n"
+      }
+    }
+  },
+  "migration_checklist": [
+    "Read the deprecation date for @cf/moonshotai/kimi-k2.5 on the Cloudflare changelog.",
+    "The -fast and -lora variants of models remain active.",
+    "Requests are automatically aliased to @cf/moonshotai/kimi-k2.6. That model has a higher price.",
+    "Point the REST path at @cf/moonshotai/kimi-k2.6 and test before you send traffic."
+  ],
+  "confidence": "partial",
+  "last_checked": "2026-10-31",
+  "sources": [
+    {
+      "url": "https://developers.cloudflare.com/changelog/post/2026-05-08-planned-model-deprecations/",
+      "label": "Cloudflare changelog",
+      "last_checked": "2026-10-31",
+      "excerpt": "- @cf/moonshotai/kimi-k2.5 --> @cf/moonshotai/kimi-k2.6"
+    },
+    {
+      "url": "https://developers.cloudflare.com/changelog/post/2026-05-08-planned-model-deprecations/",
+      "label": "Named as an official replacement",
+      "last_checked": "2026-10-31",
+      "excerpt": "@cf/moonshotai/kimi-k2.5 --> @cf/moonshotai/kimi-k2.6"
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "id": "MiniMaxAI/MiniMax-M2.5",
+  "slug": "minimaxai-minimax-m2-5",
+  "provider": "nebius",
+  "display_name": "MiniMaxAI/MiniMax-M2.5",
+  "family": null,
+  "status": "retired",
+  "announced_date": null,
+  "deprecation_date": null,
+  "shutdown_date": "2026-08-31",
+  "shutdown_date_kind": "exact",
+  "region_or_platform_notes": "This change only affects Serverless usage. Dedicated Endpoints are unaffected. Token Factory does not automatically reroute requests from deprecated models.",
+  "replacements": [
+    {
+      "model_id": "MiniMaxAI/MiniMax-M3",
+      "provider": "nebius",
+      "kind": "official",
+      "source_url": "https://docs.tokenfactory.nebius.com/august-2026-deprecation-notice"
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://docs.tokenfactory.nebius.com/august-2026-deprecation-notice",
+      "label": "Nebius Token Factory model deprecations",
+      "last_checked": "2026-10-31",
+      "excerpt": "| [`MiniMaxAI/MiniMax-M2.5`](https://tokenfactory.nebius.com/models/catalog/text2text/MiniMaxAI%2FMiniMax-M2.5) | [`MiniMaxAI/MiniMax-M3`](https://tokenfactory.nebius.com/models/catalog/text2text/MiniMaxAI%2FMiniMax-M3) |"
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": null,
+    "output_price_per_mtok": null,
+    "cached_input_price_per_mtok": null,
+    "batch_discount_pct": null,
+    "currency": null,
+    "context_window_tokens": null,
+    "max_output_tokens": null,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {}
+  },
+  "first_seen": "2026-10-28T08:29:01.833Z",
+  "updated_at": "2026-10-28T08:29:01.833Z"
+}

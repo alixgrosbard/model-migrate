@@ -1,0 +1,57 @@
+{
+  "id": "Claude Sonnet 3.5",
+  "slug": "claude-sonnet-3-5",
+  "provider": "github-copilot",
+  "display_name": "Claude Sonnet 3.5",
+  "family": null,
+  "status": "retired",
+  "announced_date": null,
+  "deprecation_date": null,
+  "shutdown_date": "2025-11-06",
+  "shutdown_date_kind": "exact",
+  "region_or_platform_notes": "Supported models page suggested alternative: Latest Claude Haiku model. Sources disagree. The [supported models page](https://docs.github.com/en/copilot/reference/ai-models/supported-models) lists retirement date 2025-11-06. The [GitHub changelog](https://github.blog/changelog/2025-11-10-claude-sonnet-3-5-deprecated-claude-haiku-4-5-available-in-copilot-free) lists deprecation date 2025-11-10. The stored shutdown date is the supported models page date.",
+  "replacements": [],
+  "sources": [
+    {
+      "url": "https://docs.github.com/en/copilot/reference/ai-models/supported-models",
+      "label": "GitHub Copilot supported models",
+      "last_checked": "2026-10-31",
+      "excerpt": "Claude Sonnet 3.5 | 2025-11-06 | Latest Claude Haiku model"
+    },
+    {
+      "url": "https://github.blog/changelog/2025-10-07-upcoming-deprecation-of-claude-sonnet-3-5",
+      "label": "GitHub Changelog",
+      "last_checked": "2026-10-31",
+      "excerpt": "Claude Sonnet 3.5 | 2025-11-06"
+    },
+    {
+      "url": "https://github.blog/changelog/2025-11-10-claude-sonnet-3-5-deprecated-claude-haiku-4-5-available-in-copilot-free",
+      "label": "GitHub Changelog",
+      "last_checked": "2026-10-31",
+      "excerpt": "Claude Sonnet 3.5 | Claude Sonnet 4.5 for paid Copilot plans, Claude Haiku 4.5 for Copilot Free"
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": null,
+    "output_price_per_mtok": null,
+    "cached_input_price_per_mtok": null,
+    "batch_discount_pct": null,
+    "currency": null,
+    "context_window_tokens": null,
+    "max_output_tokens": null,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {}
+  },
+  "first_seen": "2026-10-29T12:00:00.000Z",
+  "updated_at": "2026-10-29T12:00:00.000Z"
+}

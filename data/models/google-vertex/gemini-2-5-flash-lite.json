@@ -1,0 +1,73 @@
+{
+  "id": "gemini-2.5-flash-lite",
+  "slug": "gemini-2-5-flash-lite",
+  "provider": "google-vertex",
+  "display_name": "gemini-2.5-flash-lite",
+  "family": null,
+  "status": "retired",
+  "announced_date": null,
+  "deprecation_date": null,
+  "shutdown_date": "2026-10-20",
+  "shutdown_date_kind": "exact",
+  "region_or_platform_notes": "Release date on the Vertex model versions page: 2025-07-22.",
+  "replacements": [
+    {
+      "model_id": "gemini-3.8-flash",
+      "provider": "google-vertex",
+      "kind": "official",
+      "source_url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/model-versions"
+    },
+    {
+      "model_id": "gemini-3.5-flash-lite",
+      "provider": "google-vertex",
+      "kind": "official",
+      "source_url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/model-versions"
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/gemini/2-5-flash-lite",
+      "label": "Vertex model docs",
+      "last_checked": "2026-10-31",
+      "excerpt": "Gemini 2.5 Flash-Lite | gemini-2.5-flash-lite | context window 1048576 | maximum output tokens 65536"
+    },
+    {
+      "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/model-versions",
+      "label": "Vertex AI model versions",
+      "last_checked": "2026-10-31",
+      "excerpt": "gemini-2.5-flash-lite | July 22, 2025 | October 20, 2026 | gemini-3.8-flash or gemini-3.5-flash-lite or Gemma 4"
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": null,
+    "output_price_per_mtok": null,
+    "cached_input_price_per_mtok": null,
+    "batch_discount_pct": null,
+    "currency": null,
+    "context_window_tokens": 1048576,
+    "max_output_tokens": 65536,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {
+      "context_window_tokens": {
+        "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/gemini/2-5-flash-lite",
+        "last_checked": "2026-10-31"
+      },
+      "max_output_tokens": {
+        "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/gemini/2-5-flash-lite",
+        "last_checked": "2026-10-31"
+      }
+    }
+  },
+  "first_seen": "2026-10-17T15:59:19.574Z",
+  "updated_at": "2026-10-24T04:39:18.299Z"
+}

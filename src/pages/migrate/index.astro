@@ -1,0 +1,102 @@
+---
+import Base from "../../layouts/Base.astro";
+import HubFilter from "../../components/HubFilter.astro";
+import { collectionGraph } from "../../jsonld.ts";
+import { publicName } from "../../lib/growth.ts";
+import { filterText, migrateHub, migratePairPath, migrationsForProvider, modelPath, replacePath } from "../../lib/hubs.ts";
+import { loadMigrations, loadModels, loadProviders, providerName } from "../../lib/load.ts";
+import { DEFAULT_SITE_URL } from "../../lib/site.ts";
+import type { ModelRecord } from "../../schema.ts";
+
+const providers = await loadProviders();
+const models = await loadModels();
+const migrations = await loadMigrations();
+const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
+const bySlug = new Map(models.map((model) => [`${model.provider}:${model.slug}`, model]));
+const groups = providers
+  .map((provider) => ({ provider, migrations: migrationsForProvider(migrations, provider.id) }))
+  .filter((group) => group.migrations.length);
+
+function named(model: ModelRecord | undefined, fallback: string): string {
+  return model ? publicName(model) : fallback;
+}
+
+const items = groups.flatMap((group) =>
+  group.migrations.map((migration) => {
+    const from = bySlug.get(`${migration.from.provider}:${migration.from.slug}`);
+    const to = bySlug.get(`${migration.to.provider}:${migration.to.slug}`);
+    return {
+      name: `${named(from, migration.from.model_id)} to ${named(to, migration.to.model_id)}`,
+      path: migratePairPath(migration.from, migration.to),
+    };
+  }),
+);
+---
+<Base
+  title={migrateHub.title}
+  description={migrateHub.description}
+  crumbs={[{ name: "Home", path: "/" }, { name: migrateHub.nav, path: migrateHub.path }]}
+  extraGraph={collectionGraph(site, { path: migrateHub.path, name: migrateHub.h1, description: migrateHub.description }, items)}
+>
+  <h1>{migrateHub.h1}</h1>
+  <p class="answer">
+    A migration page compares one model with a named replacement.
+    It lists published changes in price, context, and code.
+    This index lists the migration pages in the dataset, grouped by the provider of the model being replaced.
+    <a href="/replace/">Replacements</a> · <a href="/models/">Models</a>
+    {" · "}
+    <a href="/upcoming/">Upcoming shutdowns</a>
+    {" · "}
+    <a href="/errors/">Request errors</a>
+    {" · "}
+    <a href="/guides/">Guides</a>
+  </p>
+  <p>{migrations.length} migration pages.</p>
+  {groups.length ? (
+    <>
+      <HubFilter />
+      <ul>
+        {groups.map((group) => (
+          <li><a href={`#${group.provider.id}`}>{group.provider.name}</a> ({group.migrations.length})</li>
+        ))}
+      </ul>
+      {groups.map((group) => (
+        <section id={group.provider.id} data-hub-section>
+          <h2><a href={`/providers/${group.provider.id}/`}>{group.provider.name}</a></h2>
+          <table>
+            <caption>{group.provider.name}: {group.migrations.length} migration pages.</caption>
+            <thead>
+              <tr><th>From</th><th>To</th><th>Page</th></tr>
+            </thead>
+            <tbody>
+              {group.migrations.map((migration) => {
+                const from = bySlug.get(`${migration.from.provider}:${migration.from.slug}`);
+                const to = bySlug.get(`${migration.to.provider}:${migration.to.slug}`);
+                const fromLabel = named(from, migration.from.model_id);
+                const toLabel = named(to, migration.to.model_id);
+                const path = migratePairPath(migration.from, migration.to);
+                return (
+                  <tr data-filter={filterText([fromLabel, toLabel, migration.from.model_id, migration.to.model_id, group.provider.name, providerName(providers, migration.to.provider)])}>
+                    <td>
+                      {from ? <a href={modelPath(from)}>{fromLabel}</a> : fromLabel}
+                      {fromLabel !== migration.from.model_id ? <><br /><code>{migration.from.model_id}</code></> : null}
+                    </td>
+                    <td>
+                      {to ? <a href={modelPath(to)}>{toLabel}</a> : toLabel}
+                      {to && to.provider !== migration.from.provider ? <> ({providerName(providers, to.provider)})</> : null}
+                      {toLabel !== migration.to.model_id ? <><br /><code>{migration.to.model_id}</code></> : null}
+                    </td>
+                    <td>
+                      <a href={path}>Migration page</a>
+                      {from ? <> · <a href={replacePath(from)}>Replacement page</a></> : null}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </section>
+      ))}
+    </>
+  ) : <p>No migration pages are published.</p>}
+</Base>

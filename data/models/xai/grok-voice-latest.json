@@ -1,0 +1,58 @@
+{
+  "id": "grok-voice-latest",
+  "slug": "grok-voice-latest",
+  "provider": "xai",
+  "display_name": "grok-voice-latest",
+  "family": null,
+  "status": "active",
+  "announced_date": null,
+  "deprecation_date": null,
+  "shutdown_date": null,
+  "shutdown_date_kind": "none",
+  "region_or_platform_notes": "The release notes say grok-voice-latest now points to grok-voice-3.0. No shutdown date is published for this alias.",
+  "replacements": [],
+  "sources": [
+    {
+      "url": "https://docs.x.ai/developers/release-notes",
+      "label": "xAI release notes",
+      "last_checked": "2026-10-31",
+      "excerpt": "as Grok Voice 2.0. `grok-voice-latest` now points to `grok-voice-3.0`, so sessions that use the alias are upgraded automatically. The API is unchanged. To get started, see the [Speech to Speech docs](/developers/model"
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": null,
+    "output_price_per_mtok": null,
+    "cached_input_price_per_mtok": null,
+    "batch_discount_pct": null,
+    "currency": null,
+    "context_window_tokens": null,
+    "max_output_tokens": null,
+    "modalities_in": [
+      "audio"
+    ],
+    "modalities_out": [
+      "audio"
+    ],
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {
+      "modalities_in": {
+        "url": "https://docs.x.ai/developers/release-notes",
+        "last_checked": "2026-10-31"
+      },
+      "modalities_out": {
+        "url": "https://docs.x.ai/developers/release-notes",
+        "last_checked": "2026-10-31"
+      }
+    }
+  },
+  "first_seen": "2026-10-27T12:00:00.000Z",
+  "updated_at": "2026-10-27T12:00:00.000Z"
+}

@@ -1,0 +1,91 @@
+{
+  "from": {
+    "provider": "xai",
+    "model_id": "grok-voice-2.0",
+    "slug": "grok-voice-2-0"
+  },
+  "to": {
+    "provider": "xai",
+    "model_id": "grok-voice-3.0",
+    "slug": "grok-voice-3-0"
+  },
+  "price_diff": {
+    "input_pct_change": null,
+    "output_pct_change": null,
+    "example_monthly_cost_old": null,
+    "example_monthly_cost_new": null,
+    "currency": "USD",
+    "example_label": "Example monthly cost for 10M input tokens and 2M output tokens. Labeled example, not a bill."
+  },
+  "context_diff": {
+    "old_tokens": null,
+    "new_tokens": null,
+    "change_pct": null
+  },
+  "max_output_diff": {
+    "old_tokens": null,
+    "new_tokens": null,
+    "change_pct": null
+  },
+  "capability_changes": [],
+  "api_changes": [
+    {
+      "kind": "endpoint_change",
+      "detail": "The speech-to-speech page shows a realtime websocket at wss://api.x.ai/v1/realtime with the model in the query string. This sample only changes that model value.",
+      "source_url": "https://docs.x.ai/developers/model-capabilities/audio/speech-to-speech"
+    }
+  ],
+  "code_change": {
+    "language": "python",
+    "before": "url = \"wss://api.x.ai/v1/realtime?model=grok-voice-2.0\"\n",
+    "after": "url = \"wss://api.x.ai/v1/realtime?model=grok-voice-3.0\"\n",
+    "snippets": {
+      "python": {
+        "before": "url = \"wss://api.x.ai/v1/realtime?model=grok-voice-2.0\"\n",
+        "after": "url = \"wss://api.x.ai/v1/realtime?model=grok-voice-3.0\"\n"
+      },
+      "typescript": {
+        "before": "const url = \"wss://api.x.ai/v1/realtime?model=grok-voice-2.0\";\n",
+        "after": "const url = \"wss://api.x.ai/v1/realtime?model=grok-voice-3.0\";\n"
+      },
+      "curl": {
+        "before": "wss://api.x.ai/v1/realtime?model=grok-voice-2.0\n",
+        "after": "wss://api.x.ai/v1/realtime?model=grok-voice-3.0\n"
+      }
+    }
+  },
+  "migration_checklist": [
+    "Read the official page for grok-voice-2.0. It does not publish a shutdown date.",
+    "Point your requests at grok-voice-3.0.",
+    "Re-check price, context, and parameters on the provider pages linked here.",
+    "The official page did not publish a shutdown date for this id."
+  ],
+  "confidence": "partial",
+  "last_checked": "2026-10-31",
+  "sources": [
+    {
+      "url": "https://docs.x.ai/developers/models",
+      "label": "xAI model docs",
+      "last_checked": "2026-10-31",
+      "excerpt": "g Mode Cost --- --- Speech to Speech (grok-voice-2.0) - Deprecated $0.08 / min ($4.80 / hr)<br />$0.004 / text input Speech to Speech (grok-voice-3.0) $0.08 / min ($4.80 / hr)<br />$0.004 / text input Speech to Text $0.10 / hr (REST), $0.20 / hr"
+    },
+    {
+      "url": "https://docs.x.ai/developers/release-notes",
+      "label": "xAI model deprecations",
+      "last_checked": "2026-10-31",
+      "excerpt": "ice 2.0 deprecation `grok-voice-2.0` is deprecated. To upgrade, set `model` to `grok-voice-3.0` or `grok-voice-latest`, at the same price. See [Upgrading from Grok Voice 2.0](/developers/model-capabilities/audio/speech-to-speech#u"
+    },
+    {
+      "url": "https://docs.x.ai/developers/models",
+      "label": "xAI model docs",
+      "last_checked": "2026-10-31",
+      "excerpt": "$0.004 / text input Speech to Speech (grok-voice-3.0) $0.08 / min ($4.80 / hr)<br />$0.004 / text input Speech to Text $0.10 / hr (REST), $0.20 / hr (Streaming) Text to Speech $15.00 / 1M chars ## Which model should I choose? Your ch"
+    },
+    {
+      "url": "https://docs.x.ai/developers/release-notes",
+      "label": "xAI release notes",
+      "last_checked": "2026-10-31",
+      "excerpt": "e 3.0 is available `grok-voice-3.0` is now available with Speech to Speech, at the same price as Grok Voice 2.0. `grok-voice-latest` now points to `grok-voice-3.0`, so sessions that use the alias are upgraded autom"
+    }
+  ]
+}

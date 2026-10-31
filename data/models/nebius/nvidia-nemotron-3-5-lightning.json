@@ -1,0 +1,51 @@
+{
+  "id": "nvidia/Nemotron-3_5-Lightning",
+  "slug": "nvidia-nemotron-3-5-lightning",
+  "provider": "nebius",
+  "display_name": "nvidia/Nemotron-3_5-Lightning",
+  "family": null,
+  "status": "active",
+  "announced_date": null,
+  "deprecation_date": null,
+  "shutdown_date": null,
+  "shutdown_date_kind": "none",
+  "region_or_platform_notes": "Named as an official replacement for NousResearch/Hermes-4-70B, Qwen/Qwen3-32B, meta-llama/Llama-3.3-70B-Instruct, nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B, nvidia/Nemotron-3-Nano-Omni. No shutdown date was published for this id on that page.",
+  "replacements": [],
+  "sources": [
+    {
+      "url": "https://docs.tokenfactory.nebius.com/august-2026-deprecation-notice",
+      "label": "Named as an official replacement",
+      "last_checked": "2026-10-31",
+      "excerpt": "Named as an official replacement for NousResearch/Hermes-4-70B."
+    },
+    {
+      "url": "https://docs.tokenfactory.nebius.com/model-deprecations-november-2026",
+      "label": "Named as an official replacement",
+      "last_checked": "2026-10-31",
+      "excerpt": "Named as an official replacement for NousResearch/Hermes-4-70B."
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": null,
+    "output_price_per_mtok": null,
+    "cached_input_price_per_mtok": null,
+    "batch_discount_pct": null,
+    "currency": null,
+    "context_window_tokens": null,
+    "max_output_tokens": null,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {}
+  },
+  "first_seen": "2026-10-28T08:29:01.833Z",
+  "updated_at": "2026-10-28T08:29:01.833Z"
+}

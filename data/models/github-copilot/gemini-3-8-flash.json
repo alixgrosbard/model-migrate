@@ -1,0 +1,60 @@
+{
+  "id": "Gemini 3.8 Flash",
+  "slug": "gemini-3-8-flash",
+  "provider": "github-copilot",
+  "display_name": "Gemini 3.8 Flash",
+  "family": null,
+  "status": "active",
+  "announced_date": null,
+  "deprecation_date": null,
+  "shutdown_date": null,
+  "shutdown_date_kind": "none",
+  "region_or_platform_notes": "Named as an official replacement for Gemini 3.5 Flash, Gemini 3.6 Flash, Gemini 3.7 Flash. No shutdown date was published for this name on the supported models retirement table. The supported models table lists this name. Release status on that page: GA. Copilot CLI model id: gemini-3.8-flash.",
+  "lookup_aliases": [
+    "gemini-3.8-flash"
+  ],
+  "replacements": [],
+  "sources": [
+    {
+      "url": "https://docs.github.com/en/copilot/reference/ai-models/supported-models",
+      "label": "GitHub Copilot supported models",
+      "last_checked": "2026-10-31",
+      "excerpt": "Gemini 3.8 Flash | GA"
+    },
+    {
+      "url": "https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-command-reference",
+      "label": "GitHub Copilot CLI command reference",
+      "last_checked": "2026-10-31",
+      "excerpt": "gemini-3.8-flash | Fast Google Gemini responses"
+    },
+    {
+      "url": "https://github.blog/changelog/2026-10-19-github-copilot-models-deprecated-on-october-19-2026",
+      "label": "Named as an official replacement",
+      "last_checked": "2026-10-31",
+      "excerpt": "Named as an official replacement for Gemini 3.5 Flash."
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": null,
+    "output_price_per_mtok": null,
+    "cached_input_price_per_mtok": null,
+    "batch_discount_pct": null,
+    "currency": null,
+    "context_window_tokens": null,
+    "max_output_tokens": null,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {}
+  },
+  "first_seen": "2026-10-29T12:00:00.000Z",
+  "updated_at": "2026-10-31T12:00:00.000Z"
+}

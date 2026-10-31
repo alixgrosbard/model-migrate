@@ -1,0 +1,60 @@
+{
+  "id": "gpt-image-2.5-sunburst",
+  "slug": "gpt-image-2-5-sunburst",
+  "provider": "openai",
+  "display_name": "gpt-image-2.5-sunburst",
+  "family": null,
+  "status": "active",
+  "announced_date": null,
+  "deprecation_date": null,
+  "shutdown_date": null,
+  "shutdown_date_kind": "none",
+  "region_or_platform_notes": null,
+  "replacements": [],
+  "sources": [
+    {
+      "url": "https://developers.openai.com/api/docs/deprecations",
+      "label": "Named as an official replacement",
+      "last_checked": "2026-10-31",
+      "excerpt": "Named as an official replacement for gpt-image-1-mini. No shutdown date was published for this id on that page."
+    },
+    {
+      "url": "https://developers.openai.com/api/docs/models/gpt-image-2.5-sunburst.md",
+      "label": "OpenAI model docs",
+      "last_checked": "2026-10-31",
+      "excerpt": "Model ID: gpt-image-2.5-sunburst | input $5 | Default snapshot gpt-image-2.5-sunburst-2026-09-08"
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": 5,
+    "output_price_per_mtok": null,
+    "cached_input_price_per_mtok": 1.25,
+    "batch_discount_pct": null,
+    "currency": "USD",
+    "context_window_tokens": null,
+    "max_output_tokens": null,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {
+      "cached_input_price_per_mtok": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-image-2.5-sunburst.md",
+        "last_checked": "2026-10-31"
+      },
+      "input_price_per_mtok": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-image-2.5-sunburst.md",
+        "last_checked": "2026-10-31"
+      }
+    }
+  },
+  "first_seen": "2026-10-17T15:59:19.574Z",
+  "updated_at": "2026-10-25T20:53:11.768Z"
+}
