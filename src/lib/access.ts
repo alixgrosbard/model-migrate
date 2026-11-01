@@ -1,7 +1,9 @@
 /** Gemini API 2.5 ids Google limits to people who have already used them. */
-const GEMINI_25_RESTRICTED = new Set(["gemini-2.5-pro", "gemini-2.5-flash", "gemini-2.5-flash-lite"]);
+export const GEMINI_25_RESTRICTED_IDS = ["gemini-2.5-pro", "gemini-2.5-flash", "gemini-2.5-flash-lite"] as const;
 
-export const GEMINI_25_ACCESS_CHECKED = "2026-10-21";
+const GEMINI_25_RESTRICTED = new Set<string>(GEMINI_25_RESTRICTED_IDS);
+
+export const GEMINI_25_ACCESS_CHECKED = "2026-11-01";
 export const GEMINI_25_ACCESS_SOURCE = "https://ai.google.dev/gemini-api/docs/deprecations";
 
 /** Note above the Gemini 2.5 Pro and Gemini 2.5 Flash tables on the deprecations page. */

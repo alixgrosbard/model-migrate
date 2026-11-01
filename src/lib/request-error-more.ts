@@ -21,6 +21,7 @@ const OPENAI_GPT6 = "https://developers.openai.com/api/docs/guides/latest-model"
 const ISSUE_TEMPERATURE = "https://github.com/neondatabase/neon-pkgs/issues/937";
 const ISSUE_NANO_SHUTDOWN = "https://github.com/maxswaine/game-repository/issues/110";
 const ISSUE_GEMINI_25 = "https://github.com/LebgaaAbderrahmane/ecomAssistant/issues/92";
+const ISSUE_GEMINI_25_FULL = "https://github.com/oyekamal/Design-your-perfect-AI-Persona/issues/1";
 const AZURE_RETIREMENTS = "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirements";
 const AZURE_SCHEDULE = "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule";
 const AZURE_WORKING = "https://learn.microsoft.com/en-us/azure/foundry/openai/how-to/working-with-models";
@@ -39,6 +40,8 @@ const DEEPSEEK_MODEL_NOT_EXIST =
 const TEMPERATURE_UNSUPPORTED = "Unsupported parameter: 'temperature' is not supported with this model.";
 const TOP_P_UNSUPPORTED = "Unsupported parameter: 'top_p' is not supported with this model.";
 const GEMINI_25_NEW_USERS = "models/gemini-2.5-flash is no longer available to new users";
+const GEMINI_25_FULL_ERROR =
+  "This model models/gemini-2.5-flash is no longer available to new users. Please update your code to use models/gemini-3.8-flash for the latest features and improvements. We recommend you to use the Interactions API (https://ai.google.dev/gemini-api/docs/get-started).";
 
 const SONNET_GUIDES = [
   {
@@ -1560,6 +1563,7 @@ const { text } = await generateText({
     ],
     guides: [],
     seeAlso: [
+      { href: "/errors/gemini-model-no-longer-available-to-new-users/", label: "This model is no longer available to new users" },
       { href: "/errors/gemini-model-no-longer-available/", label: "This model is no longer available" },
       { href: "/models/google-gemini-api/gemini-2-5-flash/", label: "gemini-2.5-flash" },
       { href: "/models/google-gemini-api/gemini-3-8-flash/", label: "gemini-3.8-flash" },
@@ -1584,6 +1588,159 @@ const { text } = await generateText({
       },
     ],
     citations: [GEMINI_DEPRECATIONS, ISSUE_GEMINI_25, LITELLM_GEMINI, AI_SDK_GENERATE],
+  },
+  {
+    slug: "gemini-model-no-longer-available-to-new-users",
+    provider: "google-gemini-api",
+    checked: "2026-11-01",
+    cause: "A new Gemini API user calling gemini-2.5-flash. The same access note covers gemini-2.5-flash-lite and gemini-2.5-pro.",
+    title: "This model is no longer available to new users | Gemini API | SunsetDiff",
+    description:
+      "GitHub issue Design-your-perfect-AI-Persona#1 records HTTP 404 for gemini-2.5-flash. Google's deprecations page limits 2.5 access to people who have used those models and says they are not deprecated.",
+    h1: "This model is no longer available to new users",
+    lead: "A new Gemini API user can get HTTP 404 on gemini-2.5-flash. Google's deprecations page says access to the 2.5 models is limited to users who have actively used them, and that new projects should use 3.5 Flash-Lite or 3.8 Flash. It says the models are not deprecated.",
+    errorQuoted: true,
+    errorText: GEMINI_25_FULL_ERROR,
+    quoteSourceLabel: "GitHub issue oyekamal/Design-your-perfect-AI-Persona#1",
+    quoteSourceUrl: ISSUE_GEMINI_25_FULL,
+    rule: `The issue, opened October 31, 2026, prints HTTP 404 with status NOT_FOUND. The message field is the sentence in the Error text block, and it names models/gemini-2.5-flash. The deprecations page does not print that sentence. Under both Gemini 2.5 Pro models and Gemini 2.5 Flash models it says it is limiting access to the 2.5 models to users who have actively used them in the past. It says these models are not deprecated and will continue to be served until further notice through the API. For any new projects it names 3.5 Flash-Lite or 3.8 Flash. The model table on that page uses the ids gemini-3.5-flash-lite and gemini-3.8-flash. The error message names models/gemini-3.8-flash. gemini-2.5-flash, gemini-2.5-flash-lite, and gemini-2.5-pro have no shutdown date announced. The issue records this sentence for gemini-2.5-flash. It does not record it for gemini-2.5-pro or gemini-2.5-flash-lite. Those two ids sit under the same access note. A shorter fragment, from a different issue, is on [gemini-2.5-flash is no longer available to new users](/errors/gemini-2-5-flash-no-longer-available-to-new-users/). A different sentence, recorded for gemini-2.0-flash after that model shut down, is on [This model is no longer available](/errors/gemini-model-no-longer-available/).`,
+    ruleSourceLabel: "Gemini API deprecations",
+    ruleSourceUrl: GEMINI_DEPRECATIONS,
+    modelsCaption: "The quoted 404 was recorded for gemini-2.5-flash. The other 2.5 ids are the stable models under the same access note. The issue does not record this sentence for them.",
+    models: [
+      {
+        id: "gemini-2.5-flash",
+        provider: "google-gemini-api",
+        slug: "gemini-2-5-flash",
+        note: "The GitHub issue records HTTP 404 and this sentence for models/gemini-2.5-flash. The deprecations page lists release date June 17, 2025 and no shutdown date announced.",
+      },
+      {
+        id: "gemini-2.5-pro",
+        provider: "google-gemini-api",
+        slug: "gemini-2-5-pro",
+        note: "The 2.5 Pro section has the same access note. Release date June 17, 2025. No shutdown date announced. The issue does not record this 404 sentence for this id.",
+      },
+      {
+        id: "gemini-2.5-flash-lite",
+        provider: "google-gemini-api",
+        slug: "gemini-2-5-flash-lite",
+        note: "Listed under Gemini 2.5 Flash models, under the same access note. Release date July 22, 2025. No shutdown date announced. The issue does not record this 404 sentence for this id.",
+      },
+      {
+        id: "gemini-3.8-flash",
+        provider: "google-gemini-api",
+        slug: "gemini-3-8-flash",
+        note: "The error message says to use models/gemini-3.8-flash. The deprecations note names 3.8 Flash for new projects. The table id on that page is gemini-3.8-flash.",
+      },
+      {
+        id: "gemini-3.5-flash-lite",
+        provider: "google-gemini-api",
+        slug: "gemini-3-5-flash-lite",
+        note: "The deprecations note names 3.5 Flash-Lite for new projects. The table id on that page is gemini-3.5-flash-lite. The error message does not name this id.",
+      },
+    ],
+    fixes: [
+      {
+        heading: "Raw SDK",
+        text: [
+          "For a new project, call an id the deprecations note names for new projects. The error message names gemini-3.8-flash. The deprecations note also names 3.5 Flash-Lite, which is gemini-3.5-flash-lite on that page. This page does not say gemini-2.5-flash is shut down.",
+        ],
+        samples: [
+          {
+            caption: "Before",
+            code: `curl "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent" \\
+  -H "Content-Type: application/json" \\
+  -H "x-goog-api-key: $GEMINI_API_KEY" \\
+  -X POST \\
+  -d '{"contents":[{"parts":[{"text":"Hello"}]}]}'
+`,
+          },
+          {
+            caption: "After",
+            code: `curl "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent" \\
+  -H "Content-Type: application/json" \\
+  -H "x-goog-api-key: $GEMINI_API_KEY" \\
+  -X POST \\
+  -d '{"contents":[{"parts":[{"text":"Hello"}]}]}'
+`,
+          },
+        ],
+        sourceLabel: "Gemini API deprecations",
+        sourceUrl: GEMINI_DEPRECATIONS,
+      },
+      {
+        heading: "LiteLLM",
+        text: [
+          "LiteLLM's Gemini API route is the gemini/ prefix plus the model id. For a new project, use gemini-3.8-flash or gemini-3.5-flash-lite.",
+        ],
+        samples: [
+          {
+            caption: "Python",
+            code: `import litellm
+response = litellm.completion(
+    model="gemini/gemini-3.8-flash",
+    messages=[{"role": "user", "content": "Hello"}],
+)
+`,
+          },
+        ],
+        sourceLabel: "LiteLLM Gemini provider",
+        sourceUrl: LITELLM_GEMINI,
+      },
+      {
+        heading: "Vercel AI SDK",
+        text: ["generateText takes the model id from google(). Use gemini-3.8-flash or gemini-3.5-flash-lite for a new project."],
+        samples: [
+          {
+            caption: "TypeScript",
+            code: `import { google } from "@ai-sdk/google";
+import { generateText } from "ai";
+
+const { text } = await generateText({
+  model: google("gemini-3.8-flash"),
+  prompt: "Hello",
+});
+`,
+          },
+        ],
+        sourceLabel: "AI SDK generateText",
+        sourceUrl: AI_SDK_GENERATE,
+      },
+    ],
+    guides: [],
+    seeAlso: [
+      { href: "/errors/gemini-2-5-flash-no-longer-available-to-new-users/", label: "Shorter new-user fragment" },
+      { href: "/errors/gemini-model-no-longer-available/", label: "This model is no longer available" },
+      { href: "/models/google-gemini-api/gemini-2-5-flash/", label: "gemini-2.5-flash" },
+      { href: "/models/google-gemini-api/gemini-2-5-flash-lite/", label: "gemini-2.5-flash-lite" },
+      { href: "/models/google-gemini-api/gemini-2-5-pro/", label: "gemini-2.5-pro" },
+      { href: "/models/google-gemini-api/gemini-3-8-flash/", label: "gemini-3.8-flash" },
+      { href: "/models/google-gemini-api/gemini-3-5-flash-lite/", label: "gemini-3.5-flash-lite" },
+      { href: GEMINI_DEPRECATIONS, label: "Gemini API deprecations" },
+    ],
+    faqs: [
+      {
+        question: "Does Google's deprecations page print this 404 sentence?",
+        answer:
+          "No. The page says 2.5 access is limited to users who have actively used those models, and that the models are not deprecated. The sentence in the Error text block is the message field in GitHub issue [oyekamal/Design-your-perfect-AI-Persona#1](https://github.com/oyekamal/Design-your-perfect-AI-Persona/issues/1), which records HTTP 404 for gemini-2.5-flash.",
+      },
+      {
+        question: "Who gets this error?",
+        answer:
+          "The sentence says the model is no longer available to new users. The [deprecations page](https://ai.google.dev/gemini-api/docs/deprecations) says access to the 2.5 models is limited to users who have actively used them in the past, and that new projects should use 3.5 Flash-Lite or 3.8 Flash. The issue records the sentence for gemini-2.5-flash.",
+      },
+      {
+        question: "Is gemini-2.5-flash shut down?",
+        answer:
+          "No. The deprecations page says these models are not deprecated and will continue to be served until further notice. gemini-2.5-flash, gemini-2.5-pro, and gemini-2.5-flash-lite have no shutdown date announced.",
+      },
+      {
+        question: "Which ids should a new project call?",
+        answer:
+          "The error message names models/gemini-3.8-flash. The deprecations note says 3.5 Flash-Lite or 3.8 Flash. The table on that page uses [gemini-3.8-flash](/models/google-gemini-api/gemini-3-8-flash/) and [gemini-3.5-flash-lite](/models/google-gemini-api/gemini-3-5-flash-lite/).",
+      },
+    ],
+    citations: [GEMINI_DEPRECATIONS, ISSUE_GEMINI_25_FULL, LITELLM_GEMINI, AI_SDK_GENERATE],
   },
   {
     slug: "azure-openai-retired-model-410-gone",

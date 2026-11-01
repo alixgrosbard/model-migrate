@@ -9,7 +9,7 @@
   "deprecation_date": null,
   "shutdown_date": null,
   "shutdown_date_kind": "none",
-  "region_or_platform_notes": "Release date on the deprecations page: 2025-07-22.",
+  "region_or_platform_notes": "Release date on the deprecations page: 2025-07-22. The [Gemini API deprecations](https://ai.google.dev/gemini-api/docs/deprecations) page says: \"To ensure reliable performance for everyone, we are limiting access to the 2.5 models to users who have actively used them in the past. These models are not deprecated and will continue to be served until further notice through the API. For any new projects, use our latest models: 3.5 Flash-Lite or 3.8 Flash. This helps us maintain sufficient capacity for both ongoing legacy workflows and new applications.\"",
   "replacements": [],
   "sources": [
     {
