@@ -4,9 +4,16 @@ import { guideGraph, guidesIndexGraph } from "../src/jsonld.ts";
 import {
   DECEMBER_11_GUIDE_SLUG,
   DECEMBER_11_SHUTDOWN_DATE,
+  DECEMBER_1_IMAGE_GUIDE_SLUG,
+  DECEMBER_1_IMAGE_SHUTDOWN_DATE,
+  JANUARY_2027_AUDIO_GUIDE_SLUG,
   JANUARY_2027_GPT4_GUIDE_SLUG,
   JANUARY_2027_SHUTDOWN_DATE,
+  JANUARY_20_AUDIO_SHUTDOWN_DATE,
+  JANUARY_6_TTS_SHUTDOWN_DATE,
   isDecember11OpenAiShutdown,
+  isDecember1ImageShutdown,
+  isJanuary2027AudioShutdown,
   isJanuary2027Gpt4Shutdown,
 } from "../src/lib/dataset-guides.ts";
 import { GUIDES_CHECKED, GUIDES_INDEX, guideChecked, guidePath, guides, guidesForModel } from "../src/lib/guides.ts";
@@ -321,6 +328,133 @@ describe("guides", () => {
     expect(guidesForModel(gpt4o, models).map((link) => link.href)).toContain(`/guides/${JANUARY_2027_GPT4_GUIDE_SLUG}/`);
     expect(guidesForModel(gpt5, models).map((link) => link.href)).toContain(`/guides/${DECEMBER_11_GUIDE_SLUG}/`);
     expect(guidesForModel(gpt4o, models).map((link) => link.href)).toContain("/guides/model-aliases-vs-pinned-snapshots/");
+  });
+
+  it("builds the December 1 image guide and the January 2027 audio guide from the dataset", async () => {
+    const models = await loadModels();
+    const imageRows = models.filter(isDecember1ImageShutdown).sort((a, b) => a.id.localeCompare(b.id));
+    const audioRows = models.filter(isJanuary2027AudioShutdown).sort((a, b) => a.id.localeCompare(b.id));
+    const speechRows = audioRows.filter((model) => model.shutdown_date === JANUARY_6_TTS_SHUTDOWN_DATE);
+    const laterRows = audioRows.filter((model) => model.shutdown_date === JANUARY_20_AUDIO_SHUTDOWN_DATE);
+    expect(imageRows.map((model) => model.id)).toEqual([
+      "chatgpt-image-latest",
+      "gpt-image-1-mini",
+      "gpt-image-1.5",
+      "gpt-image-1.5-2025-12-16",
+    ]);
+    expect(speechRows.map((model) => model.id)).toEqual([
+      "gpt-4o-mini-tts",
+      "gpt-4o-mini-tts-2025-03-20",
+      "gpt-4o-mini-tts-2025-12-15",
+      "tts-1",
+      "tts-1-hd",
+    ]);
+    expect(laterRows.map((model) => model.id)).toEqual([
+      "gpt-4o-audio",
+      "gpt-4o-mini-audio",
+      "gpt-4o-mini-realtime",
+      "gpt-4o-mini-transcribe-2025-03-20",
+      "gpt-4o-realtime",
+      "gpt-audio",
+      "gpt-audio-2025-08-28",
+      "gpt-audio-mini",
+      "gpt-audio-mini-2025-12-15",
+      "gpt-realtime",
+      "gpt-realtime-2025-08-28",
+      "gpt-realtime-mini",
+      "gpt-realtime-mini-2025-12-15",
+    ]);
+    expect(new Set(imageRows.map((model) => model.shutdown_date))).toEqual(new Set([DECEMBER_1_IMAGE_SHUTDOWN_DATE]));
+
+    const image = guides.find((guide) => guide.slug === DECEMBER_1_IMAGE_GUIDE_SLUG);
+    const audio = guides.find((guide) => guide.slug === JANUARY_2027_AUDIO_GUIDE_SLUG);
+    expect(image).toBeTruthy();
+    expect(audio).toBeTruthy();
+    if (!image || !audio) return;
+
+    expect(guidePath(image.slug)).toBe("/guides/openai-image-model-shutdown-december-1-2026/");
+    expect(guidePath(audio.slug)).toBe("/guides/openai-audio-realtime-tts-shutdowns-january-2027/");
+    expect(image.h1).toContain("December 1, 2026");
+    expect(audio.h1).toContain("January 2027");
+    expect(sitemapSection(guidePath(image.slug))).toBe("sitemap-guides.xml");
+    expect(sitemapSection(guidePath(audio.slug))).toBe("sitemap-guides.xml");
+
+    const imageTable = image.sections.find((section) => section.heading === "Models shutting down")?.table;
+    expect(imageTable?.headers).toEqual(["Model id", "Deprecation date", "Shutdown date", "Recommended replacement"]);
+    expect(imageTable?.rows.map((row) => row[0])).toEqual(
+      imageRows.map((model) => `[${model.id}](/models/${model.provider}/${model.slug}/)`),
+    );
+    const speechTable = audio.sections.find((section) => section.heading === "Speech models shutting down on January 6, 2027")?.table;
+    const laterTable = audio.sections.find((section) => section.heading === "Audio and realtime models shutting down on January 20, 2027")?.table;
+    expect(speechTable?.rows.map((row) => row[0])).toEqual(
+      speechRows.map((model) => `[${model.id}](/models/${model.provider}/${model.slug}/)`),
+    );
+    expect(laterTable?.rows.map((row) => row[0])).toEqual(
+      laterRows.map((model) => `[${model.id}](/models/${model.provider}/${model.slug}/)`),
+    );
+
+    for (const model of imageRows) {
+      expect(publishedReplacementIds(model)).toEqual(["gpt-image-2.5-sunburst", "gpt-image-2.5-flare"]);
+      expect(imageTable?.rows.find((row) => row[0].includes(model.id))?.[3]).toContain("gpt-image-2.5-sunburst");
+      expect(imageTable?.rows.find((row) => row[0].includes(model.id))?.[3]).toContain("gpt-image-2.5-flare");
+    }
+    for (const model of speechRows) {
+      expect(publishedReplacementIds(model)).toEqual(["gpt-realtime-2.1-mini"]);
+    }
+
+    const imageBlob = JSON.stringify(image);
+    const audioBlob = JSON.stringify(audio);
+    expect(imageBlob).toContain("gpt-image-2.5-sunburst or gpt-image-2.5-flare");
+    expect(imageBlob).toContain("Choose Sunburst for workflows where editing precision matters most, and Flare for fast, high-quality everyday image generation.");
+    expect(imageBlob).toContain("Earlier GPT Image models support quality settings up to high.");
+    expect(imageBlob).toContain("https://developers.openai.com/api/docs/deprecations");
+    expect(imageBlob).toContain("https://developers.openai.com/api/docs/guides/image-generation");
+    expect(imageBlob).toContain("/api/v1/lookup/gpt-image-1.5.json");
+    expect(imageBlob).toContain("/alerts/");
+    expect(imageBlob).toContain("2026-10-23");
+    expect(imageBlob).not.toContain("gpt-image-1-mini, gpt-image-1,");
+    expect(audioBlob).toContain("isn't a supported model for /v1/audio/speech");
+    expect(audioBlob).toContain("Migrate to gpt-realtime-2.1-mini before the shutdown date.");
+    expect(audioBlob).toContain("https://developers.openai.com/api/docs/guides/text-to-speech");
+    expect(audioBlob).toContain("https://developers.openai.com/api/docs/models/gpt-audio-1.5");
+    expect(audioBlob).toContain("https://developers.openai.com/api/docs/models/gpt-realtime-2.1");
+    expect(audioBlob).toContain("languages replaces the singular language field");
+    expect(audioBlob).toContain("/api/v1/lookup/tts-1.json");
+    expect(audioBlob).toContain("/alerts/");
+    expect(audioBlob).toContain("2027-02-26");
+    expect(audioBlob).toContain("2026-07-23");
+    expect(audio.sections.some((section) => section.heading === "What breaks")).toBe(true);
+    expect(audio.sections.some((section) => section.heading === "Find the model ids in your code")).toBe(true);
+    expect(image.sections.some((section) => section.heading === "What breaks")).toBe(true);
+    expect(image.sections.some((section) => section.heading === "Find the model ids in your code")).toBe(true);
+
+    const pageFacts = JSON.stringify({
+      answer: audio.answer,
+      steps: audio.steps,
+      sections: audio.sections,
+    });
+    for (const faq of audio.faqs) {
+      for (const date of faq.answer.match(/\d{4}-\d{2}-\d{2}/g) ?? []) {
+        expect(pageFacts).toContain(date);
+      }
+    }
+
+    const imageModel = models.find((model) => model.id === "chatgpt-image-latest")!;
+    const speechModel = models.find((model) => model.id === "tts-1")!;
+    const realtimeModel = models.find((model) => model.id === "gpt-4o-realtime")!;
+    expect(guidesForModel(imageModel, models).map((link) => link.href)).toContain(`/guides/${DECEMBER_1_IMAGE_GUIDE_SLUG}/`);
+    expect(guidesForModel(speechModel, models).map((link) => link.href)).toContain(`/guides/${JANUARY_2027_AUDIO_GUIDE_SLUG}/`);
+    expect(guidesForModel(realtimeModel, models).map((link) => link.href)).toContain(`/guides/${JANUARY_2027_AUDIO_GUIDE_SLUG}/`);
+    expect(guidesForModel(speechModel, models).map((link) => link.href)).not.toContain(`/guides/${JANUARY_2027_GPT4_GUIDE_SLUG}/`);
+
+    const providerPage = readFileSync("src/pages/providers/[provider].astro", "utf8");
+    const shutdownPage = readFileSync("src/pages/shutdowns/[slug].astro", "utf8");
+    expect(providerPage).toContain(DECEMBER_1_IMAGE_GUIDE_SLUG);
+    expect(providerPage).toContain(JANUARY_2027_AUDIO_GUIDE_SLUG);
+    expect(shutdownPage).toContain(DECEMBER_1_IMAGE_GUIDE_SLUG);
+    expect(shutdownPage).toContain(JANUARY_2027_AUDIO_GUIDE_SLUG);
+    expect(llmsTxt("https://sunsetdiff.com", [], [])).toContain(guidePath(image.slug));
+    expect(llmsFull("https://sunsetdiff.com", [])).toContain(guidePath(audio.slug));
   });
 
   it("builds the MiniMax November 18 guide from the dataset", async () => {

@@ -5,6 +5,7 @@ import {
   BEDROCK_NOV13_GUIDE_SLUG,
   COPILOT_NOV16_GUIDE_SLUG,
   DECEMBER_11_GUIDE_SLUG,
+  DECEMBER_1_IMAGE_GUIDE_SLUG,
   FIREWORKS_NOV7_GUIDE_SLUG,
   GEMINI_NOV17_GUIDE_SLUG,
   NEBIUS_NOV9_GUIDE_SLUG,
@@ -15,12 +16,15 @@ import {
   isBedrockNov13Shutdown,
   isCopilotNov16Shutdown,
   isDecember11OpenAiShutdown,
+  isDecember1ImageShutdown,
   isFireworksNov7Shutdown,
   isGeminiNov17Shutdown,
+  isJanuary2027AudioShutdown,
   isJanuary2027Gpt4Shutdown,
   isMinimaxNov18Shutdown,
   isNebiusNov9Shutdown,
   isSonnet45Nov30Shutdown,
+  JANUARY_2027_AUDIO_GUIDE_SLUG,
   JANUARY_2027_GPT4_GUIDE_SLUG,
   MINIMAX_NOV18_GUIDE_SLUG,
   SONNET45_NOV30_GUIDE_SLUG,
@@ -2438,7 +2442,9 @@ export function guidesForModel(model: ModelRecord, catalog: ModelRecord[]): Mode
     seen.add(slug);
     links.push({ href: guidePath(slug), label: guide.h1 });
   };
+  if (isDecember1ImageShutdown(model)) add(DECEMBER_1_IMAGE_GUIDE_SLUG);
   if (isDecember11OpenAiShutdown(model)) add(DECEMBER_11_GUIDE_SLUG);
+  if (isJanuary2027AudioShutdown(model)) add(JANUARY_2027_AUDIO_GUIDE_SLUG);
   if (isJanuary2027Gpt4Shutdown(model)) add(JANUARY_2027_GPT4_GUIDE_SLUG);
   if (isMinimaxNov18Shutdown(model)) add(MINIMAX_NOV18_GUIDE_SLUG);
   if (isBedrockNov13Shutdown(model) || (model.provider === "aws-bedrock" && model.id === "anthropic.claude-3-haiku-20240307-v1:0")) {
