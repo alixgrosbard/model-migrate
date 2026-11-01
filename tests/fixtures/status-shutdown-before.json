@@ -1910,11 +1910,6 @@
     "status": "retired"
   },
   "openai:gpt-4-1": {
-    "id": "gpt-4.1*",
-    "shutdown_date": null,
-    "status": "active"
-  },
-  "openai:gpt-4-1-2": {
     "id": "gpt-4.1",
     "shutdown_date": null,
     "status": "active"
