@@ -15,7 +15,7 @@
     {
       "url": "https://developers.cloudflare.com/workers-ai/changelog/",
       "label": "Cloudflare Workers AI changelog",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "- @hf/thebloke/llama-2-13b-chat-awq"
     }
   ],

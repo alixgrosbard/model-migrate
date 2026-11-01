@@ -55,24 +55,24 @@
     "Ship the change before the published shutdown date."
   ],
   "confidence": "partial",
-  "last_checked": "2026-10-31",
+  "last_checked": "2026-11-01",
   "sources": [
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "OpenAI deprecations",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "2024-01-04 | ada | $0.40 / 1M tokens | babbage-002"
     },
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "OpenAI deprecations",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "2026-09-28 | babbage-002 | gpt-5.6-terra"
     },
     {
       "url": "https://developers.openai.com/api/docs/models/babbage-002.md",
       "label": "OpenAI model docs",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "Model ID: babbage-002 | max output 16384 | input $0.4 | output $0.4"
     }
   ]

@@ -15,7 +15,7 @@
     {
       "url": "https://docs.x.ai/developers/release-notes",
       "label": "xAI release notes",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "slug are routed to `grok-voice-transcribe-2.0` at the same price, with higher accuracy. See the [Speech to Text docs](/developers/model-capabilities/audio/speech-to-text). ## September ### safety\\_identifier request field You"
     }
   ],

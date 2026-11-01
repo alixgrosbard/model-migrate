@@ -21,7 +21,7 @@
     {
       "url": "https://developers.openai.com/api/docs/models/gpt-4o-mini-search-preview.md",
       "label": "OpenAI model docs",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "Model ID: gpt-4o-mini-search-preview | Fast, affordable small model for web search"
     }
   ],
@@ -47,19 +47,19 @@
     "specs_sources": {
       "context_window_tokens": {
         "url": "https://developers.openai.com/api/docs/models/gpt-4o-mini-search-preview.md",
-        "last_checked": "2026-10-31"
+        "last_checked": "2026-11-01"
       },
       "input_price_per_mtok": {
         "url": "https://developers.openai.com/api/docs/models/gpt-4o-mini-search-preview.md",
-        "last_checked": "2026-10-31"
+        "last_checked": "2026-11-01"
       },
       "max_output_tokens": {
         "url": "https://developers.openai.com/api/docs/models/gpt-4o-mini-search-preview.md",
-        "last_checked": "2026-10-31"
+        "last_checked": "2026-11-01"
       },
       "output_price_per_mtok": {
         "url": "https://developers.openai.com/api/docs/models/gpt-4o-mini-search-preview.md",
-        "last_checked": "2026-10-31"
+        "last_checked": "2026-11-01"
       }
     }
   },

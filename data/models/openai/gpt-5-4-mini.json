@@ -15,19 +15,19 @@
     {
       "url": "https://developers.openai.com/api/docs/models/gpt-5.4-mini.md",
       "label": "OpenAI model docs",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "Model ID: gpt-5.4-mini | Our strongest mini model yet for coding, computer use, and subagents"
     },
     {
       "url": "https://developers.openai.com/codex/changelog#codex-2026-07-31",
       "label": "Codex changelog",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "On August 31, 2026, GPT-5.4 and GPT-5.4 mini will no longer be available in Codex for users signed in with ChatGPT. GPT-5.4 and GPT-5.4 mini will remain available on the OpenAI API and Codex sessions authenticated with an API key."
     },
     {
       "url": "https://developers.openai.com/codex/models",
       "label": "Codex models",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "The gpt-5.4 and gpt-5.4-mini models retired from Codex with ChatGPT sign-in on August 31, 2026. Replace gpt-5.4-mini with gpt-6-luna when available to your plan and client. The OpenAI API and Codex authenticated with your own API key aren't affected by the GPT-5.4 retirement."
     }
   ],
@@ -53,23 +53,23 @@
     "specs_sources": {
       "cached_input_price_per_mtok": {
         "url": "https://developers.openai.com/api/docs/models/gpt-5.4-mini.md",
-        "last_checked": "2026-10-31"
+        "last_checked": "2026-11-01"
       },
       "context_window_tokens": {
         "url": "https://developers.openai.com/api/docs/models/gpt-5.4-mini.md",
-        "last_checked": "2026-10-31"
+        "last_checked": "2026-11-01"
       },
       "input_price_per_mtok": {
         "url": "https://developers.openai.com/api/docs/models/gpt-5.4-mini.md",
-        "last_checked": "2026-10-31"
+        "last_checked": "2026-11-01"
       },
       "max_output_tokens": {
         "url": "https://developers.openai.com/api/docs/models/gpt-5.4-mini.md",
-        "last_checked": "2026-10-31"
+        "last_checked": "2026-11-01"
       },
       "output_price_per_mtok": {
         "url": "https://developers.openai.com/api/docs/models/gpt-5.4-mini.md",
-        "last_checked": "2026-10-31"
+        "last_checked": "2026-11-01"
       }
     }
   },

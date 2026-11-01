@@ -22,7 +22,7 @@
     {
       "url": "https://console.groq.com/docs/deprecations",
       "label": "Groq model deprecations",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "qwen/qwen3-32b | 2026-07-17 | openai/gpt-oss-120b"
     }
   ],

@@ -66,24 +66,24 @@
     "Point your requests at nvidia/Nemotron-3_5-Lightning and test before you send traffic."
   ],
   "confidence": "partial",
-  "last_checked": "2026-10-31",
+  "last_checked": "2026-11-01",
   "sources": [
     {
       "url": "https://docs.tokenfactory.nebius.com/august-2026-deprecation-notice",
       "label": "Nebius Token Factory model deprecations",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "| [`nvidia/Nemotron-3-Nano-Omni`](https://tokenfactory.nebius.com/models/catalog/text2text/nvidia%2FNemotron-3-Nano-Omni) | [`nvidia/Nemotron-3_5-Lightning`](https://tokenfactory.nebius.com/models/catalog/text2text/nvidia%2FNemotron-3_5-Lightning) |"
     },
     {
       "url": "https://docs.tokenfactory.nebius.com/august-2026-deprecation-notice",
       "label": "Named as an official replacement",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "Named as an official replacement for NousResearch/Hermes-4-70B."
     },
     {
       "url": "https://docs.tokenfactory.nebius.com/model-deprecations-november-2026",
       "label": "Named as an official replacement",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "Named as an official replacement for NousResearch/Hermes-4-70B."
     }
   ]

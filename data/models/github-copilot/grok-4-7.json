@@ -15,13 +15,13 @@
     {
       "url": "https://docs.github.com/en/copilot/reference/ai-models/supported-models",
       "label": "GitHub Copilot supported models",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "Grok 4.7 | GA"
     },
     {
       "url": "https://github.blog/changelog/2026-10-19-github-copilot-models-deprecated-on-october-19-2026",
       "label": "Named as an official replacement",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "Named as an official replacement for Grok 4.5."
     }
   ],

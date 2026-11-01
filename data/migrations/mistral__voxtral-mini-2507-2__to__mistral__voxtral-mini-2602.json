@@ -55,18 +55,18 @@
     "Ship the change before the published shutdown date."
   ],
   "confidence": "partial",
-  "last_checked": "2026-10-31",
+  "last_checked": "2026-11-01",
   "sources": [
     {
       "url": "https://docs.mistral.ai/models",
       "label": "Mistral models",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "Voxtral Mini | 25.07 | voxtral-mini-2507 | 2/27/2026 5/31/2026 | Voxtral Mini Transcribe 2"
     },
     {
       "url": "https://docs.mistral.ai/models/voxtral-mini-25-07",
       "label": "Mistral model docs",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "voxtral-mini-2507 | Context 32k"
     },
     {
@@ -78,7 +78,7 @@
     {
       "url": "https://docs.mistral.ai/models",
       "label": "Mistral models",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "Voxtral Mini Transcribe 2 | 26.02 | voxtral-mini-2602 | 10/31/2026 4/30/2027 | Voxtral Mini Transcribe 3"
     }
   ]

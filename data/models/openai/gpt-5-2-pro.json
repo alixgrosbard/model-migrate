@@ -15,7 +15,7 @@
     {
       "url": "https://developers.openai.com/api/docs/models/gpt-5.2-pro.md",
       "label": "OpenAI model docs",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "Model ID: gpt-5.2-pro | Previous pro model for professional work that produces smarter and more precise responses."
     }
   ],
@@ -41,19 +41,19 @@
     "specs_sources": {
       "context_window_tokens": {
         "url": "https://developers.openai.com/api/docs/models/gpt-5.2-pro.md",
-        "last_checked": "2026-10-31"
+        "last_checked": "2026-11-01"
       },
       "input_price_per_mtok": {
         "url": "https://developers.openai.com/api/docs/models/gpt-5.2-pro.md",
-        "last_checked": "2026-10-31"
+        "last_checked": "2026-11-01"
       },
       "max_output_tokens": {
         "url": "https://developers.openai.com/api/docs/models/gpt-5.2-pro.md",
-        "last_checked": "2026-10-31"
+        "last_checked": "2026-11-01"
       },
       "output_price_per_mtok": {
         "url": "https://developers.openai.com/api/docs/models/gpt-5.2-pro.md",
-        "last_checked": "2026-10-31"
+        "last_checked": "2026-11-01"
       }
     }
   },

@@ -66,18 +66,18 @@
     "Point your requests at Kimi-K2-0905 and test before you send traffic."
   ],
   "confidence": "partial",
-  "last_checked": "2026-10-31",
+  "last_checked": "2026-11-01",
   "sources": [
     {
       "url": "https://docs.together.ai/docs/deprecations",
       "label": "Together AI deprecations",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "`Kimi-K2` | `Kimi-K2-0905` | Same architecture, improved post-training"
     },
     {
       "url": "https://docs.together.ai/docs/deprecations",
       "label": "Named as an official replacement",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "Named as an official replacement for Kimi-K2."
     }
   ]

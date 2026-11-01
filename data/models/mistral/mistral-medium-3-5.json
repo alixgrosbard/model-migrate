@@ -15,13 +15,13 @@
     {
       "url": "https://docs.mistral.ai/models",
       "label": "Mistral models",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "Mistral Medium 3.5 | 26.04 | mistral-medium-3-5 | 10/31/2026 4/30/2027 | Mistral Large 4"
     },
     {
       "url": "https://docs.mistral.ai/models/mistral-medium-3-5-26-04",
       "label": "Mistral model docs",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "mistral-medium-3-5 | Context 256k"
     }
   ],
@@ -47,7 +47,7 @@
     "specs_sources": {
       "context_window_tokens": {
         "url": "https://docs.mistral.ai/models/mistral-medium-3-5-26-04",
-        "last_checked": "2026-10-31"
+        "last_checked": "2026-11-01"
       }
     }
   },

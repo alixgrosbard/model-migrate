@@ -22,13 +22,13 @@
     {
       "url": "https://docs.mistral.ai/models",
       "label": "Mistral models",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "Magistral Medium 1.2 | 25.09 | magistral-medium-2509 | 5/22/2026 7/31/2026 | Mistral Medium 3.5"
     },
     {
       "url": "https://docs.mistral.ai/models/magistral-medium-1-2-25-09",
       "label": "Mistral model docs",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "magistral-medium-2509 | Context 128k"
     }
   ],
@@ -54,7 +54,7 @@
     "specs_sources": {
       "context_window_tokens": {
         "url": "https://docs.mistral.ai/models/magistral-medium-1-2-25-09",
-        "last_checked": "2026-10-31"
+        "last_checked": "2026-11-01"
       }
     }
   },

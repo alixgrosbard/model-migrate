@@ -37,25 +37,25 @@
     {
       "url": "https://docs.github.com/en/copilot/reference/ai-models/supported-models",
       "label": "GitHub Copilot supported models",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "Claude Opus 4.6 | 2026-09-01 | Latest Claude Opus model"
     },
     {
       "url": "https://github.blog/changelog/2026-07-31-upcoming-august-2026-model-deprecations-in-github-copilot",
       "label": "GitHub Changelog",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "Claude Opus 4.6 | Claude Opus 4.7, Claude Opus 4.8, or Claude Opus 5"
     },
     {
       "url": "https://github.blog/changelog/2026-08-31-selected-github-copilot-models-deprecated",
       "label": "GitHub Changelog",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "Claude Opus 4.6 | Claude Opus 4.7, Claude Opus 4.8, or Claude Opus 5"
     },
     {
       "url": "https://github.com/github/copilot-cli/blob/main/changelog.md",
       "label": "GitHub Copilot CLI changelog",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "Add support for claude-opus-4.6 model"
     }
   ],

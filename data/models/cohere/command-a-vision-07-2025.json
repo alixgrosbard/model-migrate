@@ -15,7 +15,7 @@
     {
       "url": "https://docs.cohere.com/docs/models",
       "label": "Cohere model docs",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "command-a-vision-07-2025 Live Command A Vision is our first model capable of processing images, excelling in enterprise use cases such as analyzing charts, graphs, and diagrams, table"
     }
   ],
@@ -46,23 +46,23 @@
     "specs_sources": {
       "context_window_tokens": {
         "url": "https://docs.cohere.com/docs/models",
-        "last_checked": "2026-10-31"
+        "last_checked": "2026-11-01"
       },
       "max_output_tokens": {
         "url": "https://docs.cohere.com/docs/models",
-        "last_checked": "2026-10-31"
+        "last_checked": "2026-11-01"
       },
       "modalities_in": {
         "url": "https://docs.cohere.com/docs/models",
-        "last_checked": "2026-10-31"
+        "last_checked": "2026-11-01"
       },
       "modalities_out": {
         "url": "https://docs.cohere.com/docs/models",
-        "last_checked": "2026-10-31"
+        "last_checked": "2026-11-01"
       },
       "supports_vision": {
         "url": "https://docs.cohere.com/docs/models",
-        "last_checked": "2026-10-31"
+        "last_checked": "2026-11-01"
       }
     }
   },

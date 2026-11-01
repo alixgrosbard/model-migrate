@@ -15,7 +15,7 @@
     {
       "url": "https://console.groq.com/docs/models",
       "label": "Groq supported models",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "canopylabs/orpheus-v1-english | preview | context 4000 | max completion 50000"
     }
   ],
@@ -41,11 +41,11 @@
     "specs_sources": {
       "context_window_tokens": {
         "url": "https://console.groq.com/docs/models",
-        "last_checked": "2026-10-31"
+        "last_checked": "2026-11-01"
       },
       "max_output_tokens": {
         "url": "https://console.groq.com/docs/models",
-        "last_checked": "2026-10-31"
+        "last_checked": "2026-11-01"
       }
     }
   },

@@ -15,7 +15,7 @@
     {
       "url": "https://docs.cohere.com/docs/models",
       "label": "Cohere model docs",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "command-r7b-12-2024 Live `command-r7b-12-2024` is a small, fast update delivered in December 2024. It excels at RAG, tool use, agents, and similar tasks requiring complex reasonin"
     }
   ],
@@ -45,23 +45,23 @@
     "specs_sources": {
       "context_window_tokens": {
         "url": "https://docs.cohere.com/docs/models",
-        "last_checked": "2026-10-31"
+        "last_checked": "2026-11-01"
       },
       "max_output_tokens": {
         "url": "https://docs.cohere.com/docs/models",
-        "last_checked": "2026-10-31"
+        "last_checked": "2026-11-01"
       },
       "modalities_in": {
         "url": "https://docs.cohere.com/docs/models",
-        "last_checked": "2026-10-31"
+        "last_checked": "2026-11-01"
       },
       "modalities_out": {
         "url": "https://docs.cohere.com/docs/models",
-        "last_checked": "2026-10-31"
+        "last_checked": "2026-11-01"
       },
       "supports_tools": {
         "url": "https://docs.cohere.com/docs/models",
-        "last_checked": "2026-10-31"
+        "last_checked": "2026-11-01"
       }
     }
   },

@@ -15,13 +15,13 @@
     {
       "url": "https://docs.github.com/en/copilot/reference/ai-models/supported-models",
       "label": "GitHub Copilot supported models",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "MAI-Code-1.1-Flash | GA"
     },
     {
       "url": "https://github.blog/changelog/2026-09-10-mai-code-1-flash-deprecated",
       "label": "Named as an official replacement",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "Named as an official replacement for MAI-Code-1-Flash."
     }
   ],

@@ -15,19 +15,19 @@
     {
       "url": "https://cloud.google.com/gemini-enterprise-agent-platform/generative-ai/pricing",
       "label": "Vertex pricing",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "Gemini 3.1 Flash Image (Nano Banana 2) Input (text, image, video) [2] $0.5 per 1M tokens for the <= 200K column"
     },
     {
       "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/gemini/3-1-flash-image",
       "label": "Vertex model docs",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "Gemini 3.1 Flash Image (Nano Banana 2) | gemini-3.1-flash-image | context window 10 | maximum output tokens 32768"
     },
     {
       "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/model-versions",
       "label": "Vertex AI model versions",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "gemini-3.1-flash-image | May 28, 2026 | May 28, 2027 or later"
     }
   ],
@@ -53,19 +53,19 @@
     "specs_sources": {
       "context_window_tokens": {
         "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/gemini/3-1-flash-image",
-        "last_checked": "2026-10-31"
+        "last_checked": "2026-11-01"
       },
       "input_price_per_mtok": {
         "url": "https://cloud.google.com/gemini-enterprise-agent-platform/generative-ai/pricing",
-        "last_checked": "2026-10-31"
+        "last_checked": "2026-11-01"
       },
       "max_output_tokens": {
         "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/gemini/3-1-flash-image",
-        "last_checked": "2026-10-31"
+        "last_checked": "2026-11-01"
       },
       "output_price_per_mtok": {
         "url": "https://cloud.google.com/gemini-enterprise-agent-platform/generative-ai/pricing",
-        "last_checked": "2026-10-31"
+        "last_checked": "2026-11-01"
       }
     }
   },

@@ -22,7 +22,7 @@
     {
       "url": "https://docs.tokenfactory.nebius.com/august-2026-deprecation-notice",
       "label": "Nebius Token Factory model deprecations",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "| [`NousResearch/Hermes-4-70B`](https://tokenfactory.nebius.com/models/catalog/text2text/NousResearch%2FHermes-4-70B) | [`nvidia/Nemotron-3_5-Lightning`](https://tokenfactory.nebius.com/models/catalog/text2text/nvidia%2FNemotron-3_5-Lightning) |"
     }
   ],

@@ -61,18 +61,18 @@
     "Ship the change before the published shutdown date."
   ],
   "confidence": "partial",
-  "last_checked": "2026-10-31",
+  "last_checked": "2026-11-01",
   "sources": [
     {
       "url": "https://console.groq.com/docs/deprecations",
       "label": "Groq model deprecations",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "mixtral-8x7b-32768 | 2025-03-20 | mistral-saba-24b llama-3.3-70b-versatile"
     },
     {
       "url": "https://console.groq.com/docs/deprecations",
       "label": "Groq model deprecations",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "mistral-saba-24b | 2025-07-30 | qwen/qwen3-32b"
     }
   ]

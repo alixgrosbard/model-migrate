@@ -18,13 +18,13 @@
     {
       "url": "https://docs.github.com/en/copilot/reference/ai-models/supported-models",
       "label": "GitHub Copilot supported models",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "Claude Fable 5.1 | GA"
     },
     {
       "url": "https://github.com/github/copilot-cli/blob/main/changelog.md",
       "label": "GitHub Copilot CLI changelog",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "Adding support for claude-fable-5.1"
     }
   ],

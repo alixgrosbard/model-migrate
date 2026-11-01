@@ -15,7 +15,7 @@
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "Named as an official replacement",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "Named as an official replacement for codex-mini-latest. No shutdown date was published for this id on that page."
     }
   ],

@@ -22,13 +22,13 @@
     {
       "url": "https://docs.mistral.ai/models",
       "label": "Mistral models",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "Codestral | 24.05 | codestral-2405 | 12/2/2024 6/16/2025 | Codestral"
     },
     {
       "url": "https://docs.mistral.ai/models/codestral-24-05",
       "label": "Mistral model docs",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "codestral-2405 | Context 32k"
     }
   ],
@@ -54,19 +54,19 @@
     "specs_sources": {
       "cached_input_price_per_mtok": {
         "url": "https://docs.mistral.ai/models/pricing",
-        "last_checked": "2026-10-31"
+        "last_checked": "2026-11-01"
       },
       "context_window_tokens": {
         "url": "https://docs.mistral.ai/models/codestral-24-05",
-        "last_checked": "2026-10-31"
+        "last_checked": "2026-11-01"
       },
       "input_price_per_mtok": {
         "url": "https://docs.mistral.ai/models/pricing",
-        "last_checked": "2026-10-31"
+        "last_checked": "2026-11-01"
       },
       "output_price_per_mtok": {
         "url": "https://docs.mistral.ai/models/pricing",
-        "last_checked": "2026-10-31"
+        "last_checked": "2026-11-01"
       }
     }
   },

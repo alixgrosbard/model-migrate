@@ -65,18 +65,18 @@
     "Point your requests at accounts/fireworks/models/glm-5p3 and test before you send traffic."
   ],
   "confidence": "partial",
-  "last_checked": "2026-10-31",
+  "last_checked": "2026-11-01",
   "sources": [
     {
       "url": "https://docs.fireworks.ai/updates/changelog",
       "label": "Fireworks AI changelog",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "GLM 5.2, including GLM 5.2 Fast, GLM 5.2 Fast US, and GLM 5.2 US - migrate to GLM 5.3"
     },
     {
       "url": "https://docs.fireworks.ai/updates/changelog",
       "label": "Named as an official replacement",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "Named as an official replacement for accounts/fireworks/models/glm-5p2."
     }
   ]

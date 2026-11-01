@@ -22,13 +22,13 @@
     {
       "url": "https://api-docs.deepseek.com/news/news260424/",
       "label": "DeepSeek V4 preview note",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "deepseek-chat & deepseek-reasoner will be fully retired and inaccessible after Jul 24th, 2026, 15:59 (UTC Time)."
     },
     {
       "url": "https://api-docs.deepseek.com/updates/",
       "label": "DeepSeek API changelog",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "The two legacy API model names, deepseek-chat and deepseek-reasoner, will be discontinued in three months (2026-07-24). | During the current period, these two model names point to the non-thinking mode and thinking mode of deepseek-v4-flash, respectively."
     }
   ],

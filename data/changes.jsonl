@@ -1533,3 +1533,9 @@
 {"date":"2026-10-31","provider":"openrouter","model_id":"liquid/d1","field":"shutdown_date","old":null,"new":"2026-11-20","source_url":"https://openrouter.ai/api/v1/models?output_modalities=all"}
 {"date":"2026-10-31","provider":"openrouter","model_id":"x-ai/grok-imagine-image-quality","field":"shutdown_date","old":null,"new":"2026-11-02","source_url":"https://openrouter.ai/api/v1/models?output_modalities=all"}
 {"date":"2026-10-31","provider":"together","model_id":"Qwen/Qwen3.8-2.4T-A95B","field":"shutdown_date","old":null,"new":"2026-11-04","source_url":"https://docs.together.ai/docs/deprecations"}
+{"date":"2026-11-01","provider":"azure-openai","model_id":"gpt-4o-2024-05-13","field":"shutdown_date","old":"2026-12-09","new":"2027-01-14","source_url":"https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule"}
+{"date":"2026-11-01","provider":"azure-openai","model_id":"gpt-4o-2024-05-13","field":"replacements","old":"gpt-5.6-sol","new":"","source_url":"https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule"}
+{"date":"2026-11-01","provider":"azure-openai","model_id":"gpt-5-mini-2025-08-07","field":"shutdown_date","old":"2027-02-09","new":"2027-07-13","source_url":"https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule"}
+{"date":"2026-11-01","provider":"azure-openai","model_id":"gpt-5.1-2025-11-13","field":"shutdown_date","old":"2027-05-15","new":"2027-07-13","source_url":"https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule"}
+{"date":"2026-11-01","provider":"mistral","model_id":"zai-glm-5-2","field":"status","old":"deprecated","new":"retired","source_url":"https://docs.mistral.ai/models"}
+{"date":"2026-11-01","provider":"openrouter","model_id":"z-ai/glm-4.7","field":"shutdown_date","old":null,"new":"2026-12-31","source_url":"https://openrouter.ai/api/v1/models?output_modalities=all"}

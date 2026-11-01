@@ -15,14 +15,14 @@
     {
       "url": "https://docs.x.ai/developers/migration/imagine-image-quality-nov-2",
       "label": "xAI model deprecations",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "ine-image` (1.0) is not affected by this change. ### How the redirect works Starting **November 2, 2026**: * Requests to `grok-imagine-image-quality` on `/v1/images/generations` and `/v1/images/edits` are served"
     },
     {
       "url": "https://docs.x.ai/developers/models",
       "label": "xAI model docs",
-      "last_checked": "2026-10-31",
-      "excerpt": "e-2.0 $0.04 / image grok-imagine-image $0.02 / image grok-imagine-image-quality $0.05 / image grok-imagine-video-1.5 $0.080 / sec grok-imagine-video-1.5-lite $0.020 / sec grok-imagine-video $0.050 / sec ### Voice Pricing Mode Cost -"
+      "last_checked": "2026-11-01",
+      "excerpt": "e-2.0 $0.04 / image grok-imagine-image $0.02 / image grok-imagine-video $0.050 / sec grok-imagine-video-1.5-lite $0.020 / sec grok-imagine-video-1.5 $0.080 / sec ### Voice Pricing Mode Cost --- --- Speech to Speech (grok-voice-2.0)"
     }
   ],
   "specs": {
@@ -47,14 +47,14 @@
     "specs_sources": {
       "batch_discount_pct": {
         "url": "https://docs.x.ai/developers/pricing",
-        "last_checked": "2026-10-31"
+        "last_checked": "2026-11-01"
       },
       "supports_batch": {
         "url": "https://docs.x.ai/developers/pricing",
-        "last_checked": "2026-10-31"
+        "last_checked": "2026-11-01"
       }
     }
   },
   "first_seen": "2026-10-27T12:00:00.000Z",
-  "updated_at": "2026-10-31T05:44:31.186Z"
+  "updated_at": "2026-11-01T13:18:54.393Z"
 }

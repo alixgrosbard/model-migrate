@@ -15,13 +15,13 @@
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "OpenAI deprecations",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "2026-09-24 | sora-2-2025-12-08 | —"
     },
     {
       "url": "https://developers.openai.com/api/docs/models/sora-2.md",
       "label": "OpenAI model docs",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "Model ID: sora-2 | Default snapshot sora-2-2025-12-08"
     }
   ],

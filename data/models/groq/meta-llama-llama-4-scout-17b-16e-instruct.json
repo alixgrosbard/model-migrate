@@ -28,7 +28,7 @@
     {
       "url": "https://console.groq.com/docs/deprecations",
       "label": "Groq model deprecations",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "meta-llama/llama-4-scout-17b-16e-instruct | 2026-07-17 | openai/gpt-oss-120b qwen/qwen3.6-27b"
     }
   ],

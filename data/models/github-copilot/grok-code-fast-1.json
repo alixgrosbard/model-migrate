@@ -28,19 +28,19 @@
     {
       "url": "https://docs.github.com/en/copilot/reference/ai-models/supported-models",
       "label": "GitHub Copilot supported models",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "Grok Code Fast 1 | 2026-05-15 | Latest GPT mini model"
     },
     {
       "url": "https://github.blog/changelog/2026-05-08-upcoming-deprecation-of-grok-code-fast-1",
       "label": "GitHub Changelog",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "Grok Code Fast 1 | GPT-5 mini / Claude Haiku 4.5"
     },
     {
       "url": "https://github.blog/changelog/2026-05-15-grok-code-fast-1-deprecated",
       "label": "GitHub Changelog",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "Grok Code Fast 1 | GPT-5 mini / Claude Haiku 4.5"
     }
   ],

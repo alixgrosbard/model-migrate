@@ -15,7 +15,7 @@
     {
       "url": "https://docs.aws.amazon.com/bedrock/latest/userguide/model-lifecycle-legacy.html",
       "label": "Amazon Bedrock model lifecycle (legacy)",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "Policy page https://docs.aws.amazon.com/bedrock/latest/userguide/model-lifecycle.html | Qwen | Qwen3 Coder 480B A35B Instruct | qwen.qwen3-coder-480b-a35b-v1:0 (bedrock-runtime), qwen.qwen3-coder-480b-a35b-instruct (bedrock-mantle) | ap-northeast-1, ap-south-1, ap-southeast-2, ap-southeast-3, eu-no…"
     }
   ],

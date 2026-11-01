@@ -22,13 +22,13 @@
     {
       "url": "https://ai.google.dev/gemini-api/docs/deprecations",
       "label": "Gemini API deprecations",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "gemini-3.1-flash-image | May 28, 2026 | No shutdown date announced | gemini-nano-banana-2.1"
     },
     {
       "url": "https://ai.google.dev/gemini-api/docs/models/gemini-3.1-flash-image",
       "label": "Gemini model docs",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "gemini-3.1-flash-image input token limit 131072 | max output tokens 32768"
     }
   ],
@@ -54,19 +54,19 @@
     "specs_sources": {
       "context_window_tokens": {
         "url": "https://ai.google.dev/gemini-api/docs/models/gemini-3.1-flash-image",
-        "last_checked": "2026-10-31"
+        "last_checked": "2026-11-01"
       },
       "input_price_per_mtok": {
         "url": "https://ai.google.dev/gemini-api/docs/pricing",
-        "last_checked": "2026-10-31"
+        "last_checked": "2026-11-01"
       },
       "max_output_tokens": {
         "url": "https://ai.google.dev/gemini-api/docs/models/gemini-3.1-flash-image",
-        "last_checked": "2026-10-31"
+        "last_checked": "2026-11-01"
       },
       "output_price_per_mtok": {
         "url": "https://ai.google.dev/gemini-api/docs/pricing",
-        "last_checked": "2026-10-31"
+        "last_checked": "2026-11-01"
       }
     }
   },

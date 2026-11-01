@@ -66,18 +66,18 @@
     "Point your requests at deepseek-ai/DeepSeek-V4.1-Flash-1017 and test before you send traffic."
   ],
   "confidence": "partial",
-  "last_checked": "2026-10-31",
+  "last_checked": "2026-11-01",
   "sources": [
     {
       "url": "https://docs.tokenfactory.nebius.com/model-deprecations-november-2026",
       "label": "Nebius Token Factory model deprecations",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "| [`deepseek-ai/DeepSeek-V4.1-Flash`](https://tokenfactory.nebius.com/models/catalog/image2text/deepseek-ai%2FDeepSeek-V4.1-Flash) | [`deepseek-ai/DeepSeek-V4.1-Flash-1017`](https://tokenfactory.nebius.com/models/catalog/image2text/deepseek-ai%2FDeepSeek-V4.1-Flash-1017) |"
     },
     {
       "url": "https://docs.tokenfactory.nebius.com/model-deprecations-november-2026",
       "label": "Named as an official replacement",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "Named as an official replacement for deepseek-ai/DeepSeek-V4-Flash-0731."
     }
   ]

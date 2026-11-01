@@ -15,7 +15,7 @@
     {
       "url": "https://developers.cloudflare.com/changelog/post/2026-05-08-planned-model-deprecations/",
       "label": "Named as an official replacement",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "@cf/moonshotai/kimi-k2.5 --> @cf/moonshotai/kimi-k2.6"
     }
   ],

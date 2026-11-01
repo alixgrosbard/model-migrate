@@ -4,7 +4,7 @@
   "provider": "mistral",
   "display_name": "Z.ai GLM 5.2",
   "family": null,
-  "status": "deprecated",
+  "status": "retired",
   "announced_date": null,
   "deprecation_date": "2026-09-29",
   "shutdown_date": "2026-10-31",
@@ -15,13 +15,13 @@
     {
       "url": "https://docs.mistral.ai/models",
       "label": "Mistral models",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "Z.ai GLM 5.2 | 5.2 | zai-glm-5-2 | 9/29/2026 10/31/2026 | Z.ai GLM 5.3"
     },
     {
       "url": "https://docs.mistral.ai/models/zai-glm-5-2",
       "label": "Mistral model docs",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "zai-glm-5-2 | Context 1M"
     }
   ],
@@ -47,10 +47,10 @@
     "specs_sources": {
       "context_window_tokens": {
         "url": "https://docs.mistral.ai/models/zai-glm-5-2",
-        "last_checked": "2026-10-31"
+        "last_checked": "2026-11-01"
       }
     }
   },
   "first_seen": "2026-10-17T15:59:19.574Z",
-  "updated_at": "2026-10-24T04:39:18.299Z"
+  "updated_at": "2026-11-01T13:18:54.393Z"
 }

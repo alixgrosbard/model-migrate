@@ -22,13 +22,13 @@
     {
       "url": "https://developers.openai.com/api/docs/deprecations",
       "label": "OpenAI deprecations",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "2026-05-07 | gpt-4o-audio-preview | gpt-audio-1.5"
     },
     {
       "url": "https://developers.openai.com/api/docs/models/gpt-4o-audio-preview.md",
       "label": "OpenAI model docs",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "Model ID: gpt-4o-audio-preview | context window 128000 | max output 16384 | input $2.5 | output $10 | Default snapshot gpt-4o-audio-preview-2025-06-03"
     }
   ],
@@ -54,19 +54,19 @@
     "specs_sources": {
       "context_window_tokens": {
         "url": "https://developers.openai.com/api/docs/models/gpt-4o-audio-preview.md",
-        "last_checked": "2026-10-31"
+        "last_checked": "2026-11-01"
       },
       "input_price_per_mtok": {
         "url": "https://developers.openai.com/api/docs/models/gpt-4o-audio-preview.md",
-        "last_checked": "2026-10-31"
+        "last_checked": "2026-11-01"
       },
       "max_output_tokens": {
         "url": "https://developers.openai.com/api/docs/models/gpt-4o-audio-preview.md",
-        "last_checked": "2026-10-31"
+        "last_checked": "2026-11-01"
       },
       "output_price_per_mtok": {
         "url": "https://developers.openai.com/api/docs/models/gpt-4o-audio-preview.md",
-        "last_checked": "2026-10-31"
+        "last_checked": "2026-11-01"
       }
     }
   },

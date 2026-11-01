@@ -66,18 +66,18 @@
     "Point your requests at deepseek-ai/DeepSeek-V4-Flash-0731 and test before you send traffic."
   ],
   "confidence": "partial",
-  "last_checked": "2026-10-31",
+  "last_checked": "2026-11-01",
   "sources": [
     {
       "url": "https://docs.tokenfactory.nebius.com/august-2026-deprecation-notice",
       "label": "Nebius Token Factory model deprecations",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "| [`deepseek-ai/DeepSeek-V4-Flash`](https://tokenfactory.nebius.com/models/catalog/text2text/deepseek-ai%2FDeepSeek-V4-Flash) | [`deepseek-ai/DeepSeek-V4-Flash-0731`](https://tokenfactory.nebius.com/?modals=endpoint-details\\&model-id=deepseek-ai/DeepSeek-V4-Flash-0731) |"
     },
     {
       "url": "https://docs.tokenfactory.nebius.com/model-deprecations-november-2026",
       "label": "Nebius Token Factory model deprecations",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "| [`deepseek-ai/DeepSeek-V4-Flash-0731`](https://tokenfactory.nebius.com/models/catalog/text2text/deepseek-ai%2FDeepSeek-V4-Flash-0731) | [`deepseek-ai/DeepSeek-V4.1-Flash-1017`](https://tokenfactory.nebius.com/models/catalog/image2text/deepseek-ai%2FDeepSeek-V4.1-Flash-1017) |"
     }
   ]

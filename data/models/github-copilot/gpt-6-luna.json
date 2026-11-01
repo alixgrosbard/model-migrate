@@ -18,19 +18,19 @@
     {
       "url": "https://docs.github.com/en/copilot/reference/ai-models/supported-models",
       "label": "GitHub Copilot supported models",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "GPT-6 Luna | GA"
     },
     {
       "url": "https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-command-reference",
       "label": "GitHub Copilot CLI command reference",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "gpt-6-luna | Recommended, opt-in (not the automatic default)"
     },
     {
       "url": "https://github.blog/changelog/2026-10-19-github-copilot-models-deprecated-on-october-19-2026",
       "label": "Named as an official replacement",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "Named as an official replacement for GPT-5 mini."
     }
   ],

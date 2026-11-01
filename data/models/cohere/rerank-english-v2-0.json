@@ -22,7 +22,7 @@
     {
       "url": "https://docs.cohere.com/docs/deprecations",
       "label": "Cohere model deprecations",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "2025-04-30 `rerank-english-v2.0` $1.00 / 1K searches `rerank-v3.5`"
     }
   ],

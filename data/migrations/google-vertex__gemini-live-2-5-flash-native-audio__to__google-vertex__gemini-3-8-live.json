@@ -55,30 +55,30 @@
     "Ship the change before the published shutdown date."
   ],
   "confidence": "partial",
-  "last_checked": "2026-10-31",
+  "last_checked": "2026-11-01",
   "sources": [
     {
       "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/gemini/2-5-flash-live-api",
       "label": "Vertex model docs",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "Gemini 2.5 Flash with Gemini Live API | gemini-live-2.5-flash-native-audio | context window 128000 | maximum output tokens 64000"
     },
     {
       "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/model-versions",
       "label": "Vertex AI model versions",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "gemini-live-2.5-flash-native-audio | December 12, 2025 | December 13, 2026 | gemini-3.8-live"
     },
     {
       "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/gemini/3-8-live",
       "label": "Vertex model docs",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "Gemini 3.8 Live | gemini-3.8-live | maximum output tokens 64000"
     },
     {
       "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/model-versions",
       "label": "Vertex AI model versions",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "gemini-3.8-live | September 24, 2026 | September 25, 2027 or later"
     }
   ]

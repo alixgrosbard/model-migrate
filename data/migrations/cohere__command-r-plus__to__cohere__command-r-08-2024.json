@@ -61,24 +61,24 @@
     "The official page did not publish a shutdown date for this id."
   ],
   "confidence": "partial",
-  "last_checked": "2026-10-31",
+  "last_checked": "2026-11-01",
   "sources": [
     {
       "url": "https://docs.cohere.com/docs/deprecations",
       "label": "Cohere model deprecations",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "and the alias `command-r`) * `command-r-plus-04-2024` (and the alias `command-r-plus`) * `command-light` * `command` * `summarize` (Refer to [the migration guide](https://docs.cohere.com/docs/summarizing-"
     },
     {
       "url": "https://docs.cohere.com/docs/models",
       "label": "Cohere model docs",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "command-r-plus Deprecated Sept 15, 2025 Alias for `command-r-plus-04-2024`"
     },
     {
       "url": "https://docs.cohere.com/docs/models",
       "label": "Cohere model docs",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "command-r-08-2024 Live `command-r-08-2024` is an update of the Command R model, delivered in August 2024. Find more information in the [changelog](https://docs.cohere.com/change"
     }
   ]

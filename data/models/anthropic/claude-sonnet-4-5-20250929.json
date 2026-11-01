@@ -23,7 +23,7 @@
       "url": "https://platform.claude.com/docs/en/about-claude/model-deprecations",
       "label": "Anthropic model deprecations",
       "last_checked": "2026-11-01",
-      "excerpt": "claude-sonnet-4-5-20250929 | Deprecated | September 30, 2026 | November 30, 2026 | recommended replacement claude-sonnet-5-5"
+      "excerpt": "claude-sonnet-4-5-20250929 | Deprecated | September 30, 2026 | November 30, 2026"
     },
     {
       "url": "https://platform.claude.com/docs/en/models/sonnet-4-5/overview.md",
@@ -75,5 +75,5 @@
     }
   },
   "first_seen": "2026-10-17T15:59:19.574Z",
-  "updated_at": "2026-10-24T04:39:18.299Z"
+  "updated_at": "2026-11-01T13:18:54.393Z"
 }

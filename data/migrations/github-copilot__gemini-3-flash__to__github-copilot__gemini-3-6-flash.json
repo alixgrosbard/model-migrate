@@ -61,43 +61,49 @@
     "The linked changelog does not print a request sample."
   ],
   "confidence": "partial",
-  "last_checked": "2026-10-31",
+  "last_checked": "2026-11-01",
   "sources": [
     {
       "url": "https://docs.github.com/en/copilot/reference/ai-models/supported-models",
       "label": "GitHub Copilot supported models",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "Gemini 3 Flash | 2026-07-31 | Latest Gemini Flash model"
     },
     {
       "url": "https://github.blog/changelog/2026-07-02-upcoming-deprecation-of-gemini-2-5-pro-and-gemini-3-flash",
       "label": "GitHub Changelog",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "Gemini 3 Flash | Gemini 3.5 Flash"
     },
     {
       "url": "https://github.blog/changelog/2026-07-31-gemini-2-5-pro-and-gemini-3-flash-deprecated",
       "label": "GitHub Changelog",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "Gemini 3 Flash | Gemini 3.6 Flash"
     },
     {
       "url": "https://docs.github.com/en/copilot/reference/ai-models/supported-models",
       "label": "GitHub Copilot supported models",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "Gemini 3.6 Flash | 2026-10-02 | Latest Gemini Flash model"
     },
     {
       "url": "https://github.blog/changelog/2026-09-03-upcoming-deprecation-of-selected-github-copilot-models",
       "label": "GitHub Changelog",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "Gemini 3.6 Flash | Gemini 3.8 Flash"
     },
     {
       "url": "https://github.blog/changelog/2026-10-02-selected-models-in-github-copilot-deprecated",
       "label": "GitHub Changelog",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "Gemini 3.6 Flash | Gemini 3.8 Flash"
+    },
+    {
+      "url": "https://github.com/github/copilot-cli/blob/main/changelog.md",
+      "label": "GitHub Copilot CLI changelog",
+      "last_checked": "2026-11-01",
+      "excerpt": "Adding support for gemini-3.6-flash"
     }
   ]
 }

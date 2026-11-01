@@ -60,24 +60,24 @@
     "Point your requests at Qwen/Qwen3.7-Max and test before you send traffic."
   ],
   "confidence": "partial",
-  "last_checked": "2026-10-31",
+  "last_checked": "2026-11-01",
   "sources": [
     {
       "url": "https://docs.together.ai/docs/deprecations",
       "label": "Together AI deprecations",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "2026-11-04 | `Qwen/Qwen3.8-2.4T-A95B` | `Qwen/Qwen3.7-Max` | No"
     },
     {
       "url": "https://docs.together.ai/docs/deprecations",
       "label": "Named as an official replacement",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "Named as an official replacement for Qwen/Qwen3.8-2.4T-A95B."
     },
     {
       "url": "https://docs.together.ai/docs/serverless/models",
       "label": "Together AI serverless models",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "Qwen/Qwen3.7-Max | input 2.5 | output 7.5"
     }
   ]

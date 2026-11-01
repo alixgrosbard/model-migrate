@@ -28,7 +28,7 @@
     {
       "url": "https://console.groq.com/docs/deprecations",
       "label": "Groq model deprecations",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "deepseek-r1-distill-llama-70b | 2025-10-02 | llama-3.3-70b-versatile openai/gpt-oss-120b"
     }
   ],

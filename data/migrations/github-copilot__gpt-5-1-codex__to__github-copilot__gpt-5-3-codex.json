@@ -61,30 +61,48 @@
     "The linked changelog does not print a request sample."
   ],
   "confidence": "partial",
-  "last_checked": "2026-10-31",
+  "last_checked": "2026-11-01",
   "sources": [
     {
       "url": "https://docs.github.com/en/copilot/reference/ai-models/supported-models",
       "label": "GitHub Copilot supported models",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "GPT-5.1-Codex | 2026-04-01 | Latest GPT Codex model"
     },
     {
       "url": "https://github.blog/changelog/2026-03-02-upcoming-deprecation-of-gemini-3-pro-and-gpt-5-1-models",
       "label": "GitHub Changelog",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "GPT-5.1-Codex | GPT-5.3-Codex"
     },
     {
       "url": "https://github.blog/changelog/2026-04-03-gpt-5-1-codex-gpt-5-1-codex-max-and-gpt-5-1-codex-mini-deprecated",
       "label": "GitHub Changelog",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "GPT-5.1-Codex | GPT-5.3-Codex"
+    },
+    {
+      "url": "https://github.com/github/copilot-cli/blob/main/changelog.md",
+      "label": "GitHub Copilot CLI changelog",
+      "last_checked": "2026-11-01",
+      "excerpt": "Remove support for gpt-5.1-codex, gpt-5.1-codex-mini, and gpt-5.1-codex-max models"
+    },
+    {
+      "url": "https://docs.github.com/en/copilot/reference/ai-models/supported-models",
+      "label": "GitHub Copilot supported models",
+      "last_checked": "2026-11-01",
+      "excerpt": "GPT-5.3-Codex | GA"
+    },
+    {
+      "url": "https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-command-reference",
+      "label": "GitHub Copilot CLI command reference",
+      "last_checked": "2026-11-01",
+      "excerpt": "gpt-5.3-codex | Code-focused tasks"
     },
     {
       "url": "https://github.blog/changelog/2026-06-05-gpt-5-2-and-gpt-5-2-codex-deprecated",
       "label": "Named as an official replacement",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "Named as an official replacement for GPT-5.1."
     }
   ]

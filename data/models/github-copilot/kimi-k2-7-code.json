@@ -25,25 +25,25 @@
     {
       "url": "https://docs.github.com/en/copilot/reference/ai-models/supported-models",
       "label": "GitHub Copilot supported models",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "Kimi K2.7 Code | 2026-10-02 | Latest Kimi model"
     },
     {
       "url": "https://github.blog/changelog/2026-09-03-upcoming-deprecation-of-selected-github-copilot-models",
       "label": "GitHub Changelog",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "Kimi K2.7 Code | Kimi K3"
     },
     {
       "url": "https://github.blog/changelog/2026-10-02-selected-models-in-github-copilot-deprecated",
       "label": "GitHub Changelog",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "Kimi K2.7 Code | Kimi K3"
     },
     {
       "url": "https://github.com/github/copilot-cli/blob/main/changelog.md",
       "label": "GitHub Copilot CLI changelog",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "Add support for the kimi-k2.7-code model"
     }
   ],

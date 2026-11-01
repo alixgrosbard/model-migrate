@@ -15,7 +15,7 @@
     {
       "url": "https://docs.cohere.com/docs/models",
       "label": "Cohere model docs",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "command-a-reasoning-08-2025 Live Command A Reasoning is Cohere's first reasoning model, able to 'think' before generating an output in a way that allows it to perform well in certain kind"
     }
   ],
@@ -45,19 +45,19 @@
     "specs_sources": {
       "context_window_tokens": {
         "url": "https://docs.cohere.com/docs/models",
-        "last_checked": "2026-10-31"
+        "last_checked": "2026-11-01"
       },
       "max_output_tokens": {
         "url": "https://docs.cohere.com/docs/models",
-        "last_checked": "2026-10-31"
+        "last_checked": "2026-11-01"
       },
       "modalities_in": {
         "url": "https://docs.cohere.com/docs/models",
-        "last_checked": "2026-10-31"
+        "last_checked": "2026-11-01"
       },
       "modalities_out": {
         "url": "https://docs.cohere.com/docs/models",
-        "last_checked": "2026-10-31"
+        "last_checked": "2026-11-01"
       }
     }
   },

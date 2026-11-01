@@ -18,19 +18,19 @@
     {
       "url": "https://docs.github.com/en/copilot/reference/ai-models/supported-models",
       "label": "GitHub Copilot supported models",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "Claude Opus 5.5 | GA"
     },
     {
       "url": "https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-command-reference",
       "label": "GitHub Copilot CLI command reference",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "claude-opus-5.5 | Recommended, high-capability complex tasks"
     },
     {
       "url": "https://github.blog/changelog/2026-10-02-selected-models-in-github-copilot-deprecated",
       "label": "Named as an official replacement",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "Named as an official replacement for Claude Opus 4.7."
     }
   ],

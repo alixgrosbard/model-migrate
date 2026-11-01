@@ -61,42 +61,48 @@
     "The linked changelog does not print a request sample."
   ],
   "confidence": "partial",
-  "last_checked": "2026-10-31",
+  "last_checked": "2026-11-01",
   "sources": [
     {
       "url": "https://docs.github.com/en/copilot/reference/ai-models/supported-models",
       "label": "GitHub Copilot supported models",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "Claude Sonnet 4 | 2026-05-01 | Latest Claude Sonnet model"
     },
     {
       "url": "https://github.blog/changelog/2026-03-31-upcoming-deprecation-of-claude-sonnet-4-in-github-copilot",
       "label": "GitHub Changelog",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "Claude Sonnet 4 | Claude Sonnet 4.6"
     },
     {
       "url": "https://github.blog/changelog/2026-05-07-claude-sonnet-4-deprecated",
       "label": "GitHub Changelog",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "Claude Sonnet 4 | Claude Sonnet 4.6"
     },
     {
       "url": "https://docs.github.com/en/copilot/reference/ai-models/supported-models",
       "label": "GitHub Copilot supported models",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "Claude Sonnet 4.6 | 2026-09-01 | Latest Claude Sonnet model"
+    },
+    {
+      "url": "https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-command-reference",
+      "label": "GitHub Copilot CLI command reference",
+      "last_checked": "2026-11-01",
+      "excerpt": "code-review | claude-sonnet-4.6"
     },
     {
       "url": "https://github.blog/changelog/2026-07-31-upcoming-august-2026-model-deprecations-in-github-copilot",
       "label": "GitHub Changelog",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "Claude Sonnet 4.6 | Claude Sonnet 5"
     },
     {
       "url": "https://github.blog/changelog/2026-08-31-selected-github-copilot-models-deprecated",
       "label": "GitHub Changelog",
-      "last_checked": "2026-10-31",
+      "last_checked": "2026-11-01",
       "excerpt": "Claude Sonnet 4.6 | Claude Sonnet 5"
     }
   ]
