@@ -32,7 +32,12 @@ const groups: ModelRecord["status"][] = ["deprecated", "legacy", "retired", "act
 const description = `${provider.name} model shutdown dates, grouped by status.`;
 const minimaxNov18 = shutdownEvents(allModels).find((event) => event.slug === "minimax-2026-11-18");
 const openaiGuides = provider.id === "openai"
-  ? ["openai-december-11-2026-shutdowns", "openai-gpt-4-1-gpt-4o-shutdown-january-2027"].flatMap((slug) => {
+  ? [
+      "openai-image-model-shutdown-december-1-2026",
+      "openai-december-11-2026-shutdowns",
+      "openai-audio-realtime-tts-shutdowns-january-2027",
+      "openai-gpt-4-1-gpt-4o-shutdown-january-2027",
+    ].flatMap((slug) => {
       const guide = guideBySlug(slug);
       return guide ? [guide] : [];
     })

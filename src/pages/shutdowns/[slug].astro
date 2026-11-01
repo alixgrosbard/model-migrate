@@ -60,9 +60,13 @@ const suggestBedrock = event.provider === "aws-bedrock" && event.date === "2026-
 const path = shutdownEventPath(event);
 const relatedErrors = requestErrorsForShutdown(event.provider, event.date);
 const shutdownGuide = guideBySlug(
-  event.slug === "openai-2026-12-11"
-    ? "openai-december-11-2026-shutdowns"
-    : event.slug === "openai-2027-01-14"
+  event.slug === "openai-2026-12-01"
+    ? "openai-image-model-shutdown-december-1-2026"
+    : event.slug === "openai-2027-01-06" || event.slug === "openai-2027-01-20"
+      ? "openai-audio-realtime-tts-shutdowns-january-2027"
+      : event.slug === "openai-2026-12-11"
+        ? "openai-december-11-2026-shutdowns"
+        : event.slug === "openai-2027-01-14"
       ? "openai-gpt-4-1-gpt-4o-shutdown-january-2027"
       : event.slug === "minimax-2026-11-18"
         ? "minimax-m2-5-m2-7-shutdown-november-18-2026"

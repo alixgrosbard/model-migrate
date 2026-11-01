@@ -15,6 +15,15 @@ export const DECEMBER_11_GUIDE_SLUG = "openai-december-11-2026-shutdowns";
 export const JANUARY_2027_SHUTDOWN_DATE = "2027-01-14";
 export const JANUARY_2027_GPT4_GUIDE_SLUG = "openai-gpt-4-1-gpt-4o-shutdown-january-2027";
 
+/** Checked against the OpenAI image rows on 2026-11-01. The slug uses this date. */
+export const DECEMBER_1_IMAGE_SHUTDOWN_DATE = "2026-12-01";
+export const DECEMBER_1_IMAGE_GUIDE_SLUG = "openai-image-model-shutdown-december-1-2026";
+
+/** Checked against the OpenAI speech, audio, and realtime rows on 2026-11-01. */
+export const JANUARY_6_TTS_SHUTDOWN_DATE = "2027-01-06";
+export const JANUARY_20_AUDIO_SHUTDOWN_DATE = "2027-01-20";
+export const JANUARY_2027_AUDIO_GUIDE_SLUG = "openai-audio-realtime-tts-shutdowns-january-2027";
+
 /** Checked against the MiniMax rows. The slug uses this date. */
 export const MINIMAX_NOV18_SHUTDOWN_DATE = "2026-11-18";
 export const MINIMAX_NOV18_GUIDE_SLUG = "minimax-m2-5-m2-7-shutdown-november-18-2026";
@@ -109,6 +118,45 @@ const OCTOBER_14_NOTICE =
   "On October 14, 2026, we notified developers using certain GPT-4 series models of their deprecation and removal from the API on January 14, 2027.";
 const FINE_TUNES =
   "Fine-tuned versions of these models follow the same shutdown schedule as their underlying base models.";
+const IMAGE_NOTICE =
+  "On June 2, 2026, we notified developers using older GPT Image models of their deprecation and removal from the API on December 1, 2026.";
+const IMAGE_CHOICE =
+  "Choose Sunburst for workflows where editing precision matters most, and Flare for fast, high-quality everyday image generation.";
+const IMAGE_SET_MODEL =
+  "With the Image API, set model to gpt-image-2.5-sunburst or gpt-image-2.5-flare directly. With the Responses API, select a supported mainline model at the top level and specify gpt-image-2.5-sunburst or gpt-image-2.5-flare in the image generation tool's model field.";
+const IMAGE_QUALITY =
+  "gpt-image-2.5-sunburst and gpt-image-2.5-flare add xhigh and max quality settings. Both default to auto. Earlier GPT Image models support quality settings up to high.";
+const IMAGE_SIZES =
+  "Both models also support custom dimensions as WIDTHxHEIGHT strings, such as 1536x864. Width and height must be multiples of 16, the aspect ratio must be between 1:3 and 3:1, and neither edge may exceed 3840 pixels. The total pixel count must be between 655,360 and 8,294,400 (4K). Resolutions above 2560x1440 are experimental.";
+const IMAGE_USER =
+  "The Images API user parameter is deprecated. Send the same identifier as safety_identifier instead. Existing requests using user remain supported.";
+const TTS_NOTICE =
+  "The following text-to-speech models are deprecated and will be removed from the API on January 6, 2027, with at least three months' notice. Migrate to gpt-realtime-2.1-mini before the shutdown date. See the Realtime API guide to plan your migration.";
+const TTS_WORKFLOW =
+  "The tts-1, tts-1-hd, and gpt-4o-mini-tts models are deprecated and will shut down on January 6, 2027. Migrate to gpt-realtime-2.1-mini using the Realtime API. This is a change of API workflow: gpt-realtime-2.1-mini isn't a supported model for /v1/audio/speech.";
+const TTS_VOICES =
+  "The tts-1 and tts-1-hd models support a smaller set: alloy, ash, coral, echo, fable, onyx, nova, sage, and shimmer.";
+const REALTIME_VOICES =
+  "Current voice options are alloy, ash, ballad, coral, echo, sage, shimmer, verse, marin, and cedar.";
+const REALTIME_VOICE_LOCK =
+  "Once the model has emitted audio in a session, the voice cannot be modified for that session.";
+const AUDIO_NOTICE =
+  "On July 20, 2026, we notified developers using legacy audio, realtime, and transcription model families and snapshots of their deprecation and removal from the API on January 20, 2027.";
+const FINE_TUNE_JAN6 =
+  "Active existing customers will no longer be able to create new fine-tuning jobs on this date. Inference on fine-tuned models will be disabled only when the underlying base model is deprecated.";
+const TRANSCRIBE_FEB =
+  "whisper-1, gpt-4o-transcribe, gpt-4o-mini-transcribe, gpt-4o-transcribe-diarize, and /v1/audio/translations are deprecated and will shut down on February 26, 2027.";
+const TRANSCRIBE_LANGUAGE =
+  "For gpt-transcribe, languages replaces the singular language field. Don't send both fields.";
+const OPENAI_IMAGE_GUIDE = "https://developers.openai.com/api/docs/guides/image-generation";
+const OPENAI_SUNBURST = "https://developers.openai.com/api/docs/models/gpt-image-2.5-sunburst";
+const OPENAI_TTS = "https://developers.openai.com/api/docs/guides/text-to-speech";
+const OPENAI_REALTIME = "https://developers.openai.com/api/docs/guides/realtime";
+const OPENAI_REALTIME_CONVERSATIONS = "https://developers.openai.com/api/docs/guides/realtime-conversations";
+const OPENAI_TRANSCRIBE = "https://developers.openai.com/api/docs/guides/speech-to-text";
+const OPENAI_AUDIO_15 = "https://developers.openai.com/api/docs/models/gpt-audio-1.5";
+const OPENAI_REALTIME_21 = "https://developers.openai.com/api/docs/models/gpt-realtime-2.1";
+const OPENAI_REALTIME_21_MINI = "https://developers.openai.com/api/docs/models/gpt-realtime-2.1-mini";
 
 let catalogCache: ModelRecord[] | undefined;
 
@@ -206,6 +254,18 @@ export function isJanuary2027Gpt4Shutdown(model: ModelRecord): boolean {
   if ((JANUARY_ALIASES as readonly string[]).includes(model.id)) return true;
   const alias = aliasIdOf(model.id);
   return alias !== null && (JANUARY_ALIASES as readonly string[]).includes(alias);
+}
+
+export function isDecember1ImageShutdown(model: ModelRecord): boolean {
+  return model.provider === "openai"
+    && model.shutdown_date === DECEMBER_1_IMAGE_SHUTDOWN_DATE
+    && (model.shutdown_date_kind === "exact" || model.shutdown_date_kind === "via_snapshots");
+}
+
+export function isJanuary2027AudioShutdown(model: ModelRecord): boolean {
+  if (model.provider !== "openai") return false;
+  if (model.shutdown_date !== JANUARY_6_TTS_SHUTDOWN_DATE && model.shutdown_date !== JANUARY_20_AUDIO_SHUTDOWN_DATE) return false;
+  return model.shutdown_date_kind === "exact" || model.shutdown_date_kind === "via_snapshots";
 }
 
 function modelLink(model: ModelRecord): string {
@@ -533,10 +593,21 @@ rg -n -e 'claude-opus-4-8' -e 'speed: "fast"' -e "speed: 'fast'"
  * Guide pages whose tables are filled from the model records.
  * A guide is omitted when the filter matches no rows.
  */
+const OPENAI_WAVE_GUIDE_SLUGS = new Set([
+  DECEMBER_1_IMAGE_GUIDE_SLUG,
+  DECEMBER_11_GUIDE_SLUG,
+  JANUARY_2027_AUDIO_GUIDE_SLUG,
+  JANUARY_2027_GPT4_GUIDE_SLUG,
+]);
+
 export function datasetShutdownGuides(catalog: ModelRecord[] = readCatalog()): GuidePage[] {
   const pages: GuidePage[] = [];
+  const image = rowsFor(isDecember1ImageShutdown, catalog);
+  if (image.length) pages.push(december1ImageGuide(image, catalog));
   const december = rowsFor(isDecember11OpenAiShutdown, catalog);
   if (december.length) pages.push(decemberGuide(december, catalog));
+  const audio = rowsFor(isJanuary2027AudioShutdown, catalog);
+  if (audio.length) pages.push(januaryAudioGuide(audio, catalog));
   const january = rowsFor(isJanuary2027Gpt4Shutdown, catalog);
   if (january.length) pages.push(januaryGuide(january, catalog));
   const minimax = rowsFor(isMinimaxNov18Shutdown, catalog);
@@ -559,7 +630,7 @@ export function datasetShutdownGuides(catalog: ModelRecord[] = readCatalog()): G
   for (const page of pages) {
     page.related = page.related.filter((link) => {
       const slug = link.href.split("/")[2];
-      if (slug !== DECEMBER_11_GUIDE_SLUG && slug !== JANUARY_2027_GPT4_GUIDE_SLUG) return true;
+      if (!OPENAI_WAVE_GUIDE_SLUGS.has(slug)) return true;
       return slugs.has(slug);
     });
   }
@@ -638,6 +709,8 @@ function decemberGuide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePage {
     related: [
       { href: "/shutdowns/openai-2026-12-11/", label: `OpenAI shutdowns on ${when}` },
       { href: "/providers/openai/", label: "OpenAI provider page" },
+      { href: `/guides/${DECEMBER_1_IMAGE_GUIDE_SLUG}/`, label: "OpenAI image models shutting down on December 1, 2026" },
+      { href: `/guides/${JANUARY_2027_AUDIO_GUIDE_SLUG}/`, label: "OpenAI speech, audio, and realtime shutdowns in January 2027" },
       { href: `/guides/${JANUARY_2027_GPT4_GUIDE_SLUG}/`, label: "GPT-4.1 and GPT-4o shutdown in January 2027" },
       { href: "/guides/find-model-ids-in-your-codebase/", label: "Find model ids in your codebase" },
       { href: "/guides/pre-migration-test-checklist/", label: "Pre-migration test checklist" },
@@ -748,7 +821,9 @@ function januaryGuide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePage {
     related: [
       { href: "/shutdowns/openai-2027-01-14/", label: `OpenAI shutdowns on ${when}` },
       { href: "/providers/openai/", label: "OpenAI provider page" },
+      { href: `/guides/${DECEMBER_1_IMAGE_GUIDE_SLUG}/`, label: "OpenAI image models shutting down on December 1, 2026" },
       { href: `/guides/${DECEMBER_11_GUIDE_SLUG}/`, label: "OpenAI shutdowns on December 11, 2026" },
+      { href: `/guides/${JANUARY_2027_AUDIO_GUIDE_SLUG}/`, label: "OpenAI speech, audio, and realtime shutdowns in January 2027" },
       { href: "/guides/model-aliases-vs-pinned-snapshots/", label: "Model aliases vs pinned snapshots" },
       { href: "/guides/find-model-ids-in-your-codebase/", label: "Find model ids in your codebase" },
       { href: "/guides/pre-migration-test-checklist/", label: "Pre-migration test checklist" },
@@ -779,6 +854,305 @@ function januaryGuide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePage {
       },
     ],
     citations: [OPENAI_DEPRECATIONS],
+  };
+}
+
+function december1ImageGuide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePage {
+  const when = longDate(DECEMBER_1_IMAGE_SHUTDOWN_DATE);
+  const checked = newestDeprecationsCheck(rows);
+  return {
+    slug: DECEMBER_1_IMAGE_GUIDE_SLUG,
+    title: `OpenAI image models shutting down on ${when} | SunsetDiff`,
+    description: `chatgpt-image-latest, gpt-image-1-mini, gpt-image-1.5, and gpt-image-1.5-2025-12-16 shut down on ${DECEMBER_1_IMAGE_SHUTDOWN_DATE}. OpenAI names gpt-image-2.5-sunburst or gpt-image-2.5-flare.`,
+    h1: `OpenAI image models shutting down on ${when}`,
+    summary: `The OpenAI image ids in the dataset with shutdown date ${DECEMBER_1_IMAGE_SHUTDOWN_DATE}, and the two replacements the deprecations page names.`,
+    answer: `The dataset has ${rows.length} OpenAI image ids with shutdown date ${DECEMBER_1_IMAGE_SHUTDOWN_DATE}: ${idList(rows)}. OpenAI's deprecations page lists those ids for removal on December 1, 2026, and names gpt-image-2.5-sunburst or gpt-image-2.5-flare. It does not prefer one. The same page says: "${ACCESSIBLE}" gpt-image-1 is not in this table. That id shut down on 2026-10-23.`,
+    checked,
+    steps: [
+      {
+        name: "Read the four ids",
+        text: `The table lists every OpenAI id in the dataset whose shutdown date is ${DECEMBER_1_IMAGE_SHUTDOWN_DATE}. Open the model page on that row before you change a call. gpt-image-1 is a different date.`,
+      },
+      {
+        name: "Find them in your code",
+        text: "Search the repository for those ids, including the dated snapshot gpt-image-1.5-2025-12-16. Also call GET /v1/models and read shutdown_date.",
+      },
+      {
+        name: "Pick Sunburst or Flare and send one image",
+        text: `The image generation page says: "${IMAGE_CHOICE}" Set that id on the Image API model field, or in the Responses image tool's model field, before ${when}.`,
+      },
+    ],
+    sections: [
+      {
+        heading: "Models shutting down",
+        paragraphs: [
+          `These rows are every OpenAI model in the dataset with shutdown date ${DECEMBER_1_IMAGE_SHUTDOWN_DATE}. The model id links to its SunsetDiff model page. Deprecation date, shutdown date, and replacement are the fields stored on that row. Not published means the field is empty.`,
+          `OpenAI's deprecations page says: "${IMAGE_NOTICE}" The December 1 table on that page lists gpt-image-1-mini, then gpt-image-1.5 with snapshot gpt-image-1.5-2025-12-16, then chatgpt-image-latest. Each replacement cell says gpt-image-2.5-sunburst or gpt-image-2.5-flare. The word or means either id. The page does not prefer one.`,
+          "gpt-image-1 is on the October 23, 2026 row of the same page, with the same two replacement ids. Its stored shutdown date is 2026-10-23. It is not in the table below.",
+        ],
+        table: {
+          caption: `${rows.length} OpenAI image ids with shutdown date ${DECEMBER_1_IMAGE_SHUTDOWN_DATE}.`,
+          headers: ["Model id", "Deprecation date", "Shutdown date", "Recommended replacement"],
+          rows: tableRows(rows, catalog),
+        },
+        sources: [{ label: "OpenAI deprecations", url: OPENAI_DEPRECATIONS }],
+      },
+      {
+        heading: "What breaks",
+        paragraphs: [
+          `On ${when} these ids reach the shutdown date stored in the dataset. OpenAI's deprecations page says: "${ACCESSIBLE}" The same page uses sunset and shut down for that moment. It does not print an HTTP status for it.`,
+          "A 400 from a field the replacement rejects is a different failure. Those sentences are on the [request errors](/errors/) pages. This guide does not invent an error body.",
+        ],
+        sources: [{ label: "OpenAI deprecations", url: OPENAI_DEPRECATIONS }],
+      },
+      {
+        heading: "Find the model ids in your code",
+        paragraphs: [
+          "Search the repository for the ids in the table. A short id and its dated snapshot can sit in different files. gpt-image-1 is a different string and a different date. [How to find every model ID in your codebase](/guides/find-model-ids-in-your-codebase/) covers SDK argument names. The [scan page](/scan/) builds a search from dataset ids that have a shutdown date.",
+          "OpenAI's deprecations page says to call the List models endpoint, GET /v1/models, and read each model's optional shutdown_date field. When present, the field is a YYYY-MM-DD string, or null if no shutdown date has been announced. The same field is on the Retrieve a model endpoint.",
+          "You can also read one id from the free SunsetDiff lookup file. [gpt-image-1.5](/api/v1/lookup/gpt-image-1.5.json) is one of these rows. The [API page](/api/) lists the other files. No key and no signup. The [alerts page](/alerts/) is the free email form. That page says what the form stores and the one welcome email it can send.",
+        ],
+        codes: [{ caption: "ripgrep", code: searchCode(rows) }],
+        sources: [{ label: "OpenAI deprecations", url: OPENAI_DEPRECATIONS }],
+      },
+      {
+        heading: "Change the image model id",
+        paragraphs: [
+          `The image generation page says: "${IMAGE_CHOICE}" And: "${IMAGE_SET_MODEL}"`,
+          `The gpt-image-2.5-sunburst model page says to select it directly in the Image API or as the model of the Responses API image generation tool. That same page lists v1/images/generations and v1/images/edits as supported, and lists v1/responses as not supported. Put sunburst or flare in the image tool's model field. Do not set the top-level Responses model to either image id.`,
+          `The image generation page says: "${IMAGE_QUALITY}" The sunburst model page says it supports low, medium, high, xhigh, max, and auto. A request that already sends high can keep high. xhigh and max are the settings the earlier models do not have.`,
+          `The image generation page says: "${IMAGE_SIZES}" Those size rules are for gpt-image-2.5-sunburst and gpt-image-2.5-flare.`,
+          `The same page says: "${IMAGE_USER}"`,
+          "The image generation page's Python sample calls client.images.generate with model gpt-image-2.5-sunburst. The page also names gpt-image-2.5-flare for that same field. Send one prompt you use now, to the id you will keep, before the shutdown date.",
+        ],
+        codes: [
+          {
+            caption: "Image API call from the image generation page",
+            code: `result = client.images.generate(model="gpt-image-2.5-sunburst", prompt=prompt)\n`,
+          },
+        ],
+        sources: [
+          { label: "OpenAI image generation", url: OPENAI_IMAGE_GUIDE },
+          { label: "gpt-image-2.5-sunburst", url: OPENAI_SUNBURST },
+          { label: "OpenAI deprecations", url: OPENAI_DEPRECATIONS },
+        ],
+      },
+      {
+        heading: "Test the replacement before the cutoff",
+        paragraphs: [
+          `OpenAI's deprecations page says the notice period is time to evaluate the recommended replacement, test application behavior, and finish the migration before the model is no longer available. Call gpt-image-2.5-sunburst or gpt-image-2.5-flare with a prompt you send today. Do that before ${when}.`,
+          "The [pre-migration test checklist](/guides/pre-migration-test-checklist/) is the longer list: evals, rejected fields, token limits, tools, price, and latency.",
+        ],
+        sources: [
+          { label: "OpenAI deprecations", url: OPENAI_DEPRECATIONS },
+          { label: "OpenAI image generation", url: OPENAI_IMAGE_GUIDE },
+        ],
+      },
+    ],
+    related: [
+      { href: "/shutdowns/openai-2026-12-01/", label: `OpenAI shutdowns on ${when}` },
+      { href: "/providers/openai/", label: "OpenAI provider page" },
+      { href: `/guides/${DECEMBER_11_GUIDE_SLUG}/`, label: "OpenAI shutdowns on December 11, 2026" },
+      { href: `/guides/${JANUARY_2027_AUDIO_GUIDE_SLUG}/`, label: "OpenAI speech, audio, and realtime shutdowns in January 2027" },
+      { href: "/models/openai/gpt-image-2-5-sunburst/", label: "gpt-image-2.5-sunburst" },
+      { href: "/models/openai/gpt-image-2-5-flare/", label: "gpt-image-2.5-flare" },
+      { href: "/api/", label: "Free lookup API" },
+      { href: "/alerts/", label: "Shutdown alerts signup" },
+      { href: "/guides/find-model-ids-in-your-codebase/", label: "Find model ids in your codebase" },
+      { href: "/guides/pre-migration-test-checklist/", label: "Pre-migration test checklist" },
+      { href: "/scan/", label: "Scan retiring ids" },
+    ],
+    faqs: [
+      {
+        question: `Which image ids shut down on ${when}?`,
+        answer: `The dataset lists ${idList(rows)} with shutdown date ${DECEMBER_1_IMAGE_SHUTDOWN_DATE}. gpt-image-1 is not in that list. Its shutdown date is 2026-10-23.`,
+      },
+      {
+        question: "What is the recommended replacement?",
+        answer: `OpenAI's deprecations page names gpt-image-2.5-sunburst or gpt-image-2.5-flare for each of these ids. It does not prefer one. The image generation page says: "${IMAGE_CHOICE}" ${replacementFaq(rows, catalog)}`,
+      },
+      {
+        question: "What does OpenAI say happens at shut down?",
+        answer: `OpenAI's deprecations page says: "${ACCESSIBLE}" That page does not print an HTTP status for that moment.`,
+      },
+      {
+        question: "Do I have to change the endpoint?",
+        answer: `The image generation page says: "${IMAGE_SET_MODEL}" The sunburst model page lists v1/images/generations and v1/images/edits as supported, and v1/responses as not supported. Keep a mainline model at the top of a Responses request and put the image id in the tool.`,
+      },
+      {
+        question: "Which quality values are new?",
+        answer: `The image generation page says: "${IMAGE_QUALITY}" The same page says: "${IMAGE_SIZES}"`,
+      },
+    ],
+    citations: [OPENAI_DEPRECATIONS, OPENAI_IMAGE_GUIDE, OPENAI_SUNBURST],
+  };
+}
+
+function januaryAudioGuide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePage {
+  const speechWhen = longDate(JANUARY_6_TTS_SHUTDOWN_DATE);
+  const audioWhen = longDate(JANUARY_20_AUDIO_SHUTDOWN_DATE);
+  const checked = newestDeprecationsCheck(rows);
+  const speech = rows.filter((model) => model.shutdown_date === JANUARY_6_TTS_SHUTDOWN_DATE);
+  const audio = rows.filter((model) => model.shutdown_date === JANUARY_20_AUDIO_SHUTDOWN_DATE);
+  return {
+    slug: JANUARY_2027_AUDIO_GUIDE_SLUG,
+    title: "OpenAI speech, audio, and realtime shutdowns in January 2027 | SunsetDiff",
+    description: `tts-1, tts-1-hd, and gpt-4o-mini-tts shut down on ${JANUARY_6_TTS_SHUTDOWN_DATE}. Audio and realtime ids, plus gpt-4o-mini-transcribe-2025-03-20, shut down on ${JANUARY_20_AUDIO_SHUTDOWN_DATE}.`,
+    h1: "OpenAI speech, audio, and realtime shutdowns in January 2027",
+    summary: `The dataset rows for the January 6, 2027 speech shutdown and the January 20, 2027 audio and realtime shutdown, with the stored replacements.`,
+    answer: `The dataset has ${speech.length} OpenAI ids with shutdown date ${JANUARY_6_TTS_SHUTDOWN_DATE}: ${idList(speech)}. The deprecations page says to migrate those speech models to gpt-realtime-2.1-mini. The text-to-speech page says that id is not a supported model for /v1/audio/speech. The dataset has ${audio.length} OpenAI ids with shutdown date ${JANUARY_20_AUDIO_SHUTDOWN_DATE}: ${idList(audio)}. OpenAI's deprecations page says: "${ACCESSIBLE}"`,
+    checked,
+    steps: [
+      {
+        name: "Split the two dates",
+        text: `Speech ids in the first table shut down on ${speechWhen}. Audio, realtime, and gpt-4o-mini-transcribe-2025-03-20 shut down on ${audioWhen}. A snapshot with a different stored date is not in these tables.`,
+      },
+      {
+        name: "Find the ids in your code",
+        text: "Search for the short id and for each dated snapshot. A speech call, a chat audio call, and a realtime session can live in different files.",
+      },
+      {
+        name: "Change the call, not only the string",
+        text: `For tts-1, tts-1-hd, and gpt-4o-mini-tts, the text-to-speech page says to move to gpt-realtime-2.1-mini on the Realtime API. gpt-audio-1.5 stays on Chat Completions. gpt-realtime-2.1 stays on the Realtime API. Do this before the date on that row.`,
+      },
+    ],
+    sections: [
+      {
+        heading: "Speech models shutting down on January 6, 2027",
+        paragraphs: [
+          `These rows are the OpenAI ids in the dataset with shutdown date ${JANUARY_6_TTS_SHUTDOWN_DATE}. The model id links to its SunsetDiff model page. Deprecation date, shutdown date, and replacement are the fields stored on that row.`,
+          `OpenAI's deprecations page says: "${TTS_NOTICE}" The table lists tts-1, tts-1-hd, and gpt-4o-mini-tts with snapshots gpt-4o-mini-tts-2025-03-20 and gpt-4o-mini-tts-2025-12-15. Every replacement cell on that table is gpt-realtime-2.1-mini.`,
+          `The same deprecations page uses January 6, 2027 for a different change: "${FINE_TUNE_JAN6}" That sentence is about new fine-tuning jobs. It is not an extra model id, so it is not a row in this table.`,
+        ],
+        table: {
+          caption: `${speech.length} OpenAI speech ids with shutdown date ${JANUARY_6_TTS_SHUTDOWN_DATE}.`,
+          headers: ["Model id", "Deprecation date", "Shutdown date", "Recommended replacement"],
+          rows: tableRows(speech, catalog),
+        },
+        sources: [{ label: "OpenAI deprecations", url: OPENAI_DEPRECATIONS }],
+      },
+      {
+        heading: "Audio and realtime models shutting down on January 20, 2027",
+        paragraphs: [
+          `These rows are the OpenAI ids in the dataset with shutdown date ${JANUARY_20_AUDIO_SHUTDOWN_DATE}.`,
+          `OpenAI's deprecations page says: "${AUDIO_NOTICE}" That table lists gpt-realtime with snapshot gpt-realtime-2025-08-28, gpt-audio with snapshot gpt-audio-2025-08-28, gpt-4o-audio, gpt-4o-realtime, gpt-realtime-mini with snapshot gpt-realtime-mini-2025-12-15, gpt-audio-mini with snapshot gpt-audio-mini-2025-12-15, gpt-4o-mini-realtime, gpt-4o-mini-audio, and gpt-4o-mini-transcribe-2025-03-20.`,
+          "gpt-realtime-mini-2025-10-06 and gpt-audio-mini-2025-10-06 are not in this table. Their stored shutdown date is 2026-07-23. gpt-4o-mini-transcribe and gpt-4o-mini-transcribe-2025-12-15 are not in this table. Their stored shutdown date is 2027-02-26.",
+        ],
+        table: {
+          caption: `${audio.length} OpenAI audio, realtime, and transcription ids with shutdown date ${JANUARY_20_AUDIO_SHUTDOWN_DATE}.`,
+          headers: ["Model id", "Deprecation date", "Shutdown date", "Recommended replacement"],
+          rows: tableRows(audio, catalog),
+        },
+        sources: [{ label: "OpenAI deprecations", url: OPENAI_DEPRECATIONS }],
+      },
+      {
+        heading: "What breaks",
+        paragraphs: [
+          `On ${speechWhen} the speech ids reach the shutdown date stored in the dataset. On ${audioWhen} the audio, realtime, and transcription ids in the second table do. OpenAI's deprecations page says: "${ACCESSIBLE}" The same page uses sunset and shut down for that moment. It does not print an HTTP status for it.`,
+          "A 400 from a field the replacement rejects is a different failure. This guide does not invent an error body. The text-to-speech page says gpt-realtime-2.1-mini is not a supported model for /v1/audio/speech. It does not print the error sentence for that call.",
+        ],
+        sources: [
+          { label: "OpenAI deprecations", url: OPENAI_DEPRECATIONS },
+          { label: "OpenAI text to speech", url: OPENAI_TTS },
+        ],
+      },
+      {
+        heading: "Find the model ids in your code",
+        paragraphs: [
+          "Search the repository for every id in both tables. A speech helper, a chat completions audio call, and a realtime session often use different files. [How to find every model ID in your codebase](/guides/find-model-ids-in-your-codebase/) covers SDK argument names. The [scan page](/scan/) builds a search from dataset ids that have a shutdown date.",
+          "OpenAI's deprecations page says to call the List models endpoint, GET /v1/models, and read each model's optional shutdown_date field. When present, the field is a YYYY-MM-DD string, or null if no shutdown date has been announced. The same field is on the Retrieve a model endpoint.",
+          "You can also read one id from the free SunsetDiff lookup file. [tts-1](/api/v1/lookup/tts-1.json) is a January 6 row. [gpt-4o-realtime](/api/v1/lookup/gpt-4o-realtime.json) is a January 20 row. The [API page](/api/) lists the other files. No key and no signup. The [alerts page](/alerts/) is the free email form. That page says what the form stores and the one welcome email it can send.",
+        ],
+        codes: [{ caption: "ripgrep", code: searchCode(rows) }],
+        sources: [{ label: "OpenAI deprecations", url: OPENAI_DEPRECATIONS }],
+      },
+      {
+        heading: "Move speech calls off the speech endpoint",
+        paragraphs: [
+          `The text-to-speech page says: "${TTS_WORKFLOW}" Existing integrations can keep using the Speech API samples on that page until the shutdown. The replacement is not a new model string on POST /v1/audio/speech.`,
+          `The gpt-realtime-2.1-mini model page lists v1/realtime as supported. It lists v1/chat/completions, v1/audio/speech, and v1/audio/transcriptions as not supported. The Realtime getting started page shows a RealtimeSession whose model field is gpt-realtime-2.1. For these speech rows, the deprecations page and the text-to-speech page name gpt-realtime-2.1-mini. Use the id from the table.`,
+          `The text-to-speech page says: "${TTS_VOICES}" The realtime conversations page says: "${REALTIME_VOICES}" That realtime list does not include fable, nova, or onyx. Those three names are in the speech-endpoint list and in the smaller tts-1 and tts-1-hd set. The realtime conversations page also says: "${REALTIME_VOICE_LOCK}"`,
+        ],
+        sources: [
+          { label: "OpenAI text to speech", url: OPENAI_TTS },
+          { label: "OpenAI deprecations", url: OPENAI_DEPRECATIONS },
+          { label: "gpt-realtime-2.1-mini", url: OPENAI_REALTIME_21_MINI },
+          { label: "Realtime API", url: OPENAI_REALTIME },
+          { label: "Realtime conversations", url: OPENAI_REALTIME_CONVERSATIONS },
+        ],
+      },
+      {
+        heading: "Change audio, realtime, and transcription ids",
+        paragraphs: [
+          "The deprecations page names gpt-audio-1.5 for gpt-4o-audio, gpt-4o-mini-audio, gpt-audio, gpt-audio-2025-08-28, gpt-audio-mini, and gpt-audio-mini-2025-12-15. The gpt-audio-1.5 model page says Chat Completions at v1/chat/completions is supported. It lists v1/realtime and v1/audio/speech as not supported. Keep the chat completions call and change the model id. Do not send gpt-audio-1.5 to the Realtime API.",
+          "The deprecations page names gpt-realtime-2.1 for gpt-4o-realtime, gpt-realtime, and gpt-realtime-2025-08-28. It names gpt-realtime-2.1-mini for gpt-4o-mini-realtime, gpt-realtime-mini, and gpt-realtime-mini-2025-12-15. The gpt-realtime-2.1 model page lists v1/realtime as supported, and lists v1/chat/completions and v1/audio/speech as not supported. It says GPT-Realtime-2.1 supports speech-to-speech interactions with configurable reasoning effort. That page does not print a parameter that gpt-realtime must drop.",
+          `The deprecations page names gpt-4o-mini-transcribe-2025-12-15 as the replacement for gpt-4o-mini-transcribe-2025-03-20. That replacement snapshot, and the alias gpt-4o-mini-transcribe, shut down on 2027-02-26. The file transcription page says: "${TRANSCRIBE_FEB}" For the models that page recommends after that later date, it says: "${TRANSCRIBE_LANGUAGE}" That languages field is documented for gpt-transcribe. The page does not say the December 15 snapshot rejects language.`,
+        ],
+        sources: [
+          { label: "OpenAI deprecations", url: OPENAI_DEPRECATIONS },
+          { label: "gpt-audio-1.5", url: OPENAI_AUDIO_15 },
+          { label: "gpt-realtime-2.1", url: OPENAI_REALTIME_21 },
+          { label: "gpt-realtime-2.1-mini", url: OPENAI_REALTIME_21_MINI },
+          { label: "OpenAI file transcription", url: OPENAI_TRANSCRIBE },
+        ],
+      },
+      {
+        heading: "Test the replacement before the cutoff",
+        paragraphs: [
+          `OpenAI's deprecations page says the notice period is time to evaluate the recommended replacement, test application behavior, and finish the migration before the model is no longer available. For a speech id, test gpt-realtime-2.1-mini on the Realtime API before ${speechWhen}. For an audio or realtime id, test the replacement in the second table before ${audioWhen}.`,
+          "The [pre-migration test checklist](/guides/pre-migration-test-checklist/) is the longer list: evals, rejected fields, token limits, tools, price, and latency.",
+        ],
+        sources: [{ label: "OpenAI deprecations", url: OPENAI_DEPRECATIONS }],
+      },
+    ],
+    related: [
+      { href: "/shutdowns/openai-2027-01-06/", label: `OpenAI shutdowns on ${speechWhen}` },
+      { href: "/shutdowns/openai-2027-01-20/", label: `OpenAI shutdowns on ${audioWhen}` },
+      { href: "/providers/openai/", label: "OpenAI provider page" },
+      { href: `/guides/${DECEMBER_1_IMAGE_GUIDE_SLUG}/`, label: "OpenAI image models shutting down on December 1, 2026" },
+      { href: `/guides/${DECEMBER_11_GUIDE_SLUG}/`, label: "OpenAI shutdowns on December 11, 2026" },
+      { href: `/guides/${JANUARY_2027_GPT4_GUIDE_SLUG}/`, label: "GPT-4.1 and GPT-4o shutdown in January 2027" },
+      { href: "/models/openai/gpt-realtime-2-1-mini/", label: "gpt-realtime-2.1-mini" },
+      { href: "/models/openai/gpt-realtime-2-1/", label: "gpt-realtime-2.1" },
+      { href: "/models/openai/gpt-audio-1-5/", label: "gpt-audio-1.5" },
+      { href: "/api/", label: "Free lookup API" },
+      { href: "/alerts/", label: "Shutdown alerts signup" },
+      { href: "/guides/find-model-ids-in-your-codebase/", label: "Find model ids in your codebase" },
+      { href: "/guides/pre-migration-test-checklist/", label: "Pre-migration test checklist" },
+      { href: "/scan/", label: "Scan retiring ids" },
+    ],
+    faqs: [
+      {
+        question: `Which speech ids shut down on ${speechWhen}?`,
+        answer: `The dataset lists ${idList(speech)} with shutdown date ${JANUARY_6_TTS_SHUTDOWN_DATE}. The deprecations page says: "${TTS_NOTICE}"`,
+      },
+      {
+        question: "Why is the speech replacement a realtime model?",
+        answer: `The deprecations page names gpt-realtime-2.1-mini for tts-1, tts-1-hd, and gpt-4o-mini-tts, including both dated snapshots. The text-to-speech page says: "${TTS_WORKFLOW}" The gpt-realtime-2.1-mini model page lists v1/realtime as supported and v1/audio/speech as not supported.`,
+      },
+      {
+        question: `Which ids shut down on ${audioWhen}?`,
+        answer: `The dataset lists ${idList(audio)} with shutdown date ${JANUARY_20_AUDIO_SHUTDOWN_DATE}. gpt-realtime-mini-2025-10-06 and gpt-audio-mini-2025-10-06 use 2026-07-23. gpt-4o-mini-transcribe and gpt-4o-mini-transcribe-2025-12-15 use 2027-02-26.`,
+      },
+      {
+        question: "What does OpenAI say happens at shut down?",
+        answer: `OpenAI's deprecations page says: "${ACCESSIBLE}" That page does not print an HTTP status for that moment.`,
+      },
+      {
+        question: "What is the recommended replacement?",
+        answer: replacementFaq(rows, catalog),
+      },
+    ],
+    citations: [
+      OPENAI_DEPRECATIONS,
+      OPENAI_TTS,
+      OPENAI_REALTIME,
+      OPENAI_REALTIME_CONVERSATIONS,
+      OPENAI_TRANSCRIBE,
+      OPENAI_AUDIO_15,
+      OPENAI_REALTIME_21,
+      OPENAI_REALTIME_21_MINI,
+    ],
   };
 }
 
