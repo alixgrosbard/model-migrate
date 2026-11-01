@@ -5,6 +5,9 @@ import {
   BEDROCK_NOV13_GUIDE_SLUG,
   COPILOT_NOV16_GUIDE_SLUG,
   DECEMBER_11_GUIDE_SLUG,
+  FIREWORKS_NOV7_GUIDE_SLUG,
+  GEMINI_NOV17_GUIDE_SLUG,
+  NEBIUS_NOV9_GUIDE_SLUG,
   datasetShutdownGuides,
   isAzureChatLatestNov17,
   isAzureCodexMini,
@@ -12,8 +15,11 @@ import {
   isBedrockNov13Shutdown,
   isCopilotNov16Shutdown,
   isDecember11OpenAiShutdown,
+  isFireworksNov7Shutdown,
+  isGeminiNov17Shutdown,
   isJanuary2027Gpt4Shutdown,
   isMinimaxNov18Shutdown,
+  isNebiusNov9Shutdown,
   JANUARY_2027_GPT4_GUIDE_SLUG,
   MINIMAX_NOV18_GUIDE_SLUG,
 } from "./dataset-guides.ts";
@@ -2422,6 +2428,9 @@ export function guidesForModel(model: ModelRecord, catalog: ModelRecord[]): Mode
   }
   if (isAzureNov19OSeries(model) || isAzureCodexMini(model) || isAzureChatLatestNov17(model)) add(AZURE_NOV19_GUIDE_SLUG);
   if (isCopilotNov16Shutdown(model)) add(COPILOT_NOV16_GUIDE_SLUG);
+  if (isFireworksNov7Shutdown(model)) add(FIREWORKS_NOV7_GUIDE_SLUG);
+  if (isNebiusNov9Shutdown(model)) add(NEBIUS_NOV9_GUIDE_SLUG);
+  if (isGeminiNov17Shutdown(model)) add(GEMINI_NOV17_GUIDE_SLUG);
   if (model.provider === "nvidia") add("nvidia-hosted-api-vs-nim-containers");
   if (aliasSnapshotView(model, catalog)) add("model-aliases-vs-pinned-snapshots");
   if (model.shutdown_date && model.shutdown_date_kind !== "none") {

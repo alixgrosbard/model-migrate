@@ -72,7 +72,13 @@ const shutdownGuide = guideBySlug(
             ? "azure-openai-o-series-retirement-november-19-2026"
             : event.slug === "github-copilot-2026-11-16"
               ? "github-copilot-model-retirements-november-16-2026"
-              : undefined,
+              : event.slug === "fireworks-2026-11-07"
+                ? "fireworks-model-shutdowns-november-7-2026"
+                : event.slug === "nebius-2026-11-09"
+                  ? "nebius-model-shutdowns-november-9-2026"
+                  : event.slug === "google-gemini-api-2026-11-17"
+                    ? "gemini-api-model-shutdowns-november-17-2026"
+                    : undefined,
 );
 const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
 const rows = event.models.map((model) => ({

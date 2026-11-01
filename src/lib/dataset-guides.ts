@@ -33,6 +33,19 @@ export const AZURE_CHAT_LATEST_DATE = "2026-11-17";
 export const COPILOT_NOV16_SHUTDOWN_DATE = "2026-11-16";
 export const COPILOT_NOV16_GUIDE_SLUG = "github-copilot-model-retirements-november-16-2026";
 
+/** Checked against the Fireworks changelog. The slug uses this date. */
+export const FIREWORKS_NOV7_SHUTDOWN_DATE = "2026-11-07";
+export const FIREWORKS_NOV7_GUIDE_SLUG = "fireworks-model-shutdowns-november-7-2026";
+
+/** Checked against the Nebius November 2026 notice. The slug uses this date. */
+export const NEBIUS_NOV9_SHUTDOWN_DATE = "2026-11-09";
+export const NEBIUS_NOV9_GUIDE_SLUG = "nebius-model-shutdowns-november-9-2026";
+const NEBIUS_AUGUST_SHUTDOWN_DATE = "2026-08-31";
+
+/** Checked against the Gemini API deprecations table. The slug uses this date. */
+export const GEMINI_NOV17_SHUTDOWN_DATE = "2026-11-17";
+export const GEMINI_NOV17_GUIDE_SLUG = "gemini-api-model-shutdowns-november-17-2026";
+
 const MINIMAX_MODELS = "https://platform.minimax.io/docs/faq/models";
 const MINIMAX_TEXT = "https://platform.minimax.io/docs/guides/text-generation";
 const MINIMAX_NEW_USERS = "These models will no longer be available to new users.";
@@ -157,6 +170,24 @@ export function isCopilotNov16Shutdown(model: ModelRecord): boolean {
     && model.shutdown_date_kind === "exact";
 }
 
+export function isFireworksNov7Shutdown(model: ModelRecord): boolean {
+  return model.provider === "fireworks"
+    && model.shutdown_date === FIREWORKS_NOV7_SHUTDOWN_DATE
+    && model.shutdown_date_kind === "exact";
+}
+
+export function isNebiusNov9Shutdown(model: ModelRecord): boolean {
+  return model.provider === "nebius"
+    && model.shutdown_date === NEBIUS_NOV9_SHUTDOWN_DATE
+    && model.shutdown_date_kind === "exact";
+}
+
+export function isGeminiNov17Shutdown(model: ModelRecord): boolean {
+  return model.provider === "google-gemini-api"
+    && model.shutdown_date === GEMINI_NOV17_SHUTDOWN_DATE
+    && model.shutdown_date_kind === "exact";
+}
+
 export function isJanuary2027Gpt4Shutdown(model: ModelRecord): boolean {
   if (model.provider !== "openai" || model.shutdown_date !== JANUARY_2027_SHUTDOWN_DATE) return false;
   if (model.shutdown_date_kind !== "exact" && model.shutdown_date_kind !== "via_snapshots") return false;
@@ -248,6 +279,12 @@ export function datasetShutdownGuides(catalog: ModelRecord[] = readCatalog()): G
   if (azure.length) pages.push(azureOSeriesGuide(azure, catalog));
   const copilot = rowsFor(isCopilotNov16Shutdown, catalog);
   if (copilot.length) pages.push(copilotNov16Guide(copilot, catalog));
+  const fireworks = rowsFor(isFireworksNov7Shutdown, catalog);
+  if (fireworks.length) pages.push(fireworksNov7Guide(fireworks, catalog));
+  const nebius = rowsFor(isNebiusNov9Shutdown, catalog);
+  if (nebius.length) pages.push(nebiusNov9Guide(nebius, catalog));
+  const gemini = rowsFor(isGeminiNov17Shutdown, catalog);
+  if (gemini.length) pages.push(geminiNov17Guide(gemini, catalog));
   const slugs = new Set(pages.map((page) => page.slug));
   for (const page of pages) {
     page.related = page.related.filter((link) => {
@@ -1227,5 +1264,559 @@ function copilotNov16Guide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePa
       COPILOT_AGENTS,
       COPILOT_CLI_CONFIG,
     ],
+  };
+}
+
+const FIREWORKS_CHANGELOG = "https://docs.fireworks.ai/updates/changelog";
+const FIREWORKS_US = "https://docs.fireworks.ai/serverless/us-only-serverless";
+const FIREWORKS_QUICKSTART = "https://docs.fireworks.ai/getting-started/quickstart";
+const FIREWORKS_ONDEMAND = "https://docs.fireworks.ai/getting-started/ondemand-quickstart";
+const FIREWORKS_DECOMMISSION =
+  "Several Serverless models will be decommissioned on November 7, 2026 to better serve newer, higher-performance replacements. This applies only to serverless inference. Dedicated deployments and Reserved Throughput are unaffected.";
+const FIREWORKS_BEFORE =
+  "If you use any of the models below on serverless, migrate to a recommended replacement before November 7, 2026. After that date, they will no longer be available via serverless endpoints.";
+const FIREWORKS_GLOBAL_GLM = "The global GLM 5.3 Flash endpoint remains available.";
+const FIREWORKS_GLOBAL_MINI = "The global MiniMax M3 endpoint remains available.";
+const FIREWORKS_UNAFFECTED = "GLM 5.3 and DeepSeek V4.1 Flash are not affected and remain available on serverless.";
+const FIREWORKS_US_CALL = "Call https://us.api.fireworks.ai and pass one of the US model IDs from the table above as model.";
+const FIREWORKS_US_PRICE = "Beginning September 1, 2026, launched US-only models are priced at 1.5x the base model serverless prices.";
+const FIREWORKS_MUSE = "accounts/fireworks/models/muse-spark-open";
+const FIREWORKS_US_DEEPSEEK = "accounts/fireworks/routers/deepseek-v4p1-flash-1017-us";
+const FIREWORKS_US_GLM = "accounts/fireworks/routers/glm-5p3-flash-us";
+const FIREWORKS_MINI = "accounts/fireworks/models/minimax-m3";
+
+const NEBIUS_NOVEMBER = "https://docs.tokenfactory.nebius.com/model-deprecations-november-2026";
+const NEBIUS_AUGUST = "https://docs.tokenfactory.nebius.com/august-2026-deprecation-notice";
+const NEBIUS_QUICKSTART = "https://docs.tokenfactory.nebius.com/quickstart";
+const NEBIUS_BASE = "https://api.tokenfactory.nebius.com/v1/";
+const NEBIUS_REMOVED =
+  "These models will be removed from Token Factory Serverless on November 9, 2026. After that date, you will not be able to select them in the Playground or send API requests using their model IDs.";
+const NEBIUS_SERVERLESS = "This change only affects Serverless usage.";
+const NEBIUS_DEDICATED = "Dedicated Endpoints are unaffected.";
+const NEBIUS_NO_ROUTE = "Token Factory does not automatically reroute requests from deprecated models.";
+const NEBIUS_CHOOSE = "Choose a replacement based on your workload, then test before migrating traffic.";
+const NEBIUS_UPDATE = "Update the model and base_url values in your API requests, then verify the results.";
+const NEBIUS_API = "Affected Serverless models will no longer be available via API or Playground.";
+const NEBIUS_DEDICATED_NOTE = "Dedicated Endpoints for these models will be unaffected by this change.";
+
+const GEMINI_DEPRECATIONS = "https://ai.google.dev/gemini-api/docs/deprecations";
+const GEMINI_MODELS = "https://ai.google.dev/gemini-api/docs/models";
+const GEMINI_SPEECH = "https://ai.google.dev/gemini-api/docs/speech-generation";
+const GEMINI_LIVE_MODEL = "https://ai.google.dev/gemini-api/docs/models/gemini-3.8-live";
+const GEMINI_LIVE = "https://ai.google.dev/gemini-api/docs/live";
+const GEMINI_VERTEX = "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/model-versions";
+const GEMINI_SHUTDOWN =
+  "Once a model is shutdown, it is completely turned off, and the endpoint is no longer available.";
+const GEMINI_EARLIEST =
+  "The shutdown dates listed in the table indicate the earliest possible dates on which a model might be retired. We will communicate the exact shutdown date to users with advance notice to ensure a smooth transition to a replacement model.";
+const GEMINI_PREVIEW = "A preview name can be used in production and is deprecated with at least two weeks of notice.";
+const GEMINI_TTS_DIFFERS =
+  "The TTS capability differs from speech generation provided through the Live API, which is designed for interactive, unstructured audio, and multimodal inputs and outputs.";
+const GEMINI_LITE =
+  "Use Gemini 3.8 Flash-Lite TTS (gemini-3.8-flash-lite-tts) as your fast, cost-efficient workhorse replacement for gemini-3.1-flash-tts-preview.";
+const GEMINI_SAME_SCHEMA =
+  "Both Gemini 3.8 TTS models share the exact same API schema and prompting format, allowing you to switch between them with a single parameter change.";
+const GEMINI_VERBATIM = "Gemini 3.8 TTS treats input text strictly as a verbatim transcript.";
+const GEMINI_WAV =
+  "Unlike gemini-3.1-flash-tts-preview and earlier TTS models (which returned headerless raw PCM audio/l16 by default), Gemini 3.8 TTS returns WAV audio (audio/wav) with a standard RIFF header by default for unary requests.";
+const GEMINI_TTS_ONLY = "TTS models accept text-only inputs and produce audio-only outputs.";
+const GEMINI_LIVE_BLURB =
+  "Gemini 3.8 Live is the default option for most low-latency voice agent experiences and real-time dialogue without reasoning-induced delays.";
+const GEMINI_CHECKED = "2026-11-01";
+
+function fireworksNov7Guide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePage {
+  const when = longDate(FIREWORKS_NOV7_SHUTDOWN_DATE);
+  const us = rows.find((model) => model.id === FIREWORKS_US_GLM);
+  const usReplacement = us ? publishedReplacementIds(us)[0] : undefined;
+  const mini = catalog.find((model) => model.provider === "fireworks" && model.id === FIREWORKS_MINI);
+  const sources = [
+    { label: "Fireworks changelog", url: FIREWORKS_CHANGELOG },
+    { label: "Fireworks US-only serverless", url: FIREWORKS_US },
+  ];
+  return {
+    slug: FIREWORKS_NOV7_GUIDE_SLUG,
+    title: `Fireworks model shutdowns on ${when} | SunsetDiff`,
+    description: `Fireworks serverless ids with shutdown date ${FIREWORKS_NOV7_SHUTDOWN_DATE}. GPT OSS 120B and the two Nemotron rows have no serverless replacement id. The US GLM 5.3 Flash row names ${FIREWORKS_US_DEEPSEEK}.`,
+    h1: `Fireworks model shutdowns on ${when}`,
+    summary: `The Fireworks ids in the dataset with shutdown date ${FIREWORKS_NOV7_SHUTDOWN_DATE}, and what the changelog prints for each one.`,
+    answer: `The dataset has ${rows.length} Fireworks ids with shutdown date ${FIREWORKS_NOV7_SHUTDOWN_DATE}: ${idList(rows)}. The changelog says these serverless models are decommissioned on ${when}, and that dedicated deployments and Reserved Throughput are unaffected. GPT OSS 120B and the two Nemotron rows have an empty replacement field. The changelog says to move those to a dedicated deployment and does not print a serverless model id. ${FIREWORKS_US_GLM} stores ${usReplacement ?? "no replacement"}. The same changelog section also names Inkling and MiniMax M3 on the US endpoint. Those names are not in the table.`,
+    checked: GEMINI_CHECKED,
+    steps: [
+      {
+        name: "Read the four ids",
+        text: `The table is every Fireworks id in the dataset whose shutdown date is ${FIREWORKS_NOV7_SHUTDOWN_DATE}. Not published means the stored replacement list is empty. Open the model page before you change a call.`,
+      },
+      {
+        name: "Separate serverless from dedicated",
+        text: "The changelog says this date applies only to serverless inference. A dedicated deployment or Reserved Throughput of the same model stays up. The three rows with an empty replacement say to move serverless traffic onto a dedicated deployment. They do not name a new model id.",
+      },
+      {
+        name: "Change the US GLM id",
+        text: usReplacement
+          ? `Calls to ${FIREWORKS_US_GLM} on https://us.api.fireworks.ai use ${usReplacement} in the model field. The changelog says the global GLM 5.3 Flash endpoint remains available.`
+          : "The US GLM row has no stored replacement.",
+      },
+      {
+        name: "Test before the date",
+        text: `Send one real prompt to the id you will call. Do that before ${when}. A dedicated deployment is a different setup from a serverless model string.`,
+      },
+    ],
+    sections: [
+      {
+        heading: "Models shutting down",
+        paragraphs: [
+          `These rows are every Fireworks model in the dataset with shutdown date ${FIREWORKS_NOV7_SHUTDOWN_DATE}. The model id links to its SunsetDiff model page. Deprecation date, shutdown date, and replacement are the fields stored on that row. Not published means the field is empty. These rows do not store a deprecation_date.`,
+          `The changelog says: "${FIREWORKS_DECOMMISSION}" It also says: "${FIREWORKS_BEFORE}"`,
+          "GPT OSS 120B says move to a dedicated deployment of GPT OSS 120B. Each Nemotron row says move to a dedicated deployment of Nemotron Super VL. Those sentences do not print a serverless model id, so the replacement cell is Not published. This guide does not fill one in.",
+          usReplacement
+            ? `${FIREWORKS_US_GLM} is the US endpoint id on the US-only serverless page. The stored replacement is ${usReplacement}. The changelog says: "${FIREWORKS_GLOBAL_GLM}" It also says: "${FIREWORKS_UNAFFECTED}"`
+            : "The dataset has no US GLM row in this shutdown.",
+        ],
+        table: {
+          caption: `${rows.length} Fireworks model ids with shutdown date ${FIREWORKS_NOV7_SHUTDOWN_DATE}.`,
+          headers: ["Model id", "Deprecation date", "Shutdown date", "Recommended replacement"],
+          rows: tableRows(rows, catalog),
+        },
+        sources,
+      },
+      {
+        heading: "Names in the same section that are not stored",
+        paragraphs: [
+          "The changelog heading also names Inkling and the US endpoint for MiniMax M3. SunsetDiff stores a row when a deprecation links a model page, or when the US-only page prints the model id. A display name with no model id is not stored.",
+          `Inkling has no model link and no model id on that page. The changelog says to migrate to Muse Spark Open (US endpoint, 50% US regional premium waived). The new-models list on the same entry prints ${FIREWORKS_MUSE}. This guide does not invent an Inkling id.`,
+          mini
+            ? `MiniMax M3 (US endpoint only) links the global model page. The changelog says to migrate to DeepSeek V4.1 Flash 1017 (US endpoint), and: "${FIREWORKS_GLOBAL_MINI}" The US-only page does not print a MiniMax M3 US model id. The stored global row is ${FIREWORKS_MINI}, status ${mini.status}, shutdown date ${mini.shutdown_date ?? "Not published"}. The US id the changelog does print for that migration is ${FIREWORKS_US_DEEPSEEK}.`
+            : "The dataset has no global MiniMax M3 row.",
+        ],
+        sources: [{ label: "Fireworks changelog", url: FIREWORKS_CHANGELOG }, { label: "Fireworks US-only serverless", url: FIREWORKS_US }],
+      },
+      {
+        heading: "What breaks",
+        paragraphs: [
+          `On ${when} the four ids reach the shutdown date stored in the dataset. The changelog says that after that date they will no longer be available via serverless endpoints. It does not print an HTTP status.`,
+          `The same entry says: "${FIREWORKS_DECOMMISSION}" A dedicated deployment that is already running is the case the changelog says is unaffected. A serverless call is the case that stops.`,
+          usReplacement
+            ? `The US page says: "${FIREWORKS_US_CALL}" The curl on that page posts to https://us.api.fireworks.ai/inference/v1/chat/completions. The quickstart's OpenAI-compatible host for a global id is https://api.fireworks.ai/inference/v1. ${FIREWORKS_US_GLM} is a US id. Send it to the US host.`
+            : "The US page is the source for US model ids.",
+        ],
+        sources: [
+          { label: "Fireworks changelog", url: FIREWORKS_CHANGELOG },
+          { label: "Fireworks US-only serverless", url: FIREWORKS_US },
+          { label: "Fireworks quickstart", url: FIREWORKS_QUICKSTART },
+        ],
+      },
+      {
+        heading: "Find the model ids in your code",
+        paragraphs: [
+          "Search the repository for the four ids in the table. Also search for Inkling and for Muse Spark Open if a config uses the display name. A hit is a candidate, not proof the call still runs. [How to find every model ID in your codebase](/guides/find-model-ids-in-your-codebase/) covers SDK argument names. The [scan page](/scan/) builds a search from dataset ids that have a shutdown date.",
+          "A US call and a global call can use different hosts. The US page's host is https://us.api.fireworks.ai. The quickstart's host is https://api.fireworks.ai.",
+        ],
+        codes: [{ caption: "ripgrep", code: searchCode(rows) }],
+        sources,
+      },
+      {
+        heading: "Test the replacement before the cutoff",
+        paragraphs: [
+          usReplacement
+            ? `For the US GLM row, call ${usReplacement} on the US host with the prompts you send now. Do that before ${when}. The US page says: "${FIREWORKS_US_PRICE}" Both ${FIREWORKS_US_GLM} and ${usReplacement} are in that page's model table. The changelog says the global GLM 5.3 Flash endpoint remains available, so a global call is a different endpoint.`
+            : `The US GLM row has no stored replacement to call.`,
+          "For GPT OSS 120B and the two Nemotron rows, the changelog does not name a serverless model id. It points serverless users at a dedicated deployment and links the on-demand deployment quickstart. This guide does not invent the id to send.",
+          "The [pre-migration test checklist](/guides/pre-migration-test-checklist/) is the longer list: evals, rejected fields, token limits, tools, price, and latency. These Fireworks rows do not store a price.",
+        ],
+        codes: usReplacement
+          ? [{
+              caption: "OpenAI-compatible client, US host, model field only",
+              code: `from openai import OpenAI
+client = OpenAI(base_url="https://us.api.fireworks.ai/inference/v1")
+response = client.chat.completions.create(
+    model="${usReplacement}",
+    messages=[{"role": "user", "content": "Hello"}],
+)
+`,
+            }]
+          : undefined,
+        sources: [
+          { label: "Fireworks changelog", url: FIREWORKS_CHANGELOG },
+          { label: "Fireworks US-only serverless", url: FIREWORKS_US },
+          { label: "On-demand deployment quickstart", url: FIREWORKS_ONDEMAND },
+        ],
+      },
+    ],
+    related: [
+      { href: "/shutdowns/fireworks-2026-11-07/", label: `Fireworks shutdowns on ${when}` },
+      { href: "/providers/fireworks/", label: "Fireworks provider page" },
+      ...(usReplacement
+        ? [{ href: "/models/fireworks/accounts-fireworks-routers-deepseek-v4p1-flash-1017-us/", label: FIREWORKS_US_DEEPSEEK }]
+        : []),
+      { href: "/guides/find-model-ids-in-your-codebase/", label: "Find model ids in your codebase" },
+      { href: "/guides/pre-migration-test-checklist/", label: "Pre-migration test checklist" },
+      { href: "/scan/", label: "Scan retiring ids" },
+    ],
+    faqs: [
+      {
+        question: `Which Fireworks ids shut down on ${when}?`,
+        answer: `The dataset lists ${idList(rows)} with shutdown date ${FIREWORKS_NOV7_SHUTDOWN_DATE}. The changelog says: "${FIREWORKS_BEFORE}"`,
+      },
+      {
+        question: "What is the official replacement?",
+        answer: `${replacementFaq(rows, catalog)} The changelog tells serverless users of GPT OSS 120B and the two Nemotron models to move to a dedicated deployment. It does not print a serverless model id for those three. ${FIREWORKS_US_GLM} stores ${usReplacement ?? "no replacement"}.`,
+      },
+      {
+        question: "Do dedicated deployments stop on that date?",
+        answer: `The changelog says: "${FIREWORKS_DECOMMISSION}" Dedicated deployments and Reserved Throughput stay up. Serverless endpoints stop.`,
+      },
+      {
+        question: "Why are Inkling and MiniMax M3 US missing from the table?",
+        answer: `Inkling has no model id on the changelog. The page says to migrate it to Muse Spark Open and prints ${FIREWORKS_MUSE}. MiniMax M3 (US endpoint only) links the global model. The US-only page does not print a MiniMax M3 US id. The changelog says: "${FIREWORKS_GLOBAL_MINI}" The US id it does print for that migration is ${FIREWORKS_US_DEEPSEEK}.`,
+      },
+      {
+        question: "Which host does the US GLM id use?",
+        answer: `The US page says: "${FIREWORKS_US_CALL}" Its curl posts to https://us.api.fireworks.ai/inference/v1/chat/completions. The quickstart host https://api.fireworks.ai/inference/v1 is the global host.`,
+      },
+    ],
+    citations: [FIREWORKS_CHANGELOG, FIREWORKS_US, FIREWORKS_QUICKSTART, FIREWORKS_ONDEMAND],
+  };
+}
+
+function nebiusAugustChain(rows: ModelRecord[], catalog: ModelRecord[]): ModelRecord[] {
+  const retiring = new Set(rows.map((model) => model.id));
+  return catalog
+    .filter((model) => model.provider === "nebius"
+      && model.shutdown_date === NEBIUS_AUGUST_SHUTDOWN_DATE
+      && model.shutdown_date_kind === "exact"
+      && publishedReplacementIds(model).some((id) => retiring.has(id)))
+    .sort((a, b) => a.id.localeCompare(b.id));
+}
+
+function nebiusChainTable(august: ModelRecord[], november: ModelRecord[], catalog: ModelRecord[]): string[][] {
+  const byId = new Map(november.map((model) => [model.id, model]));
+  return august.map((model) => {
+    const nextId = publishedReplacementIds(model).find((id) => byId.has(id));
+    const next = nextId ? byId.get(nextId) : undefined;
+    return [
+      modelLink(model),
+      shutdownCell(model),
+      next ? modelLink(next) : (nextId ?? "Not published"),
+      next ? replacementText(next, catalog) : "Not published",
+    ];
+  });
+}
+
+function nebiusNov9Guide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePage {
+  const when = longDate(NEBIUS_NOV9_SHUTDOWN_DATE);
+  const august = nebiusAugustChain(rows, catalog);
+  const sample = rows.find((model) => model.id === "zai-org/GLM-5.1") ?? rows[0];
+  const sampleReplacement = sample ? publishedReplacementIds(sample)[0] : undefined;
+  const sources = [
+    { label: "Nebius November 2026 deprecations", url: NEBIUS_NOVEMBER },
+    { label: "Nebius quickstart", url: NEBIUS_QUICKSTART },
+  ];
+  return {
+    slug: NEBIUS_NOV9_GUIDE_SLUG,
+    title: `Nebius model shutdowns on ${when} | SunsetDiff`,
+    description: `Token Factory Serverless removes ${rows.length} model ids on ${NEBIUS_NOV9_SHUTDOWN_DATE}. Each row has one recommended replacement. Dedicated Endpoints are unaffected, and requests are not rerouted.`,
+    h1: `Nebius model shutdowns on ${when}`,
+    summary: `The Nebius Token Factory ids in the dataset with shutdown date ${NEBIUS_NOV9_SHUTDOWN_DATE}, the recommended replacement on the November notice, and the August ids whose replacement is now in that list.`,
+    answer: `The dataset has ${rows.length} Nebius ids with shutdown date ${NEBIUS_NOV9_SHUTDOWN_DATE}. The November notice removes them from Token Factory Serverless on that date. Each row stores one recommended replacement from that table. The notice says Dedicated Endpoints are unaffected, and Token Factory does not automatically reroute requests. ${august.length} August 31, 2026 ids store a replacement that is itself in this November list.`,
+    checked: GEMINI_CHECKED,
+    steps: [
+      {
+        name: "Read the ids and the replacement",
+        text: `The first table is every Nebius id in the dataset whose shutdown date is ${NEBIUS_NOV9_SHUTDOWN_DATE}. The replacement cell is the recommended replacement stored from the November notice. Open the model page before you change a call.`,
+      },
+      {
+        name: "Check Dedicated Endpoints separately",
+        text: "The notice says this change only affects Serverless usage. A Dedicated Endpoint for the same model is unaffected. Token Factory does not automatically reroute a Serverless request, so the old id will not start calling the new one for you.",
+      },
+      {
+        name: "Update model and base_url",
+        text: `The notice says to update the model and base_url values, then verify the results. The quickstart uses base_url ${NEBIUS_BASE}. Put the replacement id from the same row in the model field.`,
+      },
+      {
+        name: "Test before the date",
+        text: `Call the replacement with the prompts you send now. Do that before ${when}. If an August migration already moved you onto one of these November ids, follow that row's replacement one more step.`,
+      },
+    ],
+    sections: [
+      {
+        heading: "Models shutting down",
+        paragraphs: [
+          `These rows are every Nebius model in the dataset with shutdown date ${NEBIUS_NOV9_SHUTDOWN_DATE}. The model id links to its SunsetDiff model page. Deprecation date, shutdown date, and replacement are the fields stored on that row. Not published means the field is empty. These rows do not store a deprecation_date.`,
+          `The November notice says: "${NEBIUS_REMOVED}" It also says: "${NEBIUS_API}" And: "${NEBIUS_DEDICATED_NOTE}"`,
+          `The same page says: "${NEBIUS_SERVERLESS}" "${NEBIUS_DEDICATED}" "${NEBIUS_NO_ROUTE}" "${NEBIUS_CHOOSE}" The replacement column is the Recommended Replacement cell on that page.`,
+        ],
+        table: {
+          caption: `${rows.length} Nebius model ids with shutdown date ${NEBIUS_NOV9_SHUTDOWN_DATE}.`,
+          headers: ["Model id", "Deprecation date", "Shutdown date", "Recommended replacement"],
+          rows: tableRows(rows, catalog),
+        },
+        sources: [{ label: "Nebius November 2026 deprecations", url: NEBIUS_NOVEMBER }],
+      },
+      {
+        heading: "August replacements that shut down in November",
+        paragraphs: [
+          august.length
+            ? `These August 31, 2026 rows store a replacement that is also in the November table. The August notice is still the source for the August replacement. The November notice is the source for the next id. SunsetDiff does not replace the August row's stored replacement with the November one.`
+            : "No August row stores a replacement that is in the November table.",
+          "An app that already moved from the August id to that replacement still has to change the model field again. The November notice says requests are not rerouted.",
+        ],
+        table: august.length
+          ? {
+              caption: "August 31, 2026 Nebius rows whose stored replacement shuts down on 2026-11-09.",
+              headers: ["August model id", "August shutdown date", "Stored replacement", "November recommended replacement"],
+              rows: nebiusChainTable(august, rows, catalog),
+            }
+          : undefined,
+        sources: [
+          { label: "Nebius August 2026 deprecations", url: NEBIUS_AUGUST },
+          { label: "Nebius November 2026 deprecations", url: NEBIUS_NOVEMBER },
+        ],
+      },
+      {
+        heading: "What breaks",
+        paragraphs: [
+          `On ${when} these ids reach the shutdown date stored in the dataset. The notice says you will not be able to select them in the Playground or send API requests using their model IDs. It does not print an HTTP status.`,
+          `It also says: "${NEBIUS_NO_ROUTE}" A request that still sends the old id is not forwarded to the replacement. A Dedicated Endpoint is a different case. The notice says: "${NEBIUS_DEDICATED}"`,
+        ],
+        sources: [{ label: "Nebius November 2026 deprecations", url: NEBIUS_NOVEMBER }],
+      },
+      {
+        heading: "Find the model ids in your code",
+        paragraphs: [
+          "Search the repository for the ids in the November table, then for any August id in the second table. A short search for DeepSeek or Qwen will hit ids that are not in this shutdown. Read the full id. [How to find every model ID in your codebase](/guides/find-model-ids-in-your-codebase/) covers SDK argument names. The [scan page](/scan/) builds a search from dataset ids that have a shutdown date.",
+          `The notice says: "${NEBIUS_UPDATE}" The quickstart sets base_url to ${NEBIUS_BASE} and posts to https://api.tokenfactory.nebius.com/v1/chat/completions. Its sample model is deepseek-ai/DeepSeek-R1-0528. That id is not in this table.`,
+        ],
+        codes: [{ caption: "ripgrep", code: searchCode([...rows, ...august]) }],
+        sources,
+      },
+      {
+        heading: "Test the replacement before the cutoff",
+        paragraphs: [
+          `The notice says: "${NEBIUS_CHOOSE}" Then: "${NEBIUS_UPDATE}" Call the replacement id from the same row with the prompts you send now. Do that before ${when}.`,
+          "The [pre-migration test checklist](/guides/pre-migration-test-checklist/) is the longer list: evals, rejected fields, token limits, tools, price, and latency. These Nebius rows do not store a price.",
+        ],
+        codes: sampleReplacement
+          ? [{
+              caption: "OpenAI-compatible client, model field only",
+              code: `from openai import OpenAI
+client = OpenAI(base_url="${NEBIUS_BASE}")
+response = client.chat.completions.create(
+    model="${sampleReplacement}",
+    messages=[{"role": "user", "content": "Hello"}],
+)
+`,
+            }]
+          : undefined,
+        sources,
+      },
+    ],
+    related: [
+      { href: "/shutdowns/nebius-2026-11-09/", label: `Nebius shutdowns on ${when}` },
+      { href: "/providers/nebius/", label: "Nebius provider page" },
+      { href: "/migrate/nebius__zai-org-glm-5-1__to__nebius__zai-org-glm-5-2/", label: "GLM-5.1 to GLM-5.2 migration diff" },
+      { href: "/guides/find-model-ids-in-your-codebase/", label: "Find model ids in your codebase" },
+      { href: "/guides/pre-migration-test-checklist/", label: "Pre-migration test checklist" },
+      { href: "/scan/", label: "Scan retiring ids" },
+    ],
+    faqs: [
+      {
+        question: `Which Nebius ids shut down on ${when}?`,
+        answer: `The dataset lists ${idList(rows)} with shutdown date ${NEBIUS_NOV9_SHUTDOWN_DATE}. The notice says: "${NEBIUS_REMOVED}"`,
+      },
+      {
+        question: "What is the recommended replacement?",
+        answer: replacementFaq(rows, catalog),
+      },
+      {
+        question: "Will Token Factory reroute the old id?",
+        answer: `The notice says: "${NEBIUS_NO_ROUTE}" You change the model field. It also says: "${NEBIUS_SERVERLESS}" And: "${NEBIUS_DEDICATED}"`,
+      },
+      {
+        question: "What does the API host look like?",
+        answer: `The quickstart sets base_url to ${NEBIUS_BASE}. The notice says: "${NEBIUS_UPDATE}"`,
+      },
+      {
+        question: "What if I already migrated in August?",
+        answer: august.length
+          ? `These August ids store a replacement that shuts down on ${NEBIUS_NOV9_SHUTDOWN_DATE}: ${august.map((model) => `${model.id} to ${publishedReplacementIds(model).join(", ")}`).join(". ")}. The November table names the next replacement. The August row keeps the August replacement.`
+          : "No August row points at a November id.",
+      },
+    ],
+    citations: [NEBIUS_NOVEMBER, NEBIUS_AUGUST, NEBIUS_QUICKSTART],
+  };
+}
+
+function geminiTtsRows(rows: ModelRecord[]): ModelRecord[] {
+  return rows.filter((model) => model.id.includes("tts"));
+}
+
+function vertexNov17(catalog: ModelRecord[]): ModelRecord[] {
+  return catalog
+    .filter((model) => model.provider === "google-vertex" && model.shutdown_date === GEMINI_NOV17_SHUTDOWN_DATE)
+    .sort((a, b) => a.id.localeCompare(b.id));
+}
+
+function geminiNov17Guide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePage {
+  const when = longDate(GEMINI_NOV17_SHUTDOWN_DATE);
+  const tts = geminiTtsRows(rows);
+  const live = rows.filter((model) => !model.id.includes("tts"));
+  const vertex = vertexNov17(catalog);
+  const sources = [
+    { label: "Gemini API deprecations", url: GEMINI_DEPRECATIONS },
+    { label: "Gemini API models", url: GEMINI_MODELS },
+  ];
+  return {
+    slug: GEMINI_NOV17_GUIDE_SLUG,
+    title: `Gemini API model shutdowns on ${when} | SunsetDiff`,
+    description: `Gemini API preview models with shutdown date ${GEMINI_NOV17_SHUTDOWN_DATE}: two Live audio ids move to gemini-3.8-live, and three TTS ids list gemini-3.8-flash-tts or gemini-3.8-flash-lite-tts. The table date is the earliest possible retirement.`,
+    h1: `Gemini API model shutdowns on ${when}`,
+    summary: `The Gemini API ids in the dataset with shutdown date ${GEMINI_NOV17_SHUTDOWN_DATE}, the recommended replacement on the deprecations page, and what the speech page says changes for TTS.`,
+    answer: `The dataset has ${rows.length} Gemini API ids with shutdown date ${GEMINI_NOV17_SHUTDOWN_DATE}: ${idList(rows)}. The deprecations page lists that day as the shutdown date and says the table date is the earliest possible retirement. The two Live audio ids store gemini-3.8-live. The three TTS ids store gemini-3.8-flash-tts and gemini-3.8-flash-lite-tts. The page writes those two TTS ids with or, and does not prefer one. Once a model is shutdown, the endpoint is no longer available.`,
+    checked: GEMINI_CHECKED,
+    steps: [
+      {
+        name: "Read the five ids",
+        text: `The table is every Gemini API id in the dataset whose shutdown date is ${GEMINI_NOV17_SHUTDOWN_DATE}. The replacement cell is the recommended replacement stored from the deprecations page. Open the model page before you change a call.`,
+      },
+      {
+        name: "Split Live audio from text-to-speech",
+        text: "gemini-3.1-flash-live-preview and gemini-2.5-flash-native-audio-preview-12-2025 are Live audio ids. The other three ids are text-to-speech. The speech page says TTS and the Live API are different. A Live replacement does not take a TTS request.",
+      },
+      {
+        name: "Change the model id and the TTS request",
+        text: "For a Live id, the deprecations page names gemini-3.8-live. For a TTS id, it names gemini-3.8-flash-tts or gemini-3.8-flash-lite-tts. The speech page says Gemini 3.8 TTS treats input text as a verbatim transcript and returns WAV on a unary request.",
+      },
+      {
+        name: "Test before the date",
+        text: `Call the replacement with one real prompt before ${when}. The deprecations page says it will communicate the exact shutdown date with advance notice. The date in the table is the earliest day it prints.`,
+      },
+    ],
+    sections: [
+      {
+        heading: "Models shutting down",
+        paragraphs: [
+          `These rows are every Google Gemini API model in the dataset with shutdown date ${GEMINI_NOV17_SHUTDOWN_DATE}. The model id links to its SunsetDiff model page. Deprecation date, shutdown date, and replacement are the fields stored on that row. Not published means the field is empty. These rows do not store a deprecation_date. The deprecations page lists each of them under Preview models.`,
+          `The deprecations page says: "${GEMINI_SHUTDOWN}" It also says: "${GEMINI_EARLIEST}" SunsetDiff stores the printed day, ${GEMINI_NOV17_SHUTDOWN_DATE}, as the shutdown date. The page does not print a later day.`,
+          `The models page says: "${GEMINI_PREVIEW}" That sentence is the notice length for a preview name. It does not replace the day in the table.`,
+          vertex.length
+            ? `Vertex rows with the same shutdown date are ${vertex.map((model) => `${model.id} (${model.shutdown_date_kind})`).join(", ")}. ${vertex.every((model) => publishedReplacementIds(model).length === 0) ? "The replacement field on those Vertex rows is empty." : "See each Vertex row for its stored replacement."} They are not Gemini API ids, so they are not in the table below.`
+            : "The dataset has no Vertex row with this shutdown date.",
+        ],
+        table: {
+          caption: `${rows.length} Gemini API model ids with shutdown date ${GEMINI_NOV17_SHUTDOWN_DATE}.`,
+          headers: ["Model id", "Deprecation date", "Shutdown date", "Recommended replacement"],
+          rows: tableRows(rows, catalog),
+        },
+        sources: [
+          ...sources,
+          { label: "Vertex model versions", url: GEMINI_VERTEX },
+        ],
+      },
+      {
+        heading: "Text-to-speech models",
+        paragraphs: [
+          tts.length
+            ? `The TTS ids in this shutdown are ${idList(tts)}. The deprecations page lists gemini-3.8-flash-tts or gemini-3.8-flash-lite-tts for each of them. It does not prefer one.`
+            : "This shutdown has no TTS ids.",
+          `The speech generation page says: "${GEMINI_LITE}" That sentence names gemini-3.1-flash-tts-preview. It does not print the same sentence for the two Gemini 2.5 preview TTS ids. The migration heading on that page says it covers gemini-3.1-flash-tts-preview or earlier Gemini TTS models.`,
+          `The same page says: "${GEMINI_SAME_SCHEMA}" And: "${GEMINI_TTS_ONLY}" And: "${GEMINI_VERBATIM}" And: "${GEMINI_WAV}" If you need headerless raw PCM, the page says to set response_format.mime_type to audio/l16, audio/mulaw, or audio/alaw.`,
+          "The speech page's samples call client.interactions.create and POST https://generativelanguage.googleapis.com/v1beta/interactions. The model field in those samples is gemini-3.8-flash-tts. The page also documents gemini-3.8-flash-lite-tts.",
+        ],
+        sources: [
+          { label: "Gemini API deprecations", url: GEMINI_DEPRECATIONS },
+          { label: "Gemini speech generation", url: GEMINI_SPEECH },
+        ],
+      },
+      {
+        heading: "Live audio models",
+        paragraphs: [
+          live.length
+            ? `The Live audio ids in this shutdown are ${idList(live)}. The deprecations page lists gemini-3.8-live for each of them.`
+            : "This shutdown has no Live audio ids.",
+          `The speech page says: "${GEMINI_TTS_DIFFERS}" A TTS model id is not the replacement for these Live rows.`,
+          `The gemini-3.8-live model page says: "${GEMINI_LIVE_BLURB}" It says the model code is gemini-3.8-live, and it points to the Live API guide for features. This guide does not copy a Live request. The Live API guide is the page for that shape.`,
+        ],
+        sources: [
+          { label: "Gemini API deprecations", url: GEMINI_DEPRECATIONS },
+          { label: "Gemini speech generation", url: GEMINI_SPEECH },
+          { label: "gemini-3.8-live model page", url: GEMINI_LIVE_MODEL },
+          { label: "Gemini Live API", url: GEMINI_LIVE },
+        ],
+      },
+      {
+        heading: "What breaks",
+        paragraphs: [
+          `On ${when} these ids reach the shutdown date stored in the dataset. The deprecations page says: "${GEMINI_SHUTDOWN}" It does not print one HTTP status for that moment.`,
+          `The same page says: "${GEMINI_EARLIEST}" The day in the table can move if Google sends a later exact date. Until that notice, the stored shutdown date stays ${GEMINI_NOV17_SHUTDOWN_DATE}.`,
+          "A 400 from a field the replacement rejects is a different failure. The speech page's WAV and speech_metadata changes are request-shape changes on Gemini 3.8 TTS, not the shutdown itself.",
+        ],
+        sources: [
+          { label: "Gemini API deprecations", url: GEMINI_DEPRECATIONS },
+          { label: "Gemini speech generation", url: GEMINI_SPEECH },
+        ],
+      },
+      {
+        heading: "Find the model ids in your code",
+        paragraphs: [
+          "Search the repository for the five ids in the table. A preview suffix is part of the id. gemini-2.5-flash is a different id from gemini-2.5-flash-preview-tts. [How to find every model ID in your codebase](/guides/find-model-ids-in-your-codebase/) covers SDK argument names. The [scan page](/scan/) builds a search from dataset ids that have a shutdown date.",
+          "Also search configs that pick a voice model by a short label. The deprecations page uses the full id.",
+        ],
+        codes: [{ caption: "ripgrep", code: searchCode(rows) }],
+        sources: [{ label: "Gemini API deprecations", url: GEMINI_DEPRECATIONS }],
+      },
+      {
+        heading: "Test the replacement before the cutoff",
+        paragraphs: [
+          `Call the replacement id from the same row with the prompts you send now. Do that before ${when}. For TTS, the speech page says the two Gemini 3.8 TTS models share one API schema, so you can switch between gemini-3.8-flash-tts and gemini-3.8-flash-lite-tts by changing that one field. Run the one you will keep, and read the audio bytes. A unary response is WAV unless you set another mime type.`,
+          "For the Live ids, call gemini-3.8-live from the Live API path you use now. The model page says Live API is supported on that id. This guide does not name a generateContent body for it.",
+          "The [pre-migration test checklist](/guides/pre-migration-test-checklist/) is the longer list: evals, rejected fields, token limits, tools, price, and latency.",
+        ],
+        sources: [
+          { label: "Gemini API deprecations", url: GEMINI_DEPRECATIONS },
+          { label: "Gemini speech generation", url: GEMINI_SPEECH },
+          { label: "gemini-3.8-live model page", url: GEMINI_LIVE_MODEL },
+        ],
+      },
+    ],
+    related: [
+      { href: "/shutdowns/google-gemini-api-2026-11-17/", label: `Gemini API shutdowns on ${when}` },
+      { href: "/providers/google-gemini-api/", label: "Gemini API provider page" },
+      { href: "/models/google-gemini-api/gemini-3-8-live/", label: "gemini-3.8-live" },
+      { href: "/models/google-gemini-api/gemini-3-8-flash-tts/", label: "gemini-3.8-flash-tts" },
+      { href: "/models/google-gemini-api/gemini-3-8-flash-lite-tts/", label: "gemini-3.8-flash-lite-tts" },
+      { href: "/guides/why-shutdown-dates-differ-by-platform/", label: "Why shutdown dates differ by platform" },
+      { href: "/guides/find-model-ids-in-your-codebase/", label: "Find model ids in your codebase" },
+      { href: "/guides/pre-migration-test-checklist/", label: "Pre-migration test checklist" },
+      { href: "/scan/", label: "Scan retiring ids" },
+    ],
+    faqs: [
+      {
+        question: `Which Gemini API ids shut down on ${when}?`,
+        answer: `The dataset lists ${idList(rows)} with shutdown date ${GEMINI_NOV17_SHUTDOWN_DATE}. The deprecations page says: "${GEMINI_EARLIEST}"`,
+      },
+      {
+        question: "What is the recommended replacement?",
+        answer: `${replacementFaq(rows, catalog)} The deprecations page writes or between the two TTS ids and does not prefer one. The speech page says: "${GEMINI_LITE}"`,
+      },
+      {
+        question: "What does Google say happens at shutdown?",
+        answer: `The deprecations page says: "${GEMINI_SHUTDOWN}" It does not print one HTTP status for that moment.`,
+      },
+      {
+        question: "What changes in a TTS request besides the model id?",
+        answer: `The speech page says: "${GEMINI_VERBATIM}" And: "${GEMINI_WAV}" It also says: "${GEMINI_TTS_ONLY}" Samples on that page set model to gemini-3.8-flash-tts and POST https://generativelanguage.googleapis.com/v1beta/interactions.`,
+      },
+      {
+        question: "Are the Live ids the same migration as the TTS ids?",
+        answer: `No. ${idList(live)} store gemini-3.8-live. The speech page says: "${GEMINI_TTS_DIFFERS}" The gemini-3.8-live model page says: "${GEMINI_LIVE_BLURB}"`,
+      },
+      {
+        question: "Does this page include Vertex models?",
+        answer: vertex.length
+          ? `This table is the Gemini API list. Vertex stores ${idList(vertex)} with shutdown date ${GEMINI_NOV17_SHUTDOWN_DATE}. The stored kind is ${[...new Set(vertex.map((model) => model.shutdown_date_kind))].join(", ")}. ${vertex.every((model) => !publishedReplacementIds(model).length) ? "Those rows have no stored replacement." : "See the Vertex rows for replacements."}`
+          : "No Vertex row shares this shutdown date.",
+      },
+    ],
+    citations: [GEMINI_DEPRECATIONS, GEMINI_MODELS, GEMINI_SPEECH, GEMINI_LIVE_MODEL, GEMINI_LIVE, GEMINI_VERTEX],
   };
 }

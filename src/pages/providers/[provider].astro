@@ -74,6 +74,8 @@ const openaiGuides = provider.id === "openai"
       Token Factory does not automatically reroute requests from deprecated models.
       The <a href={provider.models_url}>quickstart</a> shows the API host.
       The <a href={provider.pricing_url}>billing page</a> does not print a per-token price.
+      <a href="/shutdowns/nebius-2026-11-09/">November 9, 2026 shutdowns</a>.
+      <a href="/guides/nebius-model-shutdowns-november-9-2026/">November 9, 2026 model guide</a>.
       <a href="/#soonest">Soonest shutdowns on the homepage</a>.
     </p>
   ) : provider.id === "together" ? (
@@ -94,6 +96,8 @@ const openaiGuides = provider.id === "openai"
       A US-only row uses the id on the <a href="https://docs.fireworks.ai/serverless/us-only-serverless">US-only serverless page</a>.
       A display name with no model link is not stored.
       Dedicated deployments stay up when the changelog says that.
+      <a href="/shutdowns/fireworks-2026-11-07/">November 7, 2026 shutdowns</a>.
+      <a href="/guides/fireworks-model-shutdowns-november-7-2026/">November 7, 2026 model guide</a>.
       <a href="/#soonest">Soonest shutdowns on the homepage</a>.
     </p>
   ) : provider.id === "minimax" ? (
@@ -148,6 +152,15 @@ const openaiGuides = provider.id === "openai"
       <a href="/shutdowns/aws-bedrock-2026-11-13/">November 13, 2026 shutdowns</a>.
       <a href="/guides/amazon-bedrock-claude-3-shutdown-november-13-2026/">Claude 3 shutdown guide</a>.
       <a href="/errors/bedrock-model-version-has-reached-the-end-of-its-life/">End of life error</a>.
+      <a href="/#soonest">Soonest shutdowns on the homepage</a>.
+    </p>
+  ) : provider.id === "google-gemini-api" ? (
+    <p>
+      Official source: <a href={provider.deprecations_url}>{provider.deprecations_url}</a>.
+      November 17, 2026 is the shutdown date the deprecations page lists for gemini-2.5-flash-native-audio-preview-12-2025, gemini-2.5-flash-preview-tts, gemini-2.5-pro-preview-tts, gemini-3.1-flash-live-preview, and gemini-3.1-flash-tts-preview.
+      That page says the table date is the earliest possible retirement.
+      <a href="/shutdowns/google-gemini-api-2026-11-17/">November 17, 2026 shutdowns</a>.
+      <a href="/guides/gemini-api-model-shutdowns-november-17-2026/">November 17, 2026 model guide</a>.
       <a href="/#soonest">Soonest shutdowns on the homepage</a>.
     </p>
   ) : (

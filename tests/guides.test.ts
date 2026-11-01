@@ -46,6 +46,8 @@ const ALLOWED_HOSTS = new Set([
   "platform.minimax.io",
   "docs.github.com",
   "github.blog",
+  "docs.fireworks.ai",
+  "docs.tokenfactory.nebius.com",
 ]);
 
 describe("guides", () => {
@@ -517,5 +519,108 @@ describe("guides", () => {
     const shutdownPage = readFileSync("src/pages/shutdowns/[slug].astro", "utf8");
     expect(providerPage).toContain("/guides/github-copilot-model-retirements-november-16-2026/");
     expect(shutdownPage).toContain("github-copilot-model-retirements-november-16-2026");
+  });
+
+  it("builds the November 7, 9, and 17 shutdown guides from the dataset", async () => {
+    const models = await loadModels();
+    const fireworksRows = models
+      .filter((model) => model.provider === "fireworks" && model.shutdown_date === "2026-11-07")
+      .sort((a, b) => a.id.localeCompare(b.id));
+    const nebiusRows = models
+      .filter((model) => model.provider === "nebius" && model.shutdown_date === "2026-11-09")
+      .sort((a, b) => a.id.localeCompare(b.id));
+    const geminiRows = models
+      .filter((model) => model.provider === "google-gemini-api" && model.shutdown_date === "2026-11-17")
+      .sort((a, b) => a.id.localeCompare(b.id));
+    expect(fireworksRows.map((model) => model.id)).toEqual([
+      "accounts/fireworks/models/gpt-oss-120b",
+      "accounts/fireworks/models/nemotron-3-ultra-nvfp4",
+      "accounts/fireworks/models/nemotron-lightning-3p5-30b-a3b",
+      "accounts/fireworks/routers/glm-5p3-flash-us",
+    ]);
+    expect(nebiusRows).toHaveLength(11);
+    expect(geminiRows.map((model) => model.id)).toEqual([
+      "gemini-2.5-flash-native-audio-preview-12-2025",
+      "gemini-2.5-flash-preview-tts",
+      "gemini-2.5-pro-preview-tts",
+      "gemini-3.1-flash-live-preview",
+      "gemini-3.1-flash-tts-preview",
+    ]);
+
+    const fireworks = guides.find((guide) => guide.slug === "fireworks-model-shutdowns-november-7-2026");
+    const nebius = guides.find((guide) => guide.slug === "nebius-model-shutdowns-november-9-2026");
+    const gemini = guides.find((guide) => guide.slug === "gemini-api-model-shutdowns-november-17-2026");
+    expect(fireworks && nebius && gemini).toBeTruthy();
+    if (!fireworks || !nebius || !gemini) return;
+
+    expect(guidePath(fireworks.slug)).toBe("/guides/fireworks-model-shutdowns-november-7-2026/");
+    expect(guidePath(nebius.slug)).toBe("/guides/nebius-model-shutdowns-november-9-2026/");
+    expect(guidePath(gemini.slug)).toBe("/guides/gemini-api-model-shutdowns-november-17-2026/");
+    expect(guideChecked(fireworks)).toBe("2026-11-01");
+    expect(guideChecked(nebius)).toBe("2026-11-01");
+    expect(guideChecked(gemini)).toBe("2026-11-01");
+
+    const fireworksTable = fireworks.sections.find((section) => section.heading === "Models shutting down")?.table;
+    expect(fireworksTable?.rows.map((row) => row[0])).toEqual(
+      fireworksRows.map((model) => `[${model.id}](/models/${model.provider}/${model.slug}/)`),
+    );
+    expect(fireworksTable?.rows.filter((row) => row[3] === "Not published")).toHaveLength(3);
+    expect(fireworksTable?.rows.some((row) => row[3].includes("accounts/fireworks/routers/deepseek-v4p1-flash-1017-us"))).toBe(true);
+
+    const nebiusTable = nebius.sections.find((section) => section.heading === "Models shutting down")?.table;
+    expect(nebiusTable?.rows).toHaveLength(nebiusRows.length);
+    expect(nebiusTable?.rows.every((row) => row[3] !== "Not published")).toBe(true);
+    const chain = nebius.sections.find((section) => section.heading.startsWith("August replacements"))?.table;
+    expect(chain?.rows.map((row) => row[0])).toEqual([
+      "[deepseek-ai/DeepSeek-V4-Flash](/models/nebius/deepseek-ai-deepseek-v4-flash/)",
+      "[nvidia/Llama-3_1-Nemotron-Ultra-253B-v1](/models/nebius/nvidia-llama-3-1-nemotron-ultra-253b-v1/)",
+      "[Qwen/Qwen3-Next-80B-A3B-Thinking](/models/nebius/qwen-qwen3-next-80b-a3b-thinking/)",
+    ]);
+
+    const geminiTable = gemini.sections.find((section) => section.heading === "Models shutting down")?.table;
+    expect(geminiTable?.rows.map((row) => row[0])).toEqual(
+      geminiRows.map((model) => `[${model.id}](/models/${model.provider}/${model.slug}/)`),
+    );
+    expect(geminiTable?.rows.every((row) => row[3].includes("gemini-3.8-"))).toBe(true);
+
+    for (const guide of [fireworks, nebius, gemini]) {
+      expect(guide.faqs.length).toBeGreaterThan(0);
+      expect(guideGraph("https://sunsetdiff.com/", guide).some((node) => node["@type"] === "FAQPage")).toBe(true);
+      expect(sitemapSection(guidePath(guide.slug))).toBe("sitemap-guides.xml");
+      expect(JSON.stringify(guide)).not.toMatch(/[—–]/);
+    }
+    const fireworksBlob = JSON.stringify(fireworks);
+    expect(fireworksBlob).toContain("Dedicated deployments and Reserved Throughput are unaffected.");
+    expect(fireworksBlob).toContain("https://docs.fireworks.ai/updates/changelog");
+    expect(fireworksBlob).toContain("/shutdowns/fireworks-2026-11-07/");
+    expect(fireworksBlob).not.toContain("accounts/fireworks/models/nvidia-nemotron-3p5-super-vl");
+    const nebiusBlob = JSON.stringify(nebius);
+    expect(nebiusBlob).toContain("Token Factory does not automatically reroute requests from deprecated models.");
+    expect(nebiusBlob).toContain("https://docs.tokenfactory.nebius.com/model-deprecations-november-2026");
+    expect(nebiusBlob).toContain("/shutdowns/nebius-2026-11-09/");
+    const geminiBlob = JSON.stringify(gemini);
+    expect(geminiBlob).toContain("earliest possible dates");
+    expect(geminiBlob).toContain("completely turned off, and the endpoint is no longer available.");
+    expect(geminiBlob).toContain("https://ai.google.dev/gemini-api/docs/deprecations");
+    expect(geminiBlob).toContain("https://ai.google.dev/gemini-api/docs/speech-generation");
+    expect(geminiBlob).toContain("/shutdowns/google-gemini-api-2026-11-17/");
+    expect(geminiBlob).toContain("veo-3.1-generate-001");
+
+    expect(guidesForModel(fireworksRows[0], models).map((link) => link.href)).toContain(guidePath(fireworks.slug));
+    expect(guidesForModel(nebiusRows[0], models).map((link) => link.href)).toContain(guidePath(nebius.slug));
+    expect(guidesForModel(geminiRows[0], models).map((link) => link.href)).toContain(guidePath(gemini.slug));
+
+    const providerPage = readFileSync("src/pages/providers/[provider].astro", "utf8");
+    const shutdownPage = readFileSync("src/pages/shutdowns/[slug].astro", "utf8");
+    expect(providerPage).toContain("/guides/fireworks-model-shutdowns-november-7-2026/");
+    expect(providerPage).toContain("/guides/nebius-model-shutdowns-november-9-2026/");
+    expect(providerPage).toContain("/guides/gemini-api-model-shutdowns-november-17-2026/");
+    expect(shutdownPage).toContain("fireworks-model-shutdowns-november-7-2026");
+    expect(shutdownPage).toContain("nebius-model-shutdowns-november-9-2026");
+    expect(shutdownPage).toContain("gemini-api-model-shutdowns-november-17-2026");
+    const text = llmsTxt("https://sunsetdiff.com", [], []);
+    expect(text).toContain("/guides/fireworks-model-shutdowns-november-7-2026/");
+    expect(text).toContain("/guides/nebius-model-shutdowns-november-9-2026/");
+    expect(text).toContain("/guides/gemini-api-model-shutdowns-november-17-2026/");
   });
 });
