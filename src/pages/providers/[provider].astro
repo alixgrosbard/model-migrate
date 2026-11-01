@@ -154,6 +154,17 @@ const openaiGuides = provider.id === "openai"
       <a href="/errors/bedrock-model-version-has-reached-the-end-of-its-life/">End of life error</a>.
       <a href="/#soonest">Soonest shutdowns on the homepage</a>.
     </p>
+  ) : provider.id === "anthropic" ? (
+    <p>
+      Official page: <a href={provider.deprecations_url}>{provider.deprecations_url}</a>.
+      claude-sonnet-4-5-20250929 is deprecated on September 30, 2026 and retires on November 30, 2026.
+      The recommended replacement on that page is claude-sonnet-5-5.
+      Those dates cover the Claude API, Claude Platform on AWS, Claude Models on Google Cloud (Anthropic managed), and Microsoft Foundry.
+      Amazon Bedrock lists end of life April 8, 2027 for anthropic.claude-sonnet-4-5-20250929-v1:0.
+      GitHub Copilot lists Claude Sonnet 4.5 on 2026-09-01.
+      <a href="/guides/claude-sonnet-4-5-shutdown-november-30-2026/">November 30, 2026 shutdown guide</a>.
+      <a href="/#soonest">Soonest shutdowns on the homepage</a>.
+    </p>
   ) : provider.id === "google-gemini-api" ? (
     <p>
       Official source: <a href={provider.deprecations_url}>{provider.deprecations_url}</a>.

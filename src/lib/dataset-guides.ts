@@ -46,6 +46,11 @@ const NEBIUS_AUGUST_SHUTDOWN_DATE = "2026-08-31";
 export const GEMINI_NOV17_SHUTDOWN_DATE = "2026-11-17";
 export const GEMINI_NOV17_GUIDE_SLUG = "gemini-api-model-shutdowns-november-17-2026";
 
+/** Checked against Anthropic's deprecations page on 2026-11-01. The slug uses this date. */
+export const SONNET45_NOV30_SHUTDOWN_DATE = "2026-11-30";
+export const SONNET45_NOV30_GUIDE_SLUG = "claude-sonnet-4-5-shutdown-november-30-2026";
+const SONNET45_CHECKED = "2026-11-01";
+
 const MINIMAX_MODELS = "https://platform.minimax.io/docs/faq/models";
 const MINIMAX_TEXT = "https://platform.minimax.io/docs/guides/text-generation";
 const MINIMAX_NEW_USERS = "These models will no longer be available to new users.";
@@ -188,6 +193,13 @@ export function isGeminiNov17Shutdown(model: ModelRecord): boolean {
     && model.shutdown_date_kind === "exact";
 }
 
+export function isSonnet45Nov30Shutdown(model: ModelRecord): boolean {
+  return model.provider === "anthropic"
+    && model.id === "claude-sonnet-4-5-20250929"
+    && model.shutdown_date === SONNET45_NOV30_SHUTDOWN_DATE
+    && model.shutdown_date_kind === "exact";
+}
+
 export function isJanuary2027Gpt4Shutdown(model: ModelRecord): boolean {
   if (model.provider !== "openai" || model.shutdown_date !== JANUARY_2027_SHUTDOWN_DATE) return false;
   if (model.shutdown_date_kind !== "exact" && model.shutdown_date_kind !== "via_snapshots") return false;
@@ -261,6 +273,262 @@ function deprecationFaq(rows: ModelRecord[]): string {
   return dated.map((model) => `${model.id}: ${model.deprecation_date}`).join(". ");
 }
 
+const CLAUDE_DEPRECATIONS = "https://platform.claude.com/docs/en/about-claude/model-deprecations";
+const CLAUDE_SONNET45 = "https://platform.claude.com/docs/en/models/sonnet-4-5/overview";
+const CLAUDE_SONNET55 = "https://platform.claude.com/docs/en/models/sonnet-5-5/overview";
+const CLAUDE_MIGRATION = "https://platform.claude.com/docs/en/models/sonnet-5-5/migration-guide";
+const CLAUDE_IDS = "https://platform.claude.com/docs/en/about-claude/models/model-ids-and-versions";
+const CLAUDE_FAST = "https://platform.claude.com/docs/en/build-with-claude/fast-mode";
+const BEDROCK_SONNET45_CARD = "https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-anthropic-claude-sonnet-4-5.html";
+const COPILOT_MODELS = "https://docs.github.com/en/copilot/reference/ai-models/supported-models";
+const SONNET_RETIRED = "The model is no longer available for use. Requests to retired models fail.";
+const SONNET_PAST = "Requests to models past the retirement date will fail.";
+const SONNET_PLATFORMS = "The dates on this page apply to Anthropic-operated platforms: the Claude API, Claude Platform on AWS, Claude Models on Google Cloud (Anthropic managed), and Microsoft Foundry.";
+const SONNET_PARTNERS = "Partner-operated platforms, Amazon Bedrock and Claude Models on Google Cloud (Google managed), set their own retirement schedules, so a model's lifecycle status and dates can differ.";
+const SONNET_ALIAS = "On the Claude API, these models also have shorter aliases (for example, claude-sonnet-4-5) that point to the most recent dated snapshot for that minor version.";
+const SONNET_THINKING_ENABLED = '"thinking.type.enabled" is not supported for this model. Use "thinking.type.adaptive" and "output_config.effort" to control thinking behavior.';
+const SONNET_PREFILL = "This model does not support assistant message prefill. The conversation must end with a user message.";
+const SONNET_TOOL_CHOICE = 'tool_choice: type "tool" and "any" are not supported for this model.';
+const SONNET_DISABLED = 'To turn thinking off on this model, send "thinking": {"type": "between_tools"} instead of {"type": "disabled"}.';
+const SONNET_SAMPLING = "Setting temperature, top_p, or top_k returns a 400 error.";
+const SONNET_FAST = 'Fast mode on Claude Opus 4.8 is deprecated and will be removed on November 30, 2026. After removal, requests to claude-opus-4-8 with speed: "fast" will return an error. To continue using fast mode, migrate to Claude Opus 5.5.';
+const SONNET_BEDROCK_CARD = "Claude Sonnet 4.5 is in the Legacy stage in all Regions. It has an upcoming end of life of April 8, 2027, after which requests will fail with ResourceNotFoundException: This model version has reached the end of its life.";
+const SONNET_TOKENS = "About 30 percent more tokens: Claude Sonnet 5.5 uses Claude Sonnet 5's tokenizer. Against Claude Sonnet 4.6, Claude Sonnet 4.5, and Claude Haiku 4.5, the same text produces about 30 percent more tokens, depending on the content. Recount with token counting, and revisit max_tokens and cost.";
+
+function sonnet45Nov30Guide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePage {
+  const when = longDate(SONNET45_NOV30_SHUTDOWN_DATE);
+  const row = rows[0];
+  const replacement = row ? publishedReplacementIds(row)[0] : undefined;
+  const replacementModel = replacement
+    ? catalog.find((model) => model.provider === "anthropic" && model.id === replacement)
+    : undefined;
+  const bedrock = catalog.find((model) => model.provider === "aws-bedrock" && model.id === "anthropic.claude-sonnet-4-5-20250929-v1:0");
+  const copilot = catalog.find((model) => model.provider === "github-copilot" && model.id === "Claude Sonnet 4.5");
+  const sources = [
+    { label: "Anthropic model deprecations", url: CLAUDE_DEPRECATIONS },
+    { label: "Claude Sonnet 4.5", url: CLAUDE_SONNET45 },
+    { label: "Model IDs and versioning", url: CLAUDE_IDS },
+  ];
+  return {
+    slug: SONNET45_NOV30_GUIDE_SLUG,
+    title: `Claude Sonnet 4.5 shutdown on ${when} | SunsetDiff`,
+    description: `claude-sonnet-4-5-20250929 is deprecated on September 30, 2026 and retires on ${SONNET45_NOV30_SHUTDOWN_DATE}. The replacement on Anthropic's deprecations page is claude-sonnet-5-5. Bedrock and GitHub Copilot use other dates.`,
+    h1: `Claude Sonnet 4.5 shutdown on ${when}`,
+    summary: `The Claude API id that retires on ${SONNET45_NOV30_SHUTDOWN_DATE}, the replacement, and the Bedrock and Copilot dates that are not that day.`,
+    answer: `Anthropic's deprecations page lists claude-sonnet-4-5-20250929 as Deprecated on September 30, 2026, with retirement date ${SONNET45_NOV30_SHUTDOWN_DATE}. The history table names claude-sonnet-5-5 as the recommended replacement. The same page says: "${SONNET_PLATFORMS}" It also says: "${SONNET_PARTNERS}" Bedrock's model card gives anthropic.claude-sonnet-4-5-20250929-v1:0 an end of life of April 8, 2027. GitHub's Copilot retirement history lists Claude Sonnet 4.5 on 2026-09-01. After the Claude API retirement, the deprecations page says requests fail. It does not print an HTTP status or an error sentence.`,
+    checked: SONNET45_CHECKED,
+    steps: [
+      {
+        name: "Change the model id on Anthropic-operated platforms",
+        text: `On the Claude API, replace claude-sonnet-4-5-20250929 with ${replacement ?? "claude-sonnet-5-5"}. The alias claude-sonnet-4-5 points at that dated snapshot. Microsoft Foundry and Claude Platform on AWS send claude-sonnet-4-5. Claude Models on Google Cloud (Anthropic managed) sends claude-sonnet-4-5-20250929. The deprecations page says those platforms use this retirement date.`,
+      },
+      {
+        name: "Drop settings Claude Sonnet 5.5 rejects",
+        text: "Remove temperature, top_p, and top_k. Remove thinking.type enabled and budget_tokens, and set output_config.effort. Do not end the messages array with an assistant prefill. Do not send tool_choice type tool or any. Read each content block by type, because a response can start with a thinking block.",
+      },
+      {
+        name: "Leave Bedrock and Copilot on their own dates",
+        text: "A Bedrock call uses anthropic.claude-sonnet-4-5-20250929-v1:0 and the April 8, 2027 end of life on the Bedrock model card. A Copilot chat model named Claude Sonnet 4.5 already has retirement date 2026-09-01 on GitHub's retirement history. Do not move those callers because of the November 30 Claude API date.",
+      },
+      {
+        name: "Search the repo and send one test call",
+        text: `Search for the ids below. Call ${replacement ?? "claude-sonnet-5-5"} with a prompt you use now, before ${when}. The fast mode removal on claude-opus-4-8 is the same calendar day and a different change.`,
+      },
+    ],
+    sections: [
+      {
+        heading: "What retires and when",
+        paragraphs: [
+          `The dataset has ${rows.length} Anthropic id with shutdown date ${SONNET45_NOV30_SHUTDOWN_DATE}. The deprecations history for September 30, 2026 lists one deprecated model, claude-sonnet-4-5-20250929, and one recommended replacement, claude-sonnet-5-5. The status table says Deprecated, September 30, 2026, November 30, 2026.`,
+          `The deprecations page says: "${SONNET_PLATFORMS}" And: "${SONNET_PARTNERS}"`,
+          `The model IDs page says: "${SONNET_ALIAS}" The deprecations table does not list claude-sonnet-4-5 by name. The Sonnet 4.5 model page lists that alias next to claude-sonnet-4-5-20250929.`,
+        ],
+        table: {
+          caption: `Anthropic model id in the dataset with shutdown date ${SONNET45_NOV30_SHUTDOWN_DATE}.`,
+          headers: ["Model id", "Deprecation date", "Shutdown date", "Recommended replacement"],
+          rows: tableRows(rows, catalog),
+        },
+        sources,
+      },
+      {
+        heading: "Ids by platform",
+        paragraphs: [
+          "The Sonnet 4.5 model page lists these ids. The retirement date on that page is November 30, 2026. The deprecations page says which platforms that date covers. A partner platform can publish a different day.",
+          "Microsoft Foundry and Claude Platform on AWS are in the Anthropic-operated list, and both ids on the model page are claude-sonnet-4-5. Claude Models on Google Cloud (Anthropic managed) uses claude-sonnet-4-5-20250929. Claude Models on Google Cloud (Google managed) uses claude-sonnet-4-5@20250929. The deprecations page says Google managed sets its own schedule. This guide does not store a Google-managed shutdown date.",
+        ],
+        table: {
+          caption: "Model ids on the Claude Sonnet 4.5 page, and whether the November 30, 2026 deprecations date applies.",
+          headers: ["Platform", "Model id", "November 30, 2026 date"],
+          rows: [
+            ["Claude API", row ? modelLink(row) : "claude-sonnet-4-5-20250929", "Yes. Deprecations page."],
+            ["Claude API alias", "claude-sonnet-4-5", "The alias points at the dated snapshot. The deprecations table does not list the alias by name."],
+            ["Microsoft Foundry", "claude-sonnet-4-5", "Yes. Anthropic-operated platform."],
+            ["Claude Platform on AWS", "claude-sonnet-4-5", "Yes. Anthropic-operated platform. This is not the Bedrock id."],
+            ["Claude Models on Google Cloud (Anthropic managed)", "claude-sonnet-4-5-20250929", "Yes. Anthropic-operated platform."],
+            ["Claude Models on Google Cloud (Google managed)", "claude-sonnet-4-5@20250929", "No. That platform sets its own schedule. No date is stored here."],
+            ["Amazon Bedrock (InvokeModel)", bedrock ? modelLink(bedrock) : "anthropic.claude-sonnet-4-5-20250929-v1:0", "No. Bedrock publishes April 8, 2027."],
+          ],
+        },
+        sources: [
+          { label: "Claude Sonnet 4.5", url: CLAUDE_SONNET45 },
+          { label: "Anthropic model deprecations", url: CLAUDE_DEPRECATIONS },
+          { label: "Model IDs and versioning", url: CLAUDE_IDS },
+        ],
+      },
+      {
+        heading: "Bedrock and Copilot use other dates",
+        paragraphs: [
+          `Bedrock's Claude Sonnet 4.5 model card says: "${SONNET_BEDROCK_CARD}" The legacy lifecycle table lists the same id with legacy date October 8, 2026 and EOL date April 8, 2027.${bedrock ? ` The stored Bedrock row is ${modelLink(bedrock)}, shutdown date ${bedrock.shutdown_date ?? "Not published"}.` : ""}`,
+          `GitHub's Copilot retirement history lists Claude Sonnet 4.5 with retirement date 2026-09-01 and suggested alternative Latest Claude Sonnet model. That phrase is not a model id.${copilot ? ` The stored Copilot row is ${modelLink(copilot)}, shutdown date ${copilot.shutdown_date ?? "Not published"}.` : ""} That date is already past on the day this guide was checked. It is not November 30, 2026.`,
+          "Use the date for the host that receives the request. A Claude API string and a Bedrock string can sit in the same repository and still shut down on different days.",
+        ],
+        table: {
+          caption: "Sonnet 4.5 dates that are not the Claude API retirement.",
+          headers: ["Host", "Id", "Date on that host's page"],
+          rows: [
+            ["Claude API", row ? modelLink(row) : "claude-sonnet-4-5-20250929", SONNET45_NOV30_SHUTDOWN_DATE],
+            ["Amazon Bedrock", bedrock ? modelLink(bedrock) : "anthropic.claude-sonnet-4-5-20250929-v1:0", bedrock?.shutdown_date ?? "2027-04-08"],
+            ["GitHub Copilot", copilot ? modelLink(copilot) : "Claude Sonnet 4.5", copilot?.shutdown_date ?? "2026-09-01"],
+          ],
+        },
+        sources: [
+          { label: "Anthropic model deprecations", url: CLAUDE_DEPRECATIONS },
+          { label: "Bedrock Claude Sonnet 4.5 model card", url: BEDROCK_SONNET45_CARD },
+          { label: "Bedrock legacy lifecycle", url: BEDROCK_LEGACY },
+          { label: "GitHub Copilot supported models", url: COPILOT_MODELS },
+        ],
+      },
+      {
+        heading: "What callers see after shutdown",
+        paragraphs: [
+          `On ${when} claude-sonnet-4-5-20250929 reaches the retirement date on Anthropic-operated platforms. The deprecations page defines Retired as: "${SONNET_RETIRED}" It also says: "${SONNET_PAST}"`,
+          "That page does not print an HTTP status or an error sentence for a retired model. This guide does not invent one. A 400 from a field Claude Sonnet 5.5 rejects is a different failure. It happens when the new id is already in the request and an old setting is still there. Those sentences are quoted in the next section.",
+          `SunsetDiff publishes a shutdown batch page when at least three model records share one provider and one exact shutdown date. This date has one Anthropic id, so there is no /shutdowns/anthropic-2026-11-30/ page. [/shutdowns/mistral-2025-11-30/](/shutdowns/mistral-2025-11-30/) is November 30, 2025, for Mistral. It is not this Claude date.`,
+        ],
+        sources: [{ label: "Anthropic model deprecations", url: CLAUDE_DEPRECATIONS }],
+      },
+      {
+        heading: "Swap the model id",
+        paragraphs: [
+          `The migration guide says to change the model id to claude-sonnet-5-5. claude-sonnet-5-5 has no date suffix. The Sonnet 5.5 model page lists that same id on the Claude API, Amazon Bedrock, Google Cloud (Google managed), Microsoft Foundry, Claude Platform on AWS, and Google Cloud (Anthropic managed). Bedrock's current Sonnet 4.5 id is still the v1:0 id above, and its end of life stays April 8, 2027. This snippet is the Claude API call.`,
+          `The Sonnet 5.5 model page says: "${SONNET_SAMPLING}" The migration guide says sampling parameters return an error and to remove temperature, top_p, and top_k. The same guide prints this 400 for a thinking budget: "${SONNET_THINKING_ENABLED}" Remove the budget and set output_config.effort. It says there is no fixed mapping from a budget to an effort level.`,
+          `A request with no thinking field runs adaptive thinking on Claude Sonnet 5.5. On Claude Sonnet 4.5 that request ran without thinking. thinking.type disabled returns a 400. The migration guide says: "${SONNET_DISABLED}" between_tools is accepted at low, medium, and high effort. At xhigh or max it returns a 400. The Sonnet 4.5 page says default effort is not supported. The Sonnet 5.5 page says the default effort on the Claude API is high.`,
+          `The migration guide says a prefilled last assistant turn returns a 400, and prints: "${SONNET_PREFILL}" It also prints: "${SONNET_TOOL_CHOICE}" Send tool_choice type auto, and mark the tool strict if you need the input to match the schema. Read content blocks by type. A response can start with a thinking block, so content[0].text breaks. Pass thinking blocks back unchanged in a tool loop.`,
+          `The migration guide says: "${SONNET_TOKENS}" Recount tokens and revisit max_tokens. The Sonnet 4.5 page lists a 200K context window and 64K max output. The Sonnet 5.5 page lists a 1M context window and 128K max output, with no context-window beta header. The Sonnet 4.5 page lists input $3 per million tokens and output $15. The Sonnet 5.5 page lists input $2 and output $10. Cache read on the Sonnet 5.5 page is $0.10 per million tokens.`,
+          "The migration guide also says to parse tool-call input with a standard JSON parser, to stop sending computer_20250124, to remove interleaved-thinking-2025-05-14, and to move output_format to output_config.format. The full checklist is on that page. The [migration diff](/migrate/anthropic__claude-sonnet-4-5-20250929__to__anthropic__claude-sonnet-5-5/) lists the request changes stored on SunsetDiff.",
+        ],
+        codes: [
+          {
+            caption: "Python Messages API call after the id change",
+            code: `import anthropic
+client = anthropic.Anthropic()
+message = client.messages.create(
+    model="${replacement ?? "claude-sonnet-5-5"}",
+    max_tokens=16000,
+    thinking={"type": "adaptive"},
+    output_config={"effort": "high"},
+    messages=[{"role": "user", "content": "Hello"}],
+)
+`,
+          },
+        ],
+        sources: [
+          { label: "Migrate to Claude Sonnet 5.5", url: CLAUDE_MIGRATION },
+          { label: "Claude Sonnet 5.5", url: CLAUDE_SONNET55 },
+          { label: "Claude Sonnet 4.5", url: CLAUDE_SONNET45 },
+        ],
+      },
+      {
+        heading: "Fast mode on Claude Opus 4.8",
+        paragraphs: [
+          `The same calendar day removes a setting on a different model. Anthropic's fast mode page says: "${SONNET_FAST}"`,
+          "The deprecations table still lists claude-opus-4-8 as Active, with a retirement of not sooner than May 28, 2027. The model id stays. The speed fast setting is what goes away. The error page for that removal is [claude-opus-4-8 fast mode removed](/errors/claude-opus-4-8-fast-mode-removed/). The fast mode page says the request will return an error. It does not print the error sentence.",
+        ],
+        sources: [
+          { label: "Claude fast mode", url: CLAUDE_FAST },
+          { label: "Anthropic model deprecations", url: CLAUDE_DEPRECATIONS },
+        ],
+      },
+      {
+        heading: "Check your code",
+        paragraphs: [
+          "Search the repository for the Claude API id, the alias, the Bedrock id, the Google-managed id, and the Copilot display name. A hit on the Bedrock id or the Copilot name is a different date. A hit on claude-sonnet-4-5 can be the Claude API alias, Foundry, or Claude Platform on AWS. Read the host in that file before you change it.",
+          "The [scan page](/scan/) builds a search from dataset ids that have a shutdown date. The alias claude-sonnet-4-5 is not its own dataset row. Search for it separately. [How to find every model ID in your codebase](/guides/find-model-ids-in-your-codebase/) covers SDK argument names.",
+        ],
+        codes: [
+          {
+            caption: "ripgrep",
+            code: `rg -n -e 'claude-sonnet-4-5-20250929' -e 'claude-sonnet-4-5' -e 'claude-sonnet-4-5@20250929' -e 'anthropic.claude-sonnet-4-5-20250929-v1:0' -e 'Claude Sonnet 4.5'
+rg -n -e 'claude-opus-4-8' -e 'speed: "fast"' -e "speed: 'fast'"
+`,
+          },
+        ],
+        sources: [
+          { label: "Claude Sonnet 4.5", url: CLAUDE_SONNET45 },
+          { label: "Claude fast mode", url: CLAUDE_FAST },
+          { label: "GitHub Copilot supported models", url: COPILOT_MODELS },
+        ],
+      },
+    ],
+    related: [
+      { href: "/models/anthropic/claude-sonnet-4-5-20250929/", label: "claude-sonnet-4-5-20250929" },
+      { href: replacementModel ? `/models/${replacementModel.provider}/${replacementModel.slug}/` : "/models/anthropic/claude-sonnet-5-5/", label: replacement ?? "claude-sonnet-5-5" },
+      { href: "/migrate/anthropic__claude-sonnet-4-5-20250929__to__anthropic__claude-sonnet-5-5/", label: "Sonnet 4.5 to Sonnet 5.5 migration diff" },
+      { href: "/providers/anthropic/", label: "Anthropic provider page" },
+      { href: bedrock ? `/models/${bedrock.provider}/${bedrock.slug}/` : "/models/aws-bedrock/anthropic-claude-sonnet-4-5-20250929-v1-0/", label: "Bedrock Sonnet 4.5" },
+      { href: copilot ? `/models/${copilot.provider}/${copilot.slug}/` : "/models/github-copilot/claude-sonnet-4-5/", label: "Copilot Claude Sonnet 4.5" },
+      { href: "/errors/claude-opus-4-8-fast-mode-removed/", label: "claude-opus-4-8 fast mode removed" },
+      { href: "/errors/claude-temperature-is-deprecated-for-this-model/", label: "temperature is deprecated for this model" },
+      { href: "/errors/claude-sonnet-5-5-thinking-budget/", label: "thinking budget on claude-sonnet-5-5" },
+      { href: "/errors/claude-sonnet-5-5-assistant-prefill/", label: "assistant prefill on claude-sonnet-5-5" },
+      { href: "/errors/claude-sonnet-5-5-tool-choice-tool-and-any/", label: "tool_choice tool and any" },
+      { href: "/guides/why-shutdown-dates-differ-by-platform/", label: "Why shutdown dates differ by platform" },
+      { href: "/guides/what-happens-on-model-shutdown-day/", label: "What happens on shutdown day" },
+      { href: "/guides/pre-migration-test-checklist/", label: "Pre-migration test checklist" },
+      { href: "/scan/", label: "Scan retiring ids" },
+    ],
+    faqs: [
+      {
+        question: `Which Claude API id retires on ${when}?`,
+        answer: `The deprecations page lists claude-sonnet-4-5-20250929. Deprecated September 30, 2026. Retirement ${SONNET45_NOV30_SHUTDOWN_DATE}. The model IDs page says the alias claude-sonnet-4-5 points at the most recent dated snapshot for that minor version. The deprecations table does not list the alias by name.`,
+      },
+      {
+        question: "What is the recommended replacement?",
+        answer: replacement
+          ? `The deprecations history table names ${replacement}. ${replacementFaq(rows, catalog)}`
+          : "The dataset row has no stored replacement.",
+      },
+      {
+        question: "What error does a retired call return?",
+        answer: `The deprecations page says: "${SONNET_RETIRED}" It also says: "${SONNET_PAST}" It does not print an HTTP status or an error sentence. This page does not invent one.`,
+      },
+      {
+        question: "Does Amazon Bedrock shut this model down on the same day?",
+        answer: `No. Bedrock's model card says end of life is April 8, 2027 for anthropic.claude-sonnet-4-5-20250929-v1:0. The legacy table lists legacy date October 8, 2026 and EOL date April 8, 2027. The deprecations page says Bedrock sets its own schedule.`,
+      },
+      {
+        question: "Does GitHub Copilot use November 30, 2026?",
+        answer: "No. The Copilot retirement history lists Claude Sonnet 4.5 with retirement date 2026-09-01 and suggested alternative Latest Claude Sonnet model.",
+      },
+      {
+        question: "Does claude-opus-4-8 shut down on November 30, 2026?",
+        answer: `No. The deprecations table lists claude-opus-4-8 as Active, not sooner than May 28, 2027. The fast mode page removes speed fast on November 30, 2026. See [claude-opus-4-8 fast mode removed](/errors/claude-opus-4-8-fast-mode-removed/).`,
+      },
+    ],
+    citations: [
+      CLAUDE_DEPRECATIONS,
+      CLAUDE_SONNET45,
+      CLAUDE_SONNET55,
+      CLAUDE_MIGRATION,
+      CLAUDE_IDS,
+      CLAUDE_FAST,
+      BEDROCK_SONNET45_CARD,
+      BEDROCK_LEGACY,
+      COPILOT_MODELS,
+    ],
+  };
+}
+
 /**
  * Guide pages whose tables are filled from the model records.
  * A guide is omitted when the filter matches no rows.
@@ -285,6 +553,8 @@ export function datasetShutdownGuides(catalog: ModelRecord[] = readCatalog()): G
   if (nebius.length) pages.push(nebiusNov9Guide(nebius, catalog));
   const gemini = rowsFor(isGeminiNov17Shutdown, catalog);
   if (gemini.length) pages.push(geminiNov17Guide(gemini, catalog));
+  const sonnet45 = rowsFor(isSonnet45Nov30Shutdown, catalog);
+  if (sonnet45.length) pages.push(sonnet45Nov30Guide(sonnet45, catalog));
   const slugs = new Set(pages.map((page) => page.slug));
   for (const page of pages) {
     page.related = page.related.filter((link) => {

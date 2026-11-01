@@ -20,8 +20,10 @@ import {
   isJanuary2027Gpt4Shutdown,
   isMinimaxNov18Shutdown,
   isNebiusNov9Shutdown,
+  isSonnet45Nov30Shutdown,
   JANUARY_2027_GPT4_GUIDE_SLUG,
   MINIMAX_NOV18_GUIDE_SLUG,
+  SONNET45_NOV30_GUIDE_SLUG,
 } from "./dataset-guides.ts";
 import type { FaqItem } from "./format.ts";
 
@@ -586,6 +588,7 @@ const guidePages: GuidePage[] = [
       "Azure OpenAI, Amazon Bedrock, and Vertex AI publish their own retirement dates. The first-party API date does not move them.",
     h1: "Why the same model shuts down on a different date",
     summary: "Azure, Bedrock, and Vertex publish their own retirement dates for a model the first-party API also serves.",
+    checked: "2026-11-01",
     answer:
       "The first-party shutdown date does not apply on Azure OpenAI, Amazon Bedrock, or Vertex AI. Each of those platforms publishes its own calendar. Check the platform you call, not only the OpenAI, Anthropic, or Gemini API page.",
     steps: [
@@ -597,7 +600,7 @@ const guidePages: GuidePage[] = [
       {
         heading: "What each provider says",
         paragraphs: [
-          "Anthropic's deprecations page says its dates apply to the Claude API, Claude Platform on AWS, and Microsoft Foundry. Amazon Bedrock and Google Cloud set their own retirement schedules, so status and dates can differ.",
+          "Anthropic's deprecations page says its dates apply to Anthropic-operated platforms: the Claude API, Claude Platform on AWS, Claude Models on Google Cloud (Anthropic managed), and Microsoft Foundry. Partner-operated platforms, Amazon Bedrock and Claude Models on Google Cloud (Google managed), set their own retirement schedules, so a model's lifecycle status and dates can differ.",
           "Amazon Bedrock says lifecycle dates are specific to Bedrock and may differ from the dates the model provider publishes. For Bedrock, only the Bedrock dates apply. The legacy page says the same thing for models launched before September 7, 2026, and that state can differ by Region.",
           "Azure publishes a separate model retirement schedule for Foundry Models sold by Azure. The OpenAI deprecations page is the calendar for the OpenAI API.",
           "The Gemini API deprecations page is the calendar for the Gemini API. Vertex dates are on the Gemini Enterprise Agent Platform model versions page. That page says a listed retirement date will not be moved earlier, though it may be extended.",
@@ -626,12 +629,15 @@ const guidePages: GuidePage[] = [
       {
         heading: "Claude Sonnet 4.5",
         paragraphs: [
-          "On the Claude API, claude-sonnet-4-5-20250929 is Deprecated as of September 30, 2026, with a retirement date of November 30, 2026. The recommended replacement on that page is claude-sonnet-5-5.",
-          "Bedrock uses a different id, anthropic.claude-sonnet-4-5-20250929-v1:0, and the legacy lifecycle table is the dated source for that id. The [Bedrock model page](/models/aws-bedrock/anthropic-claude-sonnet-4-5-20250929-v1-0/) quotes that table, including the Regions on the row. Do not copy the November 30 Claude API date onto the Bedrock id.",
+          "On the Claude API, claude-sonnet-4-5-20250929 is Deprecated as of September 30, 2026, with a retirement date of November 30, 2026. The recommended replacement on that page is claude-sonnet-5-5. The step-by-step page is [Claude Sonnet 4.5 shutdown on November 30, 2026](/guides/claude-sonnet-4-5-shutdown-november-30-2026/).",
+          "Bedrock uses a different id, anthropic.claude-sonnet-4-5-20250929-v1:0, and the legacy lifecycle table is the dated source for that id. The [Bedrock model page](/models/aws-bedrock/anthropic-claude-sonnet-4-5-20250929-v1-0/) quotes that table, including the Regions on the row. The Bedrock model card says end of life is April 8, 2027. Do not copy the November 30 Claude API date onto the Bedrock id.",
+          "GitHub Copilot's retirement history lists Claude Sonnet 4.5 with retirement date 2026-09-01 and suggested alternative Latest Claude Sonnet model. That is a Copilot chat date, not the Claude API date. The [Copilot model page](/models/github-copilot/claude-sonnet-4-5/) stores that row.",
         ],
         sources: [
           { label: "Anthropic model deprecations", url: CLAUDE_DEPRECATIONS },
           { label: "Bedrock legacy lifecycle", url: BEDROCK_LEGACY },
+          { label: "Bedrock Claude Sonnet 4.5 model card", url: "https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-anthropic-claude-sonnet-4-5.html" },
+          { label: "GitHub Copilot supported models", url: "https://docs.github.com/en/copilot/reference/ai-models/supported-models" },
         ],
       },
       {
@@ -651,6 +657,8 @@ const guidePages: GuidePage[] = [
       { href: "/models/azure-openai/gpt-4o-2024-05-13/", label: "Azure gpt-4o 2024-05-13" },
       { href: "/models/anthropic/claude-sonnet-4-5-20250929/", label: "Claude API Sonnet 4.5" },
       { href: "/models/aws-bedrock/anthropic-claude-sonnet-4-5-20250929-v1-0/", label: "Bedrock Sonnet 4.5" },
+      { href: "/models/github-copilot/claude-sonnet-4-5/", label: "Copilot Claude Sonnet 4.5" },
+      { href: "/guides/claude-sonnet-4-5-shutdown-november-30-2026/", label: "Claude Sonnet 4.5 shutdown on November 30, 2026" },
       { href: "/models/google-gemini-api/gemini-2-5-pro/", label: "Gemini API gemini-2.5-pro" },
       { href: "/models/google-vertex/gemini-2-5-pro/", label: "Vertex gemini-2.5-pro" },
       { href: "/migrate/openai__gpt-4o-2024-05-13__to__openai__gpt-5-6-sol/", label: "OpenAI migration diff" },
@@ -669,7 +677,17 @@ const guidePages: GuidePage[] = [
           "The date on the platform that receives the request. SunsetDiff stores one row per provider so the two dates stay apart.",
       },
     ],
-    citations: [CLAUDE_DEPRECATIONS, BEDROCK_LIFECYCLE, BEDROCK_LEGACY, AZURE_SCHEDULE, OPENAI_DEPRECATIONS, GEMINI_DEPRECATIONS, VERTEX_VERSIONS],
+    citations: [
+      CLAUDE_DEPRECATIONS,
+      BEDROCK_LIFECYCLE,
+      BEDROCK_LEGACY,
+      "https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-anthropic-claude-sonnet-4-5.html",
+      "https://docs.github.com/en/copilot/reference/ai-models/supported-models",
+      AZURE_SCHEDULE,
+      OPENAI_DEPRECATIONS,
+      GEMINI_DEPRECATIONS,
+      VERTEX_VERSIONS,
+    ],
   },
   {
     slug: "get-notified-before-a-model-shuts-down",
@@ -1020,7 +1038,7 @@ model = init_chat_model("gpt-5.5")
       {
         heading: "Anthropic",
         paragraphs: [
-          "Retired means the model is no longer available. Requests to retired models fail. Requests past the retirement date fail. The deprecations page does not name an HTTP status for that failure.",
+          "Retired means the model is no longer available. Requests to retired models fail. Requests past the retirement date fail. The deprecations page does not name an HTTP status for that failure. claude-sonnet-4-5-20250929 retires on November 30, 2026. The walkthrough is [Claude Sonnet 4.5 shutdown on November 30, 2026](/guides/claude-sonnet-4-5-shutdown-november-30-2026/).",
           "A different failure is a live model rejecting an old field. Those are HTTP 400, and they are documented on the [request errors](/errors/) for claude-sonnet-5-5, with the migration guide as the source.",
         ],
         sources: [{ label: "Anthropic model deprecations", url: CLAUDE_DEPRECATIONS }],
@@ -2431,6 +2449,14 @@ export function guidesForModel(model: ModelRecord, catalog: ModelRecord[]): Mode
   if (isFireworksNov7Shutdown(model)) add(FIREWORKS_NOV7_GUIDE_SLUG);
   if (isNebiusNov9Shutdown(model)) add(NEBIUS_NOV9_GUIDE_SLUG);
   if (isGeminiNov17Shutdown(model)) add(GEMINI_NOV17_GUIDE_SLUG);
+  if (
+    isSonnet45Nov30Shutdown(model)
+    || (model.provider === "anthropic" && model.id === "claude-sonnet-5-5")
+    || (model.provider === "aws-bedrock" && model.id === "anthropic.claude-sonnet-4-5-20250929-v1:0")
+    || (model.provider === "github-copilot" && model.id === "Claude Sonnet 4.5")
+  ) {
+    add(SONNET45_NOV30_GUIDE_SLUG);
+  }
   if (model.provider === "nvidia") add("nvidia-hosted-api-vs-nim-containers");
   if (aliasSnapshotView(model, catalog)) add("model-aliases-vs-pinned-snapshots");
   if (model.shutdown_date && model.shutdown_date_kind !== "none") {
