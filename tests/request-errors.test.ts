@@ -98,7 +98,7 @@ describe("request error pages", () => {
   it("lists both pages in llms.txt, lastmod, and JSON-LD", () => {
     const text = llmsTxt("https://sunsetdiff.com", [], []);
     const full = llmsFull("https://sunsetdiff.com", []);
-    expect(requestErrors.length).toBe(22);
+    expect(requestErrors.length).toBe(23);
     const bedrockEol = requestErrors.find((page) => page.slug === "bedrock-model-version-has-reached-the-end-of-its-life");
     expect(bedrockEol?.errorQuoted).toBe(true);
     expect(bedrockEol?.checked).toBe("2026-10-31");
@@ -176,6 +176,24 @@ describe("request error pages", () => {
     expect(geminiNewUsers?.errorText).toBe("models/gemini-2.5-flash is no longer available to new users");
     expect(geminiNewUsers?.models.map((item) => item.id)).toContain("gemini-2.5-flash");
     expect(requestErrors.find((page) => page.slug === "gemini-model-no-longer-available")?.models.some((item) => item.id === "gemini-2.5-flash")).toBe(false);
+    const geminiFull = requestErrors.find((page) => page.slug === "gemini-model-no-longer-available-to-new-users");
+    expect(geminiFull?.checked).toBe("2026-11-01");
+    expect(geminiFull?.errorQuoted).toBe(true);
+    expect(geminiFull?.errorText).toBe(
+      "This model models/gemini-2.5-flash is no longer available to new users. Please update your code to use models/gemini-3.8-flash for the latest features and improvements. We recommend you to use the Interactions API (https://ai.google.dev/gemini-api/docs/get-started).",
+    );
+    expect(geminiFull?.quoteSourceUrl).toBe("https://github.com/oyekamal/Design-your-perfect-AI-Persona/issues/1");
+    expect(geminiFull?.ruleSourceUrl).toBe("https://ai.google.dev/gemini-api/docs/deprecations");
+    expect(geminiFull?.models.map((item) => item.id)).toEqual([
+      "gemini-2.5-flash",
+      "gemini-2.5-pro",
+      "gemini-2.5-flash-lite",
+      "gemini-3.8-flash",
+      "gemini-3.5-flash-lite",
+    ]);
+    expect(sitemapSection(requestErrorPath(geminiFull!.slug))).toBe("sitemap-guides.xml");
+    expect(text).toContain("/errors/gemini-model-no-longer-available-to-new-users/");
+    expect(full).toContain("/errors/gemini-model-no-longer-available-to-new-users/");
     const azureGone = requestErrors.find((page) => page.slug === "azure-openai-retired-model-410-gone");
     expect(azureGone?.errorQuoted).toBe(false);
     expect(azureGone?.errorText).toContain("410 Gone");

@@ -108,7 +108,8 @@ const specRows: [string, string, string][] = [
           <td>
             <q>{GEMINI_25_ACCESS_QUOTE}</q>
             {" "}<a href={GEMINI_25_ACCESS_SOURCE}>Source</a>, checked {GEMINI_25_ACCESS_CHECKED}.
-            {" "}The <a href="/errors/gemini-model-no-longer-available/">404 page</a> quotes a sentence recorded for gemini-2.0-flash.
+            {" "}The <a href="/errors/gemini-model-no-longer-available-to-new-users/">new-user 404</a> quotes the sentence recorded for gemini-2.5-flash.
+            {" "}The <a href="/errors/gemini-model-no-longer-available/">shutdown 404 page</a> quotes a different sentence recorded for gemini-2.0-flash.
             {model.id === "gemini-2.5-flash" ? (
               <> <a href="https://github.com/a2aproject/a2a-samples/issues/722">a2aproject/a2a-samples#722</a> reports that gemini-2.5-flash also returns 404 for new users, and it does not quote that model's response body.</>
             ) : null}
@@ -121,10 +122,10 @@ const specRows: [string, string, string][] = [
           <td><InlineText text={disagree} /></td>
         </tr>
       ) : null}
-      {regionNote ? <tr><th scope="row">Region</th><td>{regionNote}</td></tr> : null}
+      {regionNote ? <tr><th scope="row">Region</th><td><InlineText text={regionNote} /></td></tr> : null}
     </tbody>
   </table>
-  {regionNote && <p>{regionNote}</p>}
+  {regionNote && <p><InlineText text={regionNote} /></p>}
   {alias ? (
     <>
       <h2>Dated snapshots</h2>

@@ -4,6 +4,7 @@ import { newestRollingName, snapshotsToPrune } from "../scrapers/lib/fetch.ts";
 import { parseAnthropic } from "../scrapers/anthropic.ts";
 import { parseAzure } from "../scrapers/azure-openai.ts";
 import { parseBedrock } from "../scrapers/aws-bedrock.ts";
+import { GEMINI_25_ACCESS_QUOTE, GEMINI_25_ACCESS_SOURCE } from "../src/lib/access.ts";
 import { DEPRECATIONS_URL, parseGemini } from "../scrapers/google-gemini-api.ts";
 import { parseDeepSeek, UPDATES_URL as DEEPSEEK_UPDATES } from "../scrapers/deepseek.ts";
 import { DEPRECATIONS_URL as GROQ_DEPRECATIONS, MODELS_URL as GROQ_MODELS, parseGroq } from "../scrapers/groq.ts";
@@ -286,6 +287,45 @@ describe("official snapshots", () => {
       expect(stored.region_or_platform_notes).toBe(parsed?.region_or_platform_notes);
       expect(stored.status).not.toBe("active");
     }
+  });
+
+  it("keeps the Gemini 2.5 new-user limit on the three stable Gemini API rows", () => {
+    const deprecations = read(newestSnapshot("google-gemini-api"));
+    const pricing = read(newestSnapshot("google-gemini-api", "-pricing"));
+    const models = parseGemini(deprecations, pricing, "2026-11-01");
+    for (const [id, slug] of [
+      ["gemini-2.5-flash", "gemini-2-5-flash"],
+      ["gemini-2.5-flash-lite", "gemini-2-5-flash-lite"],
+      ["gemini-2.5-pro", "gemini-2-5-pro"],
+    ] as const) {
+      const parsed = models.find((model) => model.id === id);
+      const stored = JSON.parse(read(`data/models/google-gemini-api/${slug}.json`)) as {
+        status: string;
+        shutdown_date: string | null;
+        region_or_platform_notes: string;
+      };
+      expect(parsed?.status).toBe("active");
+      expect(parsed?.shutdown_date).toBeNull();
+      expect(parsed?.region_or_platform_notes).toContain(GEMINI_25_ACCESS_QUOTE);
+      expect(parsed?.region_or_platform_notes).toContain(GEMINI_25_ACCESS_SOURCE);
+      expect(parsed?.region_or_platform_notes).toContain("Release date on the deprecations page:");
+      expect(stored.status).toBe("active");
+      expect(stored.shutdown_date).toBeNull();
+      expect(stored.region_or_platform_notes).toBe(parsed?.region_or_platform_notes);
+    }
+    for (const id of ["gemini-2.5-flash-preview-09-25", "gemini-2.5-pro-preview-06-05", "gemini-3.8-flash"]) {
+      expect(models.find((model) => model.id === id)?.region_or_platform_notes ?? "").not.toContain(
+        "limiting access to the 2.5 models",
+      );
+    }
+    const bare = `
+      <table>
+        <tr><th>Model</th><th>Release date</th><th>Shutdown date</th><th>Recommended replacement</th></tr>
+        <tr><td><code>gemini-2.5-flash</code></td><td>June 17, 2025</td><td>No shutdown date announced</td><td></td></tr>
+      </table>`;
+    expect(parseGemini(bare, "", "2026-11-01").find((model) => model.id === "gemini-2.5-flash")?.region_or_platform_notes).toBe(
+      "Release date on the deprecations page: 2025-06-17.",
+    );
   });
 
   it("keeps the last Vertex replacement id and skips a name that is not an id", () => {

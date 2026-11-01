@@ -1,3 +1,4 @@
+import { GEMINI_25_RESTRICTED_IDS } from "../src/lib/access.ts";
 import { SOURCES_DISAGREE } from "../src/lib/conflicts.ts";
 import { compareDate, monthEnd, parseDate, todayISO } from "./lib/dates.ts";
 import { excerpt, isModelId, loadHtml, tableRows } from "./lib/html.ts";
@@ -76,8 +77,45 @@ export function parseGemini(html: string, pricing = "", checked = todayISO()): S
     }
   }
   const unique = dedupe(models);
+  applyGemini25AccessNotes($, unique);
   applyPricingShutdownWarnings(unique, pricing, shutdownTextById, checked);
   return unique;
+}
+
+const GEMINI_25_LIMITED = new Set<string>(GEMINI_25_RESTRICTED_IDS);
+
+/**
+ * The note above the Gemini 2.5 Pro and Gemini 2.5 Flash tables.
+ * Only the three stable ids in the following table get it. Preview rows in
+ * those tables keep their own shutdown dates and do not get this sentence.
+ * A later scrape that drops the aside drops the note with it.
+ */
+function applyGemini25AccessNotes($: ReturnType<typeof loadHtml>, models: ScrapedModel[]) {
+  const byId = new Map(models.map((model) => [model.id, model]));
+  let pending: string | null = null;
+  $("aside, table").each((_, node) => {
+    if (node.tagName === "aside") {
+      const text = $(node).text().replace(/\s+/g, " ").trim().replace(/^Note:\s*/i, "");
+      pending =
+        text.includes("limiting access to the 2.5 models") && text.includes("not deprecated") ? text : null;
+      return;
+    }
+    const quote = pending;
+    pending = null;
+    if (!quote) return;
+    const rows = tableRows($, node);
+    const header = (rows[0] ?? []).map((cell) => cell.toLowerCase());
+    if (!header.includes("model") || !header.some((cell) => cell.includes("shutdown"))) return;
+    const modelIdx = header.indexOf("model");
+    const note = `The [Gemini API deprecations](${DEPRECATIONS_URL}) page says: "${quote}"`;
+    for (const row of rows.slice(1)) {
+      const id = (row[modelIdx] ?? "").trim();
+      if (!GEMINI_25_LIMITED.has(id)) continue;
+      const model = byId.get(id);
+      if (!model || model.region_or_platform_notes?.includes(quote)) continue;
+      model.region_or_platform_notes = [model.region_or_platform_notes, note].filter(Boolean).join(" ");
+    }
+  });
 }
 
 /** Official wording: "automatically routes API requests to <id>", plus the shorter "auto-routes to <id>". */
