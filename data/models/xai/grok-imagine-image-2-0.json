@@ -16,7 +16,7 @@
       "url": "https://docs.x.ai/developers/models",
       "label": "xAI model docs",
       "last_checked": "2026-11-01",
-      "excerpt": "ality $0.05 / image grok-imagine-image-2.0 $0.04 / image grok-imagine-image $0.02 / image grok-imagine-video $0.050 / sec grok-imagine-video-1.5-lite $0.020 / sec grok-imagine-video-1.5 $0.080 / sec ### Voice Pricing Mode Cost --- --- S"
+      "excerpt": "image $0.02 / image grok-imagine-image-2.0 $0.04 / image grok-imagine-image-quality $0.05 / image grok-imagine-video-1.5 $0.080 / sec grok-imagine-video $0.050 / sec grok-imagine-video-1.5-lite $0.020 / sec ### Voice Pricing Mode Cost -"
     }
   ],
   "specs": {
@@ -50,5 +50,5 @@
     }
   },
   "first_seen": "2026-10-27T12:00:00.000Z",
-  "updated_at": "2026-11-01T13:18:54.393Z"
+  "updated_at": "2026-11-01T19:54:34.821Z"
 }
