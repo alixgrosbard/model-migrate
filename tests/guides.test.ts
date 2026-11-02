@@ -24,6 +24,15 @@ import { llmsFull, llmsTxt } from "../src/lib/llms.ts";
 import { contentAliasFiles } from "../src/lib/shortcuts.ts";
 import { sitemapSection } from "../src/lib/sitemaps.ts";
 
+const ISO_DAY = /^\d{4}-\d{2}-\d{2}$/;
+
+// last_checked is the UTC day the scraper last wrote that source. It moves
+// forward on the next refresh. The floor is the day the guide was built.
+function expectSourceChecked(day: string | undefined, floor: string) {
+  expect(day).toMatch(ISO_DAY);
+  expect((day ?? "") >= floor).toBe(true);
+}
+
 const ALLOWED_HOSTS = new Set([
   "developers.openai.com",
   "platform.claude.com",
@@ -863,7 +872,7 @@ describe("guides", () => {
     expect(rows.map((model) => model.id)).toEqual(["claude-sonnet-4-5-20250929"]);
     expect(rows[0]?.deprecation_date).toBe("2026-09-30");
     expect(rows[0]?.replacements[0]?.model_id).toBe("claude-sonnet-5-5");
-    expect(rows[0]?.sources[0]?.last_checked).toBe("2026-11-01");
+    expectSourceChecked(rows[0]?.sources[0]?.last_checked, "2026-11-01");
     const { shutdownEvents } = await import("../src/lib/shutdowns.ts");
     expect(shutdownEvents(models).some((event) => event.slug === "anthropic-2026-11-30")).toBe(false);
     const guide = guides.find((item) => item.slug === "claude-sonnet-4-5-shutdown-november-30-2026");
@@ -932,14 +941,14 @@ describe("guides", () => {
     expect(rows.every((model) => model.status === "legacy")).toBe(true);
     expect(rows.every((model) => model.deprecation_date === "2026-05-26")).toBe(true);
     expect(rows.every((model) => model.replacements.length === 0)).toBe(true);
-    expect(rows.every((model) => model.sources[0]?.last_checked === "2026-11-02")).toBe(true);
+    for (const model of rows) expectSourceChecked(model.sources[0]?.last_checked, "2026-11-02");
 
     const opus = models.find((model) => model.provider === "anthropic" && model.id === "claude-opus-4-5-20251101");
     expect(opus?.status).toBe("active");
     expect(opus?.shutdown_date).toBe("2026-11-24");
     expect(opus?.shutdown_date_kind).toBe("not_before");
     expect(opus?.replacements).toEqual([]);
-    expect(opus?.sources[0]?.last_checked).toBe("2026-11-02");
+    expectSourceChecked(opus?.sources[0]?.last_checked, "2026-11-02");
     expect(opus?.sources[0]?.excerpt).toContain("Not sooner than November 24, 2026");
 
     const { shutdownEvents } = await import("../src/lib/shutdowns.ts");
