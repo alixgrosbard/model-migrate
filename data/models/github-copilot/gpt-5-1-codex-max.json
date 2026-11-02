@@ -1,0 +1,73 @@
+{
+  "id": "GPT-5.1-Codex-Max",
+  "slug": "gpt-5-1-codex-max",
+  "provider": "github-copilot",
+  "display_name": "GPT-5.1-Codex-Max",
+  "family": null,
+  "status": "retired",
+  "announced_date": null,
+  "deprecation_date": null,
+  "shutdown_date": "2026-04-01",
+  "shutdown_date_kind": "exact",
+  "region_or_platform_notes": "Supported models page suggested alternative: Latest GPT Codex model. Copilot CLI model id: gpt-5.1-codex-max.",
+  "lookup_aliases": [
+    "gpt-5.1-codex-max"
+  ],
+  "replacements": [
+    {
+      "model_id": "GPT-5.3-Codex",
+      "provider": "github-copilot",
+      "kind": "official",
+      "source_url": "https://github.blog/changelog/2026-04-03-gpt-5-1-codex-gpt-5-1-codex-max-and-gpt-5-1-codex-mini-deprecated"
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://docs.github.com/en/copilot/reference/ai-models/supported-models",
+      "label": "GitHub Copilot supported models",
+      "last_checked": "2026-11-01",
+      "excerpt": "GPT-5.1-Codex-Max | 2026-04-01 | Latest GPT Codex model"
+    },
+    {
+      "url": "https://github.blog/changelog/2026-03-02-upcoming-deprecation-of-gemini-3-pro-and-gpt-5-1-models",
+      "label": "GitHub Changelog",
+      "last_checked": "2026-11-01",
+      "excerpt": "GPT-5.1-Codex-Max | GPT-5.3-Codex"
+    },
+    {
+      "url": "https://github.blog/changelog/2026-04-03-gpt-5-1-codex-gpt-5-1-codex-max-and-gpt-5-1-codex-mini-deprecated",
+      "label": "GitHub Changelog",
+      "last_checked": "2026-11-01",
+      "excerpt": "GPT-5.1-Codex-Max | GPT-5.3-Codex"
+    },
+    {
+      "url": "https://github.com/github/copilot-cli/blob/main/changelog.md",
+      "label": "GitHub Copilot CLI changelog",
+      "last_checked": "2026-11-01",
+      "excerpt": "Remove support for gpt-5.1-codex, gpt-5.1-codex-mini, and gpt-5.1-codex-max models"
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": null,
+    "output_price_per_mtok": null,
+    "cached_input_price_per_mtok": null,
+    "batch_discount_pct": null,
+    "currency": null,
+    "context_window_tokens": null,
+    "max_output_tokens": null,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {}
+  },
+  "first_seen": "2026-10-29T12:00:00.000Z",
+  "updated_at": "2026-10-31T12:00:00.000Z"
+}

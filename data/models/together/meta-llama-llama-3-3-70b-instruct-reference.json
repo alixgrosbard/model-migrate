@@ -1,0 +1,45 @@
+{
+  "id": "meta-llama/Llama-3.3-70B-Instruct-Reference",
+  "slug": "meta-llama-llama-3-3-70b-instruct-reference",
+  "provider": "together",
+  "display_name": "meta-llama/Llama-3.3-70B-Instruct-Reference",
+  "family": null,
+  "status": "active",
+  "announced_date": null,
+  "deprecation_date": null,
+  "shutdown_date": null,
+  "shutdown_date_kind": "none",
+  "region_or_platform_notes": "Named as an official replacement for Qwen/Qwen2-72B, Qwen/Qwen2.5-72B, Qwen/Qwen2.5-72B-Instruct, deepseek-ai/DeepSeek-R1-Distill-Llama-70B-131k, deepseek-ai/DeepSeek-R1-Distill-Llama-70B-32k, meta-llama/Llama-3.3-70B-131k-Instruct-Reference, meta-llama/Llama-3.3-70B-32k-Instruct-Reference, meta-llama/Meta-Llama-3-70B-Instruct, meta-llama/Meta-Llama-3.1-70B-131k-Instruct-Reference, meta-llama/Meta-Llama-3.1-70B-131k-Reference, meta-llama/Meta-Llama-3.1-70B-32k-Instruct-Reference, meta-llama/Meta-Llama-3.1-70B-32k-Reference, meta-llama/Meta-Llama-3.1-70B-Instruct-Reference, meta-llama/Meta-Llama-3.1-70B-Reference. No shutdown date was published for this id on that page.",
+  "replacements": [],
+  "sources": [
+    {
+      "url": "https://docs.together.ai/docs/deprecations",
+      "label": "Named as an official replacement",
+      "last_checked": "2026-11-01",
+      "excerpt": "Named as an official replacement for Qwen/Qwen2-72B."
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": null,
+    "output_price_per_mtok": null,
+    "cached_input_price_per_mtok": null,
+    "batch_discount_pct": null,
+    "currency": null,
+    "context_window_tokens": null,
+    "max_output_tokens": null,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {}
+  },
+  "first_seen": "2026-10-28T12:33:26.950Z",
+  "updated_at": "2026-10-28T12:33:26.950Z"
+}

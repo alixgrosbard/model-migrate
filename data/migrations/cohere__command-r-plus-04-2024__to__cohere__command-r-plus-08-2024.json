@@ -1,0 +1,85 @@
+{
+  "from": {
+    "provider": "cohere",
+    "model_id": "command-r-plus-04-2024",
+    "slug": "command-r-plus-04-2024"
+  },
+  "to": {
+    "provider": "cohere",
+    "model_id": "command-r-plus-08-2024",
+    "slug": "command-r-plus-08-2024"
+  },
+  "price_diff": {
+    "input_pct_change": null,
+    "output_pct_change": null,
+    "example_monthly_cost_old": null,
+    "example_monthly_cost_new": null,
+    "currency": "USD",
+    "example_label": "Example monthly cost for 10M input tokens and 2M output tokens. Labeled example, not a bill."
+  },
+  "context_diff": {
+    "old_tokens": 128000,
+    "new_tokens": 128000,
+    "change_pct": 0
+  },
+  "max_output_diff": {
+    "old_tokens": 4000,
+    "new_tokens": 4000,
+    "change_pct": 0
+  },
+  "capability_changes": [],
+  "api_changes": [
+    {
+      "kind": "endpoint_change",
+      "detail": "The chat reference shows POST https://api.cohere.com/v2/chat with model and messages. This sample only changes the model field.",
+      "source_url": "https://docs.cohere.com/reference/chat"
+    }
+  ],
+  "code_change": {
+    "language": "python",
+    "before": "import json\nimport urllib.request\nbody = json.dumps({\"model\": \"command-r-plus-04-2024\", \"messages\": [{\"role\": \"user\", \"content\": \"Hello\"}]}).encode()\nrequest = urllib.request.Request(\"https://api.cohere.com/v2/chat\", data=body, headers={\"Content-Type\": \"application/json\"})\n",
+    "after": "import json\nimport urllib.request\nbody = json.dumps({\"model\": \"command-r-plus-08-2024\", \"messages\": [{\"role\": \"user\", \"content\": \"Hello\"}]}).encode()\nrequest = urllib.request.Request(\"https://api.cohere.com/v2/chat\", data=body, headers={\"Content-Type\": \"application/json\"})\n",
+    "snippets": {
+      "python": {
+        "before": "import json\nimport urllib.request\nbody = json.dumps({\"model\": \"command-r-plus-04-2024\", \"messages\": [{\"role\": \"user\", \"content\": \"Hello\"}]}).encode()\nrequest = urllib.request.Request(\"https://api.cohere.com/v2/chat\", data=body, headers={\"Content-Type\": \"application/json\"})\n",
+        "after": "import json\nimport urllib.request\nbody = json.dumps({\"model\": \"command-r-plus-08-2024\", \"messages\": [{\"role\": \"user\", \"content\": \"Hello\"}]}).encode()\nrequest = urllib.request.Request(\"https://api.cohere.com/v2/chat\", data=body, headers={\"Content-Type\": \"application/json\"})\n"
+      },
+      "typescript": {
+        "before": "await fetch(\"https://api.cohere.com/v2/chat\", {\n  method: \"POST\",\n  headers: { \"Content-Type\": \"application/json\" },\n  body: JSON.stringify({ model: \"command-r-plus-04-2024\", messages: [{ role: \"user\", content: \"Hello\" }] }),\n});\n",
+        "after": "await fetch(\"https://api.cohere.com/v2/chat\", {\n  method: \"POST\",\n  headers: { \"Content-Type\": \"application/json\" },\n  body: JSON.stringify({ model: \"command-r-plus-08-2024\", messages: [{ role: \"user\", content: \"Hello\" }] }),\n});\n"
+      },
+      "curl": {
+        "before": "curl https://api.cohere.com/v2/chat \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"model\":\"command-r-plus-04-2024\",\"messages\":[{\"role\":\"user\",\"content\":\"Hello\"}]}'\n",
+        "after": "curl https://api.cohere.com/v2/chat \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"model\":\"command-r-plus-08-2024\",\"messages\":[{\"role\":\"user\",\"content\":\"Hello\"}]}'\n"
+      }
+    }
+  },
+  "migration_checklist": [
+    "Read the official page for command-r-plus-04-2024. It does not publish a shutdown date.",
+    "Point your requests at command-r-plus-08-2024.",
+    "Re-check price, context, and parameters on the provider pages linked here.",
+    "The official page did not publish a shutdown date for this id."
+  ],
+  "confidence": "partial",
+  "last_checked": "2026-11-01",
+  "sources": [
+    {
+      "url": "https://docs.cohere.com/docs/deprecations",
+      "label": "Cohere model deprecations",
+      "last_checked": "2026-11-01",
+      "excerpt": "and the alias `command-r`) * `command-r-plus-04-2024` (and the alias `command-r-plus`) * `command-light` * `command` * `summarize` (Refer to [the migration guide](https://docs.cohere.com/docs/summarizing-text#mig"
+    },
+    {
+      "url": "https://docs.cohere.com/docs/models",
+      "label": "Cohere model docs",
+      "last_checked": "2026-11-01",
+      "excerpt": "command-r-plus-04-2024 Deprecated Sept 15, 2025 Command R+ is an instruction-following conversational model that performs language tasks at a higher quality, more reliably, and with"
+    },
+    {
+      "url": "https://docs.cohere.com/docs/models",
+      "label": "Cohere model docs",
+      "last_checked": "2026-11-01",
+      "excerpt": "command-r-plus-08-2024 Live `command-r-plus-08-2024` is an update of the Command R+ model, delivered in August 2024. Find more information in the [changelog](https://docs.cohere.com/"
+    }
+  ]
+}

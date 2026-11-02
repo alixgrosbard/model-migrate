@@ -1,0 +1,52 @@
+{
+  "id": "accounts/fireworks/models/deepseek-v4-flash-vision-exp",
+  "slug": "accounts-fireworks-models-deepseek-v4-flash-vision-exp",
+  "provider": "fireworks",
+  "display_name": "DeepSeek V4 Flash Vision Exp",
+  "family": null,
+  "status": "retired",
+  "announced_date": null,
+  "deprecation_date": null,
+  "shutdown_date": "2026-09-25",
+  "shutdown_date_kind": "exact",
+  "region_or_platform_notes": "Changelog section: Serverless deprecation: DeepSeek V4 Pro (0813), DeepSeek V4 Flash (0731), and related models. Dedicated deployments are unaffected. Changelog section: Upcoming Serverless deprecation: older DeepSeek, GLM, Muse, and Kimi models. This applies only to serverless endpoints, including Fast and US-only Serverless endpoints for models that have those variants.",
+  "replacements": [
+    {
+      "model_id": "accounts/fireworks/models/deepseek-v4p1-flash",
+      "provider": "fireworks",
+      "kind": "official",
+      "source_url": "https://docs.fireworks.ai/updates/changelog"
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://docs.fireworks.ai/updates/changelog",
+      "label": "Fireworks AI changelog",
+      "last_checked": "2026-11-01",
+      "excerpt": "DeepSeek V4 Flash Vision Exp - migrate to DeepSeek V4.1 Flash"
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": null,
+    "output_price_per_mtok": null,
+    "cached_input_price_per_mtok": null,
+    "batch_discount_pct": null,
+    "currency": null,
+    "context_window_tokens": null,
+    "max_output_tokens": null,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {}
+  },
+  "first_seen": "2026-10-28T12:33:26.950Z",
+  "updated_at": "2026-10-28T12:33:26.950Z"
+}

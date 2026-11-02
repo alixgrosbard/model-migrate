@@ -1,0 +1,171 @@
+---
+import "../styles/global.css";
+import { breadcrumb, graph, websiteGraph } from "../jsonld.ts";
+import { loadModels, loadProviders } from "../lib/load.ts";
+import { shutdownYearList, yearPath } from "../lib/schedule.ts";
+import { HUBS } from "../lib/hubs.ts";
+import { STATUS_HUBS } from "../lib/status-hubs.ts";
+import { PRO_FOOTER } from "../lib/public-copy.ts";
+import { DEFAULT_SITE_URL } from "../lib/site.ts";
+
+interface Crumb { name: string; path: string; }
+interface Props {
+  title: string;
+  description: string;
+  crumbs: Crumb[];
+  extraGraph?: unknown[];
+  image?: string;
+  robots?: string;
+  canonicalPath?: string;
+  refresh?: string;
+}
+const { title, description, crumbs, extraGraph = [], image = "/og/sunsetdiff.svg", robots, canonicalPath, refresh } = Astro.props;
+const providers = await loadProviders();
+const years = shutdownYearList(await loadModels());
+const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
+const canonical = new URL(canonicalPath ?? Astro.url.pathname, site).href;
+const imageUrl = new URL(image, site).href;
+const jsonld = graph([...websiteGraph(site), breadcrumb(site, crumbs), ...extraGraph]);
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    {robots ? <meta name="robots" content={robots} /> : null}
+    <link rel="canonical" href={canonical} />
+    {refresh ? <meta http-equiv="refresh" content={`0; url=${refresh}`} /> : null}
+    <link rel="alternate" type="application/rss+xml" title="SunsetDiff new deprecations" href="/feed.xml" />
+    <link rel="alternate" type="text/calendar" title="SunsetDiff deadlines" href="/deadlines.ics" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content={imageUrl} />
+    <meta property="og:image:alt" content={title} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={imageUrl} />
+    <script type="application/ld+json" set:html={JSON.stringify(jsonld)} />
+  </head>
+  <body>
+    <a class="skip" href="#content">Skip to content</a>
+    <header>
+      <a class="brand" href="/">SunsetDiff</a>
+      <nav aria-label="Main">
+        {HUBS.map((hub) => <a href={hub.path}>{hub.nav}</a>)}
+        {STATUS_HUBS.map((hub) => <a href={hub.path}>{hub.nav}</a>)}
+        <a href="/calendar/">Calendar</a>
+        <a href="/upcoming/">Upcoming</a>
+        <a href="/timeline/">Timeline</a>
+        <a href="/changelog/">Changelog</a>
+        <a href="/deadlines/">Deadlines</a>
+        <a href="/shutdowns/">Shutdowns</a>
+        <a href="/errors/">Errors</a>
+        <a href="/breaking-changes/">Breaking changes</a>
+        <a href="/feed.xml">Feed</a>
+        <a href="/deadlines.ics">iCal</a>
+        <a href="/questions/">Questions</a>
+        <a href="/guides/">Guides</a>
+        <a href="/frameworks/">Frameworks</a>
+        <a href="/scan/">Scan</a>
+        <a href="/changes/">Changes</a>
+        <a href="/data/">Data</a>
+        <a href="/badges/">Badges</a>
+        <a href="/api/">API</a>
+        <a href="/mcp/">MCP</a>
+        <a href="/integrations/">Integrations</a>
+        <a href="/alternatives/">Compare</a>
+        <a href="/about/">About</a>
+        <a href="/methodology/">Methodology</a>
+        <a href="/sources/">Sources</a>
+        <a href="/alerts/">Alerts</a>
+        <a href="/sponsor/">Sponsor</a>
+      </nav>
+    </header>
+    <main id="content">
+      {crumbs.length > 1 ? (
+        <nav class="crumbs" aria-label="Breadcrumb">
+          <ol>
+            {crumbs.map((crumb, index) => (
+              <li>
+                {index > 0 ? <span aria-hidden="true"> / </span> : null}
+                {index < crumbs.length - 1 ? <a href={crumb.path}>{crumb.name}</a> : <span aria-current="page">{crumb.name}</span>}
+              </li>
+            ))}
+          </ol>
+        </nav>
+      ) : null}
+      <slot />
+    </main>
+    <footer>
+      <nav aria-label="Site">
+        {HUBS.map((hub) => <a href={hub.path}>{hub.nav}</a>)}
+        {STATUS_HUBS.map((hub) => <a href={hub.path}>{hub.nav}</a>)}
+        <a href="/upcoming/">Upcoming</a>
+        <a href="/timeline/">Timeline</a>
+        <a href="/changelog/">Changelog</a>
+        <a href="/faq/">FAQ</a>
+        <a href="/deadlines/">Deadlines</a>
+        <a href="/shutdowns/">Shutdowns</a>
+        <a href="/errors/">Errors</a>
+        <a href="/breaking-changes/">Breaking changes</a>
+        <a href="/feed.xml">Feed</a>
+        <a href="/deadlines.ics">iCal</a>
+        <a href="/questions/">Questions</a>
+        <a href="/guides/">Guides</a>
+        <a href="/frameworks/">Frameworks</a>
+        <a href="/glossary/">Glossary</a>
+        <a href="/scan/">Scan</a>
+        <a href="/data/">Dataset</a>
+        <a href="/methodology/">Methodology</a>
+        <a href="/sources/">Sources</a>
+        <a href="/alerts/">Alerts</a>
+        <a href="/github-action/">GitHub Action</a>
+        <a href="/badges/">Badges</a>
+        <a href="/api/">API</a>
+        <a href="/mcp/">MCP</a>
+        <a href="/integrations/">Integrations</a>
+        <a href="/alternatives/">Compare</a>
+        <a href="/pro/">Pro</a>
+      </nav>
+      <nav aria-label="Shutdown years">
+        {years.map((year) => <a href={yearPath(year)}>{year}</a>)}
+      </nav>
+      <nav aria-label="Providers">
+        {providers.map((provider) => <a href={`/providers/${provider.id}/`}>{provider.name}</a>)}
+      </nav>
+      <p>SunsetDiff is independent and not affiliated with any AI provider.</p>
+      <p>{PRO_FOOTER} <a href="/pro/">Pro details</a></p>
+      <p>Publisher: SunsetDiff. Dates come from official provider pages. Data is <a href="/DATA_LICENSE.txt">CC BY 4.0</a>. Code is <a href="/LICENSE.txt">MIT</a>. <a href="/data/">Dataset</a></p>
+      <p class="listed"><span>Listed on</span><a href="https://theaitoolsdir.com/product/sunsetdiff?ref=badge" rel="dofollow"><img src="https://theaitoolsdir.com/badge/sunsetdiff.svg" alt="Featured on TheAIToolsDir" width="182" height="46" loading="lazy"></a><a href="https://thedevtoolsdir.com/product/sunsetdiff?ref=badge" rel="dofollow"><img src="https://thedevtoolsdir.com/badge/sunsetdiff.svg" alt="Featured on TheDevToolsDir" width="182" height="46" loading="lazy"></a><a href="https://thedevtoolsindex.com/product/sunsetdiff?ref=badge" rel="dofollow"><img src="https://thedevtoolsindex.com/badge/sunsetdiff.svg" alt="Featured on TheDevToolsIndex" width="182" height="46" loading="lazy"></a><a href="https://thedevtoolslist.com/product/sunsetdiff?ref=badge" rel="dofollow"><img src="https://thedevtoolslist.com/badge/sunsetdiff.svg" alt="Featured on TheDevToolsList" width="182" height="46" loading="lazy"></a></p>
+    </footer>
+    <script is:inline define:vars={{ service: import.meta.env.PUBLIC_SERVICE_URL ?? "" }}>
+      window.addEventListener("load", function () {
+        if (!service) return;
+        var endpoint;
+        try { endpoint = new URL("/api/hit", service).href; } catch (e) { return; }
+        var referrer = "";
+        try { if (document.referrer) referrer = new URL(document.referrer).hostname; } catch (e) {}
+        var source = "";
+        try { source = new URLSearchParams(location.search).get("utm_source") || ""; } catch (e) {}
+        var payload = JSON.stringify({ path: location.pathname, referrer: referrer, utm_source: source });
+        var blob = new Blob([payload], { type: "text/plain" });
+        if (navigator.sendBeacon && navigator.sendBeacon(endpoint, blob)) return;
+        fetch(endpoint, {
+          method: "POST",
+          body: payload,
+          headers: { "content-type": "text/plain" },
+          keepalive: true,
+          credentials: "omit",
+        }).catch(function () {});
+      });
+    </script>
+  </body>
+</html>

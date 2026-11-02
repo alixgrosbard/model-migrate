@@ -1,0 +1,93 @@
+---
+import type { Provider } from "../schema.ts";
+import { alertNote, alertsSending } from "../lib/public-copy.ts";
+interface Props {
+  providers: Provider[];
+  sourcePage: string;
+  formId?: string;
+  note?: string;
+  checkedProvider?: string;
+}
+const { providers, sourcePage, formId = "subscribe", note: noteOverride, checkedProvider = "" } = Astro.props;
+const service = import.meta.env.PUBLIC_SERVICE_URL ?? "";
+const open = service.length > 0;
+const sending = alertsSending(import.meta.env.PUBLIC_ALERTS_SENDING);
+const note = noteOverride ?? alertNote(sending, open);
+const titleId = `${formId}-title`;
+const statusId = `${formId}-status`;
+const emailId = `${formId}-email`;
+---
+<form id={formId} data-subscribe data-service={service} data-source={sourcePage} data-sending={sending ? "true" : "false"} aria-labelledby={titleId}>
+  <h2 id={titleId}>Deprecation alerts</h2>
+  <p id={statusId} class="note" aria-live="polite">{note}</p>
+  <fieldset disabled={!open} aria-describedby={statusId}>
+    <legend>Deprecation alert signup</legend>
+    <label for={emailId}>Email address</label>
+    <input id={emailId} type="email" name="email" autocomplete="email" required disabled={!open} />
+    {open || checkedProvider ? (
+      <fieldset>
+        <legend>Providers (optional)</legend>
+        <div class="checks">
+          {providers.map((provider) => (
+            <label><input type="checkbox" name="providers" value={provider.id} checked={provider.id === checkedProvider} disabled={!open} /> {provider.name}</label>
+          ))}
+        </div>
+      </fieldset>
+    ) : null}
+    <label class="hp">Company <input name="company" tabindex="-1" autocomplete="off" /></label>
+    <button type="submit" disabled={!open}>Get alerts</button>
+  </fieldset>
+</form>
+<script>
+  document.querySelectorAll<HTMLFormElement>("form[data-subscribe]").forEach((form) => {
+    if (form.dataset.bound === "true") return;
+    form.dataset.bound = "true";
+    form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const status = form.querySelector<HTMLElement>("[aria-live]");
+    const serviceUrl = form.dataset.service ?? "";
+    const sending = form.dataset.sending === "true";
+    const saved = sending ? "You're on the list." : "You're on the list. No email has been sent.";
+    if (!serviceUrl) {
+      if (status) status.textContent = "Signup is off. This form is disabled. It does not store your address and it does not send email.";
+      return;
+    }
+    const data = new FormData(form);
+    const body = {
+      email: String(data.get("email") ?? ""),
+      providers: data.getAll("providers"),
+      company: String(data.get("company") ?? ""),
+      source_page: form.dataset.source ?? "/",
+    };
+    const send = async () => {
+      const response = await fetch(new URL("/api/subscribe", serviceUrl), {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      if (!response.ok) throw new Error(String(response.status));
+      return response.json();
+    };
+    if (status) status.textContent = "Saving...";
+    try {
+      const result = await send();
+      if (status) status.textContent = result.message ?? saved;
+      const target = window as Window & { dataLayer?: { event: string }[] };
+      target.dataLayer = target.dataLayer ?? [];
+      target.dataLayer.push({ event: "signup" });
+      window.location.assign("/thanks/");
+    } catch {
+      try {
+        const result = await send();
+        if (status) status.textContent = result.message ?? saved;
+        const target = window as Window & { dataLayer?: { event: string }[] };
+        target.dataLayer = target.dataLayer ?? [];
+        target.dataLayer.push({ event: "signup" });
+        window.location.assign("/thanks/");
+      } catch {
+        if (status) status.textContent = "The signup service is unavailable. Nothing was stored and no email was sent.";
+      }
+    }
+    });
+  });
+</script>

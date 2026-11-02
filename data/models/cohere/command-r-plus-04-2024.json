@@ -1,0 +1,95 @@
+{
+  "id": "command-r-plus-04-2024",
+  "slug": "command-r-plus-04-2024",
+  "provider": "cohere",
+  "display_name": "command-r-plus-04-2024",
+  "family": null,
+  "status": "deprecated",
+  "announced_date": null,
+  "deprecation_date": "2025-09-15",
+  "shutdown_date": null,
+  "shutdown_date_kind": "none",
+  "region_or_platform_notes": "The deprecations page lists this id under Deprecated Models effective September 15, 2025. It does not assign a shutdown date. The page says a shutdown date will be assigned later, and that requests fail only after a shutdown date. The models page says: Command R+ is an instruction-following conversational model that performs language tasks at a higher quality, more reliably, and with a longer context than previous models. It is best suited for complex RAG workflows and multi-step tool us…",
+  "replacements": [
+    {
+      "model_id": "command-r-08-2024",
+      "provider": "cohere",
+      "kind": "official",
+      "source_url": "https://docs.cohere.com/docs/deprecations"
+    },
+    {
+      "model_id": "command-r-plus-08-2024",
+      "provider": "cohere",
+      "kind": "official",
+      "source_url": "https://docs.cohere.com/docs/deprecations"
+    },
+    {
+      "model_id": "command-a-03-2025",
+      "provider": "cohere",
+      "kind": "official",
+      "source_url": "https://docs.cohere.com/docs/deprecations"
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://docs.cohere.com/docs/deprecations",
+      "label": "Cohere model deprecations",
+      "last_checked": "2026-11-01",
+      "excerpt": "and the alias `command-r`) * `command-r-plus-04-2024` (and the alias `command-r-plus`) * `command-light` * `command` * `summarize` (Refer to [the migration guide](https://docs.cohere.com/docs/summarizing-text#mig"
+    },
+    {
+      "url": "https://docs.cohere.com/docs/models",
+      "label": "Cohere model docs",
+      "last_checked": "2026-11-01",
+      "excerpt": "command-r-plus-04-2024 Deprecated Sept 15, 2025 Command R+ is an instruction-following conversational model that performs language tasks at a higher quality, more reliably, and with"
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": null,
+    "output_price_per_mtok": null,
+    "cached_input_price_per_mtok": null,
+    "batch_discount_pct": null,
+    "currency": null,
+    "context_window_tokens": 128000,
+    "max_output_tokens": 4000,
+    "modalities_in": [
+      "text"
+    ],
+    "modalities_out": [
+      "text"
+    ],
+    "supports_tools": true,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {
+      "context_window_tokens": {
+        "url": "https://docs.cohere.com/docs/models",
+        "last_checked": "2026-11-01"
+      },
+      "max_output_tokens": {
+        "url": "https://docs.cohere.com/docs/models",
+        "last_checked": "2026-11-01"
+      },
+      "modalities_in": {
+        "url": "https://docs.cohere.com/docs/models",
+        "last_checked": "2026-11-01"
+      },
+      "modalities_out": {
+        "url": "https://docs.cohere.com/docs/models",
+        "last_checked": "2026-11-01"
+      },
+      "supports_tools": {
+        "url": "https://docs.cohere.com/docs/models",
+        "last_checked": "2026-11-01"
+      }
+    }
+  },
+  "first_seen": "2026-10-27T12:00:00.000Z",
+  "updated_at": "2026-10-27T12:00:00.000Z"
+}

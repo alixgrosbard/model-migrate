@@ -1,0 +1,52 @@
+{
+  "id": "text-embedding-004",
+  "slug": "text-embedding-004",
+  "provider": "google-gemini-api",
+  "display_name": "text-embedding-004",
+  "family": null,
+  "status": "retired",
+  "announced_date": null,
+  "deprecation_date": null,
+  "shutdown_date": "2026-01-14",
+  "shutdown_date_kind": "exact",
+  "region_or_platform_notes": "Release date on the deprecations page: 2024-04-09.",
+  "replacements": [
+    {
+      "model_id": "gemini-embedding-2",
+      "provider": "google-gemini-api",
+      "kind": "official",
+      "source_url": "https://ai.google.dev/gemini-api/docs/deprecations"
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://ai.google.dev/gemini-api/docs/deprecations",
+      "label": "Gemini API deprecations",
+      "last_checked": "2026-11-01",
+      "excerpt": "text-embedding-004 | April 9, 2024 | January 14, 2026 | gemini-embedding-2"
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": null,
+    "output_price_per_mtok": null,
+    "cached_input_price_per_mtok": null,
+    "batch_discount_pct": null,
+    "currency": null,
+    "context_window_tokens": null,
+    "max_output_tokens": null,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {}
+  },
+  "first_seen": "2026-10-17T15:59:19.574Z",
+  "updated_at": "2026-10-24T04:39:18.299Z"
+}

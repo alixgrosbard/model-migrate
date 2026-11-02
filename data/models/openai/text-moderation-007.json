@@ -1,0 +1,69 @@
+{
+  "id": "text-moderation-007",
+  "slug": "text-moderation-007",
+  "provider": "openai",
+  "display_name": "text-moderation-007",
+  "family": null,
+  "status": "retired",
+  "announced_date": "2025-04-28",
+  "deprecation_date": null,
+  "shutdown_date": "2025-10-27",
+  "shutdown_date_kind": "exact",
+  "region_or_platform_notes": null,
+  "replacements": [
+    {
+      "model_id": "omni-moderation",
+      "provider": "openai",
+      "kind": "official",
+      "source_url": "https://developers.openai.com/api/docs/deprecations"
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://developers.openai.com/api/docs/deprecations",
+      "label": "OpenAI deprecations",
+      "last_checked": "2026-11-01",
+      "excerpt": "2025-10-27 | text-moderation-007 | omni-moderation"
+    },
+    {
+      "url": "https://developers.openai.com/api/docs/models/text-moderation-latest.md",
+      "label": "OpenAI model docs",
+      "last_checked": "2026-11-01",
+      "excerpt": "Model ID: text-moderation-latest | max output 32768 | Default snapshot text-moderation-007"
+    },
+    {
+      "url": "https://developers.openai.com/api/docs/models/text-moderation-stable.md",
+      "label": "OpenAI model docs",
+      "last_checked": "2026-11-01",
+      "excerpt": "Model ID: text-moderation-stable | max output 32768 | Default snapshot text-moderation-007"
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": null,
+    "output_price_per_mtok": null,
+    "cached_input_price_per_mtok": null,
+    "batch_discount_pct": null,
+    "currency": null,
+    "context_window_tokens": null,
+    "max_output_tokens": 32768,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {
+      "max_output_tokens": {
+        "url": "https://developers.openai.com/api/docs/models/text-moderation-latest.md",
+        "last_checked": "2026-11-01"
+      }
+    }
+  },
+  "first_seen": "2026-10-17T15:59:19.574Z",
+  "updated_at": "2026-10-24T23:46:13.037Z"
+}

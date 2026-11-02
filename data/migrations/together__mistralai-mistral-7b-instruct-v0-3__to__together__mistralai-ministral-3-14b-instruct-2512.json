@@ -1,0 +1,84 @@
+{
+  "from": {
+    "provider": "together",
+    "model_id": "mistralai/Mistral-7B-Instruct-v0.3",
+    "slug": "mistralai-mistral-7b-instruct-v0-3"
+  },
+  "to": {
+    "provider": "together",
+    "model_id": "mistralai/Ministral-3-14B-Instruct-2512",
+    "slug": "mistralai-ministral-3-14b-instruct-2512"
+  },
+  "price_diff": {
+    "input_pct_change": null,
+    "output_pct_change": null,
+    "example_monthly_cost_old": null,
+    "example_monthly_cost_new": null,
+    "currency": "USD",
+    "example_label": "Example monthly cost for 10M input tokens and 2M output tokens. Labeled example, not a bill."
+  },
+  "context_diff": {
+    "old_tokens": null,
+    "new_tokens": null,
+    "change_pct": null
+  },
+  "max_output_diff": {
+    "old_tokens": null,
+    "new_tokens": null,
+    "change_pct": null
+  },
+  "capability_changes": [],
+  "api_changes": [
+    {
+      "kind": "endpoint_change",
+      "detail": "The quickstart shows POST https://api.together.ai/v1/chat/completions and an OpenAI client base_url of https://api.together.ai/v1. This sample only changes the model field.",
+      "source_url": "https://docs.together.ai/docs/quickstart"
+    },
+    {
+      "kind": "behavior_change",
+      "detail": "The deprecations page says requests to the original model ID are automatically routed to the upgraded version. The old version remains available via dedicated endpoints.",
+      "source_url": "https://docs.together.ai/docs/deprecations"
+    }
+  ],
+  "code_change": {
+    "language": "python",
+    "before": "from openai import OpenAI\nclient = OpenAI(base_url=\"https://api.together.ai/v1\")\nresponse = client.chat.completions.create(\n    model=\"mistralai/Mistral-7B-Instruct-v0.3\",\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n)\n",
+    "after": "from openai import OpenAI\nclient = OpenAI(base_url=\"https://api.together.ai/v1\")\nresponse = client.chat.completions.create(\n    model=\"mistralai/Ministral-3-14B-Instruct-2512\",\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n)\n",
+    "snippets": {
+      "python": {
+        "before": "from openai import OpenAI\nclient = OpenAI(base_url=\"https://api.together.ai/v1\")\nresponse = client.chat.completions.create(\n    model=\"mistralai/Mistral-7B-Instruct-v0.3\",\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n)\n",
+        "after": "from openai import OpenAI\nclient = OpenAI(base_url=\"https://api.together.ai/v1\")\nresponse = client.chat.completions.create(\n    model=\"mistralai/Ministral-3-14B-Instruct-2512\",\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n)\n"
+      },
+      "typescript": {
+        "before": "import OpenAI from \"openai\";\nconst client = new OpenAI({ baseURL: \"https://api.together.ai/v1\" });\nconst response = await client.chat.completions.create({\n  model: \"mistralai/Mistral-7B-Instruct-v0.3\",\n  messages: [{ role: \"user\", content: \"Hello\" }],\n});\n",
+        "after": "import OpenAI from \"openai\";\nconst client = new OpenAI({ baseURL: \"https://api.together.ai/v1\" });\nconst response = await client.chat.completions.create({\n  model: \"mistralai/Ministral-3-14B-Instruct-2512\",\n  messages: [{ role: \"user\", content: \"Hello\" }],\n});\n"
+      },
+      "curl": {
+        "before": "curl https://api.together.ai/v1/chat/completions \\\n  -H \"Content-Type: application/json\" \\\n  -H \"Authorization: Bearer $TOGETHER_API_KEY\" \\\n  -d '{\"model\":\"mistralai/Mistral-7B-Instruct-v0.3\",\"messages\":[{\"role\":\"user\",\"content\":\"Hello\"}]}'\n",
+        "after": "curl https://api.together.ai/v1/chat/completions \\\n  -H \"Content-Type: application/json\" \\\n  -H \"Authorization: Bearer $TOGETHER_API_KEY\" \\\n  -d '{\"model\":\"mistralai/Ministral-3-14B-Instruct-2512\",\"messages\":[{\"role\":\"user\",\"content\":\"Hello\"}]}'\n"
+      }
+    }
+  },
+  "migration_checklist": [
+    "Read the deprecations page for mistralai/Mistral-7B-Instruct-v0.3. It does not publish a shutdown date.",
+    "Requests to the original model ID are automatically routed to the upgraded version.",
+    "The old version remains available via dedicated endpoints.",
+    "Point your requests at mistralai/Ministral-3-14B-Instruct-2512 and test before you send traffic."
+  ],
+  "confidence": "partial",
+  "last_checked": "2026-11-01",
+  "sources": [
+    {
+      "url": "https://docs.together.ai/docs/deprecations",
+      "label": "Together AI deprecations",
+      "last_checked": "2026-11-01",
+      "excerpt": "`mistralai/Mistral-7B-Instruct-v0.3` | `mistralai/Ministral-3-14B-Instruct-2512` | Same lineage, upgraded version"
+    },
+    {
+      "url": "https://docs.together.ai/docs/deprecations",
+      "label": "Named as an official replacement",
+      "last_checked": "2026-11-01",
+      "excerpt": "Named as an official replacement for mistralai/Mistral-7B-Instruct-v0.3."
+    }
+  ]
+}

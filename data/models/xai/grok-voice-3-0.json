@@ -1,0 +1,64 @@
+{
+  "id": "grok-voice-3.0",
+  "slug": "grok-voice-3-0",
+  "provider": "xai",
+  "display_name": "grok-voice-3.0",
+  "family": null,
+  "status": "active",
+  "announced_date": null,
+  "deprecation_date": null,
+  "shutdown_date": null,
+  "shutdown_date_kind": "none",
+  "region_or_platform_notes": "The models page lists Speech to Speech (grok-voice-3.0) at $0.08 / min ($4.80 / hr) $0.004 / text input. Those prices are not per million tokens. The models page does not print a shutdown date for this id.",
+  "replacements": [],
+  "sources": [
+    {
+      "url": "https://docs.x.ai/developers/models",
+      "label": "xAI model docs",
+      "last_checked": "2026-11-01",
+      "excerpt": "$0.004 / text input Speech to Speech (grok-voice-3.0) $0.08 / min ($4.80 / hr)<br />$0.004 / text input Speech to Text $0.10 / hr (REST), $0.20 / hr (Streaming) Text to Speech $15.00 / 1M chars ## Which model should I choose? Your ch"
+    },
+    {
+      "url": "https://docs.x.ai/developers/release-notes",
+      "label": "xAI release notes",
+      "last_checked": "2026-11-01",
+      "excerpt": "e 3.0 is available `grok-voice-3.0` is now available with Speech to Speech, at the same price as Grok Voice 2.0. `grok-voice-latest` now points to `grok-voice-3.0`, so sessions that use the alias are upgraded autom"
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": null,
+    "output_price_per_mtok": null,
+    "cached_input_price_per_mtok": null,
+    "batch_discount_pct": null,
+    "currency": null,
+    "context_window_tokens": null,
+    "max_output_tokens": null,
+    "modalities_in": [
+      "audio"
+    ],
+    "modalities_out": [
+      "audio"
+    ],
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {
+      "modalities_in": {
+        "url": "https://docs.x.ai/developers/models",
+        "last_checked": "2026-11-01"
+      },
+      "modalities_out": {
+        "url": "https://docs.x.ai/developers/models",
+        "last_checked": "2026-11-01"
+      }
+    }
+  },
+  "first_seen": "2026-10-27T12:00:00.000Z",
+  "updated_at": "2026-10-27T12:00:00.000Z"
+}

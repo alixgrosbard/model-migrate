@@ -1,0 +1,109 @@
+{
+  "from": {
+    "provider": "github-copilot",
+    "model_id": "Claude Sonnet 4",
+    "slug": "claude-sonnet-4"
+  },
+  "to": {
+    "provider": "github-copilot",
+    "model_id": "Claude Sonnet 4.6",
+    "slug": "claude-sonnet-4-6"
+  },
+  "price_diff": {
+    "input_pct_change": null,
+    "output_pct_change": null,
+    "example_monthly_cost_old": null,
+    "example_monthly_cost_new": null,
+    "currency": "USD",
+    "example_label": "Example monthly cost for 10M input tokens and 2M output tokens. Labeled example, not a bill."
+  },
+  "context_diff": {
+    "old_tokens": null,
+    "new_tokens": null,
+    "change_pct": null
+  },
+  "max_output_diff": {
+    "old_tokens": null,
+    "new_tokens": null,
+    "change_pct": null
+  },
+  "capability_changes": [],
+  "api_changes": [
+    {
+      "kind": "behavior_change",
+      "detail": "The GitHub changelog says the replacement shows up in the Copilot Chat model selector. That post does not print a request body, so this page does not show code.",
+      "source_url": "https://github.blog/changelog/2026-03-31-upcoming-deprecation-of-claude-sonnet-4-in-github-copilot"
+    }
+  ],
+  "code_change": {
+    "language": "python",
+    "before": "",
+    "after": "",
+    "snippets": {
+      "python": {
+        "before": "",
+        "after": ""
+      },
+      "typescript": {
+        "before": "",
+        "after": ""
+      },
+      "curl": {
+        "before": "",
+        "after": ""
+      }
+    }
+  },
+  "migration_checklist": [
+    "Read the Copilot date for Claude Sonnet 4 on the linked GitHub page.",
+    "This date is for models Copilot offers in chat and agent features. It can differ from the original provider's API date.",
+    "Choose Claude Sonnet 4.6 in the Copilot Chat model selector.",
+    "The linked changelog does not print a request sample."
+  ],
+  "confidence": "partial",
+  "last_checked": "2026-11-01",
+  "sources": [
+    {
+      "url": "https://docs.github.com/en/copilot/reference/ai-models/supported-models",
+      "label": "GitHub Copilot supported models",
+      "last_checked": "2026-11-01",
+      "excerpt": "Claude Sonnet 4 | 2026-05-01 | Latest Claude Sonnet model"
+    },
+    {
+      "url": "https://github.blog/changelog/2026-03-31-upcoming-deprecation-of-claude-sonnet-4-in-github-copilot",
+      "label": "GitHub Changelog",
+      "last_checked": "2026-11-01",
+      "excerpt": "Claude Sonnet 4 | Claude Sonnet 4.6"
+    },
+    {
+      "url": "https://github.blog/changelog/2026-05-07-claude-sonnet-4-deprecated",
+      "label": "GitHub Changelog",
+      "last_checked": "2026-11-01",
+      "excerpt": "Claude Sonnet 4 | Claude Sonnet 4.6"
+    },
+    {
+      "url": "https://docs.github.com/en/copilot/reference/ai-models/supported-models",
+      "label": "GitHub Copilot supported models",
+      "last_checked": "2026-11-01",
+      "excerpt": "Claude Sonnet 4.6 | 2026-09-01 | Latest Claude Sonnet model"
+    },
+    {
+      "url": "https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-command-reference",
+      "label": "GitHub Copilot CLI command reference",
+      "last_checked": "2026-11-01",
+      "excerpt": "code-review | claude-sonnet-4.6"
+    },
+    {
+      "url": "https://github.blog/changelog/2026-07-31-upcoming-august-2026-model-deprecations-in-github-copilot",
+      "label": "GitHub Changelog",
+      "last_checked": "2026-11-01",
+      "excerpt": "Claude Sonnet 4.6 | Claude Sonnet 5"
+    },
+    {
+      "url": "https://github.blog/changelog/2026-08-31-selected-github-copilot-models-deprecated",
+      "label": "GitHub Changelog",
+      "last_checked": "2026-11-01",
+      "excerpt": "Claude Sonnet 4.6 | Claude Sonnet 5"
+    }
+  ]
+}

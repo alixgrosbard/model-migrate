@@ -1,0 +1,73 @@
+{
+  "id": "GPT-5.4",
+  "slug": "gpt-5-4",
+  "provider": "github-copilot",
+  "display_name": "GPT-5.4",
+  "family": null,
+  "status": "retired",
+  "announced_date": null,
+  "deprecation_date": null,
+  "shutdown_date": "2026-10-19",
+  "shutdown_date_kind": "exact",
+  "region_or_platform_notes": "Supported models page suggested alternative: Latest GPT Sol model. An earlier changelog named GPT-5.6 Sol: https://github.blog/changelog/2026-09-18-upcoming-deprecation-of-selected-github-copilot-models-in-mid-october Copilot CLI model id: gpt-5.4.",
+  "lookup_aliases": [
+    "gpt-5.4"
+  ],
+  "replacements": [
+    {
+      "model_id": "GPT-6.1 Sol",
+      "provider": "github-copilot",
+      "kind": "official",
+      "source_url": "https://github.blog/changelog/2026-10-19-github-copilot-models-deprecated-on-october-19-2026"
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://docs.github.com/en/copilot/reference/ai-models/supported-models",
+      "label": "GitHub Copilot supported models",
+      "last_checked": "2026-11-01",
+      "excerpt": "GPT-5.4 | 2026-10-19 | Latest GPT Sol model"
+    },
+    {
+      "url": "https://github.blog/changelog/2026-09-18-upcoming-deprecation-of-selected-github-copilot-models-in-mid-october",
+      "label": "GitHub Changelog",
+      "last_checked": "2026-11-01",
+      "excerpt": "GPT-5.4 | GPT-5.6 Sol"
+    },
+    {
+      "url": "https://github.blog/changelog/2026-10-19-github-copilot-models-deprecated-on-october-19-2026",
+      "label": "GitHub Changelog",
+      "last_checked": "2026-11-01",
+      "excerpt": "GPT-5.4 | GPT-6.1 Sol"
+    },
+    {
+      "url": "https://github.com/github/copilot-cli/blob/main/changelog.md",
+      "label": "GitHub Copilot CLI changelog",
+      "last_checked": "2026-11-01",
+      "excerpt": "Add support for GPT-5.4 model"
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": null,
+    "output_price_per_mtok": null,
+    "cached_input_price_per_mtok": null,
+    "batch_discount_pct": null,
+    "currency": null,
+    "context_window_tokens": null,
+    "max_output_tokens": null,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {}
+  },
+  "first_seen": "2026-10-29T12:00:00.000Z",
+  "updated_at": "2026-10-31T12:00:00.000Z"
+}

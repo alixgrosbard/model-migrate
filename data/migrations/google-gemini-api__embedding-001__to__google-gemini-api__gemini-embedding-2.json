@@ -1,0 +1,73 @@
+{
+  "from": {
+    "provider": "google-gemini-api",
+    "model_id": "embedding-001",
+    "slug": "embedding-001"
+  },
+  "to": {
+    "provider": "google-gemini-api",
+    "model_id": "gemini-embedding-2",
+    "slug": "gemini-embedding-2"
+  },
+  "price_diff": {
+    "input_pct_change": null,
+    "output_pct_change": null,
+    "example_monthly_cost_old": null,
+    "example_monthly_cost_new": null,
+    "currency": "USD",
+    "example_label": "Example monthly cost for 10M input tokens and 2M output tokens. Labeled example, not a bill."
+  },
+  "context_diff": {
+    "old_tokens": null,
+    "new_tokens": null,
+    "change_pct": null
+  },
+  "max_output_diff": {
+    "old_tokens": null,
+    "new_tokens": null,
+    "change_pct": null
+  },
+  "capability_changes": [],
+  "api_changes": [],
+  "code_change": {
+    "language": "python",
+    "before": "from google import genai\nclient = genai.Client()\nresult = client.models.embed_content(\n    model=\"embedding-001\",\n    contents=\"What is the meaning of life?\",\n)\n",
+    "after": "from google import genai\nclient = genai.Client()\nresult = client.models.embed_content(\n    model=\"gemini-embedding-2\",\n    contents=\"What is the meaning of life?\",\n)\n",
+    "snippets": {
+      "python": {
+        "before": "from google import genai\nclient = genai.Client()\nresult = client.models.embed_content(\n    model=\"embedding-001\",\n    contents=\"What is the meaning of life?\",\n)\n",
+        "after": "from google import genai\nclient = genai.Client()\nresult = client.models.embed_content(\n    model=\"gemini-embedding-2\",\n    contents=\"What is the meaning of life?\",\n)\n"
+      },
+      "typescript": {
+        "before": "import { GoogleGenAI } from \"@google/genai\";\nconst ai = new GoogleGenAI({});\nconst response = await ai.models.embedContent({\n  model: \"embedding-001\",\n  contents: \"What is the meaning of life?\",\n});\n",
+        "after": "import { GoogleGenAI } from \"@google/genai\";\nconst ai = new GoogleGenAI({});\nconst response = await ai.models.embedContent({\n  model: \"gemini-embedding-2\",\n  contents: \"What is the meaning of life?\",\n});\n"
+      },
+      "curl": {
+        "before": "curl \"https://generativelanguage.googleapis.com/v1beta/models/embedding-001:embedContent\" \\\n  -H \"Content-Type: application/json\" \\\n  -H \"x-goog-api-key: $GEMINI_API_KEY\" \\\n  -d '{\"content\":{\"parts\":[{\"text\":\"What is the meaning of life?\"}]}}'\n",
+        "after": "curl \"https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-2:embedContent\" \\\n  -H \"Content-Type: application/json\" \\\n  -H \"x-goog-api-key: $GEMINI_API_KEY\" \\\n  -d '{\"content\":{\"parts\":[{\"text\":\"What is the meaning of life?\"}]}}'\n"
+      }
+    }
+  },
+  "migration_checklist": [
+    "Read the shutdown date for embedding-001 on the linked official page.",
+    "Point your requests at gemini-embedding-2.",
+    "Re-check price, context, and parameters on the provider pages linked here.",
+    "Ship the change before the published shutdown date."
+  ],
+  "confidence": "partial",
+  "last_checked": "2026-11-01",
+  "sources": [
+    {
+      "url": "https://ai.google.dev/gemini-api/docs/deprecations",
+      "label": "Gemini API deprecations",
+      "last_checked": "2026-11-01",
+      "excerpt": "embedding-001 | April 9, 2024 | October 30, 2025 | gemini-embedding-2"
+    },
+    {
+      "url": "https://ai.google.dev/gemini-api/docs/deprecations",
+      "label": "Gemini API deprecations",
+      "last_checked": "2026-11-01",
+      "excerpt": "gemini-embedding-2 | April 22, 2026 | No shutdown date announced"
+    }
+  ]
+}

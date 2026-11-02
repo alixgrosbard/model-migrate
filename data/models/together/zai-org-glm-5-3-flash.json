@@ -1,0 +1,80 @@
+{
+  "id": "zai-org/GLM-5.3-Flash",
+  "slug": "zai-org-glm-5-3-flash",
+  "provider": "together",
+  "display_name": "zai-org/GLM-5.3-Flash",
+  "family": null,
+  "status": "active",
+  "announced_date": null,
+  "deprecation_date": null,
+  "shutdown_date": null,
+  "shutdown_date_kind": "none",
+  "region_or_platform_notes": "Named as an official replacement for google/gemma-4-31B-it, thinkingmachines/Inkling-Small. No shutdown date was published for this id on that page.",
+  "replacements": [],
+  "sources": [
+    {
+      "url": "https://docs.together.ai/docs/deprecations",
+      "label": "Named as an official replacement",
+      "last_checked": "2026-11-01",
+      "excerpt": "Named as an official replacement for google/gemma-4-31B-it."
+    },
+    {
+      "url": "https://docs.together.ai/docs/serverless/models",
+      "label": "Together AI serverless models",
+      "last_checked": "2026-11-01",
+      "excerpt": "zai-org/GLM-5.3-Flash | input 0.15 | output 0.5"
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": 0.15,
+    "output_price_per_mtok": 0.5,
+    "cached_input_price_per_mtok": 0.03,
+    "batch_discount_pct": null,
+    "currency": "USD",
+    "context_window_tokens": 1048575,
+    "max_output_tokens": null,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": true,
+    "supports_json_schema": true,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": true,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {
+      "cached_input_price_per_mtok": {
+        "url": "https://docs.together.ai/docs/serverless/models",
+        "last_checked": "2026-11-01"
+      },
+      "context_window_tokens": {
+        "url": "https://docs.together.ai/docs/serverless/models",
+        "last_checked": "2026-11-01"
+      },
+      "input_price_per_mtok": {
+        "url": "https://docs.together.ai/docs/serverless/models",
+        "last_checked": "2026-11-01"
+      },
+      "output_price_per_mtok": {
+        "url": "https://docs.together.ai/docs/serverless/models",
+        "last_checked": "2026-11-01"
+      },
+      "supports_json_schema": {
+        "url": "https://docs.together.ai/docs/serverless/models",
+        "last_checked": "2026-11-01"
+      },
+      "supports_prompt_caching": {
+        "url": "https://docs.together.ai/docs/serverless/models",
+        "last_checked": "2026-11-01"
+      },
+      "supports_tools": {
+        "url": "https://docs.together.ai/docs/serverless/models",
+        "last_checked": "2026-11-01"
+      }
+    }
+  },
+  "first_seen": "2026-10-28T12:33:26.950Z",
+  "updated_at": "2026-10-28T12:33:26.950Z"
+}

@@ -1,0 +1,61 @@
+{
+  "id": "gpt-3.5-turbo-0301",
+  "slug": "gpt-3-5-turbo-0301",
+  "provider": "openai",
+  "display_name": "gpt-3.5-turbo-0301",
+  "family": null,
+  "status": "retired",
+  "announced_date": "2023-06-13",
+  "deprecation_date": null,
+  "shutdown_date": "2024-09-13",
+  "shutdown_date_kind": "exact",
+  "region_or_platform_notes": null,
+  "replacements": [
+    {
+      "model_id": "gpt-3.5-turbo",
+      "provider": "openai",
+      "kind": "official",
+      "source_url": "https://developers.openai.com/api/docs/deprecations"
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://developers.openai.com/api/docs/deprecations",
+      "label": "OpenAI deprecations",
+      "last_checked": "2026-11-01",
+      "excerpt": "2024-09-13 | gpt-3.5-turbo-0301 | $15.00 / 1M input tokens + $20.00 / 1M output tokens | gpt-3.5-turbo"
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": 15,
+    "output_price_per_mtok": 20,
+    "cached_input_price_per_mtok": null,
+    "batch_discount_pct": null,
+    "currency": "USD",
+    "context_window_tokens": null,
+    "max_output_tokens": null,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {
+      "input_price_per_mtok": {
+        "url": "https://developers.openai.com/api/docs/deprecations",
+        "last_checked": "2026-11-01"
+      },
+      "output_price_per_mtok": {
+        "url": "https://developers.openai.com/api/docs/deprecations",
+        "last_checked": "2026-11-01"
+      }
+    }
+  },
+  "first_seen": "2026-10-17T15:59:19.574Z",
+  "updated_at": "2026-10-24T04:39:18.299Z"
+}

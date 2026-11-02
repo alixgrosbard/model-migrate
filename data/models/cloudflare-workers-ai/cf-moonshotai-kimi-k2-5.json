@@ -1,0 +1,52 @@
+{
+  "id": "@cf/moonshotai/kimi-k2.5",
+  "slug": "cf-moonshotai-kimi-k2-5",
+  "provider": "cloudflare-workers-ai",
+  "display_name": "@cf/moonshotai/kimi-k2.5",
+  "family": null,
+  "status": "retired",
+  "announced_date": null,
+  "deprecation_date": null,
+  "shutdown_date": "2026-05-30",
+  "shutdown_date_kind": "exact",
+  "region_or_platform_notes": "The changelog says Kimi K2.5 was first scheduled for May 10, 2026, and the deprecation date was extended to May 30, 2026. Requests are automatically aliased to @cf/moonshotai/kimi-k2.6 on May 30, 2026. That model has a higher price.",
+  "replacements": [
+    {
+      "model_id": "@cf/moonshotai/kimi-k2.6",
+      "provider": "cloudflare-workers-ai",
+      "kind": "official",
+      "source_url": "https://developers.cloudflare.com/changelog/post/2026-05-08-planned-model-deprecations/"
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://developers.cloudflare.com/changelog/post/2026-05-08-planned-model-deprecations/",
+      "label": "Cloudflare changelog",
+      "last_checked": "2026-11-01",
+      "excerpt": "- @cf/moonshotai/kimi-k2.5 --> @cf/moonshotai/kimi-k2.6"
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": null,
+    "output_price_per_mtok": null,
+    "cached_input_price_per_mtok": null,
+    "batch_discount_pct": null,
+    "currency": null,
+    "context_window_tokens": null,
+    "max_output_tokens": null,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {}
+  },
+  "first_seen": "2026-10-30T16:10:00.000Z",
+  "updated_at": "2026-10-30T16:10:00.000Z"
+}

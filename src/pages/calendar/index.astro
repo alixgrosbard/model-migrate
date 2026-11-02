@@ -1,0 +1,62 @@
+---
+import Base from "../../layouts/Base.astro";
+import { loadModels, loadProviders, providerName } from "../../lib/load.ts";
+import { formatWhen, today } from "../../lib/format.ts";
+import { deadlineWindow, publicName } from "../../lib/growth.ts";
+import { batchHeadline, eventCountLabel, orderShutdownEvents, providerDisplayName, shutdownEventPath, shutdownEvents } from "../../lib/shutdowns.ts";
+
+const providers = await loadProviders();
+const all = await loadModels();
+const day = today();
+const models = all.filter((model) => model.shutdown_date && model.shutdown_date_kind !== "none" && model.shutdown_date_kind !== "via_snapshots");
+const windows = [30, 60, 90].map((days) => ({ days, rows: deadlineWindow(all, day, days) }));
+const batches = orderShutdownEvents(shutdownEvents(all), day).filter((event) => event.date >= day).slice(0, 8);
+const months = new Map<string, typeof models>();
+for (const model of models) {
+  const month = model.shutdown_date!.slice(0, 7);
+  months.set(month, [...(months.get(month) ?? []), model]);
+}
+const ordered = [...months.keys()].sort();
+---
+<Base title="Shutdown calendar | SunsetDiff" description="Upcoming and past AI model shutdowns by month." crumbs={[{ name: "Home", path: "/" }, { name: "Calendar", path: "/calendar/" }]}>
+  <h1>Shutdown calendar</h1>
+  <p>
+    Download <a href="/calendar.ics">all shutdowns (.ics)</a>, <a href="/deadlines.ics">the next 365 days</a>, or one provider below.
+    <a href="/shutdowns/">Shutdown batches</a> group a provider's models that share one exact date.
+    Future rows with replacements are on <a href="/upcoming/">upcoming shutdowns</a>.
+    Year and month pages are on the <a href="/timeline/">timeline</a>.
+  </p>
+  <h2>Next windows</h2>
+  <ul>
+    {windows.map((window) => <li><a href={`/deadlines/#next-${window.days}`}>{window.days} days</a>: {window.rows.length} published shutdowns</li>)}
+  </ul>
+  <h2>Upcoming batches</h2>
+  <ul>
+    {batches.map((event) => {
+      const name = providerDisplayName(providers, event.provider);
+      return <li><a href={shutdownEventPath(event)}>{batchHeadline(name, event, day)}</a> ({eventCountLabel(event)})</li>;
+    })}
+  </ul>
+  <ul>{providers.map((provider) => <li><a href={`/calendar/${provider.id}.ics`}>{provider.name}</a></li>)}</ul>
+  {ordered.map((month) => (
+    <section>
+      <h2>{month}</h2>
+      <table>
+        <caption>Shutdowns in {month}</caption>
+        <thead><tr><th>Date</th><th>Model</th><th>Provider</th></tr></thead>
+        <tbody>
+          {months.get(month)!.sort((a, b) => (a.shutdown_date ?? "").localeCompare(b.shutdown_date ?? "")).map((model) => (
+            <tr>
+              <td>{formatWhen(model)}</td>
+              <td>
+                <a href={`/models/${model.provider}/${model.slug}/`}>{publicName(model)}</a>
+                {model.provider === "aws-bedrock" && model.region_or_platform_notes ? <><br />{model.region_or_platform_notes}</> : null}
+              </td>
+              <td>{providerName(providers, model.provider)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </section>
+  ))}
+</Base>

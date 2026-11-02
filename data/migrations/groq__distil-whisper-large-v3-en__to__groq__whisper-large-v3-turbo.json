@@ -1,0 +1,79 @@
+{
+  "from": {
+    "provider": "groq",
+    "model_id": "distil-whisper-large-v3-en",
+    "slug": "distil-whisper-large-v3-en"
+  },
+  "to": {
+    "provider": "groq",
+    "model_id": "whisper-large-v3-turbo",
+    "slug": "whisper-large-v3-turbo"
+  },
+  "price_diff": {
+    "input_pct_change": null,
+    "output_pct_change": null,
+    "example_monthly_cost_old": null,
+    "example_monthly_cost_new": null,
+    "currency": "USD",
+    "example_label": "Example monthly cost for 10M input tokens and 2M output tokens. Labeled example, not a bill."
+  },
+  "context_diff": {
+    "old_tokens": null,
+    "new_tokens": null,
+    "change_pct": null
+  },
+  "max_output_diff": {
+    "old_tokens": null,
+    "new_tokens": null,
+    "change_pct": null
+  },
+  "capability_changes": [],
+  "api_changes": [
+    {
+      "kind": "endpoint_change",
+      "detail": "The Groq API reference says transcriptions are POST https://api.groq.com/openai/v1/audio/transcriptions. It names whisper-large-v3 and whisper-large-v3-turbo as the model ids currently available. The sample only changes the model field.",
+      "source_url": "https://console.groq.com/docs/api-reference"
+    }
+  ],
+  "code_change": {
+    "language": "python",
+    "before": "from groq import Groq\nclient = Groq()\ntranscription = client.audio.transcriptions.create(\n    file=(\"sample_audio.m4a\", open(\"sample_audio.m4a\", \"rb\").read()),\n    model=\"distil-whisper-large-v3-en\",\n)\n",
+    "after": "from groq import Groq\nclient = Groq()\ntranscription = client.audio.transcriptions.create(\n    file=(\"sample_audio.m4a\", open(\"sample_audio.m4a\", \"rb\").read()),\n    model=\"whisper-large-v3-turbo\",\n)\n",
+    "snippets": {
+      "python": {
+        "before": "from groq import Groq\nclient = Groq()\ntranscription = client.audio.transcriptions.create(\n    file=(\"sample_audio.m4a\", open(\"sample_audio.m4a\", \"rb\").read()),\n    model=\"distil-whisper-large-v3-en\",\n)\n",
+        "after": "from groq import Groq\nclient = Groq()\ntranscription = client.audio.transcriptions.create(\n    file=(\"sample_audio.m4a\", open(\"sample_audio.m4a\", \"rb\").read()),\n    model=\"whisper-large-v3-turbo\",\n)\n"
+      },
+      "typescript": {
+        "before": "import fs from \"fs\";\nimport Groq from \"groq-sdk\";\nconst groq = new Groq();\nconst transcription = await groq.audio.transcriptions.create({\n  file: fs.createReadStream(\"sample_audio.m4a\"),\n  model: \"distil-whisper-large-v3-en\",\n});\n",
+        "after": "import fs from \"fs\";\nimport Groq from \"groq-sdk\";\nconst groq = new Groq();\nconst transcription = await groq.audio.transcriptions.create({\n  file: fs.createReadStream(\"sample_audio.m4a\"),\n  model: \"whisper-large-v3-turbo\",\n});\n"
+      },
+      "curl": {
+        "before": "curl https://api.groq.com/openai/v1/audio/transcriptions \\\n  -F file=\"@./sample_audio.m4a\" \\\n  -F model=\"distil-whisper-large-v3-en\"\n",
+        "after": "curl https://api.groq.com/openai/v1/audio/transcriptions \\\n  -F file=\"@./sample_audio.m4a\" \\\n  -F model=\"whisper-large-v3-turbo\"\n"
+      }
+    }
+  },
+  "migration_checklist": [
+    "Read the shutdown date for distil-whisper-large-v3-en on the linked official page.",
+    "Point your requests at whisper-large-v3-turbo.",
+    "Re-check price, context, and parameters on the provider pages linked here.",
+    "Ship the change before the published shutdown date."
+  ],
+  "confidence": "partial",
+  "last_checked": "2026-11-01",
+  "sources": [
+    {
+      "url": "https://console.groq.com/docs/deprecations",
+      "label": "Groq model deprecations",
+      "last_checked": "2026-11-01",
+      "excerpt": "distil-whisper-large-v3-en | 2025-08-23 | whisper-large-v3-turbo"
+    },
+    {
+      "url": "https://console.groq.com/docs/models",
+      "label": "Groq supported models",
+      "last_checked": "2026-11-01",
+      "excerpt": "whisper-large-v3-turbo | production"
+    }
+  ]
+}

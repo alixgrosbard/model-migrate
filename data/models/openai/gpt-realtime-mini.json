@@ -1,0 +1,79 @@
+{
+  "id": "gpt-realtime-mini",
+  "slug": "gpt-realtime-mini",
+  "provider": "openai",
+  "display_name": "gpt-realtime-mini",
+  "family": null,
+  "status": "deprecated",
+  "announced_date": "2026-07-20",
+  "deprecation_date": null,
+  "shutdown_date": "2027-01-20",
+  "shutdown_date_kind": "exact",
+  "region_or_platform_notes": null,
+  "replacements": [
+    {
+      "model_id": "gpt-realtime-2.1-mini",
+      "provider": "openai",
+      "kind": "official",
+      "source_url": "https://developers.openai.com/api/docs/deprecations"
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://developers.openai.com/api/docs/deprecations",
+      "label": "OpenAI deprecations",
+      "last_checked": "2026-11-01",
+      "excerpt": "Jan 20, 2027 | gpt-realtime-mini | gpt-realtime-mini-2025-12-15 | gpt-realtime-2.1-mini"
+    },
+    {
+      "url": "https://developers.openai.com/api/docs/models/gpt-realtime-mini.md",
+      "label": "OpenAI model docs",
+      "last_checked": "2026-11-01",
+      "excerpt": "Model ID: gpt-realtime-mini | context window 32000 | max output 4096 | input $0.6 | output $2.4 | Default snapshot gpt-realtime-mini-2025-12-15"
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": 0.6,
+    "output_price_per_mtok": 2.4,
+    "cached_input_price_per_mtok": 0.06,
+    "batch_discount_pct": null,
+    "currency": "USD",
+    "context_window_tokens": 32000,
+    "max_output_tokens": 4096,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {
+      "cached_input_price_per_mtok": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-realtime-mini.md",
+        "last_checked": "2026-11-01"
+      },
+      "context_window_tokens": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-realtime-mini.md",
+        "last_checked": "2026-11-01"
+      },
+      "input_price_per_mtok": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-realtime-mini.md",
+        "last_checked": "2026-11-01"
+      },
+      "max_output_tokens": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-realtime-mini.md",
+        "last_checked": "2026-11-01"
+      },
+      "output_price_per_mtok": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-realtime-mini.md",
+        "last_checked": "2026-11-01"
+      }
+    }
+  },
+  "first_seen": "2026-10-17T15:59:19.574Z",
+  "updated_at": "2026-10-25T20:53:11.768Z"
+}

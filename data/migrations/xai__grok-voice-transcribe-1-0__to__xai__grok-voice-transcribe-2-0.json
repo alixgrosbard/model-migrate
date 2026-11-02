@@ -1,0 +1,79 @@
+{
+  "from": {
+    "provider": "xai",
+    "model_id": "grok-voice-transcribe-1.0",
+    "slug": "grok-voice-transcribe-1-0"
+  },
+  "to": {
+    "provider": "xai",
+    "model_id": "grok-voice-transcribe-2.0",
+    "slug": "grok-voice-transcribe-2-0"
+  },
+  "price_diff": {
+    "input_pct_change": null,
+    "output_pct_change": null,
+    "example_monthly_cost_old": null,
+    "example_monthly_cost_new": null,
+    "currency": "USD",
+    "example_label": "Example monthly cost for 10M input tokens and 2M output tokens. Labeled example, not a bill."
+  },
+  "context_diff": {
+    "old_tokens": null,
+    "new_tokens": null,
+    "change_pct": null
+  },
+  "max_output_diff": {
+    "old_tokens": null,
+    "new_tokens": null,
+    "change_pct": null
+  },
+  "capability_changes": [],
+  "api_changes": [
+    {
+      "kind": "endpoint_change",
+      "detail": "The speech-to-text page shows POST https://api.x.ai/v1/stt with a model field. This sample only changes the model field.",
+      "source_url": "https://docs.x.ai/developers/model-capabilities/audio/speech-to-text"
+    }
+  ],
+  "code_change": {
+    "language": "python",
+    "before": "import requests\nrequests.post(\n    \"https://api.x.ai/v1/stt\",\n    files={\"file\": open(\"sample.wav\", \"rb\")},\n    data={\"model\": \"grok-voice-transcribe-1.0\"},\n)\n",
+    "after": "import requests\nrequests.post(\n    \"https://api.x.ai/v1/stt\",\n    files={\"file\": open(\"sample.wav\", \"rb\")},\n    data={\"model\": \"grok-voice-transcribe-2.0\"},\n)\n",
+    "snippets": {
+      "python": {
+        "before": "import requests\nrequests.post(\n    \"https://api.x.ai/v1/stt\",\n    files={\"file\": open(\"sample.wav\", \"rb\")},\n    data={\"model\": \"grok-voice-transcribe-1.0\"},\n)\n",
+        "after": "import requests\nrequests.post(\n    \"https://api.x.ai/v1/stt\",\n    files={\"file\": open(\"sample.wav\", \"rb\")},\n    data={\"model\": \"grok-voice-transcribe-2.0\"},\n)\n"
+      },
+      "typescript": {
+        "before": "const body = new FormData();\nbody.set(\"model\", \"grok-voice-transcribe-1.0\");\nawait fetch(\"https://api.x.ai/v1/stt\", { method: \"POST\", body });\n",
+        "after": "const body = new FormData();\nbody.set(\"model\", \"grok-voice-transcribe-2.0\");\nawait fetch(\"https://api.x.ai/v1/stt\", { method: \"POST\", body });\n"
+      },
+      "curl": {
+        "before": "curl https://api.x.ai/v1/stt \\\n  -F model=\"grok-voice-transcribe-1.0\" \\\n  -F file=@sample.wav\n",
+        "after": "curl https://api.x.ai/v1/stt \\\n  -F model=\"grok-voice-transcribe-2.0\" \\\n  -F file=@sample.wav\n"
+      }
+    }
+  },
+  "migration_checklist": [
+    "Read the shutdown date for grok-voice-transcribe-1.0 on the linked official page.",
+    "Point your requests at grok-voice-transcribe-2.0.",
+    "Re-check price, context, and parameters on the provider pages linked here.",
+    "Ship the change before the published shutdown date."
+  ],
+  "confidence": "partial",
+  "last_checked": "2026-11-01",
+  "sources": [
+    {
+      "url": "https://docs.x.ai/developers/release-notes",
+      "label": "xAI model deprecations",
+      "last_checked": "2026-11-01",
+      "excerpt": "grok-voice-20). ### grok-voice-transcribe-1.0 end of life `grok-voice-transcribe-1.0` is deprecated and reaches end of life on October 2, 2026. All requests to that slug are routed to `grok-voice-transcribe-2.0` at the same p"
+    },
+    {
+      "url": "https://docs.x.ai/developers/release-notes",
+      "label": "xAI release notes",
+      "last_checked": "2026-11-01",
+      "excerpt": "slug are routed to `grok-voice-transcribe-2.0` at the same price, with higher accuracy. See the [Speech to Text docs](/developers/model-capabilities/audio/speech-to-text). ## September ### safety\\_identifier request field You"
+    }
+  ]
+}

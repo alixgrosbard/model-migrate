@@ -1,0 +1,79 @@
+{
+  "from": {
+    "provider": "google-vertex",
+    "model_id": "veo-3.0-generate-001",
+    "slug": "veo-3-0-generate-001"
+  },
+  "to": {
+    "provider": "google-vertex",
+    "model_id": "veo-3.1-generate-001",
+    "slug": "veo-3-1-generate-001"
+  },
+  "price_diff": {
+    "input_pct_change": null,
+    "output_pct_change": null,
+    "example_monthly_cost_old": null,
+    "example_monthly_cost_new": null,
+    "currency": "USD",
+    "example_label": "Example monthly cost for 10M input tokens and 2M output tokens. Labeled example, not a bill."
+  },
+  "context_diff": {
+    "old_tokens": null,
+    "new_tokens": null,
+    "change_pct": null
+  },
+  "max_output_diff": {
+    "old_tokens": null,
+    "new_tokens": null,
+    "change_pct": null
+  },
+  "capability_changes": [],
+  "api_changes": [
+    {
+      "kind": "behavior_change",
+      "detail": "The Veo guide shows client.models.generate_videos and POST https://generativelanguage.googleapis.com/v1beta/models/{model}:predictLongRunning. The sample uses that call and only swaps the model id. These two records are Vertex ids. The guide is the Gemini API page, so the curl host is generativelanguage.googleapis.com.",
+      "source_url": "https://ai.google.dev/gemini-api/docs/veo"
+    }
+  ],
+  "code_change": {
+    "language": "python",
+    "before": "from google import genai\nclient = genai.Client()\noperation = client.models.generate_videos(\n    model=\"veo-3.0-generate-001\",\n    prompt=\"A close up of two people staring at a cryptic drawing on a wall, torchlight flickering.\",\n)\n",
+    "after": "from google import genai\nclient = genai.Client()\noperation = client.models.generate_videos(\n    model=\"veo-3.1-generate-001\",\n    prompt=\"A close up of two people staring at a cryptic drawing on a wall, torchlight flickering.\",\n)\n",
+    "snippets": {
+      "python": {
+        "before": "from google import genai\nclient = genai.Client()\noperation = client.models.generate_videos(\n    model=\"veo-3.0-generate-001\",\n    prompt=\"A close up of two people staring at a cryptic drawing on a wall, torchlight flickering.\",\n)\n",
+        "after": "from google import genai\nclient = genai.Client()\noperation = client.models.generate_videos(\n    model=\"veo-3.1-generate-001\",\n    prompt=\"A close up of two people staring at a cryptic drawing on a wall, torchlight flickering.\",\n)\n"
+      },
+      "typescript": {
+        "before": "import { GoogleGenAI } from \"@google/genai\";\nconst ai = new GoogleGenAI({});\nlet operation = await ai.models.generateVideos({\n  model: \"veo-3.0-generate-001\",\n  prompt: \"A close up of two people staring at a cryptic drawing on a wall, torchlight flickering.\",\n});\n",
+        "after": "import { GoogleGenAI } from \"@google/genai\";\nconst ai = new GoogleGenAI({});\nlet operation = await ai.models.generateVideos({\n  model: \"veo-3.1-generate-001\",\n  prompt: \"A close up of two people staring at a cryptic drawing on a wall, torchlight flickering.\",\n});\n"
+      },
+      "curl": {
+        "before": "curl -s \"https://generativelanguage.googleapis.com/v1beta/models/veo-3.0-generate-001:predictLongRunning\" \\\n  -H \"x-goog-api-key: $GEMINI_API_KEY\" \\\n  -H \"Content-Type: application/json\" \\\n  -X POST \\\n  -d '{\"instances\":[{\"prompt\":\"A close up of two people staring at a cryptic drawing on a wall, torchlight flickering.\"}]}'\n",
+        "after": "curl -s \"https://generativelanguage.googleapis.com/v1beta/models/veo-3.1-generate-001:predictLongRunning\" \\\n  -H \"x-goog-api-key: $GEMINI_API_KEY\" \\\n  -H \"Content-Type: application/json\" \\\n  -X POST \\\n  -d '{\"instances\":[{\"prompt\":\"A close up of two people staring at a cryptic drawing on a wall, torchlight flickering.\"}]}'\n"
+      }
+    }
+  },
+  "migration_checklist": [
+    "Read the shutdown date for veo-3.0-generate-001 on the linked official page.",
+    "Point your requests at veo-3.1-generate-001.",
+    "Re-check price, context, and parameters on the provider pages linked here.",
+    "Ship the change before the published shutdown date."
+  ],
+  "confidence": "partial",
+  "last_checked": "2026-11-01",
+  "sources": [
+    {
+      "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/model-versions",
+      "label": "Vertex AI model versions",
+      "last_checked": "2026-11-01",
+      "excerpt": "veo-3.0-generate-001 | July 29, 2025 | June 30, 2026 | veo-3.1-generate-001"
+    },
+    {
+      "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/model-versions",
+      "label": "Vertex AI model versions",
+      "last_checked": "2026-11-01",
+      "excerpt": "veo-3.1-generate-001 | November 17, 2025 | November 17, 2026 or later"
+    }
+  ]
+}

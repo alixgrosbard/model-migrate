@@ -1,0 +1,52 @@
+{
+  "id": "DeepSeek-V3",
+  "slug": "deepseek-v3",
+  "provider": "together",
+  "display_name": "DeepSeek-V3",
+  "family": null,
+  "status": "active",
+  "announced_date": null,
+  "deprecation_date": null,
+  "shutdown_date": null,
+  "shutdown_date_kind": "none",
+  "region_or_platform_notes": "Requests to the original model ID are automatically routed to the upgraded version. The old version remains available via dedicated endpoints. The redirects table says: Same architecture, targeted improvements.",
+  "replacements": [
+    {
+      "model_id": "DeepSeek-V3.1",
+      "provider": "together",
+      "kind": "official",
+      "source_url": "https://docs.together.ai/docs/deprecations"
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://docs.together.ai/docs/deprecations",
+      "label": "Together AI deprecations",
+      "last_checked": "2026-11-01",
+      "excerpt": "`DeepSeek-V3` | `DeepSeek-V3.1` | Same architecture, targeted improvements"
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": null,
+    "output_price_per_mtok": null,
+    "cached_input_price_per_mtok": null,
+    "batch_discount_pct": null,
+    "currency": null,
+    "context_window_tokens": null,
+    "max_output_tokens": null,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {}
+  },
+  "first_seen": "2026-10-28T12:33:26.950Z",
+  "updated_at": "2026-10-28T12:33:26.950Z"
+}

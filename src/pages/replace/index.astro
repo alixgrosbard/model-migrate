@@ -1,0 +1,82 @@
+---
+import Base from "../../layouts/Base.astro";
+import HubFilter from "../../components/HubFilter.astro";
+import { collectionGraph } from "../../jsonld.ts";
+import { formatWhen } from "../../lib/format.ts";
+import { publicName } from "../../lib/growth.ts";
+import { filterText, modelPath, modelsForProvider, modelsHub, replaceHub, replacePath, replacementLinkText } from "../../lib/hubs.ts";
+import { loadModels, loadProviders } from "../../lib/load.ts";
+import { featuredModelLinks } from "../../lib/featured.ts";
+import { DEFAULT_SITE_URL } from "../../lib/site.ts";
+
+const providers = await loadProviders();
+const models = await loadModels();
+const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
+const groups = providers
+  .map((provider) => ({ provider, models: modelsForProvider(models, provider.id) }))
+  .filter((group) => group.models.length);
+const featured = featuredModelLinks(models);
+const items = groups.flatMap((group) =>
+  group.models.map((model) => ({ name: `Replacement for ${publicName(model)}`, path: replacePath(model) })),
+);
+---
+<Base
+  title={replaceHub.title}
+  description={replaceHub.description}
+  crumbs={[{ name: "Home", path: "/" }, { name: replaceHub.nav, path: replaceHub.path }]}
+  extraGraph={collectionGraph(site, { path: replaceHub.path, name: replaceHub.h1, description: replaceHub.description }, items)}
+>
+  <h1>{replaceHub.h1}</h1>
+  <p class="answer">
+    A replacement page exists for every tracked model.
+    Official means the provider published that replacement.
+    Editorial suggestion means the model record marks the replacement as editorial.
+    Not published means the record lists no replacement.
+    <a href={modelsHub.path}>{modelsHub.nav}</a>
+    {" · "}
+    <a href="/upcoming/">Upcoming shutdowns</a>
+    {" · "}
+    <a href="/errors/">Request errors</a>
+    {" · "}
+    <a href="/guides/">Guides</a>
+  </p>
+  <p>{models.length} replacement pages.</p>
+  <p>
+    Often looked up:
+    {featured.map((item, index) => (
+      <>
+        {index ? " · " : " "}
+        <a href={item.href}>{item.label}</a>
+      </>
+    ))}
+  </p>
+  <HubFilter />
+  <ul>
+    {groups.map((group) => (
+      <li><a href={`#${group.provider.id}`}>{group.provider.name}</a> ({group.models.length})</li>
+    ))}
+  </ul>
+  {groups.map((group) => (
+    <section id={group.provider.id} data-hub-section>
+      <h2><a href={`/providers/${group.provider.id}/`}>{group.provider.name}</a></h2>
+      <table>
+        <caption>{group.provider.name}: {group.models.length} replacement pages.</caption>
+        <thead>
+          <tr><th>Model</th><th>Shutdown</th><th>Replacement</th></tr>
+        </thead>
+        <tbody>
+          {group.models.map((model) => (
+            <tr data-filter={filterText([model.id, publicName(model), group.provider.name, replacementLinkText(model)])}>
+              <td>
+                <a href={modelPath(model)}>{publicName(model)}</a>
+                {publicName(model) !== model.id ? <><br /><code>{model.id}</code></> : null}
+              </td>
+              <td>{formatWhen(model)}</td>
+              <td><a href={replacePath(model)}>{replacementLinkText(model)}</a></td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </section>
+  ))}
+</Base>

@@ -1,0 +1,67 @@
+{
+  "id": "gemini-3.1-flash-live-preview",
+  "slug": "gemini-3-1-flash-live-preview",
+  "provider": "google-gemini-api",
+  "display_name": "gemini-3.1-flash-live-preview",
+  "family": null,
+  "status": "deprecated",
+  "announced_date": null,
+  "deprecation_date": null,
+  "shutdown_date": "2026-11-17",
+  "shutdown_date_kind": "exact",
+  "region_or_platform_notes": "Release date on the deprecations page: 2026-03-11.",
+  "replacements": [
+    {
+      "model_id": "gemini-3.8-live",
+      "provider": "google-gemini-api",
+      "kind": "official",
+      "source_url": "https://ai.google.dev/gemini-api/docs/deprecations"
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://ai.google.dev/gemini-api/docs/deprecations",
+      "label": "Gemini API deprecations",
+      "last_checked": "2026-11-01",
+      "excerpt": "gemini-3.1-flash-live-preview | March 11, 2026 | November 17, 2026 | gemini-3.8-live"
+    },
+    {
+      "url": "https://ai.google.dev/gemini-api/docs/models/gemini-3.1-flash-live-preview",
+      "label": "Gemini model docs",
+      "last_checked": "2026-11-01",
+      "excerpt": "gemini-3.1-flash-live-preview input token limit 131072 | max output tokens 65536"
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": null,
+    "output_price_per_mtok": null,
+    "cached_input_price_per_mtok": null,
+    "batch_discount_pct": null,
+    "currency": null,
+    "context_window_tokens": 131072,
+    "max_output_tokens": 65536,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {
+      "context_window_tokens": {
+        "url": "https://ai.google.dev/gemini-api/docs/models/gemini-3.1-flash-live-preview",
+        "last_checked": "2026-11-01"
+      },
+      "max_output_tokens": {
+        "url": "https://ai.google.dev/gemini-api/docs/models/gemini-3.1-flash-live-preview",
+        "last_checked": "2026-11-01"
+      }
+    }
+  },
+  "first_seen": "2026-10-17T15:59:19.574Z",
+  "updated_at": "2026-10-24T04:39:18.299Z"
+}

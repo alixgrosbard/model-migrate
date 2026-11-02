@@ -1,0 +1,73 @@
+{
+  "from": {
+    "provider": "openai",
+    "model_id": "text-search-davinci-query-001",
+    "slug": "text-search-davinci-query-001"
+  },
+  "to": {
+    "provider": "openai",
+    "model_id": "text-embedding-3-small",
+    "slug": "text-embedding-3-small"
+  },
+  "price_diff": {
+    "input_pct_change": null,
+    "output_pct_change": null,
+    "example_monthly_cost_old": null,
+    "example_monthly_cost_new": null,
+    "currency": "USD",
+    "example_label": "Example monthly cost for 10M input tokens and 2M output tokens. Labeled example, not a bill."
+  },
+  "context_diff": {
+    "old_tokens": null,
+    "new_tokens": null,
+    "change_pct": null
+  },
+  "max_output_diff": {
+    "old_tokens": null,
+    "new_tokens": null,
+    "change_pct": null
+  },
+  "capability_changes": [],
+  "api_changes": [],
+  "code_change": {
+    "language": "python",
+    "before": "from openai import OpenAI\nclient = OpenAI()\nresponse = client.embeddings.create(\n    input=\"Your text string goes here\", model=\"text-search-davinci-query-001\"\n)\n",
+    "after": "from openai import OpenAI\nclient = OpenAI()\nresponse = client.embeddings.create(\n    input=\"Your text string goes here\", model=\"text-embedding-3-small\"\n)\n",
+    "snippets": {
+      "python": {
+        "before": "from openai import OpenAI\nclient = OpenAI()\nresponse = client.embeddings.create(\n    input=\"Your text string goes here\", model=\"text-search-davinci-query-001\"\n)\n",
+        "after": "from openai import OpenAI\nclient = OpenAI()\nresponse = client.embeddings.create(\n    input=\"Your text string goes here\", model=\"text-embedding-3-small\"\n)\n"
+      },
+      "typescript": {
+        "before": "import OpenAI from \"openai\";\nconst openai = new OpenAI();\nconst embedding = await openai.embeddings.create({\n  model: \"text-search-davinci-query-001\",\n  input: \"Your text string goes here\",\n  encoding_format: \"float\",\n});\n",
+        "after": "import OpenAI from \"openai\";\nconst openai = new OpenAI();\nconst embedding = await openai.embeddings.create({\n  model: \"text-embedding-3-small\",\n  input: \"Your text string goes here\",\n  encoding_format: \"float\",\n});\n"
+      },
+      "curl": {
+        "before": "curl https://api.openai.com/v1/embeddings \\\n  -H \"Content-Type: application/json\" \\\n  -H \"Authorization: Bearer $OPENAI_API_KEY\" \\\n  -d '{\"input\":\"Your text string goes here\",\"model\":\"text-search-davinci-query-001\"}'\n",
+        "after": "curl https://api.openai.com/v1/embeddings \\\n  -H \"Content-Type: application/json\" \\\n  -H \"Authorization: Bearer $OPENAI_API_KEY\" \\\n  -d '{\"input\":\"Your text string goes here\",\"model\":\"text-embedding-3-small\"}'\n"
+      }
+    }
+  },
+  "migration_checklist": [
+    "Read the shutdown date for text-search-davinci-query-001 on the linked official page.",
+    "Point your requests at text-embedding-3-small.",
+    "Re-check price, context, and parameters on the provider pages linked here.",
+    "Ship the change before the published shutdown date."
+  ],
+  "confidence": "partial",
+  "last_checked": "2026-11-01",
+  "sources": [
+    {
+      "url": "https://developers.openai.com/api/docs/deprecations",
+      "label": "OpenAI deprecations",
+      "last_checked": "2026-11-01",
+      "excerpt": "2024-01-04 | text-search-davinci-query-001 | $200.00 / 1M tokens | text-embedding-3-small"
+    },
+    {
+      "url": "https://developers.openai.com/api/docs/deprecations",
+      "label": "Named as an official replacement",
+      "last_checked": "2026-11-01",
+      "excerpt": "Named as an official replacement for text-similarity-ada-001. No shutdown date was published for this id on that page."
+    }
+  ]
+}

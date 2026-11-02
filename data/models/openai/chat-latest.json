@@ -1,0 +1,66 @@
+{
+  "id": "chat-latest",
+  "slug": "chat-latest",
+  "provider": "openai",
+  "display_name": "chat-latest",
+  "family": null,
+  "status": "active",
+  "announced_date": null,
+  "deprecation_date": null,
+  "shutdown_date": null,
+  "shutdown_date_kind": "none",
+  "region_or_platform_notes": null,
+  "replacements": [],
+  "sources": [
+    {
+      "url": "https://developers.openai.com/api/docs/models/chat-latest.md",
+      "label": "OpenAI model docs",
+      "last_checked": "2026-11-01",
+      "excerpt": "Model ID: chat-latest | Latest Instant model used in ChatGPT"
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": 5,
+    "output_price_per_mtok": 30,
+    "cached_input_price_per_mtok": 0.5,
+    "batch_discount_pct": null,
+    "currency": "USD",
+    "context_window_tokens": 400000,
+    "max_output_tokens": 128000,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {
+      "cached_input_price_per_mtok": {
+        "url": "https://developers.openai.com/api/docs/models/chat-latest.md",
+        "last_checked": "2026-11-01"
+      },
+      "context_window_tokens": {
+        "url": "https://developers.openai.com/api/docs/models/chat-latest.md",
+        "last_checked": "2026-11-01"
+      },
+      "input_price_per_mtok": {
+        "url": "https://developers.openai.com/api/docs/models/chat-latest.md",
+        "last_checked": "2026-11-01"
+      },
+      "max_output_tokens": {
+        "url": "https://developers.openai.com/api/docs/models/chat-latest.md",
+        "last_checked": "2026-11-01"
+      },
+      "output_price_per_mtok": {
+        "url": "https://developers.openai.com/api/docs/models/chat-latest.md",
+        "last_checked": "2026-11-01"
+      }
+    }
+  },
+  "first_seen": "2026-10-26T05:20:22.098Z",
+  "updated_at": "2026-10-26T05:20:22.098Z"
+}

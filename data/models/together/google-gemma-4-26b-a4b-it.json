@@ -1,0 +1,45 @@
+{
+  "id": "google/gemma-4-26B-A4B-it",
+  "slug": "google-gemma-4-26b-a4b-it",
+  "provider": "together",
+  "display_name": "google/gemma-4-26B-A4B-it",
+  "family": null,
+  "status": "active",
+  "announced_date": null,
+  "deprecation_date": null,
+  "shutdown_date": null,
+  "shutdown_date_kind": "none",
+  "region_or_platform_notes": "Named as an official replacement for google/gemma-3-12b-it, google/gemma-3-12b-pt, google/gemma-3-1b-it, google/gemma-3-1b-pt, google/gemma-3-4b-it, google/gemma-3-4b-it-VLM, google/gemma-3-4b-pt. No shutdown date was published for this id on that page.",
+  "replacements": [],
+  "sources": [
+    {
+      "url": "https://docs.together.ai/docs/deprecations",
+      "label": "Named as an official replacement",
+      "last_checked": "2026-11-01",
+      "excerpt": "Named as an official replacement for google/gemma-3-12b-it."
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": null,
+    "output_price_per_mtok": null,
+    "cached_input_price_per_mtok": null,
+    "batch_discount_pct": null,
+    "currency": null,
+    "context_window_tokens": null,
+    "max_output_tokens": null,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {}
+  },
+  "first_seen": "2026-10-28T12:33:26.950Z",
+  "updated_at": "2026-10-28T12:33:26.950Z"
+}

@@ -1,0 +1,90 @@
+{
+  "from": {
+    "provider": "openai",
+    "model_id": "gpt-4o-mini-transcribe",
+    "slug": "gpt-4o-mini-transcribe"
+  },
+  "to": {
+    "provider": "openai",
+    "model_id": "gpt-live-transcribe",
+    "slug": "gpt-live-transcribe"
+  },
+  "price_diff": {
+    "input_pct_change": null,
+    "output_pct_change": null,
+    "example_monthly_cost_old": null,
+    "example_monthly_cost_new": null,
+    "currency": "USD",
+    "example_label": "Example monthly cost for 10M input tokens and 2M output tokens. Labeled example, not a bill."
+  },
+  "context_diff": {
+    "old_tokens": 16000,
+    "new_tokens": null,
+    "change_pct": null
+  },
+  "max_output_diff": {
+    "old_tokens": 2000,
+    "new_tokens": null,
+    "change_pct": null
+  },
+  "capability_changes": [],
+  "api_changes": [
+    {
+      "kind": "endpoint_change",
+      "detail": "File transcription sends the audio file to POST /v1/audio/transcriptions with client.audio.transcriptions.create. The speech-to-text guide says to start with gpt-transcribe for recorded speech.",
+      "source_url": "https://developers.openai.com/api/docs/guides/speech-to-text"
+    },
+    {
+      "kind": "endpoint_change",
+      "detail": "gpt-live-transcribe is a realtime transcription session (session type transcription, WebSocket or WebRTC), not that file endpoint. The realtime transcription guide says gpt-live-transcribe does not return word-level timestamps, speaker labels, or transcription confidence scores.",
+      "source_url": "https://developers.openai.com/api/docs/guides/realtime-transcription"
+    }
+  ],
+  "code_change": {
+    "language": "python",
+    "before": "",
+    "after": "",
+    "snippets": {
+      "python": {
+        "before": "",
+        "after": ""
+      },
+      "typescript": {
+        "before": "",
+        "after": ""
+      },
+      "curl": {
+        "before": "",
+        "after": ""
+      }
+    }
+  },
+  "migration_checklist": [
+    "Read the shutdown date for gpt-4o-mini-transcribe on the linked official page.",
+    "Point your requests at gpt-live-transcribe.",
+    "Re-check price, context, and parameters on the provider pages linked here.",
+    "Ship the change before the published shutdown date."
+  ],
+  "confidence": "partial",
+  "last_checked": "2026-11-01",
+  "sources": [
+    {
+      "url": "https://developers.openai.com/api/docs/deprecations",
+      "label": "OpenAI deprecations",
+      "last_checked": "2026-11-01",
+      "excerpt": "Feb 26, 2027 | gpt-4o-mini-transcribe | gpt-4o-mini-transcribe-2025-12-15 | gpt-live-transcribe or gpt-transcribe"
+    },
+    {
+      "url": "https://developers.openai.com/api/docs/models/gpt-4o-mini-transcribe.md",
+      "label": "OpenAI model docs",
+      "last_checked": "2026-11-01",
+      "excerpt": "Model ID: gpt-4o-mini-transcribe | context window 16000 | max output 2000 | Default snapshot gpt-4o-mini-transcribe-2025-12-15"
+    },
+    {
+      "url": "https://developers.openai.com/api/docs/deprecations",
+      "label": "Named as an official replacement",
+      "last_checked": "2026-11-01",
+      "excerpt": "Named as an official replacement for whisper-1. No shutdown date was published for this id on that page."
+    }
+  ]
+}

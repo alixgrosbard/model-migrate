@@ -1,0 +1,45 @@
+{
+  "id": "groq/compound-mini",
+  "slug": "groq-compound-mini",
+  "provider": "groq",
+  "display_name": "groq/compound-mini",
+  "family": null,
+  "status": "retired",
+  "announced_date": "2026-08-24",
+  "deprecation_date": null,
+  "shutdown_date": "2026-09-21",
+  "shutdown_date_kind": "exact",
+  "region_or_platform_notes": "That section says requests to the model id will return errors from the shutdown date.",
+  "replacements": [],
+  "sources": [
+    {
+      "url": "https://console.groq.com/docs/deprecations",
+      "label": "Groq model deprecations",
+      "last_checked": "2026-11-01",
+      "excerpt": "groq/compound-mini | 2026-09-21"
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": null,
+    "output_price_per_mtok": null,
+    "cached_input_price_per_mtok": null,
+    "batch_discount_pct": null,
+    "currency": null,
+    "context_window_tokens": null,
+    "max_output_tokens": null,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {}
+  },
+  "first_seen": "2026-10-26T12:00:00.000Z",
+  "updated_at": "2026-10-26T12:00:00.000Z"
+}

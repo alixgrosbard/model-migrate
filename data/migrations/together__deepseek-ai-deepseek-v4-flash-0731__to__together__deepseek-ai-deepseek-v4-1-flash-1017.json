@@ -1,0 +1,90 @@
+{
+  "from": {
+    "provider": "together",
+    "model_id": "deepseek-ai/DeepSeek-V4-Flash-0731",
+    "slug": "deepseek-ai-deepseek-v4-flash-0731"
+  },
+  "to": {
+    "provider": "together",
+    "model_id": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+    "slug": "deepseek-ai-deepseek-v4-1-flash-1017"
+  },
+  "price_diff": {
+    "input_pct_change": null,
+    "output_pct_change": null,
+    "example_monthly_cost_old": null,
+    "example_monthly_cost_new": 5.4,
+    "currency": "USD",
+    "example_label": "Example monthly cost for 10M input tokens and 2M output tokens. Labeled example, not a bill."
+  },
+  "context_diff": {
+    "old_tokens": null,
+    "new_tokens": 1000000,
+    "change_pct": null
+  },
+  "max_output_diff": {
+    "old_tokens": null,
+    "new_tokens": null,
+    "change_pct": null
+  },
+  "capability_changes": [],
+  "api_changes": [
+    {
+      "kind": "endpoint_change",
+      "detail": "The quickstart shows POST https://api.together.ai/v1/chat/completions and an OpenAI client base_url of https://api.together.ai/v1. This sample only changes the model field.",
+      "source_url": "https://docs.together.ai/docs/quickstart"
+    }
+  ],
+  "code_change": {
+    "language": "python",
+    "before": "from openai import OpenAI\nclient = OpenAI(base_url=\"https://api.together.ai/v1\")\nresponse = client.chat.completions.create(\n    model=\"deepseek-ai/DeepSeek-V4-Flash-0731\",\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n)\n",
+    "after": "from openai import OpenAI\nclient = OpenAI(base_url=\"https://api.together.ai/v1\")\nresponse = client.chat.completions.create(\n    model=\"deepseek-ai/DeepSeek-V4.1-Flash-1017\",\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n)\n",
+    "snippets": {
+      "python": {
+        "before": "from openai import OpenAI\nclient = OpenAI(base_url=\"https://api.together.ai/v1\")\nresponse = client.chat.completions.create(\n    model=\"deepseek-ai/DeepSeek-V4-Flash-0731\",\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n)\n",
+        "after": "from openai import OpenAI\nclient = OpenAI(base_url=\"https://api.together.ai/v1\")\nresponse = client.chat.completions.create(\n    model=\"deepseek-ai/DeepSeek-V4.1-Flash-1017\",\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n)\n"
+      },
+      "typescript": {
+        "before": "import OpenAI from \"openai\";\nconst client = new OpenAI({ baseURL: \"https://api.together.ai/v1\" });\nconst response = await client.chat.completions.create({\n  model: \"deepseek-ai/DeepSeek-V4-Flash-0731\",\n  messages: [{ role: \"user\", content: \"Hello\" }],\n});\n",
+        "after": "import OpenAI from \"openai\";\nconst client = new OpenAI({ baseURL: \"https://api.together.ai/v1\" });\nconst response = await client.chat.completions.create({\n  model: \"deepseek-ai/DeepSeek-V4.1-Flash-1017\",\n  messages: [{ role: \"user\", content: \"Hello\" }],\n});\n"
+      },
+      "curl": {
+        "before": "curl https://api.together.ai/v1/chat/completions \\\n  -H \"Content-Type: application/json\" \\\n  -H \"Authorization: Bearer $TOGETHER_API_KEY\" \\\n  -d '{\"model\":\"deepseek-ai/DeepSeek-V4-Flash-0731\",\"messages\":[{\"role\":\"user\",\"content\":\"Hello\"}]}'\n",
+        "after": "curl https://api.together.ai/v1/chat/completions \\\n  -H \"Content-Type: application/json\" \\\n  -H \"Authorization: Bearer $TOGETHER_API_KEY\" \\\n  -d '{\"model\":\"deepseek-ai/DeepSeek-V4.1-Flash-1017\",\"messages\":[{\"role\":\"user\",\"content\":\"Hello\"}]}'\n"
+      }
+    }
+  },
+  "migration_checklist": [
+    "Read the shutdown date for deepseek-ai/DeepSeek-V4-Flash-0731 on the linked official page.",
+    "This date is the serverless inference removal on the Together deprecations page.",
+    "Point your requests at deepseek-ai/DeepSeek-V4.1-Flash-1017 and test before you send traffic."
+  ],
+  "confidence": "partial",
+  "last_checked": "2026-11-01",
+  "sources": [
+    {
+      "url": "https://docs.together.ai/docs/changelog",
+      "label": "Together AI changelog",
+      "last_checked": "2026-11-01",
+      "excerpt": "Use deepseek-ai/DeepSeek-V4.1-Flash-1017"
+    },
+    {
+      "url": "https://docs.together.ai/docs/deprecations",
+      "label": "Together AI deprecations",
+      "last_checked": "2026-11-01",
+      "excerpt": "2026-10-22 | `deepseek-ai/DeepSeek-V4-Flash-0731` | Yes"
+    },
+    {
+      "url": "https://docs.together.ai/docs/changelog",
+      "label": "Named as an official replacement",
+      "last_checked": "2026-11-01",
+      "excerpt": "Named as an official replacement for deepseek-ai/DeepSeek-V4-Flash-0731."
+    },
+    {
+      "url": "https://docs.together.ai/docs/serverless/models",
+      "label": "Together AI serverless models",
+      "last_checked": "2026-11-01",
+      "excerpt": "deepseek-ai/DeepSeek-V4.1-Flash-1017 | input 0.3 | output 1.2"
+    }
+  ]
+}

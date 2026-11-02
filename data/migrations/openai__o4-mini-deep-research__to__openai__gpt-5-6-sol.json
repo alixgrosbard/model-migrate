@@ -1,0 +1,91 @@
+{
+  "from": {
+    "provider": "openai",
+    "model_id": "o4-mini-deep-research",
+    "slug": "o4-mini-deep-research"
+  },
+  "to": {
+    "provider": "openai",
+    "model_id": "gpt-5.6-sol",
+    "slug": "gpt-5-6-sol"
+  },
+  "price_diff": {
+    "input_pct_change": 100,
+    "output_pct_change": -37.5,
+    "example_monthly_cost_old": 36,
+    "example_monthly_cost_new": 50,
+    "currency": "USD",
+    "example_label": "Example monthly cost for 10M input tokens and 2M output tokens. Labeled example, not a bill."
+  },
+  "context_diff": {
+    "old_tokens": 200000,
+    "new_tokens": 1050000,
+    "change_pct": 425
+  },
+  "max_output_diff": {
+    "old_tokens": 100000,
+    "new_tokens": 128000,
+    "change_pct": 28
+  },
+  "capability_changes": [],
+  "api_changes": [],
+  "code_change": {
+    "language": "python",
+    "before": "from openai import OpenAI\nclient = OpenAI()\nresponse = client.chat.completions.create(\n    model=\"o4-mini-deep-research\",\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n)\n",
+    "after": "from openai import OpenAI\nclient = OpenAI()\nresponse = client.chat.completions.create(\n    model=\"gpt-5.6-sol\",\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n)\n",
+    "snippets": {
+      "python": {
+        "before": "from openai import OpenAI\nclient = OpenAI()\nresponse = client.chat.completions.create(\n    model=\"o4-mini-deep-research\",\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n)\n",
+        "after": "from openai import OpenAI\nclient = OpenAI()\nresponse = client.chat.completions.create(\n    model=\"gpt-5.6-sol\",\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n)\n"
+      },
+      "typescript": {
+        "before": "import OpenAI from \"openai\";\nconst client = new OpenAI();\nconst response = await client.chat.completions.create({\n  model: \"o4-mini-deep-research\",\n  messages: [{ role: \"user\", content: \"Hello\" }],\n});\n",
+        "after": "import OpenAI from \"openai\";\nconst client = new OpenAI();\nconst response = await client.chat.completions.create({\n  model: \"gpt-5.6-sol\",\n  messages: [{ role: \"user\", content: \"Hello\" }],\n});\n"
+      },
+      "curl": {
+        "before": "curl https://api.openai.com/v1/chat/completions \\\n  -H \"Authorization: Bearer $OPENAI_API_KEY\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"model\":\"o4-mini-deep-research\",\"messages\":[{\"role\":\"user\",\"content\":\"Hello\"}]}'\n",
+        "after": "curl https://api.openai.com/v1/chat/completions \\\n  -H \"Authorization: Bearer $OPENAI_API_KEY\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"model\":\"gpt-5.6-sol\",\"messages\":[{\"role\":\"user\",\"content\":\"Hello\"}]}'\n"
+      }
+    }
+  },
+  "migration_checklist": [
+    "Read the shutdown date for o4-mini-deep-research on the linked official page.",
+    "Point your requests at gpt-5.6-sol.",
+    "Re-check price, context, and parameters on the provider pages linked here.",
+    "Ship the change before the published shutdown date."
+  ],
+  "confidence": "official",
+  "last_checked": "2026-11-01",
+  "sources": [
+    {
+      "url": "https://developers.openai.com/api/docs/deprecations",
+      "label": "OpenAI deprecations",
+      "last_checked": "2026-11-01",
+      "excerpt": "July 23, 2026 | o4-mini-deep-research-2025-06-26 | o4-mini-deep-research | gpt-5.6-sol"
+    },
+    {
+      "url": "https://developers.openai.com/api/docs/models/o4-mini-deep-research.md",
+      "label": "OpenAI model docs",
+      "last_checked": "2026-11-01",
+      "excerpt": "Model ID: o4-mini-deep-research | context window 200000 | max output 100000 | input $2 | output $8 | Default snapshot o4-mini-deep-research-2025-06-26"
+    },
+    {
+      "url": "https://developers.openai.com/api/docs/deprecations",
+      "label": "Named as an official replacement",
+      "last_checked": "2026-11-01",
+      "excerpt": "Named as an official replacement for gpt-5. No shutdown date was published for this id on that page."
+    },
+    {
+      "url": "https://developers.openai.com/api/docs/models/gpt-5.6-sol.md",
+      "label": "OpenAI model docs",
+      "last_checked": "2026-11-01",
+      "excerpt": "Model ID: gpt-5.6-sol | context window 1050000 | max output 128000 | input $4 | output $20"
+    },
+    {
+      "url": "https://developers.openai.com/api/docs/models/gpt-daybreak-blue-latest.md",
+      "label": "OpenAI model docs",
+      "last_checked": "2026-11-01",
+      "excerpt": "Model ID: gpt-daybreak-blue-latest | context window 1050000 | max output 128000 | Default snapshot gpt-5.6-sol"
+    }
+  ]
+}

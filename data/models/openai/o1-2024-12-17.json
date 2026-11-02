@@ -1,0 +1,67 @@
+{
+  "id": "o1-2024-12-17",
+  "slug": "o1-2024-12-17",
+  "provider": "openai",
+  "display_name": "o1-2024-12-17",
+  "family": "o1",
+  "status": "retired",
+  "announced_date": "2026-04-22",
+  "deprecation_date": null,
+  "shutdown_date": "2026-10-23",
+  "shutdown_date_kind": "exact",
+  "region_or_platform_notes": null,
+  "replacements": [
+    {
+      "model_id": "gpt-5.6-sol",
+      "provider": "openai",
+      "kind": "official",
+      "source_url": "https://developers.openai.com/api/docs/deprecations"
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://developers.openai.com/api/docs/deprecations",
+      "label": "OpenAI deprecations",
+      "last_checked": "2026-11-01",
+      "excerpt": "October 23, 2026 | o1-2024-12-17 | o1 | gpt-5.6-sol"
+    },
+    {
+      "url": "https://developers.openai.com/api/docs/models/o1.md",
+      "label": "OpenAI model docs",
+      "last_checked": "2026-11-01",
+      "excerpt": "Model ID: o1 | context window 200000 | max output 100000 | input $15 | output $60 | Default snapshot o1-2024-12-17"
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": null,
+    "output_price_per_mtok": null,
+    "cached_input_price_per_mtok": null,
+    "batch_discount_pct": null,
+    "currency": null,
+    "context_window_tokens": 200000,
+    "max_output_tokens": 100000,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {
+      "context_window_tokens": {
+        "url": "https://developers.openai.com/api/docs/models/o1.md",
+        "last_checked": "2026-11-01"
+      },
+      "max_output_tokens": {
+        "url": "https://developers.openai.com/api/docs/models/o1.md",
+        "last_checked": "2026-11-01"
+      }
+    }
+  },
+  "first_seen": "2026-10-17T15:59:19.574Z",
+  "updated_at": "2026-10-24T04:39:18.299Z"
+}

@@ -1,0 +1,91 @@
+{
+  "id": "c4ai-aya-expanse-8b",
+  "slug": "c4ai-aya-expanse-8b",
+  "provider": "cohere",
+  "display_name": "c4ai-aya-expanse-8b",
+  "family": null,
+  "status": "retired",
+  "announced_date": null,
+  "deprecation_date": null,
+  "shutdown_date": "2026-04-04",
+  "shutdown_date_kind": "exact",
+  "region_or_platform_notes": "Effective 2026-04-04, the deprecations page says this id will be retired. The chat replacements are the ids under Chat tasks alternatives. The models page says: Aya Expanse is a highly performant 8B multilingual model, designed to rival monolingual performance through innovations in instruction tuning with data arbitrage, preference training, and model merging. Serves 23 languages.",
+  "replacements": [
+    {
+      "model_id": "command-r7b-12-2024",
+      "provider": "cohere",
+      "kind": "official",
+      "source_url": "https://docs.cohere.com/docs/deprecations"
+    },
+    {
+      "model_id": "command-a-03-2025",
+      "provider": "cohere",
+      "kind": "official",
+      "source_url": "https://docs.cohere.com/docs/deprecations"
+    },
+    {
+      "model_id": "command-a-reasoning-08-2025",
+      "provider": "cohere",
+      "kind": "official",
+      "source_url": "https://docs.cohere.com/docs/deprecations"
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://docs.cohere.com/docs/deprecations",
+      "label": "Cohere model deprecations",
+      "last_checked": "2026-11-01",
+      "excerpt": "`embed-multilingual-v2.0` * `c4ai-aya-expanse-8b` * `c4ai-aya-vision-8b`"
+    },
+    {
+      "url": "https://docs.cohere.com/docs/models",
+      "label": "Cohere model docs",
+      "last_checked": "2026-11-01",
+      "excerpt": "c4ai-aya-expanse-8b Retired Apr 4, 2026 Aya Expanse is a highly performant 8B multilingual model, designed to rival monolingual performance through innovations in instruction tuni"
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": null,
+    "output_price_per_mtok": null,
+    "cached_input_price_per_mtok": null,
+    "batch_discount_pct": null,
+    "currency": null,
+    "context_window_tokens": 8000,
+    "max_output_tokens": 4000,
+    "modalities_in": [
+      "text"
+    ],
+    "modalities_out": [
+      "text"
+    ],
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {
+      "context_window_tokens": {
+        "url": "https://docs.cohere.com/docs/models",
+        "last_checked": "2026-11-01"
+      },
+      "max_output_tokens": {
+        "url": "https://docs.cohere.com/docs/models",
+        "last_checked": "2026-11-01"
+      },
+      "modalities_in": {
+        "url": "https://docs.cohere.com/docs/models",
+        "last_checked": "2026-11-01"
+      },
+      "modalities_out": {
+        "url": "https://docs.cohere.com/docs/models",
+        "last_checked": "2026-11-01"
+      }
+    }
+  },
+  "first_seen": "2026-10-27T12:00:00.000Z",
+  "updated_at": "2026-10-27T12:00:00.000Z"
+}

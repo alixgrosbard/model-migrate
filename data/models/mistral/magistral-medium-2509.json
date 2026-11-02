@@ -1,0 +1,63 @@
+{
+  "id": "magistral-medium-2509",
+  "slug": "magistral-medium-2509",
+  "provider": "mistral",
+  "display_name": "Magistral Medium 1.2 (25.09)",
+  "family": null,
+  "status": "retired",
+  "announced_date": null,
+  "deprecation_date": "2026-05-22",
+  "shutdown_date": "2026-07-31",
+  "shutdown_date_kind": "exact",
+  "region_or_platform_notes": "Replacement named on the models page: Mistral Medium 3.5.",
+  "replacements": [
+    {
+      "model_id": "mistral-medium-3-5",
+      "provider": "mistral",
+      "kind": "official",
+      "source_url": "https://docs.mistral.ai/models"
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://docs.mistral.ai/models",
+      "label": "Mistral models",
+      "last_checked": "2026-11-01",
+      "excerpt": "Magistral Medium 1.2 | 25.09 | magistral-medium-2509 | 5/22/2026 7/31/2026 | Mistral Medium 3.5"
+    },
+    {
+      "url": "https://docs.mistral.ai/models/magistral-medium-1-2-25-09",
+      "label": "Mistral model docs",
+      "last_checked": "2026-11-01",
+      "excerpt": "magistral-medium-2509 | Context 128k"
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": null,
+    "output_price_per_mtok": null,
+    "cached_input_price_per_mtok": null,
+    "batch_discount_pct": null,
+    "currency": null,
+    "context_window_tokens": 128000,
+    "max_output_tokens": null,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {
+      "context_window_tokens": {
+        "url": "https://docs.mistral.ai/models/magistral-medium-1-2-25-09",
+        "last_checked": "2026-11-01"
+      }
+    }
+  },
+  "first_seen": "2026-10-17T15:59:19.574Z",
+  "updated_at": "2026-10-30T20:09:35.319Z"
+}

@@ -1,0 +1,91 @@
+{
+  "from": {
+    "provider": "cohere",
+    "model_id": "c4ai-aya-vision-8b",
+    "slug": "c4ai-aya-vision-8b"
+  },
+  "to": {
+    "provider": "cohere",
+    "model_id": "command-r7b-12-2024",
+    "slug": "command-r7b-12-2024"
+  },
+  "price_diff": {
+    "input_pct_change": null,
+    "output_pct_change": null,
+    "example_monthly_cost_old": null,
+    "example_monthly_cost_new": null,
+    "currency": "USD",
+    "example_label": "Example monthly cost for 10M input tokens and 2M output tokens. Labeled example, not a bill."
+  },
+  "context_diff": {
+    "old_tokens": 16000,
+    "new_tokens": 128000,
+    "change_pct": 700
+  },
+  "max_output_diff": {
+    "old_tokens": 4000,
+    "new_tokens": 4000,
+    "change_pct": 0
+  },
+  "capability_changes": [
+    {
+      "field": "modalities_in",
+      "old": "text, image",
+      "new": "text"
+    }
+  ],
+  "api_changes": [
+    {
+      "kind": "endpoint_change",
+      "detail": "The chat reference shows POST https://api.cohere.com/v2/chat with model and messages. This sample only changes the model field.",
+      "source_url": "https://docs.cohere.com/reference/chat"
+    }
+  ],
+  "code_change": {
+    "language": "python",
+    "before": "import json\nimport urllib.request\nbody = json.dumps({\"model\": \"c4ai-aya-vision-8b\", \"messages\": [{\"role\": \"user\", \"content\": \"Hello\"}]}).encode()\nrequest = urllib.request.Request(\"https://api.cohere.com/v2/chat\", data=body, headers={\"Content-Type\": \"application/json\"})\n",
+    "after": "import json\nimport urllib.request\nbody = json.dumps({\"model\": \"command-r7b-12-2024\", \"messages\": [{\"role\": \"user\", \"content\": \"Hello\"}]}).encode()\nrequest = urllib.request.Request(\"https://api.cohere.com/v2/chat\", data=body, headers={\"Content-Type\": \"application/json\"})\n",
+    "snippets": {
+      "python": {
+        "before": "import json\nimport urllib.request\nbody = json.dumps({\"model\": \"c4ai-aya-vision-8b\", \"messages\": [{\"role\": \"user\", \"content\": \"Hello\"}]}).encode()\nrequest = urllib.request.Request(\"https://api.cohere.com/v2/chat\", data=body, headers={\"Content-Type\": \"application/json\"})\n",
+        "after": "import json\nimport urllib.request\nbody = json.dumps({\"model\": \"command-r7b-12-2024\", \"messages\": [{\"role\": \"user\", \"content\": \"Hello\"}]}).encode()\nrequest = urllib.request.Request(\"https://api.cohere.com/v2/chat\", data=body, headers={\"Content-Type\": \"application/json\"})\n"
+      },
+      "typescript": {
+        "before": "await fetch(\"https://api.cohere.com/v2/chat\", {\n  method: \"POST\",\n  headers: { \"Content-Type\": \"application/json\" },\n  body: JSON.stringify({ model: \"c4ai-aya-vision-8b\", messages: [{ role: \"user\", content: \"Hello\" }] }),\n});\n",
+        "after": "await fetch(\"https://api.cohere.com/v2/chat\", {\n  method: \"POST\",\n  headers: { \"Content-Type\": \"application/json\" },\n  body: JSON.stringify({ model: \"command-r7b-12-2024\", messages: [{ role: \"user\", content: \"Hello\" }] }),\n});\n"
+      },
+      "curl": {
+        "before": "curl https://api.cohere.com/v2/chat \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"model\":\"c4ai-aya-vision-8b\",\"messages\":[{\"role\":\"user\",\"content\":\"Hello\"}]}'\n",
+        "after": "curl https://api.cohere.com/v2/chat \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"model\":\"command-r7b-12-2024\",\"messages\":[{\"role\":\"user\",\"content\":\"Hello\"}]}'\n"
+      }
+    }
+  },
+  "migration_checklist": [
+    "Read the shutdown date for c4ai-aya-vision-8b on the linked official page.",
+    "Point your requests at command-r7b-12-2024.",
+    "Re-check price, context, and parameters on the provider pages linked here.",
+    "Ship the change before the published shutdown date."
+  ],
+  "confidence": "partial",
+  "last_checked": "2026-11-01",
+  "sources": [
+    {
+      "url": "https://docs.cohere.com/docs/deprecations",
+      "label": "Cohere model deprecations",
+      "last_checked": "2026-11-01",
+      "excerpt": "0` * `c4ai-aya-expanse-8b` * `c4ai-aya-vision-8b`"
+    },
+    {
+      "url": "https://docs.cohere.com/docs/models",
+      "label": "Cohere model docs",
+      "last_checked": "2026-11-01",
+      "excerpt": "c4ai-aya-vision-8b Retired Apr 4, 2026 Aya Vision is a state-of-the-art multimodal model excelling at a variety of critical benchmarks for language, text, and image capabilities."
+    },
+    {
+      "url": "https://docs.cohere.com/docs/models",
+      "label": "Cohere model docs",
+      "last_checked": "2026-11-01",
+      "excerpt": "command-r7b-12-2024 Live `command-r7b-12-2024` is a small, fast update delivered in December 2024. It excels at RAG, tool use, agents, and similar tasks requiring complex reasonin"
+    }
+  ]
+}

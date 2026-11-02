@@ -1,0 +1,56 @@
+{
+  "id": "zai-glm-5-2",
+  "slug": "zai-glm-5-2",
+  "provider": "mistral",
+  "display_name": "Z.ai GLM 5.2",
+  "family": null,
+  "status": "retired",
+  "announced_date": null,
+  "deprecation_date": "2026-09-29",
+  "shutdown_date": "2026-10-31",
+  "shutdown_date_kind": "exact",
+  "region_or_platform_notes": "Z.ai model on the Mistral API. Replacement named on the models page: Z.ai GLM 5.3.",
+  "replacements": [],
+  "sources": [
+    {
+      "url": "https://docs.mistral.ai/models",
+      "label": "Mistral models",
+      "last_checked": "2026-11-01",
+      "excerpt": "Z.ai GLM 5.2 | 5.2 | zai-glm-5-2 | 9/29/2026 10/31/2026 | Z.ai GLM 5.3"
+    },
+    {
+      "url": "https://docs.mistral.ai/models/zai-glm-5-2",
+      "label": "Mistral model docs",
+      "last_checked": "2026-11-01",
+      "excerpt": "zai-glm-5-2 | Context 1M"
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": null,
+    "output_price_per_mtok": null,
+    "cached_input_price_per_mtok": null,
+    "batch_discount_pct": null,
+    "currency": null,
+    "context_window_tokens": 1000000,
+    "max_output_tokens": null,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {
+      "context_window_tokens": {
+        "url": "https://docs.mistral.ai/models/zai-glm-5-2",
+        "last_checked": "2026-11-01"
+      }
+    }
+  },
+  "first_seen": "2026-10-17T15:59:19.574Z",
+  "updated_at": "2026-11-01T13:18:54.393Z"
+}

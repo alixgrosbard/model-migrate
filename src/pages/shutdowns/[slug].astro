@@ -1,0 +1,366 @@
+---
+import Base from "../../layouts/Base.astro";
+import FaqList from "../../components/FaqList.astro";
+import NewsletterForm from "../../components/NewsletterForm.astro";
+import { shutdownEventGraph } from "../../jsonld.ts";
+import { loadMigrations, loadModels, loadProviders } from "../../lib/load.ts";
+import { publicName } from "../../lib/growth.ts";
+import type { ModelRecord } from "../../schema.ts";
+import { today } from "../../lib/format.ts";
+import { DEFAULT_SITE_URL } from "../../lib/site.ts";
+import { guideBySlug, guidePath } from "../../lib/guides.ts";
+import { requestErrorPath, requestErrorsForShutdown } from "../../lib/request-errors.ts";
+import {
+  eventCitations,
+  eventDatePublished,
+  eventLastChecked,
+  isPastShutdown,
+  providerDisplayName,
+  replacementLinks,
+  replacementSuffix,
+  batchChecklist,
+  batchDateModified,
+  batchDescription,
+  batchDocumentTitle,
+  batchExtras,
+  batchFaqs,
+  batchHeadline,
+  batchLead,
+  COPILOT_NOV16_CHANGELOG,
+  COPILOT_NOV16_SLUG,
+  shutdownEventPath,
+  shutdownEvents,
+} from "../../lib/shutdowns.ts";
+
+export async function getStaticPaths() {
+  const events = shutdownEvents(await loadModels());
+  return events.map((event) => ({ params: { slug: event.slug } }));
+}
+
+const models = await loadModels();
+const providers = await loadProviders();
+const migrations = await loadMigrations();
+const event = shutdownEvents(models).find((item) => item.slug === Astro.params.slug);
+if (!event) throw new Error("Missing shutdown event");
+const provider = providers.find((item) => item.id === event.provider);
+if (!provider) throw new Error("Missing provider");
+const day = today();
+const past = isPastShutdown(event.date, day);
+const name = providerDisplayName(providers, event.provider);
+const extras = batchExtras(event);
+const headline = batchHeadline(name, event, day);
+const lead = batchLead(name, event, day);
+const description = batchDescription(name, event, day);
+const faqs = batchFaqs(name, event, day);
+const checklist = batchChecklist(event, day);
+const sourceUrl = extras.checkedUrl ?? provider.deprecations_url;
+const lastChecked = eventLastChecked(event);
+const alertPitch = "Get an email before your models shut down. Free.";
+const suggestBedrock = event.provider === "aws-bedrock" && event.date === "2026-11-13";
+const path = shutdownEventPath(event);
+const relatedErrors = requestErrorsForShutdown(event.provider, event.date);
+const shutdownGuide = guideBySlug(
+  event.slug === "openai-2026-12-01"
+    ? "openai-image-model-shutdown-december-1-2026"
+    : event.slug === "openai-2027-01-06" || event.slug === "openai-2027-01-20"
+      ? "openai-audio-realtime-tts-shutdowns-january-2027"
+      : event.slug === "openai-2026-12-11"
+        ? "openai-december-11-2026-shutdowns"
+        : event.slug === "openai-2027-01-14"
+      ? "openai-gpt-4-1-gpt-4o-shutdown-january-2027"
+      : event.slug === "minimax-2026-11-18"
+        ? "minimax-m2-5-m2-7-shutdown-november-18-2026"
+        : event.slug === "aws-bedrock-2026-11-13"
+          ? "amazon-bedrock-claude-3-shutdown-november-13-2026"
+          : event.slug === "azure-openai-2026-11-19"
+            ? "azure-openai-o-series-retirement-november-19-2026"
+            : event.slug === "github-copilot-2026-11-16"
+              ? "github-copilot-model-retirements-november-16-2026"
+              : event.slug === "fireworks-2026-11-07"
+                ? "fireworks-model-shutdowns-november-7-2026"
+                : event.slug === "nebius-2026-11-09"
+                  ? "nebius-model-shutdowns-november-9-2026"
+                  : event.slug === "google-gemini-api-2026-11-17"
+                    ? "gemini-api-model-shutdowns-november-17-2026"
+                    : undefined,
+);
+const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
+const rows = event.models.map((model) => ({
+  model,
+  label: modelLabel(model),
+  links: replacementLinks(model, models, migrations),
+}));
+
+function modelLabel(model: ModelRecord): string {
+  const name = publicName(model);
+  if (name === model.id || name.includes(`(${model.id})`)) return name;
+  return `${name} (${model.id})`;
+}
+
+function bedrockSuggestions(model: ModelRecord): { href: string; label: string }[] {
+  const links = [{ href: `/replace/${model.provider}/${model.slug}/`, label: "SunsetDiff suggestion (not an AWS recommendation)" }];
+  if (model.id.startsWith("anthropic.claude-3-haiku")) {
+    links.push({
+      href: "/migrate/anthropic__claude-3-haiku-20240307__to__anthropic__claude-haiku-4-5-20251001/",
+      label: "Anthropic migrate suggestion for Claude 3 Haiku",
+    });
+  }
+  if (model.id.startsWith("anthropic.claude-3-7-sonnet")) {
+    links.push({
+      href: "/migrate/anthropic__claude-3-7-sonnet-20250219__to__anthropic__claude-sonnet-5-5/",
+      label: "Anthropic migrate suggestion for Claude 3.7 Sonnet",
+    });
+  }
+  return links;
+}
+---
+<Base
+  title={`${batchDocumentTitle(name, event, day)} | SunsetDiff`}
+  description={description}
+  image={`/og/providers/${event.provider}.svg`}
+  crumbs={[
+    { name: "Home", path: "/" },
+    { name: "Shutdowns", path: "/shutdowns/" },
+    { name: `${name} ${event.date}`, path },
+  ]}
+  extraGraph={shutdownEventGraph(
+    site,
+    headline,
+    description,
+    path,
+    eventDatePublished(event),
+    batchDateModified(event),
+    eventCitations(event),
+    faqs,
+    event.models.map((model) => ({ name: model.id, path: `/models/${model.provider}/${model.slug}/` })),
+  )}
+>
+  <h1>{headline}</h1>
+  {event.slug === COPILOT_NOV16_SLUG ? (
+    <p>
+      Last checked: {lastChecked}.{" "}
+      <a href={COPILOT_NOV16_CHANGELOG}>GitHub changelog</a>.{" "}
+      <a href={provider.deprecations_url}>GitHub Copilot supported models</a>.
+      SunsetDiff is not GitHub.
+    </p>
+  ) : null}
+  <p class="answer">{extras.answerFirst ? <strong>Short answer: </strong> : null}{lead}</p>
+  {extras.answerFirst && lastChecked ? (
+    <p>
+      Last checked against vendor sources: {lastChecked}.{" "}
+      <a href={sourceUrl}>{name} deprecation page</a>
+    </p>
+  ) : null}
+  {extras.answerFirst ? (
+    <>
+      <p><a href="/calendar.ics">Add the shutdown calendar (iCal)</a>.</p>
+      <NewsletterForm providers={providers} sourcePage={path} note={alertPitch} />
+    </>
+  ) : null}
+  {extras.note ? (
+    <p>
+      {extras.note}
+      {event.slug === "aws-bedrock-2026-11-13" ? (
+        <>
+          {" "}
+          <a href="/models/aws-bedrock/anthropic-claude-3-haiku-20240307-v1-0-2/">Claude 3 Haiku regions that already reached end of life</a>.
+        </>
+      ) : null}
+    </p>
+  ) : null}
+  {extras.groups ? (
+    <table>
+      <caption>{rows.length} model IDs grouped as snapshots, aliases, and fine-tunes. They are not {rows.length} separate models.</caption>
+      <thead>
+        <tr><th>Snapshot</th><th>Aliases</th><th>Fine-tunes</th></tr>
+      </thead>
+      <tbody>
+        {extras.groups.map((group) => (
+          <tr>
+            <td><code>{group.snapshot}</code></td>
+            <td>{group.aliases.length ? group.aliases.map((id) => <code>{id} </code>) : "None"}</td>
+            <td>{group.fineTunes.length ? group.fineTunes.map((id) => <code>{id} </code>) : "None"}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  ) : null}
+  <p>
+    {past ? "This date has passed. The rows below stay up because people still search after requests fail." : "This date is still ahead. The rows below use the published shutdown date only."}
+    {" "}
+    <a href={sourceUrl}>{name} deprecation page</a>
+    {" · "}
+    <a href={`/providers/${provider.id}/`}>{name} on SunsetDiff</a>
+    {" · "}
+    <a href={`/deadlines/${event.date.slice(0, 7)}/`}>Shutdowns in {event.date.slice(0, 7)}</a>
+    {shutdownGuide ? (
+      <>
+        {" · "}
+        <a href={guidePath(shutdownGuide.slug)}>{shutdownGuide.h1}</a>
+      </>
+    ) : null}
+  </p>
+  {extras.answerFirst ? (
+    <h2>
+      {event.provider === "openai"
+        ? past
+          ? `Which OpenAI model IDs shut down on ${event.date}?`
+          : "Which OpenAI model IDs are shutting down on October 23, 2026?"
+        : past
+          ? "Which Claude models shut down on Bedrock on November 13, 2026?"
+          : "Which Claude models reach end of life on Bedrock on November 13, 2026?"}
+    </h2>
+  ) : null}
+  <table>
+    <caption>
+      {suggestBedrock
+        ? `${rows.length} AWS Bedrock models with shutdown date ${event.date} in some Regions. AWS does not name a replacement on its lifecycle page.`
+        : `${rows.length} ${name} ${extras.groups ? "model IDs" : "models"} with shutdown date ${event.date}. A replacement cell says "Not published" when the official page did not name one.`}
+    </caption>
+    <thead>
+      <tr>
+        <th>{extras.groups ? "Model ID" : "Model"}</th>
+        {extras.showRegions ? <th>Region</th> : null}
+        <th>Status</th>
+        <th>Replacement</th>
+        <th>Migrate</th>
+        <th>Source</th>
+      </tr>
+    </thead>
+    <tbody>
+      {rows.map((row) => (
+        <tr>
+          <td><a href={`/models/${row.model.provider}/${row.model.slug}/`}>{row.label}</a></td>
+          {extras.showRegions ? <td>{row.model.region_or_platform_notes ?? "Not listed"}</td> : null}
+          <td>{row.model.status}</td>
+          <td>
+            {suggestBedrock ? (
+              <>AWS does not name a replacement on its lifecycle page.</>
+            ) : row.links.length ? (
+              <>
+                {row.links.map((link, index) => (
+                  <>
+                    {index > 0 ? ", " : ""}
+                    {link.modelPath ? <a href={link.modelPath}>{link.id}</a> : link.id}
+                  </>
+                ))}
+                {replacementSuffix(row.model.id) ? <> with <code>{replacementSuffix(row.model.id)}</code></> : null}
+              </>
+            ) : (
+              "Not published"
+            )}
+          </td>
+          <td>
+            {suggestBedrock ? (
+              bedrockSuggestions(row.model).map((link, index) => (
+                <>
+                  {index > 0 ? ", " : ""}
+                  <a href={link.href}>{link.label}</a>
+                </>
+              ))
+            ) : row.links.some((link) => link.migratePath) ? row.links.filter((link) => link.migratePath).map((link, index) => (
+              <>
+                {index > 0 ? ", " : ""}
+                <a href={link.migratePath!}>Migrate {link.id}</a>
+              </>
+            )) : "Not published"}
+          </td>
+          <td>
+            {row.model.sources.map((source, index) => (
+              <>
+                {index > 0 ? ", " : ""}
+                <a href={source.url}>{source.label}</a> (checked {source.last_checked})
+              </>
+            ))}
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+  {extras.answerFirst ? (
+    <>
+      <p><a href="/calendar.ics">Add the shutdown calendar (iCal)</a>.</p>
+      <NewsletterForm providers={providers} sourcePage={path} formId="subscribe-after-table" note={alertPitch} checkedProvider={event.provider} />
+    </>
+  ) : null}
+  {event.provider === "openai" && event.date === "2026-10-23" ? (
+    <>
+      <h2>What happens after the shutdown date</h2>
+      <p>OpenAI announced this shutdown on April 22, 2026. OpenAI's deprecations page says: "At the time of the shut down, the model or endpoint will no longer be accessible."</p>
+      <p>Self-serve fine-tuning follows the base model. Inference on a fine-tuned model is disabled when that base model is deprecated.</p>
+      <h2>How to find these model IDs in your code</h2>
+      <p>
+        <code>GET /v1/models</code> can return an optional <code>shutdown_date</code> for each model. The value is a YYYY-MM-DD date, or null when OpenAI has not set one.
+        {" "}
+        <a href="/scan/">Scan your code</a> for the ids in this table. The <a href="/calendar/">calendar</a> lists the other shutdown dates.
+      </p>
+      <h2>Not in this batch</h2>
+      <p>
+        GPT-4o snapshots gpt-4o-2024-08-06 and gpt-4o-2024-11-20, and GPT-4.1, are on the <a href="/shutdowns/openai-2027-01-14/">January 14, 2027 page</a>.
+        gpt-image-1-mini and gpt-image-1.5 are on the <a href="/shutdowns/openai-2026-12-01/">December 1, 2026 page</a>.
+        Only gpt-4o-2024-05-13 from the GPT-4o family is in this October 23 batch.
+      </p>
+      <p>
+        Azure OpenAI uses its own dates. See <a href="/providers/azure-openai/">Azure OpenAI</a>.
+        The <a href="/data/">dataset</a> is the CC BY 4.0 download of these rows.
+      </p>
+    </>
+  ) : null}
+  {suggestBedrock ? (
+    <>
+      <h2>Is my region affected?</h2>
+      <p>Read the Region column. November 13, 2026 applies only in the Regions AWS lists for that row. A Region that is not on the row keeps its own date.</p>
+      {past ? (
+        <p>In the Regions AWS lists, these models shut down on November 13, 2026. Requests started failing on that date.</p>
+      ) : (
+        <p>In the Regions AWS lists, these models are shutting down on November 13, 2026. Requests start failing on that date.</p>
+      )}
+      <p>To check the account you use, call ListFoundationModels or GetFoundationModel in that Region and read <code>modelLifecycle</code>.</p>
+      <h2>Already past EOL in other regions</h2>
+      <p>
+        Claude 3 Haiku already reached end of life on September 10, 2026 in ap-northeast-1, ap-southeast-2, eu-central-1, eu-west-1, eu-west-2, eu-west-3, us-east-1, us-east-2, us-west-2, us-gov-east-1, and us-gov-west-1.
+        See <a href="/models/aws-bedrock/anthropic-claude-3-haiku-20240307-v1-0-2/">Claude 3 Haiku regions that already reached end of life</a>.
+      </p>
+      <p>
+        Claude Sonnet 4 reached end of life on October 14, 2026 in the Regions AWS lists on the <a href="/models/aws-bedrock/anthropic-claude-sonnet-4-20250514-v1-0/">Claude Sonnet 4</a> row.
+      </p>
+      <h2>What Legacy and public extended access mean</h2>
+      <p>AWS lists a Legacy date and a public extended access start date on the lifecycle page. For Claude 3.5 Sonnet, Claude 3.5 Sonnet v2, and Claude 3.7 Sonnet, both dates are October 10, 2026. The Region column shows the Legacy date.</p>
+      <p>New customers cannot use a model after it enters Legacy. Existing customers may lose access after 15 days of inactivity. You cannot buy new Provisioned Throughput for these models. After end of life, requests fail. Migration is not automatic. Public extended access pricing is set by the provider. This page does not list a price.</p>
+      <h2>Bedrock dates vs Anthropic dates</h2>
+      <p>Only the dates on the Bedrock lifecycle page apply to Bedrock usage. Anthropic's own API dates are separate. See <a href="/providers/anthropic/">Anthropic</a>.</p>
+      <h2>Next Bedrock Claude dates</h2>
+      <p>
+        Claude Opus 4.1 reaches end of life on January 8, 2027 in the Regions on its <a href="/models/aws-bedrock/anthropic-claude-opus-4-1-20250805-v1-0/">model page</a>.
+        Claude Sonnet 4.5 reaches end of life on April 8, 2027 in the Regions on its <a href="/models/aws-bedrock/anthropic-claude-sonnet-4-5-20250929-v1-0/">model page</a>.
+      </p>
+    </>
+  ) : null}
+  {relatedErrors.length ? (
+    <>
+      <h2>Request errors</h2>
+      <p>
+        {past
+          ? "Calls that still use these model ids fail. These pages record the error text SunsetDiff could verify."
+          : "Calls that still use these model ids fail once this date arrives. These pages record the error text SunsetDiff could verify."}
+      </p>
+      <ul>
+        {relatedErrors.map((item) => (
+          <li><a href={requestErrorPath(item.slug)}>{item.h1}</a></li>
+        ))}
+      </ul>
+    </>
+  ) : null}
+  <h2>Migration checklist</h2>
+  <ol>
+    {checklist.map((step) => <li>{step}</li>)}
+  </ol>
+  {event.slug === COPILOT_NOV16_SLUG ? (
+    <p>GitHub says no action is required to remove these models after the deprecation date. SunsetDiff is not GitHub.</p>
+  ) : (
+    <p><a href="/scan/">Scan your code</a> for these model ids. Each migrate link opens the diff for that model.</p>
+  )}
+  {extras.answerFirst ? null : <NewsletterForm providers={providers} sourcePage={path} />}
+  <p><a href="/pro/">SunsetDiff Pro</a> is in early access. Join free today. You won't be charged until Pro launches, and we'll email you before your first charge. After that it's $19 a month, and you can cancel anytime. Alerts only for the models in your code are coming at launch. The form on this page is the free alert signup.</p>
+  <FaqList items={faqs} />
+</Base>

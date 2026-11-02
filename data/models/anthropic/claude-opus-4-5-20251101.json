@@ -1,0 +1,72 @@
+{
+  "id": "claude-opus-4-5-20251101",
+  "slug": "claude-opus-4-5-20251101",
+  "provider": "anthropic",
+  "display_name": "claude-opus-4-5-20251101",
+  "family": "claude-opus-4-5",
+  "status": "active",
+  "announced_date": null,
+  "deprecation_date": null,
+  "shutdown_date": "2026-11-24",
+  "shutdown_date_kind": "not_before",
+  "region_or_platform_notes": null,
+  "replacements": [],
+  "sources": [
+    {
+      "url": "https://platform.claude.com/docs/en/about-claude/model-deprecations",
+      "label": "Anthropic model deprecations",
+      "last_checked": "2026-11-02",
+      "excerpt": "claude-opus-4-5-20251101 | Active | N/A | Not sooner than November 24, 2026"
+    },
+    {
+      "url": "https://platform.claude.com/docs/en/models/opus-4-5/overview.md",
+      "label": "Anthropic model docs",
+      "last_checked": "2026-11-02",
+      "excerpt": "Model ID: claude-opus-4-5-20251101 | context window 200000 | max output 64000 | input $5/MTok | output $25/MTok"
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": 5,
+    "output_price_per_mtok": 25,
+    "cached_input_price_per_mtok": 0.5,
+    "batch_discount_pct": null,
+    "currency": "USD",
+    "context_window_tokens": 200000,
+    "max_output_tokens": 64000,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {
+      "cached_input_price_per_mtok": {
+        "url": "https://platform.claude.com/docs/en/about-claude/pricing",
+        "last_checked": "2026-11-01"
+      },
+      "context_window_tokens": {
+        "url": "https://platform.claude.com/docs/en/models/opus-4-5/overview.md",
+        "last_checked": "2026-11-01"
+      },
+      "input_price_per_mtok": {
+        "url": "https://platform.claude.com/docs/en/about-claude/pricing",
+        "last_checked": "2026-11-01"
+      },
+      "max_output_tokens": {
+        "url": "https://platform.claude.com/docs/en/models/opus-4-5/overview.md",
+        "last_checked": "2026-11-01"
+      },
+      "output_price_per_mtok": {
+        "url": "https://platform.claude.com/docs/en/about-claude/pricing",
+        "last_checked": "2026-11-01"
+      }
+    }
+  },
+  "first_seen": "2026-10-17T15:59:19.574Z",
+  "updated_at": "2026-10-24T04:39:18.299Z"
+}

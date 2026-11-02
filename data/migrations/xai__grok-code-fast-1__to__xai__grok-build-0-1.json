@@ -1,0 +1,79 @@
+{
+  "from": {
+    "provider": "xai",
+    "model_id": "grok-code-fast-1",
+    "slug": "grok-code-fast-1"
+  },
+  "to": {
+    "provider": "xai",
+    "model_id": "grok-build-0.1",
+    "slug": "grok-build-0-1"
+  },
+  "price_diff": {
+    "input_pct_change": null,
+    "output_pct_change": null,
+    "example_monthly_cost_old": null,
+    "example_monthly_cost_new": 14,
+    "currency": "USD",
+    "example_label": "Example monthly cost for 10M input tokens and 2M output tokens. Labeled example, not a bill."
+  },
+  "context_diff": {
+    "old_tokens": null,
+    "new_tokens": 256000,
+    "change_pct": null
+  },
+  "max_output_diff": {
+    "old_tokens": null,
+    "new_tokens": null,
+    "change_pct": null
+  },
+  "capability_changes": [],
+  "api_changes": [
+    {
+      "kind": "endpoint_change",
+      "detail": "The generate-text page shows the Responses API as POST https://api.x.ai/v1/responses and an OpenAI client base_url of https://api.x.ai/v1. This sample only changes the model field.",
+      "source_url": "https://docs.x.ai/developers/model-capabilities/text/generate-text"
+    }
+  ],
+  "code_change": {
+    "language": "python",
+    "before": "from openai import OpenAI\nclient = OpenAI(base_url=\"https://api.x.ai/v1\")\nresponse = client.responses.create(\n    model=\"grok-code-fast-1\",\n    input=\"Hello\",\n)\n",
+    "after": "from openai import OpenAI\nclient = OpenAI(base_url=\"https://api.x.ai/v1\")\nresponse = client.responses.create(\n    model=\"grok-build-0.1\",\n    input=\"Hello\",\n)\n",
+    "snippets": {
+      "python": {
+        "before": "from openai import OpenAI\nclient = OpenAI(base_url=\"https://api.x.ai/v1\")\nresponse = client.responses.create(\n    model=\"grok-code-fast-1\",\n    input=\"Hello\",\n)\n",
+        "after": "from openai import OpenAI\nclient = OpenAI(base_url=\"https://api.x.ai/v1\")\nresponse = client.responses.create(\n    model=\"grok-build-0.1\",\n    input=\"Hello\",\n)\n"
+      },
+      "typescript": {
+        "before": "import OpenAI from \"openai\";\nconst client = new OpenAI({ baseURL: \"https://api.x.ai/v1\" });\nconst response = await client.responses.create({\n  model: \"grok-code-fast-1\",\n  input: \"Hello\",\n});\n",
+        "after": "import OpenAI from \"openai\";\nconst client = new OpenAI({ baseURL: \"https://api.x.ai/v1\" });\nconst response = await client.responses.create({\n  model: \"grok-build-0.1\",\n  input: \"Hello\",\n});\n"
+      },
+      "curl": {
+        "before": "curl https://api.x.ai/v1/responses \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"model\":\"grok-code-fast-1\",\"input\":\"Hello\"}'\n",
+        "after": "curl https://api.x.ai/v1/responses \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"model\":\"grok-build-0.1\",\"input\":\"Hello\"}'\n"
+      }
+    }
+  },
+  "migration_checklist": [
+    "Read the shutdown date for grok-code-fast-1 on the linked official page.",
+    "Point your requests at grok-build-0.1.",
+    "Re-check price, context, and parameters on the provider pages linked here.",
+    "Ship the change before the published shutdown date."
+  ],
+  "confidence": "partial",
+  "last_checked": "2026-11-01",
+  "sources": [
+    {
+      "url": "https://docs.x.ai/developers/migration/may-15-retirement",
+      "label": "xAI model deprecations",
+      "last_checked": "2026-11-01",
+      "excerpt": "* `grok-4-0709` * `grok-code-fast-1` * `grok-3` * `grok-imagine-image-pro` > [!CAUTION] > > After **May 15, 2026 at 12:00 PM PT**, requests to the retired model slugs above will automatically redirect to `grok-4.3`."
+    },
+    {
+      "url": "https://docs.x.ai/developers/models",
+      "label": "xAI model docs",
+      "last_checked": "2026-11-01",
+      "excerpt": "M $2.50 $0.40 $5.00 grok-build-0.1 (< 200k prompt tokens) 256k $1.00 $0.20 $2.00 grok-build-0.1 (≥ 200k prompt tokens) 256k $2.00 $0.40 $4.00 grok-4.20-multi-agent-0309 (< 200k prompt tokens) 1M $1.25 $0.20 $2.50 grok-4.20-multi-agent-03"
+    }
+  ]
+}

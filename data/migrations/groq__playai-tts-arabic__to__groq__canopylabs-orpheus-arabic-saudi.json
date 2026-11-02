@@ -1,0 +1,79 @@
+{
+  "from": {
+    "provider": "groq",
+    "model_id": "playai-tts-arabic",
+    "slug": "playai-tts-arabic"
+  },
+  "to": {
+    "provider": "groq",
+    "model_id": "canopylabs/orpheus-arabic-saudi",
+    "slug": "canopylabs-orpheus-arabic-saudi"
+  },
+  "price_diff": {
+    "input_pct_change": null,
+    "output_pct_change": null,
+    "example_monthly_cost_old": null,
+    "example_monthly_cost_new": null,
+    "currency": "USD",
+    "example_label": "Example monthly cost for 10M input tokens and 2M output tokens. Labeled example, not a bill."
+  },
+  "context_diff": {
+    "old_tokens": null,
+    "new_tokens": 4000,
+    "change_pct": null
+  },
+  "max_output_diff": {
+    "old_tokens": null,
+    "new_tokens": 50000,
+    "change_pct": null
+  },
+  "capability_changes": [],
+  "api_changes": [
+    {
+      "kind": "endpoint_change",
+      "detail": "The Groq API reference says speech is POST https://api.groq.com/openai/v1/audio/speech. The printed sample uses model playai-tts and voice Fritz-PlayAI. Voice is required. This sample keeps that voice value and only changes the model field. The reference does not say the replacement accepts Fritz-PlayAI.",
+      "source_url": "https://console.groq.com/docs/api-reference"
+    }
+  ],
+  "code_change": {
+    "language": "python",
+    "before": "from groq import Groq\nclient = Groq()\nspeech = client.audio.speech.create(\n    model=\"playai-tts-arabic\",\n    voice=\"Fritz-PlayAI\",\n    input=\"Hello\",\n    response_format=\"wav\",\n)\n",
+    "after": "from groq import Groq\nclient = Groq()\nspeech = client.audio.speech.create(\n    model=\"canopylabs/orpheus-arabic-saudi\",\n    voice=\"Fritz-PlayAI\",\n    input=\"Hello\",\n    response_format=\"wav\",\n)\n",
+    "snippets": {
+      "python": {
+        "before": "from groq import Groq\nclient = Groq()\nspeech = client.audio.speech.create(\n    model=\"playai-tts-arabic\",\n    voice=\"Fritz-PlayAI\",\n    input=\"Hello\",\n    response_format=\"wav\",\n)\n",
+        "after": "from groq import Groq\nclient = Groq()\nspeech = client.audio.speech.create(\n    model=\"canopylabs/orpheus-arabic-saudi\",\n    voice=\"Fritz-PlayAI\",\n    input=\"Hello\",\n    response_format=\"wav\",\n)\n"
+      },
+      "typescript": {
+        "before": "import Groq from \"groq-sdk\";\nconst groq = new Groq();\nconst response = await groq.audio.speech.create({\n  model: \"playai-tts-arabic\",\n  voice: \"Fritz-PlayAI\",\n  input: \"Hello\",\n  response_format: \"wav\",\n});\n",
+        "after": "import Groq from \"groq-sdk\";\nconst groq = new Groq();\nconst response = await groq.audio.speech.create({\n  model: \"canopylabs/orpheus-arabic-saudi\",\n  voice: \"Fritz-PlayAI\",\n  input: \"Hello\",\n  response_format: \"wav\",\n});\n"
+      },
+      "curl": {
+        "before": "curl https://api.groq.com/openai/v1/audio/speech \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"model\":\"playai-tts-arabic\",\"input\":\"Hello\",\"voice\":\"Fritz-PlayAI\",\"response_format\":\"wav\"}'\n",
+        "after": "curl https://api.groq.com/openai/v1/audio/speech \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"model\":\"canopylabs/orpheus-arabic-saudi\",\"input\":\"Hello\",\"voice\":\"Fritz-PlayAI\",\"response_format\":\"wav\"}'\n"
+      }
+    }
+  },
+  "migration_checklist": [
+    "Read the shutdown date for playai-tts-arabic on the linked official page.",
+    "Point your requests at canopylabs/orpheus-arabic-saudi.",
+    "Re-check price, context, and parameters on the provider pages linked here.",
+    "Ship the change before the published shutdown date."
+  ],
+  "confidence": "partial",
+  "last_checked": "2026-11-01",
+  "sources": [
+    {
+      "url": "https://console.groq.com/docs/deprecations",
+      "label": "Groq model deprecations",
+      "last_checked": "2026-11-01",
+      "excerpt": "playai-tts-arabic | 2025-12-31 | canopylabs/orpheus-arabic-saudi"
+    },
+    {
+      "url": "https://console.groq.com/docs/models",
+      "label": "Groq supported models",
+      "last_checked": "2026-11-01",
+      "excerpt": "canopylabs/orpheus-arabic-saudi | preview | context 4000 | max completion 50000"
+    }
+  ]
+}

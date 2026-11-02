@@ -1,0 +1,83 @@
+{
+  "from": {
+    "provider": "fireworks",
+    "model_id": "accounts/fireworks/models/deepseek-v4-flash-vision-exp",
+    "slug": "accounts-fireworks-models-deepseek-v4-flash-vision-exp"
+  },
+  "to": {
+    "provider": "fireworks",
+    "model_id": "accounts/fireworks/models/deepseek-v4p1-flash",
+    "slug": "accounts-fireworks-models-deepseek-v4p1-flash"
+  },
+  "price_diff": {
+    "input_pct_change": null,
+    "output_pct_change": null,
+    "example_monthly_cost_old": null,
+    "example_monthly_cost_new": null,
+    "currency": "USD",
+    "example_label": "Example monthly cost for 10M input tokens and 2M output tokens. Labeled example, not a bill."
+  },
+  "context_diff": {
+    "old_tokens": null,
+    "new_tokens": null,
+    "change_pct": null
+  },
+  "max_output_diff": {
+    "old_tokens": null,
+    "new_tokens": null,
+    "change_pct": null
+  },
+  "capability_changes": [],
+  "api_changes": [
+    {
+      "kind": "endpoint_change",
+      "detail": "The quickstart shows an OpenAI client with base_url https://api.fireworks.ai/inference/v1 and POST https://api.fireworks.ai/inference/v1/chat/completions. This sample only changes the model field.",
+      "source_url": "https://docs.fireworks.ai/getting-started/quickstart"
+    },
+    {
+      "kind": "behavior_change",
+      "detail": "The changelog says dedicated deployments are unaffected.",
+      "source_url": "https://docs.fireworks.ai/updates/changelog"
+    }
+  ],
+  "code_change": {
+    "language": "python",
+    "before": "from openai import OpenAI\nclient = OpenAI(base_url=\"https://api.fireworks.ai/inference/v1\")\nresponse = client.chat.completions.create(\n    model=\"accounts/fireworks/models/deepseek-v4-flash-vision-exp\",\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n)\n",
+    "after": "from openai import OpenAI\nclient = OpenAI(base_url=\"https://api.fireworks.ai/inference/v1\")\nresponse = client.chat.completions.create(\n    model=\"accounts/fireworks/models/deepseek-v4p1-flash\",\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n)\n",
+    "snippets": {
+      "python": {
+        "before": "from openai import OpenAI\nclient = OpenAI(base_url=\"https://api.fireworks.ai/inference/v1\")\nresponse = client.chat.completions.create(\n    model=\"accounts/fireworks/models/deepseek-v4-flash-vision-exp\",\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n)\n",
+        "after": "from openai import OpenAI\nclient = OpenAI(base_url=\"https://api.fireworks.ai/inference/v1\")\nresponse = client.chat.completions.create(\n    model=\"accounts/fireworks/models/deepseek-v4p1-flash\",\n    messages=[{\"role\": \"user\", \"content\": \"Hello\"}],\n)\n"
+      },
+      "typescript": {
+        "before": "import OpenAI from \"openai\";\nconst client = new OpenAI({ baseURL: \"https://api.fireworks.ai/inference/v1\" });\nconst response = await client.chat.completions.create({\n  model: \"accounts/fireworks/models/deepseek-v4-flash-vision-exp\",\n  messages: [{ role: \"user\", content: \"Hello\" }],\n});\n",
+        "after": "import OpenAI from \"openai\";\nconst client = new OpenAI({ baseURL: \"https://api.fireworks.ai/inference/v1\" });\nconst response = await client.chat.completions.create({\n  model: \"accounts/fireworks/models/deepseek-v4p1-flash\",\n  messages: [{ role: \"user\", content: \"Hello\" }],\n});\n"
+      },
+      "curl": {
+        "before": "curl https://api.fireworks.ai/inference/v1/chat/completions \\\n  -H \"Content-Type: application/json\" \\\n  -H \"Authorization: Bearer $FIREWORKS_API_KEY\" \\\n  -d '{\"model\":\"accounts/fireworks/models/deepseek-v4-flash-vision-exp\",\"messages\":[{\"role\":\"user\",\"content\":\"Hello\"}]}'\n",
+        "after": "curl https://api.fireworks.ai/inference/v1/chat/completions \\\n  -H \"Content-Type: application/json\" \\\n  -H \"Authorization: Bearer $FIREWORKS_API_KEY\" \\\n  -d '{\"model\":\"accounts/fireworks/models/deepseek-v4p1-flash\",\"messages\":[{\"role\":\"user\",\"content\":\"Hello\"}]}'\n"
+      }
+    }
+  },
+  "migration_checklist": [
+    "Read the shutdown date for accounts/fireworks/models/deepseek-v4-flash-vision-exp on the linked official page.",
+    "Dedicated deployments are unaffected.",
+    "Point your requests at accounts/fireworks/models/deepseek-v4p1-flash and test before you send traffic."
+  ],
+  "confidence": "partial",
+  "last_checked": "2026-11-01",
+  "sources": [
+    {
+      "url": "https://docs.fireworks.ai/updates/changelog",
+      "label": "Fireworks AI changelog",
+      "last_checked": "2026-11-01",
+      "excerpt": "DeepSeek V4 Flash Vision Exp - migrate to DeepSeek V4.1 Flash"
+    },
+    {
+      "url": "https://docs.fireworks.ai/updates/changelog",
+      "label": "Named as an official replacement",
+      "last_checked": "2026-11-01",
+      "excerpt": "Named as an official replacement for accounts/fireworks/models/deepseek-v4-flash-0731."
+    }
+  ]
+}

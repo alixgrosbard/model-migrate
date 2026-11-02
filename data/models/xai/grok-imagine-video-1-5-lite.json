@@ -1,0 +1,54 @@
+{
+  "id": "grok-imagine-video-1.5-lite",
+  "slug": "grok-imagine-video-1-5-lite",
+  "provider": "xai",
+  "display_name": "grok-imagine-video-1.5-lite",
+  "family": null,
+  "status": "active",
+  "announced_date": null,
+  "deprecation_date": null,
+  "shutdown_date": null,
+  "shutdown_date_kind": "none",
+  "region_or_platform_notes": "The models page lists this id at $0.020 / sec. That price is not per million tokens. The pricing page says image and video generation are supported in the Batch API but are billed at standard rates.",
+  "replacements": [],
+  "sources": [
+    {
+      "url": "https://docs.x.ai/developers/models",
+      "label": "xAI model docs",
+      "last_checked": "2026-11-01",
+      "excerpt": "-video $0.050 / sec grok-imagine-video-1.5-lite $0.020 / sec ### Voice Pricing Mode Cost --- --- Speech to Speech (grok-voice-2.0) - Deprecated $0.08 / min ($4.80 / hr)<br />$0.004 / text input Speech to Speech (grok-voice-3.0) $0.08 / min"
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": null,
+    "output_price_per_mtok": null,
+    "cached_input_price_per_mtok": null,
+    "batch_discount_pct": 0,
+    "currency": null,
+    "context_window_tokens": null,
+    "max_output_tokens": null,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": true,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {
+      "batch_discount_pct": {
+        "url": "https://docs.x.ai/developers/pricing",
+        "last_checked": "2026-11-01"
+      },
+      "supports_batch": {
+        "url": "https://docs.x.ai/developers/pricing",
+        "last_checked": "2026-11-01"
+      }
+    }
+  },
+  "first_seen": "2026-10-27T12:00:00.000Z",
+  "updated_at": "2026-11-01T19:54:34.821Z"
+}

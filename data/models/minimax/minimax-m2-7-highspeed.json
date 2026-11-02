@@ -1,0 +1,52 @@
+{
+  "id": "MiniMax-M2.7-highspeed",
+  "slug": "minimax-m2-7-highspeed",
+  "provider": "minimax",
+  "display_name": "MiniMax-M2.7-highspeed",
+  "family": null,
+  "status": "deprecated",
+  "announced_date": null,
+  "deprecation_date": null,
+  "shutdown_date": "2026-11-18",
+  "shutdown_date_kind": "exact",
+  "region_or_platform_notes": "The retirement notice says these models are no longer available to new users on October 19, 2026, and are retired on November 18, 2026. Pay-as-you-go API requests stop working once these models are retired. Starting October 19, 2026, M Plan and Token Plan requests to M2.5 and M2.7 models are automatically routed to M3.1 Flash, and the existing model names keep working. The notice names M3.1 Flash. The Available Models table lists MiniMax-M3.1-Flash. The Retired Models table on the same page lists this id as Retired and says these models have been retired and are no longer available.",
+  "replacements": [
+    {
+      "model_id": "MiniMax-M3.1-Flash",
+      "provider": "minimax",
+      "kind": "official",
+      "source_url": "https://platform.minimax.io/docs/faq/models"
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://platform.minimax.io/docs/faq/models",
+      "label": "MiniMax model list",
+      "last_checked": "2026-11-01",
+      "excerpt": "November 18, 2026: These models will be retired. | MiniMax-M2.7-highspeed | LLM | Retired |"
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": null,
+    "output_price_per_mtok": null,
+    "cached_input_price_per_mtok": null,
+    "batch_discount_pct": null,
+    "currency": null,
+    "context_window_tokens": null,
+    "max_output_tokens": null,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {}
+  },
+  "first_seen": "2026-10-30T16:10:00.000Z",
+  "updated_at": "2026-10-30T16:10:00.000Z"
+}

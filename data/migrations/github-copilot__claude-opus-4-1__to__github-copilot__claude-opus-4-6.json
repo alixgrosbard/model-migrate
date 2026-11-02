@@ -1,0 +1,109 @@
+{
+  "from": {
+    "provider": "github-copilot",
+    "model_id": "Claude Opus 4.1",
+    "slug": "claude-opus-4-1"
+  },
+  "to": {
+    "provider": "github-copilot",
+    "model_id": "Claude Opus 4.6",
+    "slug": "claude-opus-4-6"
+  },
+  "price_diff": {
+    "input_pct_change": null,
+    "output_pct_change": null,
+    "example_monthly_cost_old": null,
+    "example_monthly_cost_new": null,
+    "currency": "USD",
+    "example_label": "Example monthly cost for 10M input tokens and 2M output tokens. Labeled example, not a bill."
+  },
+  "context_diff": {
+    "old_tokens": null,
+    "new_tokens": null,
+    "change_pct": null
+  },
+  "max_output_diff": {
+    "old_tokens": null,
+    "new_tokens": null,
+    "change_pct": null
+  },
+  "capability_changes": [],
+  "api_changes": [
+    {
+      "kind": "behavior_change",
+      "detail": "The GitHub changelog says the replacement shows up in the Copilot Chat model selector. That post does not print a request body, so this page does not show code.",
+      "source_url": "https://github.blog/changelog/2026-01-13-upcoming-deprecation-of-select-github-copilot-models-from-claude-and-openai"
+    }
+  ],
+  "code_change": {
+    "language": "python",
+    "before": "",
+    "after": "",
+    "snippets": {
+      "python": {
+        "before": "",
+        "after": ""
+      },
+      "typescript": {
+        "before": "",
+        "after": ""
+      },
+      "curl": {
+        "before": "",
+        "after": ""
+      }
+    }
+  },
+  "migration_checklist": [
+    "Read the Copilot date for Claude Opus 4.1 on the linked GitHub page.",
+    "This date is for models Copilot offers in chat and agent features. It can differ from the original provider's API date.",
+    "Choose Claude Opus 4.6 in the Copilot Chat model selector.",
+    "The linked changelog does not print a request sample."
+  ],
+  "confidence": "partial",
+  "last_checked": "2026-11-01",
+  "sources": [
+    {
+      "url": "https://docs.github.com/en/copilot/reference/ai-models/supported-models",
+      "label": "GitHub Copilot supported models",
+      "last_checked": "2026-11-01",
+      "excerpt": "Claude Opus 4.1 | 2026-02-17 | Latest Claude Opus model"
+    },
+    {
+      "url": "https://github.blog/changelog/2026-01-13-upcoming-deprecation-of-select-github-copilot-models-from-claude-and-openai",
+      "label": "GitHub Changelog",
+      "last_checked": "2026-11-01",
+      "excerpt": "Claude Opus 4.1 | Claude Opus 4.6"
+    },
+    {
+      "url": "https://github.blog/changelog/2026-02-19-selected-anthropic-and-openai-models-are-now-deprecated",
+      "label": "GitHub Changelog",
+      "last_checked": "2026-11-01",
+      "excerpt": "Claude Opus 4.1 | Claude Opus 4.6"
+    },
+    {
+      "url": "https://docs.github.com/en/copilot/reference/ai-models/supported-models",
+      "label": "GitHub Copilot supported models",
+      "last_checked": "2026-11-01",
+      "excerpt": "Claude Opus 4.6 | 2026-09-01 | Latest Claude Opus model"
+    },
+    {
+      "url": "https://github.blog/changelog/2026-07-31-upcoming-august-2026-model-deprecations-in-github-copilot",
+      "label": "GitHub Changelog",
+      "last_checked": "2026-11-01",
+      "excerpt": "Claude Opus 4.6 | Claude Opus 4.7, Claude Opus 4.8, or Claude Opus 5"
+    },
+    {
+      "url": "https://github.blog/changelog/2026-08-31-selected-github-copilot-models-deprecated",
+      "label": "GitHub Changelog",
+      "last_checked": "2026-11-01",
+      "excerpt": "Claude Opus 4.6 | Claude Opus 4.7, Claude Opus 4.8, or Claude Opus 5"
+    },
+    {
+      "url": "https://github.com/github/copilot-cli/blob/main/changelog.md",
+      "label": "GitHub Copilot CLI changelog",
+      "last_checked": "2026-11-01",
+      "excerpt": "Add support for claude-opus-4.6 model"
+    }
+  ]
+}

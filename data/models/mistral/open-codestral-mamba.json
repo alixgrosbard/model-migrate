@@ -1,0 +1,63 @@
+{
+  "id": "open-codestral-mamba",
+  "slug": "open-codestral-mamba",
+  "provider": "mistral",
+  "display_name": "Codestral Mamba 7B (0.1)",
+  "family": null,
+  "status": "retired",
+  "announced_date": null,
+  "deprecation_date": "2025-06-06",
+  "shutdown_date": "2025-06-06",
+  "shutdown_date_kind": "exact",
+  "region_or_platform_notes": "Replacement named on the models page: Codestral.",
+  "replacements": [
+    {
+      "model_id": "codestral-2405",
+      "provider": "mistral",
+      "kind": "official",
+      "source_url": "https://docs.mistral.ai/models"
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://docs.mistral.ai/models",
+      "label": "Mistral models",
+      "last_checked": "2026-11-01",
+      "excerpt": "Codestral Mamba 7B | 0.1 | open-codestral-mamba | 6/6/2025 6/6/2025 | Codestral"
+    },
+    {
+      "url": "https://docs.mistral.ai/models/codestral-mamba-7b-0-1",
+      "label": "Mistral model docs",
+      "last_checked": "2026-11-01",
+      "excerpt": "open-codestral-mamba | Context 256k"
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": null,
+    "output_price_per_mtok": null,
+    "cached_input_price_per_mtok": null,
+    "batch_discount_pct": null,
+    "currency": null,
+    "context_window_tokens": 256000,
+    "max_output_tokens": null,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {
+      "context_window_tokens": {
+        "url": "https://docs.mistral.ai/models/codestral-mamba-7b-0-1",
+        "last_checked": "2026-11-01"
+      }
+    }
+  },
+  "first_seen": "2026-10-17T15:59:19.574Z",
+  "updated_at": "2026-10-24T04:39:18.299Z"
+}

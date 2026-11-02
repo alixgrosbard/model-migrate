@@ -1,0 +1,73 @@
+{
+  "from": {
+    "provider": "openai",
+    "model_id": "dall-e-3",
+    "slug": "dall-e-3"
+  },
+  "to": {
+    "provider": "openai",
+    "model_id": "gpt-image-2",
+    "slug": "gpt-image-2"
+  },
+  "price_diff": {
+    "input_pct_change": null,
+    "output_pct_change": null,
+    "example_monthly_cost_old": null,
+    "example_monthly_cost_new": null,
+    "currency": "USD",
+    "example_label": "Example monthly cost for 10M input tokens and 2M output tokens. Labeled example, not a bill."
+  },
+  "context_diff": {
+    "old_tokens": null,
+    "new_tokens": null,
+    "change_pct": null
+  },
+  "max_output_diff": {
+    "old_tokens": null,
+    "new_tokens": null,
+    "change_pct": null
+  },
+  "capability_changes": [],
+  "api_changes": [],
+  "code_change": {
+    "language": "python",
+    "before": "from openai import OpenAI\nclient = OpenAI()\nresult = client.images.generate(\n    model=\"dall-e-3\",\n    prompt=\"A watercolor robot reading in a library\",\n)\n",
+    "after": "from openai import OpenAI\nclient = OpenAI()\nresult = client.images.generate(\n    model=\"gpt-image-2\",\n    prompt=\"A watercolor robot reading in a library\",\n)\n",
+    "snippets": {
+      "python": {
+        "before": "from openai import OpenAI\nclient = OpenAI()\nresult = client.images.generate(\n    model=\"dall-e-3\",\n    prompt=\"A watercolor robot reading in a library\",\n)\n",
+        "after": "from openai import OpenAI\nclient = OpenAI()\nresult = client.images.generate(\n    model=\"gpt-image-2\",\n    prompt=\"A watercolor robot reading in a library\",\n)\n"
+      },
+      "typescript": {
+        "before": "import OpenAI from \"openai\";\nconst openai = new OpenAI();\nconst result = await openai.images.generate({\n  model: \"dall-e-3\",\n  prompt: \"A watercolor robot reading in a library\",\n});\n",
+        "after": "import OpenAI from \"openai\";\nconst openai = new OpenAI();\nconst result = await openai.images.generate({\n  model: \"gpt-image-2\",\n  prompt: \"A watercolor robot reading in a library\",\n});\n"
+      },
+      "curl": {
+        "before": "curl -X POST \"https://api.openai.com/v1/images/generations\" \\\n  -H \"Authorization: Bearer $OPENAI_API_KEY\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"model\":\"dall-e-3\",\"prompt\":\"A watercolor robot reading in a library\"}'\n",
+        "after": "curl -X POST \"https://api.openai.com/v1/images/generations\" \\\n  -H \"Authorization: Bearer $OPENAI_API_KEY\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"model\":\"gpt-image-2\",\"prompt\":\"A watercolor robot reading in a library\"}'\n"
+      }
+    }
+  },
+  "migration_checklist": [
+    "Read the shutdown date for dall-e-3 on the linked official page.",
+    "Point your requests at gpt-image-2.",
+    "Re-check price, context, and parameters on the provider pages linked here.",
+    "Ship the change before the published shutdown date."
+  ],
+  "confidence": "partial",
+  "last_checked": "2026-11-01",
+  "sources": [
+    {
+      "url": "https://developers.openai.com/api/docs/deprecations",
+      "label": "OpenAI deprecations",
+      "last_checked": "2026-11-01",
+      "excerpt": "2026-05-12 | dall-e-3 | gpt-image-2, gpt-image-1, or gpt-image-1-mini"
+    },
+    {
+      "url": "https://developers.openai.com/api/docs/deprecations",
+      "label": "Named as an official replacement",
+      "last_checked": "2026-11-01",
+      "excerpt": "Named as an official replacement for dall-e-2. No shutdown date was published for this id on that page."
+    }
+  ]
+}

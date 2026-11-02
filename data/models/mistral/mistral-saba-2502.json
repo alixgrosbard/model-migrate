@@ -1,0 +1,56 @@
+{
+  "id": "mistral-saba-2502",
+  "slug": "mistral-saba-2502",
+  "provider": "mistral",
+  "display_name": "Mistral Saba (25.02)",
+  "family": null,
+  "status": "retired",
+  "announced_date": null,
+  "deprecation_date": "2025-06-10",
+  "shutdown_date": "2025-09-30",
+  "shutdown_date_kind": "exact",
+  "region_or_platform_notes": "Replacement named on the models page: Mistral Small 4.",
+  "replacements": [],
+  "sources": [
+    {
+      "url": "https://docs.mistral.ai/models",
+      "label": "Mistral models",
+      "last_checked": "2026-11-01",
+      "excerpt": "Mistral Saba | 25.02 | mistral-saba-2502 | 6/10/2025 9/30/2025 | Mistral Small 4"
+    },
+    {
+      "url": "https://docs.mistral.ai/models/mistral-saba-25-02",
+      "label": "Mistral model docs",
+      "last_checked": "2026-11-01",
+      "excerpt": "mistral-saba-2502 | Context 32k"
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": null,
+    "output_price_per_mtok": null,
+    "cached_input_price_per_mtok": null,
+    "batch_discount_pct": null,
+    "currency": null,
+    "context_window_tokens": 32000,
+    "max_output_tokens": null,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {
+      "context_window_tokens": {
+        "url": "https://docs.mistral.ai/models/mistral-saba-25-02",
+        "last_checked": "2026-11-01"
+      }
+    }
+  },
+  "first_seen": "2026-10-17T15:59:19.574Z",
+  "updated_at": "2026-10-24T04:39:18.299Z"
+}

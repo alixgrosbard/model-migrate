@@ -1,0 +1,73 @@
+{
+  "id": "Gemini 3 Pro",
+  "slug": "gemini-3-pro",
+  "provider": "github-copilot",
+  "display_name": "Gemini 3 Pro",
+  "family": null,
+  "status": "retired",
+  "announced_date": null,
+  "deprecation_date": null,
+  "shutdown_date": "2026-03-26",
+  "shutdown_date_kind": "exact",
+  "region_or_platform_notes": "Supported models page suggested alternative: Latest Gemini Flash model. Copilot CLI model id: gemini-3-pro-preview.",
+  "lookup_aliases": [
+    "gemini-3-pro-preview"
+  ],
+  "replacements": [
+    {
+      "model_id": "Gemini 3.1 Pro",
+      "provider": "github-copilot",
+      "kind": "official",
+      "source_url": "https://github.blog/changelog/2026-03-26-gemini-3-pro-deprecated"
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://docs.github.com/en/copilot/reference/ai-models/supported-models",
+      "label": "GitHub Copilot supported models",
+      "last_checked": "2026-11-01",
+      "excerpt": "Gemini 3 Pro | 2026-03-26 | Latest Gemini Flash model"
+    },
+    {
+      "url": "https://github.blog/changelog/2026-03-02-upcoming-deprecation-of-gemini-3-pro-and-gpt-5-1-models",
+      "label": "GitHub Changelog",
+      "last_checked": "2026-11-01",
+      "excerpt": "Gemini 3 Pro | Gemini 3.1 Pro"
+    },
+    {
+      "url": "https://github.blog/changelog/2026-03-26-gemini-3-pro-deprecated",
+      "label": "GitHub Changelog",
+      "last_checked": "2026-11-01",
+      "excerpt": "Gemini 3 Pro | Gemini 3.1 Pro"
+    },
+    {
+      "url": "https://github.com/github/copilot-cli/blob/main/changelog.md",
+      "label": "GitHub Copilot CLI changelog",
+      "last_checked": "2026-11-01",
+      "excerpt": "Remove support for gemini-3-pro-preview model"
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": null,
+    "output_price_per_mtok": null,
+    "cached_input_price_per_mtok": null,
+    "batch_discount_pct": null,
+    "currency": null,
+    "context_window_tokens": null,
+    "max_output_tokens": null,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {}
+  },
+  "first_seen": "2026-10-29T12:00:00.000Z",
+  "updated_at": "2026-10-31T12:00:00.000Z"
+}
