@@ -182,6 +182,20 @@ const openaiGuides = provider.id === "openai"
       That date is a floor, so there is no /shutdowns/anthropic-2026-11-24/ page and no shutdown guide.
       <a href="/#soonest">Soonest shutdowns on the homepage</a>.
     </p>
+  ) : provider.id === "google-vertex" ? (
+    <p>
+      Official source: <a href={provider.deprecations_url}>{provider.deprecations_url}</a>.
+      November 19, 2026 is the retirement date the model versions page lists for gemini-3.6-flash.
+      The replacement model ID is gemini-3.8-flash.
+      December 13, 2026 is the retirement date that page lists for gemini-live-2.5-flash-native-audio.
+      The replacement model ID is gemini-3.8-live.
+      Each of those dates has one exact model, short of the three-model batch, so there is no /shutdowns/google-vertex-2026-11-19/ page and there is no /shutdowns/google-vertex-2026-12-13/ page.
+      veo-3.1-generate-001 and veo-3.1-fast-generate-001 list November 17, 2026 or later, with no replacement model ID.
+      That date is a floor, so there is no /shutdowns/google-vertex-2026-11-17/ page.
+      <a href="/shutdowns/google-vertex-2026-10-20/">October 20, 2026 shutdowns</a>.
+      <a href="/guides/vertex-ai-gemini-retirements-november-december-2026/">November and December 2026 Gemini guide</a>.
+      <a href="/#soonest">Soonest shutdowns on the homepage</a>.
+    </p>
   ) : provider.id === "google-gemini-api" ? (
     <p>
       Official source: <a href={provider.deprecations_url}>{provider.deprecations_url}</a>.
