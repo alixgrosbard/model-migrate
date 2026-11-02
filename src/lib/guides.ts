@@ -30,6 +30,8 @@ import {
   isOpus45RetirementFloor,
   isSonnet45Nov30Shutdown,
   isVertexNovDecGemini,
+  OPENROUTER_NOV_DEC_GUIDE_SLUG,
+  showsOpenRouterNovDecGuide,
   JANUARY_2027_AUDIO_GUIDE_SLUG,
   JANUARY_2027_GPT4_GUIDE_SLUG,
   MINIMAX_NOV18_GUIDE_SLUG,
@@ -2463,6 +2465,7 @@ export function guidesForModel(model: ModelRecord, catalog: ModelRecord[]): Mode
   if (isAzureNov19OSeries(model) || isAzureCodexMini(model) || isAzureChatLatestNov17(model)) add(AZURE_NOV19_GUIDE_SLUG);
   if (isCopilotNov16Shutdown(model)) add(COPILOT_NOV16_GUIDE_SLUG);
   if (isFireworksNov7Shutdown(model)) add(FIREWORKS_NOV7_GUIDE_SLUG);
+  if (showsOpenRouterNovDecGuide(model)) add(OPENROUTER_NOV_DEC_GUIDE_SLUG);
   if (isNebiusNov9Shutdown(model)) add(NEBIUS_NOV9_GUIDE_SLUG);
   if (isGeminiNov17Shutdown(model)) add(GEMINI_NOV17_GUIDE_SLUG);
   if (

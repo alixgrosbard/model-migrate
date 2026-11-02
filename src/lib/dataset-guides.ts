@@ -956,6 +956,8 @@ export function datasetShutdownGuides(catalog: ModelRecord[] = readCatalog()): G
   if (gemini.length) pages.push(geminiNov17Guide(gemini, catalog));
   const vertexNovDec = rowsFor(isVertexNovDecGemini, catalog);
   if (vertexNovDec.length) pages.push(vertexNovDecGuide(vertexNovDec, catalog));
+  const openrouterNovDec = rowsFor(isOpenRouterNovDecExpiration, catalog);
+  if (openrouterNovDec.length) pages.push(openRouterNovDecGuide(openrouterNovDec, catalog));
   const sonnet45 = rowsFor(isSonnet45Nov30Shutdown, catalog);
   if (sonnet45.length) pages.push(sonnet45Nov30Guide(sonnet45, catalog));
   const opus45 = rowsFor(isOpus45RetirementFloor, catalog);
@@ -3543,6 +3545,286 @@ async with client.aio.live.connect(
       VERTEX_LIVE_MIGRATE,
       VERTEX_MIGRATE,
       GEMINI_DEPRECATIONS,
+    ],
+  };
+}
+
+/**
+ * expiration_date values read from the OpenRouter models API on 2026-11-02.
+ * Every non-null expiration_date in that response is in this list.
+ * The stored model files were not edited to match this check.
+ */
+export const OPENROUTER_NOV_DEC_CHECKED = "2026-11-02";
+export const OPENROUTER_NOV_DEC_GUIDE_SLUG = "openrouter-model-expirations-november-december-2026";
+const OPENROUTER_MODELS_API = "https://openrouter.ai/api/v1/models?output_modalities=all";
+const OPENROUTER_MODELS_GUIDE = "https://openrouter.ai/docs/guides/overview/models";
+const OPENROUTER_MODEL_SCHEMA = "https://openrouter.ai/docs/client-sdks/python/components/model";
+const OPENROUTER_QUICKSTART = "https://openrouter.ai/docs/quickstart";
+const OPENROUTER_CATALOG = "https://openrouter.ai/models";
+const OPENROUTER_GITHUB_ACTION = "https://sunsetdiff.com/github-action/";
+const OPENROUTER_DEPRECATION_QUOTE = "Deprecation date for the model endpoint (null if not deprecated)";
+const OPENROUTER_REMOVAL_QUOTE =
+  "The date after which the model may be removed. ISO 8601 date string (YYYY-MM-DD) or null if no expiration.";
+const OPENROUTER_LOOKUP_404 =
+  "Returns 404 if the model doesn't exist and isn't an alias for another model, including a catalog variant suffix on a model that has no such entry.";
+const OPENROUTER_ALIAS_SENTENCE =
+  "The examples below use ~openai/gpt-sol-latest, a latest alias that always resolves to the newest model in the OpenAI GPT Sol family, so your code keeps using the freshest version without redeploying. You can substitute any model slug here.";
+const OPENROUTER_ACTION_QUOTE = "A model is reported when its status is retired, deprecated, or legacy.";
+
+const OPENROUTER_NOV_DEC_LIVE: { id: string; expiration: string; canonical: string }[] = [
+  { id: "meta-llama/llama-3.1-70b-instruct", expiration: "2026-11-03", canonical: "meta-llama/llama-3.1-70b-instruct" },
+  { id: "thinkingmachines/inkling-small:free", expiration: "2026-11-04", canonical: "thinkingmachines/inkling-small-20260730" },
+  { id: "thinkingmachines/inkling:free", expiration: "2026-11-04", canonical: "thinkingmachines/inkling-20260715" },
+  { id: "bytedance-seed/seed-1.6", expiration: "2026-11-11", canonical: "bytedance-seed/seed-1.6-20250625" },
+  { id: "bytedance-seed/seed-1.6-flash", expiration: "2026-11-11", canonical: "bytedance-seed/seed-1.6-flash-20250625" },
+  { id: "bytedance-seed/seed-2.0-code", expiration: "2026-11-11", canonical: "bytedance-seed/seed-2.0-code-20260730" },
+  { id: "bytedance/seedance-1-5-pro", expiration: "2026-11-11", canonical: "bytedance/seedance-1-5-pro-20260320" },
+  { id: "liquid/d1", expiration: "2026-11-20", canonical: "liquid/d1-20260930" },
+  { id: "heygen/heygen-voice-1-turbo:free", expiration: "2026-11-30", canonical: "heygen/heygen-voice-1-turbo-20261009" },
+  { id: "microsoft/mai-transcribe-1.5", expiration: "2026-12-22", canonical: "microsoft/mai-transcribe-1.5" },
+  { id: "dots-studio/dots-3-note-preview:free", expiration: "2026-12-31", canonical: "dots-studio/dots-3-note-preview-20260813" },
+  { id: "microsoft/mai-voice-2", expiration: "2026-12-31", canonical: "microsoft/mai-voice-2" },
+  { id: "microsoft/mai-voice-2-flash", expiration: "2026-12-31", canonical: "microsoft/mai-voice-2-flash-20260723" },
+  { id: "z-ai/glm-4.5", expiration: "2026-12-31", canonical: "z-ai/glm-4.5" },
+  { id: "z-ai/glm-4.5v", expiration: "2026-12-31", canonical: "z-ai/glm-4.5v" },
+  { id: "z-ai/glm-4.7", expiration: "2026-12-31", canonical: "z-ai/glm-4.7-20251222" },
+];
+
+/** Stored rows whose ids were absent from the models API body on 2026-11-02. */
+const OPENROUTER_ABSENT_ON_CHECK = [
+  "nousresearch/hermes-3-llama-3.1-405b",
+  "nousresearch/hermes-3-llama-3.1-70b",
+  "x-ai/grok-imagine-image-quality",
+  "poolside/laguna-s-2.1",
+  "poolside/laguna-s-2.1:free",
+  "poolside/laguna-xs-2.1",
+  "poolside/laguna-xs-2.1:free",
+  "upstage/solar-pro-3",
+] as const;
+
+const OPENROUTER_ABSENT_IN_WINDOW = [
+  "nousresearch/hermes-3-llama-3.1-405b",
+  "nousresearch/hermes-3-llama-3.1-70b",
+  "x-ai/grok-imagine-image-quality",
+] as const;
+
+const OPENROUTER_ABSENT_BEFORE_WINDOW = [
+  "poolside/laguna-s-2.1",
+  "poolside/laguna-s-2.1:free",
+  "poolside/laguna-xs-2.1",
+  "poolside/laguna-xs-2.1:free",
+  "upstage/solar-pro-3",
+] as const;
+
+export function isOpenRouterNovDecExpiration(model: ModelRecord): boolean {
+  if (model.provider !== "openrouter" || model.shutdown_date_kind !== "not_before") return false;
+  return OPENROUTER_NOV_DEC_LIVE.some((item) => item.id === model.id && item.expiration === model.shutdown_date);
+}
+
+export function showsOpenRouterNovDecGuide(model: ModelRecord): boolean {
+  if (model.provider !== "openrouter") return false;
+  if (isOpenRouterNovDecExpiration(model)) return true;
+  return (OPENROUTER_ABSENT_ON_CHECK as readonly string[]).includes(model.id);
+}
+
+function openRouterModel(catalog: ModelRecord[], id: string): ModelRecord | undefined {
+  return catalog.find((model) => model.provider === "openrouter" && model.id === id);
+}
+
+function openRouterIdCell(catalog: ModelRecord[], id: string): string {
+  const model = openRouterModel(catalog, id);
+  return model ? modelLink(model) : id;
+}
+
+function openRouterSearch(ids: string[]): string {
+  const flags = [...new Set(ids)].map((id) => `-e '${id}'`).join(" ");
+  return `rg -n -F ${flags}\n`;
+}
+
+function openRouterNovDecGuide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePage {
+  const storedIds = new Set(rows.map((model) => model.id));
+  const unstored = OPENROUTER_NOV_DEC_LIVE.filter((item) => !storedIds.has(item.id));
+  const unstoredSentence = unstored.length
+    ? `${unstored.map((item) => item.id).join(" and ")} ${unstored.length === 1 ? "is" : "are"} on the API and not stored.`
+    : "Every slug in that list is stored.";
+  const canonicalRows = OPENROUTER_NOV_DEC_LIVE.filter((item) => item.canonical !== item.id);
+  const searchIds = OPENROUTER_NOV_DEC_LIVE.flatMap((item) => item.canonical === item.id ? [item.id] : [item.id, item.canonical]);
+  const windowAbsent = OPENROUTER_ABSENT_IN_WINDOW.map((id) => openRouterModel(catalog, id)).filter((model): model is ModelRecord => Boolean(model));
+  const earlierAbsent = OPENROUTER_ABSENT_BEFORE_WINDOW.map((id) => openRouterModel(catalog, id)).filter((model): model is ModelRecord => Boolean(model));
+  const sources = [
+    { label: "OpenRouter models API", url: OPENROUTER_MODELS_API },
+    { label: "OpenRouter models guide", url: OPENROUTER_MODELS_GUIDE },
+    { label: "OpenRouter model schema", url: OPENROUTER_MODEL_SCHEMA },
+  ];
+  return {
+    slug: OPENROUTER_NOV_DEC_GUIDE_SLUG,
+    title: "OpenRouter model expirations in November and December 2026 | SunsetDiff",
+    description: `OpenRouter expiration_date values from November 3 through December 31, 2026. Each date is a not-before removal floor. The API does not name a replacement.`,
+    h1: "OpenRouter model expirations in November and December 2026",
+    summary: `The 16 OpenRouter slugs with an expiration_date from November 3 through December 31, 2026, how to read that field, and how to change the model string.`,
+    answer: `Checked on ${OPENROUTER_NOV_DEC_CHECKED}, the OpenRouter models API lists ${OPENROUTER_NOV_DEC_LIVE.length} models with a non-null expiration_date, and every one of those dates is from 2026-11-03 through 2026-12-31. The models guide calls that field the deprecation date for the model endpoint. The model schema says it is the date after which the model may be removed, not a day the model is guaranteed to stop. SunsetDiff stores the same day as shutdown_date_kind not_before, which means not before that day. The API response does not name a replacement. ${rows.length} of the slugs are stored and the stored day matches. ${unstoredSentence} A shutdown batch page needs an exact date, so there is no /shutdowns/openrouter-2026-11-11/ page and there is no /shutdowns/openrouter-2026-12-31/ page.`,
+    checked: OPENROUTER_NOV_DEC_CHECKED,
+    steps: [
+      {
+        name: "Read expiration_date as not before that day",
+        text: `The table is every slug in the ${OPENROUTER_NOV_DEC_CHECKED} models API response whose expiration_date is set. The models guide says: "${OPENROUTER_DEPRECATION_QUOTE}" The model schema says: "${OPENROUTER_REMOVAL_QUOTE}" Do not treat the day as the morning the model stops.`,
+      },
+      {
+        name: "Find the slugs in your code",
+        text: "Search for the id and, when it differs, the canonical_slug. The quickstart puts the slug in the model field. Also check env files, YAML, TOML, and JSON. The scan page leaves not_before ids out, so run the search yourself.",
+      },
+      {
+        name: "Pick a current slug from the same author",
+        text: "OpenRouter does not name a replacement for these slugs. Pick a current model from the same author prefix on the OpenRouter catalog. A current slug has expiration_date null. SunsetDiff does not store null dates, so that slug is not on the OpenRouter provider page.",
+      },
+      {
+        name: "Change the model field and send a test call",
+        text: `The quickstart posts to https://openrouter.ai/api/v1/responses with the slug in model. Its sample slug is ~openai/gpt-sol-latest. That is a latest alias for GPT Sol, not a replacement for these models. Put the slug you picked in model and send one real prompt before you depend on the old id.`,
+      },
+    ],
+    sections: [
+      {
+        heading: "What expires and when",
+        paragraphs: [
+          `These 16 slugs are the full set of non-null expiration_date values in the models API response checked on ${OPENROUTER_NOV_DEC_CHECKED}. output_modalities=all is the list this site reads, because the default list omits models whose output is not text. No row in that response uses 2026-11-02. The earliest date is 2026-11-03.`,
+          `The models guide says expiration_date is: "${OPENROUTER_DEPRECATION_QUOTE}" The model schema says: "${OPENROUTER_REMOVAL_QUOTE}" SunsetDiff copies that day into deprecation_date and shutdown_date and sets shutdown_date_kind to not_before. Model pages say not sooner than that day. Not before and not sooner than are the same floor. OpenRouter did not publish a second date.`,
+          `The recommended replacement cell is Not published. The API response does not name a replacement, and the description text on these rows does not name one either. This guide does not fill a slug in.`,
+          unstored.length
+            ? `${unstored.map((item) => `${item.id} (expiration_date ${item.expiration})`).join(" and ")} ${unstored.length === 1 ? "is" : "are"} in the API response and ${unstored.length === 1 ? "has" : "have"} no SunsetDiff model page. The stored files were not edited for this guide.`
+            : "Every slug in the table has a stored OpenRouter row, and the stored shutdown_date matches expiration_date.",
+          storedIds.size
+            ? `${rows.length} stored rows match the API day and the kind not_before: ${idList(rows)}.`
+            : "No stored row matches this API list.",
+        ],
+        table: {
+          caption: `${OPENROUTER_NOV_DEC_LIVE.length} OpenRouter slugs with expiration_date from 2026-11-03 through 2026-12-31, read on ${OPENROUTER_NOV_DEC_CHECKED}.`,
+          headers: ["Model id", "expiration_date", "How to read it", "Recommended replacement"],
+          rows: OPENROUTER_NOV_DEC_LIVE.map((item) => [
+            openRouterIdCell(catalog, item.id),
+            item.expiration,
+            `Not before ${item.expiration}. The model may be removed after it.`,
+            "Not published",
+          ]),
+        },
+        sources,
+      },
+      {
+        heading: "canonical_slug is not a replacement",
+        paragraphs: [
+          "Some rows set canonical_slug to a dated id that is different from the id you send. Search for both strings. The dated slug is not a model OpenRouter told you to switch to.",
+          canonicalRows.length
+            ? `${canonicalRows.length} slugs in this window have a different canonical_slug. The other ${OPENROUTER_NOV_DEC_LIVE.length - canonicalRows.length} use the same string for id and canonical_slug.`
+            : "Every slug in this window uses the same string for id and canonical_slug.",
+        ],
+        table: {
+          caption: "Ids in this window whose canonical_slug differs.",
+          headers: ["Model id", "canonical_slug"],
+          rows: canonicalRows.map((item) => [openRouterIdCell(catalog, item.id), item.canonical]),
+        },
+        sources: [{ label: "OpenRouter models API", url: OPENROUTER_MODELS_API }],
+      },
+      {
+        heading: "Stored rows the API no longer lists",
+        paragraphs: [
+          windowAbsent.length
+            ? `Three stored rows use shutdown date 2026-11-02, which is inside this window: ${windowAbsent.map((model) => modelLink(model)).join(", ")}. The models API body checked on ${OPENROUTER_NOV_DEC_CHECKED} does not include those ids. This guide does not treat them as current expirations.`
+            : "No stored OpenRouter row still uses 2026-11-02.",
+          earlierAbsent.length
+            ? `Five stored rows use October dates, which are before this window: ${earlierAbsent.map((model) => modelLink(model)).join(", ")}. Those ids are also absent from the same API body. The stored files were not changed.`
+            : "No stored October OpenRouter rows were checked.",
+          `A shutdown batch page needs at least ${SHUTDOWN_BATCH_MIN} model records that share one provider and one exact shutdown date. Every date in this guide is kind not_before. A floor does not get a batch page, so there is no /shutdowns/openrouter-2026-11-11/ page and there is no /shutdowns/openrouter-2026-12-31/ page. December 31 has more than ${SHUTDOWN_BATCH_MIN} slugs, and it is still a floor.`,
+        ],
+        sources,
+      },
+      {
+        heading: "What a request does after the date",
+        paragraphs: [
+          `OpenRouter does not print the HTTP status a responses request returns after expiration_date. The schema says the model may be removed after that day. It does not say the model stops on that morning, and it does not say the call is rerouted.`,
+          `The models guide does document a missing model on the lookup endpoint. It says: "${OPENROUTER_LOOKUP_404}" The sample on that page is GET /api/v1/model/{id}. That sentence is about a catalog entry that is not there. It is not a documented post-expiry error for POST /api/v1/responses. This guide does not invent the error body.`,
+        ],
+        sources: [
+          { label: "OpenRouter models guide", url: OPENROUTER_MODELS_GUIDE },
+          { label: "OpenRouter model schema", url: OPENROUTER_MODEL_SCHEMA },
+        ],
+      },
+      {
+        heading: "Find the model ids in your code",
+        paragraphs: [
+          "Search the repository for each id in the table. Where canonical_slug differs, search for that string too. A hit is a candidate. Open the call and read the model field before you edit it. [How to find every model ID in your codebase](/guides/find-model-ids-in-your-codebase/) covers SDK argument names.",
+          `The [scan page](/scan/) builds its pattern from exact and month-only shutdown dates. not_before is left out, so these OpenRouter slugs are not in that pattern. The [GitHub Action](/github-action/) says: "${OPENROUTER_ACTION_QUOTE}" The stored rows are deprecated, so a hit on a stored slug is reported. The Action still uses the stored day when it chooses a warning or an error. That does not turn the floor into an exact shutdown day. The two Thinking Machines slugs are not stored, so the Action does not know them until a row exists.`,
+          "The quickstart says the examples use ~openai/gpt-sol-latest. Search for the expiring slugs, not only for that alias.",
+        ],
+        codes: [{ caption: "ripgrep, fixed strings, ids and canonical_slug values", code: openRouterSearch(searchIds) }],
+        sources: [
+          { label: "OpenRouter models API", url: OPENROUTER_MODELS_API },
+          { label: "OpenRouter quickstart", url: OPENROUTER_QUICKSTART },
+          { label: "SunsetDiff GitHub Action", url: OPENROUTER_GITHUB_ACTION },
+        ],
+      },
+      {
+        heading: "How to switch",
+        paragraphs: [
+          `The quickstart says: "${OPENROUTER_ALIAS_SENTENCE}" Browse current slugs at the OpenRouter catalog, or read expiration_date from GET /api/v1/models. Pick a slug from the same author prefix whose expiration_date is null. The prefixes in this window are meta-llama, thinkingmachines, bytedance-seed, bytedance, liquid, heygen, microsoft, dots-studio, and z-ai. SunsetDiff has one [OpenRouter provider page](/providers/openrouter/). It does not have a separate page for those authors, and it does not list slugs whose expiration_date is null.`,
+          "The quickstart posts to https://openrouter.ai/api/v1/responses and puts the slug in the model field. The OpenAI SDK sample on that page sets base_url to https://openrouter.ai/api/v1 and calls responses.create. The quickstart also passes the OpenRouter key. This page leaves the key out. Change the model string only after you have chosen the new slug. ~openai/gpt-sol-latest is the quickstart's example alias. It is not the replacement for these models.",
+          "If a fallback list names one of these slugs, update that list too. The [swap guide](/guides/swap-a-deprecated-model/#openrouter) quotes the models array from OpenRouter's model fallbacks guide. The [OpenRouter framework page](/frameworks/openrouter/) shows where the slug sits in the SDK samples that page documents. The [pre-migration test checklist](/guides/pre-migration-test-checklist/) is the longer list once you have a slug to test: evals, rejected fields, token limits, tools, price, and latency.",
+        ],
+        codes: [{
+          caption: "Model field only. Add the key the way the quickstart shows. Do not copy this placeholder slug.",
+          code: `response = client.responses.create(
+    model="author/model-you-pick",
+    input="Hello",
+)
+`,
+        }],
+        sources: [
+          { label: "OpenRouter quickstart", url: OPENROUTER_QUICKSTART },
+          { label: "OpenRouter model catalog", url: OPENROUTER_CATALOG },
+          { label: "OpenRouter models API", url: OPENROUTER_MODELS_API },
+        ],
+      },
+    ],
+    related: [
+      { href: "/providers/openrouter/", label: "OpenRouter provider page" },
+      { href: "/frameworks/openrouter/", label: "OpenRouter model slug" },
+      { href: "/guides/find-model-ids-in-your-codebase/", label: "Find model ids in your codebase" },
+      { href: "/guides/swap-a-deprecated-model/#openrouter", label: "Swap a deprecated model on OpenRouter" },
+      { href: "/guides/pre-migration-test-checklist/", label: "Pre-migration test checklist" },
+      { href: "/github-action/", label: "GitHub Action" },
+      { href: "/scan/", label: "Scan retiring ids" },
+    ],
+    faqs: [
+      {
+        question: "Which OpenRouter models expire between November 2 and December 31, 2026?",
+        answer: `The models API checked on ${OPENROUTER_NOV_DEC_CHECKED} lists ${OPENROUTER_NOV_DEC_LIVE.map((item) => `${item.id} (${item.expiration})`).join(", ")}. Those are the only non-null expiration_date values in that response. ${rows.length} are stored. ${unstoredSentence}`,
+      },
+      {
+        question: "Does the model stop on expiration_date?",
+        answer: `No shutdown day is promised. The models guide says: "${OPENROUTER_DEPRECATION_QUOTE}" The model schema says: "${OPENROUTER_REMOVAL_QUOTE}" SunsetDiff stores the kind not_before. Read the day as not before that date.`,
+      },
+      {
+        question: "What does a request return after the date?",
+        answer: `Not documented for POST /api/v1/responses. The models guide says: "${OPENROUTER_LOOKUP_404}" That sentence is about GET /api/v1/model/{id} when the model is missing. This page does not invent a chat or responses error.`,
+      },
+      {
+        question: "What is the official replacement?",
+        answer: "Not published. The models API does not name a replacement for these slugs, and this guide does not invent one. Pick a current slug from the same author prefix whose expiration_date is null. The OpenRouter provider page lists only slugs that have an expiration_date.",
+      },
+      {
+        question: "Why is there no OpenRouter shutdown batch page for these dates?",
+        answer: `A shutdown batch page needs at least ${SHUTDOWN_BATCH_MIN} model records that share one provider and one exact shutdown date. These dates are kind not_before. There is no /shutdowns/openrouter-2026-11-11/ page and there is no /shutdowns/openrouter-2026-12-31/ page.`,
+      },
+      {
+        question: "Why do some SunsetDiff OpenRouter pages show dates the API no longer lists?",
+        answer: `Checked on ${OPENROUTER_NOV_DEC_CHECKED}, the models API does not include ${OPENROUTER_ABSENT_ON_CHECK.join(", ")}. The stored rows still have their older expiration dates. This guide does not edit those files.`,
+      },
+    ],
+    citations: [
+      OPENROUTER_MODELS_API,
+      OPENROUTER_MODELS_GUIDE,
+      OPENROUTER_MODEL_SCHEMA,
+      OPENROUTER_QUICKSTART,
+      OPENROUTER_CATALOG,
+      OPENROUTER_GITHUB_ACTION,
     ],
   };
 }

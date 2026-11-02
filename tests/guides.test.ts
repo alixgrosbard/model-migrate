@@ -1194,4 +1194,109 @@ describe("guides", () => {
     expect(full).toContain("/guides/vertex-ai-gemini-retirements-november-december-2026/");
     expect(lastmodForUrl("https://sunsetdiff.com/guides/vertex-ai-gemini-retirements-november-december-2026/")).toBe("2026-11-02");
   });
+
+  it("builds the OpenRouter November and December 2026 expiration guide", async () => {
+    const models = await loadModels();
+    const live = [
+      ["meta-llama/llama-3.1-70b-instruct", "2026-11-03"],
+      ["thinkingmachines/inkling-small:free", "2026-11-04"],
+      ["thinkingmachines/inkling:free", "2026-11-04"],
+      ["bytedance-seed/seed-1.6", "2026-11-11"],
+      ["bytedance-seed/seed-1.6-flash", "2026-11-11"],
+      ["bytedance-seed/seed-2.0-code", "2026-11-11"],
+      ["bytedance/seedance-1-5-pro", "2026-11-11"],
+      ["liquid/d1", "2026-11-20"],
+      ["heygen/heygen-voice-1-turbo:free", "2026-11-30"],
+      ["microsoft/mai-transcribe-1.5", "2026-12-22"],
+      ["dots-studio/dots-3-note-preview:free", "2026-12-31"],
+      ["microsoft/mai-voice-2", "2026-12-31"],
+      ["microsoft/mai-voice-2-flash", "2026-12-31"],
+      ["z-ai/glm-4.5", "2026-12-31"],
+      ["z-ai/glm-4.5v", "2026-12-31"],
+      ["z-ai/glm-4.7", "2026-12-31"],
+    ] as const;
+    const stored = live.flatMap(([id, date]) => {
+      const model = models.find((item) => item.provider === "openrouter" && item.id === id);
+      return model ? [{ model, date }] : [];
+    });
+    expect(stored.map(({ model }) => model.id)).toEqual(live.map(([id]) => id).filter((id) => !id.startsWith("thinkingmachines/")));
+    expect(stored.every(({ model, date }) => model.shutdown_date === date && model.shutdown_date_kind === "not_before")).toBe(true);
+    expect(stored.every(({ model }) => model.replacements.length === 0)).toBe(true);
+
+    const absent = ["nousresearch/hermes-3-llama-3.1-405b", "nousresearch/hermes-3-llama-3.1-70b", "x-ai/grok-imagine-image-quality"];
+    for (const id of absent) {
+      const model = models.find((item) => item.provider === "openrouter" && item.id === id);
+      expect(model?.shutdown_date).toBe("2026-11-02");
+      expect(model?.shutdown_date_kind).toBe("not_before");
+    }
+
+    const { shutdownEvents } = await import("../src/lib/shutdowns.ts");
+    const slugs = shutdownEvents(models).map((event) => event.slug);
+    expect(slugs.some((slug) => slug.startsWith("openrouter-"))).toBe(false);
+
+    const guide = guides.find((item) => item.slug === "openrouter-model-expirations-november-december-2026");
+    expect(guide).toBeTruthy();
+    if (!guide) return;
+    expect(guidePath(guide.slug)).toBe("/guides/openrouter-model-expirations-november-december-2026/");
+    expect(guideChecked(guide)).toBe("2026-11-02");
+    expect(guide.h1).toBe("OpenRouter model expirations in November and December 2026");
+    const table = guide.sections.find((section) => section.heading === "What expires and when")?.table;
+    expect(table?.headers).toEqual(["Model id", "expiration_date", "How to read it", "Recommended replacement"]);
+    expect(table?.rows.map((row) => row[1])).toEqual(live.map(([, date]) => date));
+    expect(table?.rows.every((row) => row[3] === "Not published")).toBe(true);
+    expect(table?.rows[0]?.[0]).toBe("[meta-llama/llama-3.1-70b-instruct](/models/openrouter/meta-llama-llama-3-1-70b-instruct/)");
+    expect(table?.rows[1]?.[0]).toBe("thinkingmachines/inkling-small:free");
+    expect(table?.rows[2]?.[0]).toBe("thinkingmachines/inkling:free");
+    expect(table?.rows[3]?.[2]).toBe("Not before 2026-11-11. The model may be removed after it.");
+    const canonical = guide.sections.find((section) => section.heading === "canonical_slug is not a replacement")?.table;
+    expect(canonical?.rows.some((row) => row[1] === "z-ai/glm-4.7-20251222")).toBe(true);
+    expect(canonical?.rows.some((row) => row[1] === "thinkingmachines/inkling-20260715")).toBe(true);
+    const blob = JSON.stringify(guide);
+    expect(blob).toContain("Deprecation date for the model endpoint (null if not deprecated)");
+    expect(blob).toContain("The date after which the model may be removed.");
+    expect(blob).toContain("Returns 404 if the model doesn't exist");
+    expect(blob).toContain("GET /api/v1/model/{id}");
+    expect(blob).toContain("does not invent");
+    expect(blob).toContain("https://openrouter.ai/api/v1/models?output_modalities=all");
+    expect(blob).toContain("https://openrouter.ai/docs/guides/overview/models");
+    expect(blob).toContain("https://openrouter.ai/docs/client-sdks/python/components/model");
+    expect(blob).toContain("https://openrouter.ai/docs/quickstart");
+    expect(blob).toContain("https://openrouter.ai/models");
+    expect(blob).toContain("/providers/openrouter/");
+    expect(blob).toContain("/frameworks/openrouter/");
+    expect(blob).toContain("there is no /shutdowns/openrouter-2026-11-11/ page");
+    expect(blob).toContain("there is no /shutdowns/openrouter-2026-12-31/ page");
+    expect(blob).not.toContain("](/shutdowns/openrouter-2026-11-11/)");
+    expect(blob).not.toContain("](/shutdowns/openrouter-2026-12-31/)");
+    expect(blob).toContain("nousresearch/hermes-3-llama-3.1-70b");
+    expect(blob).toContain("x-ai/grok-imagine-image-quality");
+    expect(blob).toContain("poolside/laguna-s-2.1:free");
+    expect(blob).not.toContain("glm-5");
+    expect(blob).not.toMatch(/[—–]/);
+    const sample = guide.sections.flatMap((section) => section.codes ?? []).map((item) => item.code).join("\n");
+    expect(sample).toContain("rg -n -F");
+    expect(sample).toContain("bytedance-seed/seed-1.6");
+    expect(sample).toContain("z-ai/glm-4.7-20251222");
+    expect(sample).toContain('model="author/model-you-pick"');
+    expect(sample).not.toContain("Bearer");
+    expect(sitemapSection(guidePath(guide.slug))).toBe("sitemap-guides.xml");
+    const llama = models.find((model) => model.provider === "openrouter" && model.id === "meta-llama/llama-3.1-70b-instruct");
+    const gone = models.find((model) => model.provider === "openrouter" && model.id === "x-ai/grok-imagine-image-quality");
+    expect(guidesForModel(llama!, models).map((link) => link.href)[0]).toBe(guidePath(guide.slug));
+    expect(guidesForModel(gone!, models).map((link) => link.href)[0]).toBe(guidePath(guide.slug));
+    expect(guidesForModel(stored.find(({ model }) => model.id === "z-ai/glm-4.7")!.model, models).map((link) => link.href)).toContain(guidePath(guide.slug));
+    const graph = guideGraph("https://sunsetdiff.com/", guide);
+    expect(graph.some((node) => node["@type"] === "HowTo")).toBe(true);
+    expect(graph.some((node) => node["@type"] === "FAQPage")).toBe(true);
+    const providerPage = readFileSync("src/pages/providers/[provider].astro", "utf8");
+    const shutdownPage = readFileSync("src/pages/shutdowns/[slug].astro", "utf8");
+    expect(providerPage).toContain("/guides/openrouter-model-expirations-november-december-2026/");
+    expect(providerPage).toContain("/frameworks/openrouter/");
+    expect(shutdownPage).not.toContain("openrouter-model-expirations-november-december-2026");
+    const text = llmsTxt("https://sunsetdiff.com", [], []);
+    const full = llmsFull("https://sunsetdiff.com", []);
+    expect(text).toContain("/guides/openrouter-model-expirations-november-december-2026/");
+    expect(full).toContain("/guides/openrouter-model-expirations-november-december-2026/");
+    expect(lastmodForUrl("https://sunsetdiff.com/guides/openrouter-model-expirations-november-december-2026/")).toBe("2026-11-02");
+  });
 });
