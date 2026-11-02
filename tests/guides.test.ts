@@ -820,4 +820,85 @@ describe("guides", () => {
     expect(text).toContain("/guides/claude-sonnet-4-5-shutdown-november-30-2026/");
     expect(full).toContain("/guides/claude-sonnet-4-5-shutdown-november-30-2026/");
   });
+
+  it("builds the Bedrock Jamba November 26 guide and skips unconfirmed shutdown pages", async () => {
+    const models = await loadModels();
+    const rows = models
+      .filter((model) => model.provider === "aws-bedrock" && model.shutdown_date === "2026-11-26" && model.shutdown_date_kind === "exact")
+      .sort((a, b) => a.id.localeCompare(b.id));
+    expect(rows.map((model) => model.id)).toEqual([
+      "ai21.jamba-1-5-large-v1:0",
+      "ai21.jamba-1-5-mini-v1:0",
+    ]);
+    expect(rows.every((model) => model.status === "legacy")).toBe(true);
+    expect(rows.every((model) => model.deprecation_date === "2026-05-26")).toBe(true);
+    expect(rows.every((model) => model.replacements.length === 0)).toBe(true);
+    expect(rows.every((model) => model.sources[0]?.last_checked === "2026-11-02")).toBe(true);
+
+    const opus = models.find((model) => model.provider === "anthropic" && model.id === "claude-opus-4-5-20251101");
+    expect(opus?.status).toBe("active");
+    expect(opus?.shutdown_date).toBe("2026-11-24");
+    expect(opus?.shutdown_date_kind).toBe("not_before");
+    expect(opus?.replacements).toEqual([]);
+    expect(opus?.sources[0]?.last_checked).toBe("2026-11-02");
+    expect(opus?.sources[0]?.excerpt).toContain("Not sooner than November 24, 2026");
+
+    const { shutdownEvents } = await import("../src/lib/shutdowns.ts");
+    const slugs = shutdownEvents(models).map((event) => event.slug);
+    expect(slugs).not.toContain("aws-bedrock-2026-11-26");
+    expect(slugs).not.toContain("anthropic-2026-11-24");
+    expect(guides.find((item) => item.slug === "claude-opus-4-5-shutdown-november-24-2026")).toBeUndefined();
+
+    const guide = guides.find((item) => item.slug === "amazon-bedrock-ai21-jamba-shutdown-november-26-2026");
+    expect(guide).toBeTruthy();
+    if (!guide) return;
+    expect(guidePath(guide.slug)).toBe("/guides/amazon-bedrock-ai21-jamba-shutdown-november-26-2026/");
+    expect(guideChecked(guide)).toBe("2026-11-02");
+    expect(guide.h1).toContain("November 26, 2026");
+    const table = guide.sections.find((section) => section.heading === "Models shutting down")?.table;
+    expect(table?.headers).toEqual(["Model id", "Legacy date stored", "Shutdown date", "Regions", "Recommended replacement"]);
+    expect(table?.rows.map((row) => row[0])).toEqual(
+      rows.map((model) => `[${model.id}](/models/${model.provider}/${model.slug}/)`),
+    );
+    expect(table?.rows.every((row) => row[2] === "2026-11-26")).toBe(true);
+    expect(table?.rows.every((row) => row[4] === "Not published")).toBe(true);
+    const blob = JSON.stringify(guide);
+    expect(blob).toContain("Migrate to an Active model before the EOL date.");
+    expect(blob).toContain("Migration will not happen automatically.");
+    expect(blob).toContain("requests made to this version will fail");
+    expect(blob).toContain("Legacy (EOL: 2026-11-26)");
+    expect(blob).toContain("Not supported");
+    expect(blob).toContain("August 26, 2026");
+    expect(blob).toContain("there is no /shutdowns/aws-bedrock-2026-11-26/ page");
+    expect(blob).toContain("there is no /shutdowns/anthropic-2026-11-24/ page");
+    expect(blob).not.toContain("](/shutdowns/aws-bedrock-2026-11-26/)");
+    expect(blob).not.toContain("](/shutdowns/anthropic-2026-11-24/)");
+    expect(blob).not.toContain("ResourceNotFoundException");
+    expect(blob).toContain("https://docs.aws.amazon.com/bedrock/latest/userguide/model-lifecycle-legacy.html");
+    expect(blob).toContain("https://docs.aws.amazon.com/bedrock/latest/userguide/model-lifecycle.html");
+    expect(blob).toContain("https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-ai21-labs-jamba-1-5-large.html");
+    expect(blob).toContain("https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-ai21-labs-jamba-1-5-mini.html");
+    expect(blob).toContain("https://docs.aws.amazon.com/bedrock/latest/userguide/models-region-compatibility.html");
+    expect(blob).toContain("https://platform.claude.com/docs/en/about-claude/model-deprecations");
+    expect(blob).not.toMatch(/[—–]/);
+    expect(sitemapSection(guidePath(guide.slug))).toBe("sitemap-guides.xml");
+    expect(guidesForModel(rows[0], models).map((link) => link.href)[0]).toBe(guidePath(guide.slug));
+    expect(guidesForModel(rows[1], models).map((link) => link.href)[0]).toBe(guidePath(guide.slug));
+    const graph = guideGraph("https://sunsetdiff.com/", guide);
+    expect(graph.some((node) => node["@type"] === "HowTo")).toBe(true);
+    expect(graph.some((node) => node["@type"] === "FAQPage")).toBe(true);
+    const providerPage = readFileSync("src/pages/providers/[provider].astro", "utf8");
+    const shutdownPage = readFileSync("src/pages/shutdowns/[slug].astro", "utf8");
+    expect(providerPage).toContain("/guides/amazon-bedrock-ai21-jamba-shutdown-november-26-2026/");
+    expect(providerPage).toContain("there is no /shutdowns/aws-bedrock-2026-11-26/ page");
+    expect(providerPage).toContain("there is no /shutdowns/anthropic-2026-11-24/ page");
+    expect(providerPage).not.toContain('href="/shutdowns/aws-bedrock-2026-11-26/"');
+    expect(providerPage).not.toContain('href="/shutdowns/anthropic-2026-11-24/"');
+    expect(shutdownPage).not.toContain("amazon-bedrock-ai21-jamba-shutdown-november-26-2026");
+    const text = llmsTxt("https://sunsetdiff.com", [], []);
+    const full = llmsFull("https://sunsetdiff.com", []);
+    expect(text).toContain("/guides/amazon-bedrock-ai21-jamba-shutdown-november-26-2026/");
+    expect(full).toContain("/guides/amazon-bedrock-ai21-jamba-shutdown-november-26-2026/");
+    expect(text).not.toContain("/guides/claude-opus-4-5-shutdown-november-24-2026/");
+  });
 });

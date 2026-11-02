@@ -32,6 +32,12 @@ export const MINIMAX_NOV18_GUIDE_SLUG = "minimax-m2-5-m2-7-shutdown-november-18-
 export const BEDROCK_NOV13_SHUTDOWN_DATE = "2026-11-13";
 export const BEDROCK_NOV13_GUIDE_SLUG = "amazon-bedrock-claude-3-shutdown-november-13-2026";
 
+/** Checked against the Bedrock legacy lifecycle page on 2026-11-02. The slug uses this date. */
+export const BEDROCK_JAMBA_NOV26_SHUTDOWN_DATE = "2026-11-26";
+export const BEDROCK_JAMBA_NOV26_GUIDE_SLUG = "amazon-bedrock-ai21-jamba-shutdown-november-26-2026";
+const JAMBA_CHECKED = "2026-11-02";
+const JAMBA_IDS = ["ai21.jamba-1-5-large-v1:0", "ai21.jamba-1-5-mini-v1:0"] as const;
+
 /** Checked against the Azure OpenAI retirement schedule. The slug uses this date. */
 export const AZURE_NOV19_SHUTDOWN_DATE = "2026-11-19";
 export const AZURE_NOV19_GUIDE_SLUG = "azure-openai-o-series-retirement-november-19-2026";
@@ -197,6 +203,13 @@ export function isMinimaxNov18Shutdown(model: ModelRecord): boolean {
 export function isBedrockNov13Shutdown(model: ModelRecord): boolean {
   return model.provider === "aws-bedrock"
     && model.shutdown_date === BEDROCK_NOV13_SHUTDOWN_DATE
+    && model.shutdown_date_kind === "exact";
+}
+
+export function isBedrockJambaNov26Shutdown(model: ModelRecord): boolean {
+  return model.provider === "aws-bedrock"
+    && (JAMBA_IDS as readonly string[]).includes(model.id)
+    && model.shutdown_date === BEDROCK_JAMBA_NOV26_SHUTDOWN_DATE
     && model.shutdown_date_kind === "exact";
 }
 
@@ -614,6 +627,8 @@ export function datasetShutdownGuides(catalog: ModelRecord[] = readCatalog()): G
   if (minimax.length) pages.push(minimaxGuide(minimax, catalog));
   const bedrock = rowsFor(isBedrockNov13Shutdown, catalog);
   if (bedrock.length) pages.push(bedrockGuide(bedrock, catalog));
+  const jamba = rowsFor(isBedrockJambaNov26Shutdown, catalog);
+  if (jamba.length) pages.push(jambaNov26Guide(jamba, catalog));
   const azure = rowsFor(isAzureNov19OSeries, catalog);
   if (azure.length) pages.push(azureOSeriesGuide(azure, catalog));
   const copilot = rowsFor(isCopilotNov16Shutdown, catalog);
@@ -1532,6 +1547,186 @@ function bedrockGuide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePage {
     ],
   };
 }
+
+const BEDROCK_POLICY = "https://docs.aws.amazon.com/bedrock/latest/userguide/model-lifecycle.html";
+const BEDROCK_JAMBA_LARGE = "https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-ai21-labs-jamba-1-5-large.html";
+const BEDROCK_JAMBA_MINI = "https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-ai21-labs-jamba-1-5-mini.html";
+const JAMBA_POLICY_SPLIT = "This page describes the model lifecycle policy for models launched on Amazon Bedrock on or after September 7, 2026. For models launched before this date, see Model lifecycle (Legacy).";
+const JAMBA_LEGACY_INTRO = "The following models are in the Legacy state with an announced EOL date. Migrate to an Active model before the EOL date.";
+const JAMBA_EXTENDED = "During this public extended access period, active users of a Legacy model can continue to use it until the EOL date (for a minimum of 3 months), but you should expect higher pricing, which will be set by the model provider.";
+const JAMBA_EOL_LABEL = "Model EOL date: November 26, 2026";
+const JAMBA_LEGACY_LABEL = "Model lifecycle: Legacy";
+const JAMBA_REGION_CELL = "Legacy (EOL: 2026-11-26)";
+
+function jambaNov26Guide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePage {
+  const when = longDate(BEDROCK_JAMBA_NOV26_SHUTDOWN_DATE);
+  const large = rows.find((model) => model.id === "ai21.jamba-1-5-large-v1:0");
+  const mini = rows.find((model) => model.id === "ai21.jamba-1-5-mini-v1:0");
+  const sources = [
+    { label: "Amazon Bedrock model lifecycle (legacy)", url: BEDROCK_LEGACY },
+    { label: "Jamba 1.5 Large model card", url: BEDROCK_JAMBA_LARGE },
+    { label: "Jamba 1.5 Mini model card", url: BEDROCK_JAMBA_MINI },
+    { label: "Regional availability by models", url: BEDROCK_REGIONS },
+  ];
+  return {
+    slug: BEDROCK_JAMBA_NOV26_GUIDE_SLUG,
+    title: `Amazon Bedrock AI21 Jamba shutdown on ${when} | SunsetDiff`,
+    description: `ai21.jamba-1-5-large-v1:0 and ai21.jamba-1-5-mini-v1:0 reach end of life on ${BEDROCK_JAMBA_NOV26_SHUTDOWN_DATE} in us-east-1. AWS does not name a replacement model ID.`,
+    h1: `Amazon Bedrock AI21 Jamba shutdown on ${when}`,
+    summary: `The two Bedrock Jamba 1.5 ids with shutdown date ${BEDROCK_JAMBA_NOV26_SHUTDOWN_DATE}, the us-east-1 row, and the fact that AWS does not name a replacement.`,
+    answer: `The dataset has ${rows.length} Amazon Bedrock ids with shutdown date ${BEDROCK_JAMBA_NOV26_SHUTDOWN_DATE}: ai21.jamba-1-5-large-v1:0 and ai21.jamba-1-5-mini-v1:0. The legacy lifecycle page lists both as Legacy in us-east-1, with legacy date May 26, 2026, EOL date November 26, 2026, and public extended access start date August 26, 2026. It says: "${JAMBA_LEGACY_INTRO}" It does not name a model ID. A shutdown batch page needs at least three model records on one exact date, so there is no /shutdowns/aws-bedrock-2026-11-26/ page.`,
+    checked: JAMBA_CHECKED,
+    steps: [
+      {
+        name: "Read the two ids and the Region",
+        text: `The table lists ai21.jamba-1-5-large-v1:0 and ai21.jamba-1-5-mini-v1:0. Both stored rows say us-east-1. Open each model page before you change a call. A Region that is not on the lifecycle row is not covered by this date.`,
+      },
+      {
+        name: "Find the ids in your code",
+        text: "Search the repository for both model ids. Also check SDK defaults, agent configs, and notebooks. The model cards' sample code still sends these ids with region_name us-east-1.",
+      },
+      {
+        name: "Pick an Active model yourself",
+        text: `The lifecycle page says to migrate to an Active model, and to migrate to the latest model, before ${when}. It does not name the id to send. This guide does not fill one in.`,
+      },
+      {
+        name: "Test the call you will keep",
+        text: `Call the id you chose from the Region you use, with a prompt you send now, before ${when}. In us-east-1, call GetFoundationModel or ListFoundationModels and read modelLifecycle first.`,
+      },
+    ],
+    sections: [
+      {
+        heading: "Models shutting down",
+        paragraphs: [
+          `These rows are the Amazon Bedrock models in the dataset with shutdown date ${BEDROCK_JAMBA_NOV26_SHUTDOWN_DATE}. The model id links to its SunsetDiff model page. The Legacy date column is the deprecation_date stored on the row. The Regions column is region_or_platform_notes. The replacement column is the official replacement stored on the row. Not published means the field is empty.`,
+          `The current lifecycle policy page says: "${JAMBA_POLICY_SPLIT}" Both model cards list launch date Aug 22, 2024, so the legacy page is the one that applies. That page says: "${BEDROCK_ONLY_DATES}"`,
+          `The legacy table says: "${JAMBA_LEGACY_INTRO}" The recommended replacement on each row is Not published because the stored replacements list is empty. This guide does not fill one in.`,
+        ],
+        table: {
+          caption: `${rows.length} Bedrock model ids with shutdown date ${BEDROCK_JAMBA_NOV26_SHUTDOWN_DATE}.`,
+          headers: ["Model id", "Legacy date stored", "Shutdown date", "Regions", "Recommended replacement"],
+          rows: bedrockTable(rows, catalog),
+        },
+        sources: [
+          { label: "Amazon Bedrock model lifecycle (legacy)", url: BEDROCK_LEGACY },
+          { label: "Amazon Bedrock model lifecycle", url: BEDROCK_POLICY },
+        ],
+      },
+      {
+        heading: "Dates on the legacy table and the model cards",
+        paragraphs: [
+          "The legacy lifecycle table lists one row for each id. Both rows use the same dates. Public extended access start date is not a field on the dataset row. It is a column on that table.",
+          `Each model card lists "${JAMBA_LEGACY_LABEL}" and "${JAMBA_EOL_LABEL}". Each card also lists "EOL no sooner than: Aug 22, 2025". That older floor is not the announced EOL. The announced EOL on the card and on the legacy table is November 26, 2026.`,
+        ],
+        table: {
+          caption: "Dates printed on the legacy lifecycle table for these two ids.",
+          headers: ["Model id", "Regions", "Legacy date", "EOL date", "Public extended access start"],
+          rows: [
+            [large ? modelLink(large) : "ai21.jamba-1-5-large-v1:0", "us-east-1", "May 26, 2026", BEDROCK_JAMBA_NOV26_SHUTDOWN_DATE, "August 26, 2026"],
+            [mini ? modelLink(mini) : "ai21.jamba-1-5-mini-v1:0", "us-east-1", "May 26, 2026", BEDROCK_JAMBA_NOV26_SHUTDOWN_DATE, "August 26, 2026"],
+          ],
+        },
+        sources: sources.filter((source) => source.url !== BEDROCK_REGIONS),
+      },
+      {
+        heading: "Region, geo, and global ids",
+        paragraphs: [
+          `The lifecycle page says: "${BEDROCK_REGION_SPLIT}" The Regions cell for both Jamba rows is us-east-1. To check the Region you call, use ListFoundationModels or GetFoundationModel and read modelLifecycle.`,
+          `The regional availability page prints ${JAMBA_REGION_CELL} in the In-Region column for us-east-1 on Jamba 1.5 Large and on Jamba 1.5 Mini. The Geo and Global cells on those two rows are empty.`,
+          "Each model card's programmatic access table lists the Geo inference ID as Not supported and the Global inference ID as Not supported. This guide does not invent a us. or global. id for either model.",
+          "Each card's sample code still creates a bedrock-runtime client with region_name us-east-1 and sends that model's id. us-east-1 is the Region on the EOL row.",
+        ],
+        sources: sources,
+      },
+      {
+        heading: "Public extended access",
+        paragraphs: [
+          `The legacy page says: "${JAMBA_EXTENDED}" The table lists August 26, 2026 as the public extended access start date for both ids. The page says pricing in that period is set by the model provider. It does not print a price. The model cards point at Amazon Bedrock pricing and do not print a token price either. This guide does not invent one.`,
+          `While a model is Legacy, the same page says: "${BEDROCK_LEGACY_ACCESS}" And: "${BEDROCK_NO_THROUGHPUT}"`,
+        ],
+        sources: [{ label: "Amazon Bedrock model lifecycle (legacy)", url: BEDROCK_LEGACY }],
+      },
+      {
+        heading: "What breaks",
+        paragraphs: [
+          `The legacy page says: "${BEDROCK_FAIL}" It also says: "${BEDROCK_MIGRATE}" It does not print an exception name.`,
+          "The Jamba 1.5 Large and Jamba 1.5 Mini model cards do not print an exception name or an error sentence for the EOL date. This guide does not invent one. The end-of-life sentence recorded for Claude 3 Haiku is a different model card. It is not quoted here.",
+        ],
+        sources: [
+          { label: "Amazon Bedrock model lifecycle (legacy)", url: BEDROCK_LEGACY },
+          { label: "Jamba 1.5 Large model card", url: BEDROCK_JAMBA_LARGE },
+          { label: "Jamba 1.5 Mini model card", url: BEDROCK_JAMBA_MINI },
+        ],
+      },
+      {
+        heading: "No shutdown batch page",
+        paragraphs: [
+          `SunsetDiff publishes a shutdown batch page when at least three model records share one provider and one exact shutdown date. This date has ${rows.length} Bedrock ids, so there is no /shutdowns/aws-bedrock-2026-11-26/ page. [/shutdowns/aws-bedrock-2026-11-13/](/shutdowns/aws-bedrock-2026-11-13/) is the Claude 3 batch. It is not this Jamba date.`,
+          "A not-sooner-than date is a floor, so it does not get a batch page either. Anthropic's deprecations table lists claude-opus-4-5-20251101 as Active, with Deprecated N/A and tentative retirement not sooner than November 24, 2026. The deprecation history on that page does not name a replacement, so there is no /shutdowns/anthropic-2026-11-24/ page.",
+        ],
+        sources: [
+          { label: "Amazon Bedrock model lifecycle (legacy)", url: BEDROCK_LEGACY },
+          { label: "Anthropic model deprecations", url: CLAUDE_DEPRECATIONS },
+        ],
+      },
+      {
+        heading: "Find the model ids in your code",
+        paragraphs: [
+          "Search the repository for both ids. A hit is a candidate, not proof the call still runs. [How to find every model ID in your codebase](/guides/find-model-ids-in-your-codebase/) covers SDK argument names. The [scan page](/scan/) builds a search from dataset ids that have a shutdown date.",
+          `The lifecycle page tells you to update application code before the EOL date. It does not name the id to send. Pick the Active model you will call, then send one real prompt before ${when}. The [pre-migration test checklist](/guides/pre-migration-test-checklist/) is the longer list: evals, rejected fields, token limits, tools, price, and latency. These rows do not store a price.`,
+        ],
+        codes: [{ caption: "ripgrep", code: searchCode(rows) }],
+        sources: [{ label: "Amazon Bedrock model lifecycle (legacy)", url: BEDROCK_LEGACY }],
+      },
+    ],
+    related: [
+      { href: large ? `/models/${large.provider}/${large.slug}/` : "/models/aws-bedrock/ai21-jamba-1-5-large-v1-0/", label: "Jamba 1.5 Large" },
+      { href: mini ? `/models/${mini.provider}/${mini.slug}/` : "/models/aws-bedrock/ai21-jamba-1-5-mini-v1-0/", label: "Jamba 1.5 Mini" },
+      { href: "/providers/aws-bedrock/", label: "Amazon Bedrock provider page" },
+      { href: "/shutdowns/aws-bedrock-2026-11-13/", label: "Bedrock Claude shutdowns on November 13, 2026" },
+      { href: `/guides/${BEDROCK_NOV13_GUIDE_SLUG}/`, label: "Amazon Bedrock Claude 3 shutdown on November 13, 2026" },
+      { href: "/guides/find-model-ids-in-your-codebase/", label: "Find model ids in your codebase" },
+      { href: "/guides/pre-migration-test-checklist/", label: "Pre-migration test checklist" },
+      { href: "/guides/what-happens-on-model-shutdown-day/", label: "What happens on shutdown day" },
+      { href: "/scan/", label: "Scan retiring ids" },
+    ],
+    faqs: [
+      {
+        question: `Which Bedrock model ids reach end of life on ${when}?`,
+        answer: `The dataset lists ${idList(rows)} with shutdown date ${BEDROCK_JAMBA_NOV26_SHUTDOWN_DATE}. The legacy lifecycle page lists both in us-east-1.`,
+      },
+      {
+        question: "Does November 26, 2026 apply in every AWS Region?",
+        answer: `The legacy page says: "${BEDROCK_REGION_SPLIT}" The Regions cell for both Jamba rows is us-east-1. The regional availability page prints ${JAMBA_REGION_CELL} for that Region. Each model card says the Geo inference ID and the Global inference ID are Not supported.`,
+      },
+      {
+        question: "What is the official recommended replacement?",
+        answer: `Not published. ${replacementFaq(rows, catalog)} The legacy page says: "${JAMBA_LEGACY_INTRO}" It also says: "${BEDROCK_MIGRATE}" Neither sentence names a model ID.`,
+      },
+      {
+        question: "What error does Bedrock return after this end of life?",
+        answer: `The legacy page says requests made to this version will fail. It does not print an exception name or an error sentence. The Jamba 1.5 model cards do not print one either. This page does not invent one.`,
+      },
+      {
+        question: "Why is there no /shutdowns/aws-bedrock-2026-11-26/ page?",
+        answer: `A shutdown batch page is published when at least three model records share one provider and one exact shutdown date. These two ids are the only Bedrock rows with shutdown date ${BEDROCK_JAMBA_NOV26_SHUTDOWN_DATE}.`,
+      },
+      {
+        question: "What does public extended access mean here?",
+        answer: `The legacy table lists August 26, 2026 as the public extended access start date. The page says: "${JAMBA_EXTENDED}" It does not print a price for these two ids.`,
+      },
+    ],
+    citations: [
+      BEDROCK_LEGACY,
+      BEDROCK_POLICY,
+      BEDROCK_JAMBA_LARGE,
+      BEDROCK_JAMBA_MINI,
+      BEDROCK_REGIONS,
+      CLAUDE_DEPRECATIONS,
+    ],
+  };
+}
+
 const AZURE_SCHEDULE = "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule";
 const AZURE_RETIREMENTS = "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirements";
 const AZURE_WORKING = "https://learn.microsoft.com/en-us/azure/foundry/openai/how-to/working-with-models";
