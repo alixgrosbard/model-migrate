@@ -929,6 +929,87 @@ describe("guides", () => {
     expect(full).toContain("/guides/claude-sonnet-4-5-shutdown-november-30-2026/");
   });
 
+  it("builds the Claude Opus 4.5 retirement floor guide and skips a shutdown page", async () => {
+    const models = await loadModels();
+    const opus = models.find((model) => model.provider === "anthropic" && model.id === "claude-opus-4-5-20251101");
+    expect(opus?.status).toBe("active");
+    expect(opus?.shutdown_date).toBe("2026-11-24");
+    expect(opus?.shutdown_date_kind).toBe("not_before");
+    expect(opus?.deprecation_date ?? null).toBeNull();
+    expect(opus?.replacements).toEqual([]);
+    expect(opus?.sources[0]?.excerpt).toContain("Not sooner than November 24, 2026");
+    expectSourceChecked(opus?.sources[0]?.last_checked, "2026-11-02");
+
+    const { shutdownEvents } = await import("../src/lib/shutdowns.ts");
+    expect(shutdownEvents(models).some((event) => event.slug === "anthropic-2026-11-24")).toBe(false);
+    expect(guides.find((item) => item.slug === "claude-opus-4-5-shutdown-november-24-2026")).toBeUndefined();
+
+    const guide = guides.find((item) => item.slug === "claude-opus-4-5-retirement-november-24-2026");
+    expect(guide).toBeTruthy();
+    if (!guide) return;
+    expect(guidePath(guide.slug)).toBe("/guides/claude-opus-4-5-retirement-november-24-2026/");
+    expect(guideChecked(guide)).toBe("2026-11-02");
+    expect(guide.h1).toContain("November 24, 2026");
+    expect(guide.h1).not.toMatch(/shutdown on/i);
+    const table = guide.sections.find((section) => section.heading === "What November 24, 2026 means")?.table;
+    expect(table?.headers).toEqual(["Model id", "Status", "Date on the deprecations table", "Recommended replacement"]);
+    expect(table?.rows[0]?.[0]).toBe("[claude-opus-4-5-20251101](/models/anthropic/claude-opus-4-5-20251101/)");
+    expect(table?.rows[0]?.[1]).toBe("active");
+    expect(table?.rows[0]?.[2]).toBe("Not sooner than 2026-11-24");
+    expect(table?.rows[0]?.[3]).toBe("Not published");
+    const blob = JSON.stringify(guide);
+    expect(blob).toContain("earliest possible shutdown");
+    expect(blob).toContain("The model is fully supported and recommended for use.");
+    expect(blob).toContain("at least 60 days' notice");
+    expect(blob).toContain("Although Claude Opus 4.5 is still available, you should consider migrating to Claude Opus 5.5.");
+    expect(blob).toContain("Active (legacy)");
+    expect(blob).toContain("claude-opus-4-5");
+    expect(blob).toContain("anthropic.claude-opus-4-5-20251101-v1:0");
+    expect(blob).toContain("claude-opus-4-5@20251101");
+    expect(blob).toContain("2026-09-01");
+    expect(blob).toContain("Latest Claude Opus model");
+    expect(blob).toContain("https://platform.claude.com/docs/en/about-claude/model-deprecations");
+    expect(blob).toContain("https://platform.claude.com/docs/en/models/opus-4-5/overview");
+    expect(blob).toContain("https://platform.claude.com/docs/en/models/opus-5-5/migration-guide");
+    expect(blob).toContain("https://platform.claude.com/docs/en/about-claude/models/overview");
+    expect(blob).toContain("https://platform.claude.com/docs/en/api/errors");
+    expect(blob).toContain("https://docs.github.com/en/copilot/reference/ai-models/supported-models");
+    expect(blob).toContain("/models/anthropic/claude-opus-4-5-20251101/");
+    expect(blob).toContain("/models/anthropic/claude-opus-5-5/");
+    expect(blob).toContain("/models/github-copilot/claude-opus-4-5/");
+    expect(blob).toContain("/providers/anthropic/");
+    expect(blob).toContain("/guides/claude-sonnet-4-5-shutdown-november-30-2026/");
+    expect(blob).toContain("/guides/catch-a-retired-model-before-your-users-do/");
+    expect(blob).toContain("/errors/claude-api-2026-10-21-sampling-params-400/");
+    expect(blob).toContain("Requests to retired models fail.");
+    expect(blob).toContain("not_found_error");
+    expect(blob).toContain("does not name not_found_error");
+    expect(blob).toContain("there is no /shutdowns/anthropic-2026-11-24/ page");
+    expect(blob).not.toContain("](/shutdowns/anthropic-2026-11-24/)");
+    expect(blob).not.toMatch(/[—–]/);
+    const sample = guide.sections.flatMap((section) => section.codes ?? []).map((item) => item.code).join("\n");
+    expect(sample).toContain('model="claude-opus-5-5"');
+    expect(sample).toContain("rg -n");
+    expect(sample).not.toContain("temperature");
+    expect(sitemapSection(guidePath(guide.slug))).toBe("sitemap-guides.xml");
+    expect(guidesForModel(opus!, models).map((link) => link.href)[0]).toBe(guidePath(guide.slug));
+    const copilot = models.find((model) => model.provider === "github-copilot" && model.id === "Claude Opus 4.5");
+    expect(copilot?.shutdown_date).toBe("2026-09-01");
+    expect(guidesForModel(copilot!, models).map((link) => link.href)).toContain(guidePath(guide.slug));
+    const graph = guideGraph("https://sunsetdiff.com/", guide);
+    expect(graph.some((node) => node["@type"] === "HowTo")).toBe(true);
+    expect(graph.some((node) => node["@type"] === "FAQPage")).toBe(true);
+    const providerPage = readFileSync("src/pages/providers/[provider].astro", "utf8");
+    expect(providerPage).toContain("/guides/claude-opus-4-5-retirement-november-24-2026/");
+    expect(providerPage).toContain("there is no /shutdowns/anthropic-2026-11-24/ page");
+    expect(providerPage).not.toContain('href="/shutdowns/anthropic-2026-11-24/"');
+    const text = llmsTxt("https://sunsetdiff.com", [], []);
+    const full = llmsFull("https://sunsetdiff.com", []);
+    expect(text).toContain("/guides/claude-opus-4-5-retirement-november-24-2026/");
+    expect(full).toContain("/guides/claude-opus-4-5-retirement-november-24-2026/");
+    expect(text).not.toContain("/guides/claude-opus-4-5-shutdown-november-24-2026/");
+  });
+
   it("builds the Bedrock Jamba November 26 guide and skips unconfirmed shutdown pages", async () => {
     const models = await loadModels();
     const rows = models

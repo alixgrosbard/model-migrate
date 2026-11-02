@@ -27,11 +27,13 @@ import {
   isJanuary2027Gpt4Shutdown,
   isMinimaxNov18Shutdown,
   isNebiusNov9Shutdown,
+  isOpus45RetirementFloor,
   isSonnet45Nov30Shutdown,
   isVertexNovDecGemini,
   JANUARY_2027_AUDIO_GUIDE_SLUG,
   JANUARY_2027_GPT4_GUIDE_SLUG,
   MINIMAX_NOV18_GUIDE_SLUG,
+  OPUS45_GUIDE_SLUG,
   SONNET45_NOV30_GUIDE_SLUG,
   VERTEX_NOV_DEC_GUIDE_SLUG,
 } from "./dataset-guides.ts";
@@ -2484,6 +2486,12 @@ export function guidesForModel(model: ModelRecord, catalog: ModelRecord[]): Mode
     || (model.provider === "github-copilot" && model.id === "Claude Sonnet 4.5")
   ) {
     add(SONNET45_NOV30_GUIDE_SLUG);
+  }
+  if (
+    isOpus45RetirementFloor(model)
+    || (model.provider === "github-copilot" && model.id === "Claude Opus 4.5")
+  ) {
+    add(OPUS45_GUIDE_SLUG);
   }
   if (model.provider === "nvidia") add("nvidia-hosted-api-vs-nim-containers");
   if (aliasSnapshotView(model, catalog)) add("model-aliases-vs-pinned-snapshots");

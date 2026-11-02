@@ -84,6 +84,15 @@ export const SONNET45_NOV30_SHUTDOWN_DATE = "2026-11-30";
 export const SONNET45_NOV30_GUIDE_SLUG = "claude-sonnet-4-5-shutdown-november-30-2026";
 const SONNET45_CHECKED = "2026-11-01";
 
+/**
+ * Checked against Anthropic's deprecations page on 2026-11-02.
+ * The slug uses the floor date. That date is not a fixed shutdown day.
+ */
+export const OPUS45_FLOOR_DATE = "2026-11-24";
+export const OPUS45_GUIDE_SLUG = "claude-opus-4-5-retirement-november-24-2026";
+const OPUS45_CHECKED = "2026-11-02";
+const OPUS45_ID = "claude-opus-4-5-20251101";
+
 const MINIMAX_MODELS = "https://platform.minimax.io/docs/faq/models";
 const MINIMAX_TEXT = "https://platform.minimax.io/docs/guides/text-generation";
 const MINIMAX_NEW_USERS = "These models will no longer be available to new users.";
@@ -292,6 +301,13 @@ export function isSonnet45Nov30Shutdown(model: ModelRecord): boolean {
     && model.shutdown_date_kind === "exact";
 }
 
+export function isOpus45RetirementFloor(model: ModelRecord): boolean {
+  return model.provider === "anthropic"
+    && model.id === OPUS45_ID
+    && model.shutdown_date === OPUS45_FLOOR_DATE
+    && model.shutdown_date_kind === "not_before";
+}
+
 export function isJanuary2027Gpt4Shutdown(model: ModelRecord): boolean {
   if (model.provider !== "openai" || model.shutdown_date !== JANUARY_2027_SHUTDOWN_DATE) return false;
   if (model.shutdown_date_kind !== "exact" && model.shutdown_date_kind !== "via_snapshots") return false;
@@ -381,10 +397,16 @@ const CLAUDE_DEPRECATIONS = "https://platform.claude.com/docs/en/about-claude/mo
 const CLAUDE_SONNET45 = "https://platform.claude.com/docs/en/models/sonnet-4-5/overview";
 const CLAUDE_SONNET55 = "https://platform.claude.com/docs/en/models/sonnet-5-5/overview";
 const CLAUDE_MIGRATION = "https://platform.claude.com/docs/en/models/sonnet-5-5/migration-guide";
+const CLAUDE_OPUS45 = "https://platform.claude.com/docs/en/models/opus-4-5/overview";
+const CLAUDE_OPUS55 = "https://platform.claude.com/docs/en/models/opus-5-5/overview";
+const CLAUDE_OPUS_MIGRATION = "https://platform.claude.com/docs/en/models/opus-5-5/migration-guide";
+const CLAUDE_MODELS = "https://platform.claude.com/docs/en/about-claude/models/overview";
+const CLAUDE_ERRORS = "https://platform.claude.com/docs/en/api/errors";
 const CLAUDE_IDS = "https://platform.claude.com/docs/en/about-claude/models/model-ids-and-versions";
 const CLAUDE_FAST = "https://platform.claude.com/docs/en/build-with-claude/fast-mode";
 const BEDROCK_SONNET45_CARD = "https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-anthropic-claude-sonnet-4-5.html";
 const COPILOT_MODELS = "https://docs.github.com/en/copilot/reference/ai-models/supported-models";
+const COPILOT_OPUS45_CHANGELOG = "https://github.blog/changelog/2026-08-31-selected-github-copilot-models-deprecated";
 const SONNET_RETIRED = "The model is no longer available for use. Requests to retired models fail.";
 const SONNET_PAST = "Requests to models past the retirement date will fail.";
 const SONNET_PLATFORMS = "The dates on this page apply to Anthropic-operated platforms: the Claude API, Claude Platform on AWS, Claude Models on Google Cloud (Anthropic managed), and Microsoft Foundry.";
@@ -398,6 +420,16 @@ const SONNET_SAMPLING = "Setting temperature, top_p, or top_k returns a 400 erro
 const SONNET_FAST = 'Fast mode on Claude Opus 4.8 is deprecated and will be removed on November 30, 2026. After removal, requests to claude-opus-4-8 with speed: "fast" will return an error. To continue using fast mode, migrate to Claude Opus 5.5.';
 const SONNET_BEDROCK_CARD = "Claude Sonnet 4.5 is in the Legacy stage in all Regions. It has an upcoming end of life of April 8, 2027, after which requests will fail with ResourceNotFoundException: This model version has reached the end of its life.";
 const SONNET_TOKENS = "About 30 percent more tokens: Claude Sonnet 5.5 uses Claude Sonnet 5's tokenizer. Against Claude Sonnet 4.6, Claude Sonnet 4.5, and Claude Haiku 4.5, the same text produces about 30 percent more tokens, depending on the content. Recount with token counting, and revisit max_tokens and cost.";
+const OPUS_ACTIVE = "The model is fully supported and recommended for use.";
+const OPUS_NOTICE = "Anthropic notifies customers with active deployments for models with upcoming retirements, providing at least 60 days' notice before model retirement for publicly released models.";
+const OPUS_AUDIT = "Review the downloaded CSV to see usage broken down by API key and model.";
+const OPUS45_CONSIDER = "Although Claude Opus 4.5 is still available, you should consider migrating to Claude Opus 5.5.";
+const OPUS55_REJECTED = "Where an item says a setting is rejected, the API returns a 400 error.";
+const OPUS55_THINKING_DISABLED = '"thinking.type.disabled" is not supported for this model.';
+const OPUS55_THINKING_ENABLED = '"thinking.type.enabled" is not supported for this model.';
+const OPUS55_TOOL = 'tool_choice: type "tool" and "any" are not supported for this model.';
+const OPUS55_PREFILL = "Prefilling assistant messages returns a 400 error on Claude Opus 4.6 and later Opus models, including Claude Opus 5.5, so this is a change only if you come from Claude Opus 4.5 or earlier.";
+const OPUS_NOT_FOUND = "The requested resource could not be found.";
 
 function sonnet45Nov30Guide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePage {
   const when = longDate(SONNET45_NOV30_SHUTDOWN_DATE);
@@ -586,6 +618,7 @@ rg -n -e 'claude-opus-4-8' -e 'speed: "fast"' -e "speed: 'fast'"
       { href: "/errors/claude-sonnet-5-5-thinking-budget/", label: "thinking budget on claude-sonnet-5-5" },
       { href: "/errors/claude-sonnet-5-5-assistant-prefill/", label: "assistant prefill on claude-sonnet-5-5" },
       { href: "/errors/claude-sonnet-5-5-tool-choice-tool-and-any/", label: "tool_choice tool and any" },
+      { href: `/guides/${OPUS45_GUIDE_SLUG}/`, label: "Claude Opus 4.5 will not shut down before November 24, 2026" },
       { href: "/guides/why-shutdown-dates-differ-by-platform/", label: "Why shutdown dates differ by platform" },
       { href: "/guides/what-happens-on-model-shutdown-day/", label: "What happens on shutdown day" },
       { href: "/guides/pre-migration-test-checklist/", label: "Pre-migration test checklist" },
@@ -633,6 +666,255 @@ rg -n -e 'claude-opus-4-8' -e 'speed: "fast"' -e "speed: 'fast'"
   };
 }
 
+function opusFloorCell(model: ModelRecord): string {
+  if (!model.shutdown_date) return "Not published";
+  if (model.shutdown_date_kind === "not_before") return `Not sooner than ${model.shutdown_date}`;
+  return shutdownCell(model);
+}
+
+function opus45RetirementGuide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePage {
+  const when = longDate(OPUS45_FLOOR_DATE);
+  const row = rows[0];
+  const copilot = catalog.find((model) => model.provider === "github-copilot" && model.id === "Claude Opus 4.5");
+  const opus55 = catalog.find((model) => model.provider === "anthropic" && model.id === "claude-opus-5-5");
+  const activeOpus = catalog
+    .filter((model) => model.provider === "anthropic" && model.status === "active" && model.id.startsWith("claude-opus"))
+    .sort((a, b) => {
+      if (a.id === OPUS45_ID) return -1;
+      if (b.id === OPUS45_ID) return 1;
+      return (b.shutdown_date ?? "").localeCompare(a.shutdown_date ?? "") || a.id.localeCompare(b.id);
+    });
+  const sources = [
+    { label: "Anthropic model deprecations", url: CLAUDE_DEPRECATIONS },
+    { label: "Claude Opus 4.5", url: CLAUDE_OPUS45 },
+    { label: "Model IDs and versioning", url: CLAUDE_IDS },
+  ];
+  return {
+    slug: OPUS45_GUIDE_SLUG,
+    title: `Claude Opus 4.5 will not shut down before ${when} | SunsetDiff`,
+    description: `claude-opus-4-5-20251101 is Active. Anthropic's earliest retirement for it is ${OPUS45_FLOOR_DATE}, not a fixed day. The deprecations history names no replacement.`,
+    h1: `Claude Opus 4.5 will not shut down before ${when}`,
+    summary: `The Claude API id whose tentative retirement is not sooner than ${OPUS45_FLOOR_DATE}, why that is a floor, and the fact that Anthropic names no replacement.`,
+    answer: `Anthropic's deprecations page lists claude-opus-4-5-20251101 as Active, with Deprecated N/A and tentative retirement not sooner than ${OPUS45_FLOOR_DATE}. That cell is the earliest possible shutdown, not the day the model stops. The deprecation history does not name a replacement. The Opus 4.5 page says: "${OPUS45_CONSIDER}" That sentence is not a deprecations-history row, so no replacement is stored. The same deprecations page says: "${SONNET_PLATFORMS}" It also says: "${SONNET_PARTNERS}" GitHub Copilot lists Claude Opus 4.5 on 2026-09-01. After a real retirement, the deprecations page says requests fail. It does not print an HTTP status or an error sentence.`,
+    checked: OPUS45_CHECKED,
+    steps: [
+      {
+        name: "Read November 24, 2026 as a floor",
+        text: `The status table says Active and Deprecated N/A. The retirement cell says not sooner than ${when}. Do not remove the id on that day. The deprecations page says: "${OPUS_NOTICE}" A fixed retirement date would be a Deprecated row with a retirement date. This row is not that.`,
+      },
+      {
+        name: "Find the ids in code and config",
+        text: "Search for claude-opus-4-5-20251101, the alias claude-opus-4-5, the Bedrock id anthropic.claude-opus-4-5-20251101-v1:0, and the Google-managed id claude-opus-4-5@20251101. Check source files, env files, YAML, TOML, and JSON. The Claude Console usage export lists calls by API key and model. The scan page skips active models, so this id is not on that list.",
+      },
+      {
+        name: "Open the current models list before you pick an id",
+        text: "The deprecations history does not name a replacement. The models overview is the current list. The Opus 4.5 page says to consider Claude Opus 5.5 and links its migration guide. Other Active Opus ids on the deprecations table are still current too. This guide does not pick one for you.",
+      },
+      {
+        name: "If you call claude-opus-5-5, drop the settings it rejects",
+        text: `The Opus 5.5 migration guide says: "${OPUS55_REJECTED}" Remove temperature, top_p, and top_k. Remove thinking type enabled and thinking type disabled. Do not end messages with an assistant prefill. Do not send tool_choice type tool or any. Send one test call with a prompt you use now. ${when} is not that test deadline.`,
+      },
+    ],
+    sections: [
+      {
+        heading: "What November 24, 2026 means",
+        paragraphs: [
+          `The dataset has ${rows.length} Anthropic id with shutdown date ${OPUS45_FLOOR_DATE} and kind not_before: claude-opus-4-5-20251101. The deprecations status table says Active, Deprecated N/A, tentative retirement not sooner than ${when}. The page defines Active as: "${OPUS_ACTIVE}"`,
+          `Not sooner than ${when} is the earliest possible shutdown. It is not a promise that the model stops that day, and it is not a deprecation date. SunsetDiff stores shutdown_date_kind not_before for that cell. The deprecations page says: "${OPUS_NOTICE}"`,
+          `The Opus 4.5 page labels the model Legacy and says it was released November 24, 2025. Its availability table lists status Active (legacy) and retirement Not sooner than ${when}. The stored status stays active because the scraper reads the deprecations status table, which says Active. A refresh does not copy the Legacy banner onto the row.`,
+          `SunsetDiff publishes a shutdown batch page when at least ${SHUTDOWN_BATCH_MIN} model records share one provider and one exact shutdown date. A not_before date is not an exact shutdown date, so there is no /shutdowns/anthropic-${OPUS45_FLOOR_DATE}/ page. One exact id would still be short of ${SHUTDOWN_BATCH_MIN}.`,
+        ],
+        table: {
+          caption: `Anthropic model id in the dataset with shutdown date ${OPUS45_FLOOR_DATE} and kind not_before.`,
+          headers: ["Model id", "Status", "Date on the deprecations table", "Recommended replacement"],
+          rows: rows.map((model) => [
+            modelLink(model),
+            model.status,
+            opusFloorCell(model),
+            replacementText(model, catalog),
+          ]),
+        },
+        sources,
+      },
+      {
+        heading: "Ids by platform",
+        paragraphs: [
+          "The Opus 4.5 model page lists these ids. The retirement line on that page is Not sooner than November 24, 2026. The deprecations page says which platforms that date covers. A partner platform can publish a different day.",
+          `The model IDs page says: "${SONNET_ALIAS}" The deprecations table does not list claude-opus-4-5 by name. The Opus 4.5 page lists that alias next to claude-opus-4-5-20251101.`,
+          "Microsoft Foundry and Claude Platform on AWS are in the Anthropic-operated list, and both ids on the model page are claude-opus-4-5. Claude Models on Google Cloud (Anthropic managed) uses claude-opus-4-5-20251101. Claude Models on Google Cloud (Google managed) uses claude-opus-4-5@20251101. Amazon Bedrock (InvokeModel) uses anthropic.claude-opus-4-5-20251101-v1:0. The deprecations page says those two partner platforms set their own schedules. This guide does not store a Bedrock date or a Google-managed date for this model.",
+        ],
+        table: {
+          caption: "Model ids on the Claude Opus 4.5 page, and whether the November 24, 2026 floor applies.",
+          headers: ["Platform", "Model id", "November 24, 2026 floor"],
+          rows: [
+            ["Claude API", row ? modelLink(row) : OPUS45_ID, "Yes. Deprecations page. It is a floor, not a shutdown day."],
+            ["Claude API alias", "claude-opus-4-5", "The alias points at the dated snapshot. The deprecations table does not list the alias by name."],
+            ["Microsoft Foundry", "claude-opus-4-5", "Yes. Anthropic-operated platform. Same floor, not a fixed day."],
+            ["Claude Platform on AWS", "claude-opus-4-5", "Yes. Anthropic-operated platform. This is not the Bedrock id."],
+            ["Claude Models on Google Cloud (Anthropic managed)", OPUS45_ID, "Yes. Anthropic-operated platform. Same floor, not a fixed day."],
+            ["Claude Models on Google Cloud (Google managed)", "claude-opus-4-5@20251101", "No. That platform sets its own schedule. No date is stored here."],
+            ["Amazon Bedrock (InvokeModel)", "anthropic.claude-opus-4-5-20251101-v1:0", "No. Bedrock sets its own schedule. No Bedrock row is stored for this id."],
+          ],
+        },
+        sources,
+      },
+      {
+        heading: "Copilot uses another date",
+        paragraphs: [
+          `GitHub's Copilot retirement history lists Claude Opus 4.5 with retirement date 2026-09-01 and suggested alternative Latest Claude Opus model. That phrase is not a model id.${copilot ? ` The stored Copilot row is ${modelLink(copilot)}, shutdown date ${copilot.shutdown_date ?? "Not published"}, status ${copilot.status}.` : ""} The August 31, 2026 changelog names Claude Opus 4.7, Claude Opus 4.8, or Claude Opus 5. Those names are Copilot models, not a Claude API replacement.`,
+          "That Copilot date is already past on the day this guide was checked. It is not November 24, 2026. A Claude API string and a Copilot display name can sit in the same repository and still follow different pages.",
+        ],
+        table: {
+          caption: "Opus 4.5 dates that are not the same fact.",
+          headers: ["Host", "Id", "Date on that host's page"],
+          rows: [
+            ["Claude API", row ? modelLink(row) : OPUS45_ID, `Not sooner than ${OPUS45_FLOOR_DATE}`],
+            ["GitHub Copilot", copilot ? modelLink(copilot) : "Claude Opus 4.5", copilot?.shutdown_date ?? "2026-09-01"],
+          ],
+        },
+        sources: [
+          { label: "Anthropic model deprecations", url: CLAUDE_DEPRECATIONS },
+          { label: "GitHub Copilot supported models", url: COPILOT_MODELS },
+          { label: "GitHub Changelog, August 31, 2026", url: COPILOT_OPUS45_CHANGELOG },
+        ],
+      },
+      {
+        heading: "No replacement on the deprecations page",
+        paragraphs: [
+          "The deprecation history does not list claude-opus-4-5-20251101. Deprecated models on that page get a recommended replacement. This id is Active, so the replacement column is Not published. This guide does not fill one in.",
+          `The Opus 4.5 page says: "${OPUS45_CONSIDER}" It links Claude Opus 5.5 as the current Opus model and links the migration guide. claude-opus-5-5 is Active on the deprecations table, with tentative retirement not sooner than September 22, 2027. That is a documented model you can test. It is not the stored replacement.`,
+          "The models overview is the current models list. The table below is every Active Opus id stored from the deprecations status table. Read that overview, and the model page for the id you might call, before you change a request.",
+        ],
+        table: {
+          caption: "Active Opus ids on the deprecations status table. None of these is a stored replacement for claude-opus-4-5-20251101.",
+          headers: ["Model id", "Status", "Date on the deprecations table", "Recommended replacement"],
+          rows: activeOpus.map((model) => [
+            modelLink(model),
+            model.status,
+            opusFloorCell(model),
+            replacementText(model, catalog),
+          ]),
+        },
+        sources: [
+          { label: "Anthropic model deprecations", url: CLAUDE_DEPRECATIONS },
+          { label: "Claude Opus 4.5", url: CLAUDE_OPUS45 },
+          { label: "Claude Opus 5.5", url: CLAUDE_OPUS55 },
+          { label: "Models overview", url: CLAUDE_MODELS },
+        ],
+      },
+      {
+        heading: "Find the id in code and config",
+        paragraphs: [
+          "Search the repository for the Claude API id, the alias, the Bedrock id, and the Google-managed id. A hit on claude-opus-4-5 can be the dated snapshot, the alias, Foundry, or Claude Platform on AWS, because the alias is a prefix of the dated id. Read the host in that file before you change it. A hit on the Bedrock id or the Copilot name is a different page.",
+          `The deprecations page tells you to open the Usage page in Claude Console, click Export, and then: "${OPUS_AUDIT}" That audit is written for deprecated models. This id is Active. The same CSV still breaks usage down by model, so it shows whether a key called claude-opus-4-5-20251101.`,
+          "LangChain puts the id on ChatAnthropic as model=. LiteLLM puts a provider string in model, such as anthropic/claude-opus-4-5-20251101. Also search env files, YAML, TOML, and JSON. [How to find every model ID in your codebase](/guides/find-model-ids-in-your-codebase/) covers the other SDK argument names.",
+          "The [scan page](/scan/) builds a search from dataset ids that have a shutdown date and a status other than active. claude-opus-4-5-20251101 is active, so it is not on that list. Search for it yourself. The [GitHub Action](/github-action/) does not fail a not_before date.",
+        ],
+        codes: [
+          {
+            caption: "ripgrep",
+            code: `rg -n -e 'claude-opus-4-5-20251101' -e 'claude-opus-4-5' -e 'claude-opus-4-5@20251101' -e 'anthropic.claude-opus-4-5-20251101-v1:0' -e 'Claude Opus 4.5'
+`,
+          },
+        ],
+        sources: [
+          { label: "Claude Opus 4.5", url: CLAUDE_OPUS45 },
+          { label: "Anthropic model deprecations", url: CLAUDE_DEPRECATIONS },
+          { label: "Model IDs and versioning", url: CLAUDE_IDS },
+        ],
+      },
+      {
+        heading: "What callers see after retirement",
+        paragraphs: [
+          `Nothing on the deprecations page says claude-opus-4-5-20251101 stops on ${when}. If Anthropic later retires it, the page defines Retired as: "${SONNET_RETIRED}" It also says: "${SONNET_PAST}"`,
+          `That page does not print an HTTP status or an error sentence for a retired model. This guide does not invent one. The errors page says HTTP 404 is not_found_error, and the example message is ${OPUS_NOT_FOUND}. [Catch a retired model before your users do](/guides/catch-a-retired-model-before-your-users-do/) records that the deprecations page does not name not_found_error, and does not say every retired id uses that type.`,
+          "A 400 from a field claude-opus-5-5 rejects is a different failure. It happens when the new id is already in the request and an old setting is still there. Those sentences are in the next section. [temperature, top_p, and top_k return 400 on API version 2026-10-21](/errors/claude-api-2026-10-21-sampling-params-400/) is the API version rule. It is not this retirement.",
+        ],
+        sources: [
+          { label: "Anthropic model deprecations", url: CLAUDE_DEPRECATIONS },
+          { label: "Anthropic API errors", url: CLAUDE_ERRORS },
+        ],
+      },
+      {
+        heading: "If you call claude-opus-5-5",
+        paragraphs: [
+          `Use this section only if you choose claude-opus-5-5 because the Opus 4.5 page says to consider it. The deprecations history does not name it as the replacement.${opus55 ? ` The stored row is ${modelLink(opus55)}.` : ""} The migration guide says to change the model id to claude-opus-5-5. claude-opus-5-5 has no date suffix.`,
+          `The migration guide says: "${OPUS55_REJECTED}" It says to omit temperature, top_p, and top_k. It prints a 400 for thinking type disabled and for a thinking budget: "${OPUS55_THINKING_DISABLED}" and "${OPUS55_THINKING_ENABLED}" Send no thinking field, or send thinking type adaptive. Set output_config.effort. The same guide says the default effort on claude-opus-5-5 is medium.`,
+          `The migration guide says: "${OPUS55_PREFILL}" It also prints: "${OPUS55_TOOL}" Send tool_choice type auto or none. Read content blocks by type, because a response can start with a thinking block. Pass thinking blocks back unchanged in a tool loop.`,
+          "The migration guide also says to move off client.beta.messages.create, to remove the effort-2025-11-24, fine-grained-tool-streaming-2025-05-14, and interleaved-thinking-2025-05-14 beta headers, and to move output_format to output_config.format. The full checklist is on that page. The snippet below is the Claude API call. It is not a Bedrock id and not a Copilot name.",
+        ],
+        codes: [
+          {
+            caption: "Python Messages API shape from the Opus 5.5 migration guide. Not a stored replacement.",
+            code: `import anthropic
+client = anthropic.Anthropic()
+message = client.messages.create(
+    model="claude-opus-5-5",
+    max_tokens=16000,
+    output_config={"effort": "medium"},
+    messages=[{"role": "user", "content": "Hello"}],
+)
+`,
+          },
+        ],
+        sources: [
+          { label: "Migrate to Claude Opus 5.5", url: CLAUDE_OPUS_MIGRATION },
+          { label: "Claude Opus 5.5", url: CLAUDE_OPUS55 },
+          { label: "Claude Opus 4.5", url: CLAUDE_OPUS45 },
+        ],
+      },
+    ],
+    related: [
+      { href: "/models/anthropic/claude-opus-4-5-20251101/", label: "claude-opus-4-5-20251101" },
+      { href: "/providers/anthropic/", label: "Anthropic provider page" },
+      { href: opus55 ? `/models/${opus55.provider}/${opus55.slug}/` : "/models/anthropic/claude-opus-5-5/", label: "claude-opus-5-5" },
+      { href: copilot ? `/models/${copilot.provider}/${copilot.slug}/` : "/models/github-copilot/claude-opus-4-5/", label: "Copilot Claude Opus 4.5" },
+      { href: `/guides/${SONNET45_NOV30_GUIDE_SLUG}/`, label: "Claude Sonnet 4.5 shutdown on November 30, 2026" },
+      { href: "/guides/why-shutdown-dates-differ-by-platform/", label: "Why shutdown dates differ by platform" },
+      { href: "/guides/what-happens-on-model-shutdown-day/", label: "What happens on shutdown day" },
+      { href: "/guides/find-model-ids-in-your-codebase/", label: "Find model ids in your codebase" },
+      { href: "/guides/pre-migration-test-checklist/", label: "Pre-migration test checklist" },
+      { href: "/guides/catch-a-retired-model-before-your-users-do/", label: "Catch a retired model before users do" },
+      { href: "/guides/silent-failures-after-model-shutdown/", label: "Silent failures after model shutdown" },
+      { href: "/errors/claude-api-2026-10-21-sampling-params-400/", label: "temperature, top_p, and top_k on API version 2026-10-21" },
+      { href: "/scan/", label: "Scan retiring ids" },
+    ],
+    faqs: [
+      {
+        question: `Does claude-opus-4-5-20251101 shut down on ${when}?`,
+        answer: `No. The deprecations table lists it as Active, Deprecated N/A, tentative retirement not sooner than ${OPUS45_FLOOR_DATE}. That is the earliest possible shutdown. The page says: "${OPUS_ACTIVE}" It also says: "${OPUS_NOTICE}"`,
+      },
+      {
+        question: "What is the recommended replacement?",
+        answer: `Not published. The deprecation history does not name one. ${replacementFaq(rows, catalog)} The Opus 4.5 page says: "${OPUS45_CONSIDER}" The current models list is the models overview. claude-opus-5-5 is on that list, and the deprecations table lists it as Active. It is not stored as the replacement.`,
+      },
+      {
+        question: "What error does a retired call return?",
+        answer: `The model is not retired. If it is retired later, the deprecations page says: "${SONNET_RETIRED}" It also says: "${SONNET_PAST}" It does not print an HTTP status or an error sentence. The errors page says HTTP 404 is not_found_error, and the example message is ${OPUS_NOT_FOUND}. The deprecations page does not name not_found_error. This page does not invent a retirement error.`,
+      },
+      {
+        question: "Does Amazon Bedrock or GitHub Copilot use November 24, 2026?",
+        answer: "No date is stored for Bedrock id anthropic.claude-opus-4-5-20251101-v1:0. The deprecations page says Bedrock sets its own schedule. Copilot lists Claude Opus 4.5 with retirement date 2026-09-01 and suggested alternative Latest Claude Opus model.",
+      },
+      {
+        question: "Why is there no /shutdowns/anthropic-2026-11-24/ page?",
+        answer: `A shutdown batch page needs at least ${SHUTDOWN_BATCH_MIN} model records that share one provider and one exact shutdown date. This date is kind not_before, and it is one Anthropic id. A floor does not get a batch page.`,
+      },
+    ],
+    citations: [
+      CLAUDE_DEPRECATIONS,
+      CLAUDE_OPUS45,
+      CLAUDE_OPUS55,
+      CLAUDE_OPUS_MIGRATION,
+      CLAUDE_MODELS,
+      CLAUDE_IDS,
+      CLAUDE_ERRORS,
+      COPILOT_MODELS,
+      COPILOT_OPUS45_CHANGELOG,
+    ],
+  };
+}
+
 /**
  * Guide pages whose tables are filled from the model records.
  * A guide is omitted when the filter matches no rows.
@@ -676,6 +958,8 @@ export function datasetShutdownGuides(catalog: ModelRecord[] = readCatalog()): G
   if (vertexNovDec.length) pages.push(vertexNovDecGuide(vertexNovDec, catalog));
   const sonnet45 = rowsFor(isSonnet45Nov30Shutdown, catalog);
   if (sonnet45.length) pages.push(sonnet45Nov30Guide(sonnet45, catalog));
+  const opus45 = rowsFor(isOpus45RetirementFloor, catalog);
+  if (opus45.length) pages.push(opus45RetirementGuide(opus45, catalog));
   const slugs = new Set(pages.map((page) => page.slug));
   for (const page of pages) {
     page.related = page.related.filter((link) => {
@@ -1697,7 +1981,7 @@ function jambaNov26Guide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePage
         heading: "No shutdown batch page",
         paragraphs: [
           `SunsetDiff publishes a shutdown batch page when at least three model records share one provider and one exact shutdown date. This date has ${rows.length} Bedrock ids, so there is no /shutdowns/aws-bedrock-2026-11-26/ page. [/shutdowns/aws-bedrock-2026-11-13/](/shutdowns/aws-bedrock-2026-11-13/) is the Claude 3 batch. It is not this Jamba date.`,
-          "A not-sooner-than date is a floor, so it does not get a batch page either. Anthropic's deprecations table lists claude-opus-4-5-20251101 as Active, with Deprecated N/A and tentative retirement not sooner than November 24, 2026. The deprecation history on that page does not name a replacement, so there is no /shutdowns/anthropic-2026-11-24/ page.",
+          `A not-sooner-than date is a floor, so it does not get a batch page either. Anthropic's deprecations table lists claude-opus-4-5-20251101 as Active, with Deprecated N/A and tentative retirement not sooner than November 24, 2026. The deprecation history on that page does not name a replacement, so there is no /shutdowns/anthropic-2026-11-24/ page. The walkthrough is [Claude Opus 4.5 will not shut down before November 24, 2026](/guides/${OPUS45_GUIDE_SLUG}/).`,
         ],
         sources: [
           { label: "Amazon Bedrock model lifecycle (legacy)", url: BEDROCK_LEGACY },
