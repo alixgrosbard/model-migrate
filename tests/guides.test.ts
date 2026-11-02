@@ -1009,4 +1009,108 @@ describe("guides", () => {
     expect(full).toContain("/guides/amazon-bedrock-ai21-jamba-shutdown-november-26-2026/");
     expect(text).not.toContain("/guides/claude-opus-4-5-shutdown-november-24-2026/");
   });
+
+  it("builds the Vertex Gemini November and December guide and skips one-model shutdown pages", async () => {
+    const models = await loadModels();
+    const rows = models
+      .filter((model) => model.provider === "google-vertex" && (model.shutdown_date === "2026-11-19" || model.shutdown_date === "2026-12-13") && model.shutdown_date_kind === "exact")
+      .sort((a, b) => (a.shutdown_date ?? "").localeCompare(b.shutdown_date ?? "") || a.id.localeCompare(b.id));
+    expect(rows.map((model) => model.id)).toEqual([
+      "gemini-3.6-flash",
+      "gemini-live-2.5-flash-native-audio",
+    ]);
+    expect(rows.map((model) => model.shutdown_date)).toEqual(["2026-11-19", "2026-12-13"]);
+    expect(rows[0]?.replacements.map((item) => item.model_id)).toEqual(["gemini-3.8-flash"]);
+    expect(rows[1]?.replacements.map((item) => item.model_id)).toEqual(["gemini-3.8-live"]);
+    expect(rows.every((model) => model.sources.some((source) => source.last_checked === "2026-11-01"))).toBe(true);
+
+    const veo = models
+      .filter((model) => model.provider === "google-vertex" && model.shutdown_date === "2026-11-17")
+      .sort((a, b) => a.id.localeCompare(b.id));
+    expect(veo.map((model) => model.id)).toEqual(["veo-3.1-fast-generate-001", "veo-3.1-generate-001"]);
+    expect(veo.every((model) => model.shutdown_date_kind === "not_before")).toBe(true);
+    expect(veo.every((model) => model.replacements.length === 0)).toBe(true);
+
+    const { shutdownEvents } = await import("../src/lib/shutdowns.ts");
+    const slugs = shutdownEvents(models).map((event) => event.slug);
+    expect(slugs).not.toContain("google-vertex-2026-11-19");
+    expect(slugs).not.toContain("google-vertex-2026-12-13");
+    expect(slugs).not.toContain("google-vertex-2026-11-17");
+    expect(slugs).toContain("google-vertex-2026-10-20");
+
+    const guide = guides.find((item) => item.slug === "vertex-ai-gemini-retirements-november-december-2026");
+    expect(guide).toBeTruthy();
+    if (!guide) return;
+    expect(guidePath(guide.slug)).toBe("/guides/vertex-ai-gemini-retirements-november-december-2026/");
+    expect(guideChecked(guide)).toBe("2026-11-02");
+    expect(guide.h1).toBe("Vertex AI Gemini retirements in November and December 2026");
+    const table = guide.sections.find((section) => section.heading === "What retires and when")?.table;
+    expect(table?.headers).toEqual(["Model id", "Deprecation date", "Shutdown date", "Recommended replacement"]);
+    expect(table?.rows.map((row) => row[0])).toEqual([
+      "[gemini-3.6-flash](/models/google-vertex/gemini-3-6-flash/)",
+      "[gemini-live-2.5-flash-native-audio](/models/google-vertex/gemini-live-2-5-flash-native-audio/)",
+    ]);
+    expect(table?.rows[0]?.[2]).toBe("2026-11-19");
+    expect(table?.rows[0]?.[3]).toContain("gemini-3.8-flash");
+    expect(table?.rows[1]?.[2]).toBe("2026-12-13");
+    expect(table?.rows[1]?.[3]).toContain("gemini-3.8-live");
+    const veoTable = guide.sections.find((section) => section.heading === "Veo dates that are floors")?.table;
+    expect(veoTable?.rows.map((row) => row[2])).toEqual(["2026-11-17 or later", "2026-11-17 or later"]);
+    expect(veoTable?.rows.every((row) => row[3] === "Not published")).toBe(true);
+    const blob = JSON.stringify(guide);
+    expect(blob).toContain("Gemini 3.6 Flash will be retired on November 19, 2026.");
+    expect(blob).toContain("they won't be moved to an earlier date");
+    expect(blob).toContain("is not available for 3.8 Flash.");
+    expect(blob).toContain("These parameters are ignored by the backend.");
+    expect(blob).toContain("will throw an active API error.");
+    expect(blob).toContain("send_context_update");
+    expect(blob).toContain("initial_history_in_client_content=True");
+    expect(blob).toContain("there is no /shutdowns/google-vertex-2026-11-19/ page");
+    expect(blob).toContain("there is no /shutdowns/google-vertex-2026-12-13/ page");
+    expect(blob).toContain("there is no /shutdowns/google-vertex-2026-11-17/ page");
+    expect(blob).toContain("/shutdowns/google-vertex-2026-10-20/");
+    expect(blob).not.toContain("](/shutdowns/google-vertex-2026-11-19/)");
+    expect(blob).not.toContain("](/shutdowns/google-vertex-2026-12-13/)");
+    expect(blob).not.toContain("](/shutdowns/google-vertex-2026-11-17/)");
+    expect(blob).toContain("https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/model-versions");
+    expect(blob).toContain("https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/gemini/3-6-flash");
+    expect(blob).toContain("https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/gemini/2-5-flash-live-api");
+    expect(blob).toContain("https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/guides/gemini-3-8-flash");
+    expect(blob).toContain("https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/live-api/migrate-from-gemini-2-5-to-gemini-3-8-live");
+    expect(blob).toContain("https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/gemini/3-8-live");
+    expect(blob).toContain("No shutdown date announced");
+    expect(blob).toContain("January 28, 2027");
+    expect(blob).not.toContain("Bearer");
+    expect(blob).not.toMatch(/[—–]/);
+    const sample = guide.sections.flatMap((section) => section.codes ?? []).map((item) => item.code).join("\n");
+    expect(sample).toContain('model="gemini-3.8-flash"');
+    expect(sample).toContain('model="gemini-3.6-flash"');
+    expect(sample).toContain('model="gemini-3.8-live"');
+    expect(sample).toContain("gemini-3.8-flash:generateContent");
+    expect(sample).toContain("rg -n");
+    expect(sitemapSection(guidePath(guide.slug))).toBe("sitemap-guides.xml");
+    expect(guidesForModel(rows[0], models).map((link) => link.href)[0]).toBe(guidePath(guide.slug));
+    expect(guidesForModel(rows[1], models).map((link) => link.href)[0]).toBe(guidePath(guide.slug));
+    expect(guidesForModel(veo[0], models).map((link) => link.href)).toContain(guidePath(guide.slug));
+    const replacement = models.find((model) => model.provider === "google-vertex" && model.id === "gemini-3.8-flash");
+    const liveReplacement = models.find((model) => model.provider === "google-vertex" && model.id === "gemini-3.8-live");
+    expect(guidesForModel(replacement!, models).map((link) => link.href)).toContain(guidePath(guide.slug));
+    expect(guidesForModel(liveReplacement!, models).map((link) => link.href)).toContain(guidePath(guide.slug));
+    const graph = guideGraph("https://sunsetdiff.com/", guide);
+    expect(graph.some((node) => node["@type"] === "HowTo")).toBe(true);
+    expect(graph.some((node) => node["@type"] === "FAQPage")).toBe(true);
+    const providerPage = readFileSync("src/pages/providers/[provider].astro", "utf8");
+    const shutdownPage = readFileSync("src/pages/shutdowns/[slug].astro", "utf8");
+    expect(providerPage).toContain("/guides/vertex-ai-gemini-retirements-november-december-2026/");
+    expect(providerPage).toContain("there is no /shutdowns/google-vertex-2026-11-19/ page");
+    expect(providerPage).toContain("there is no /shutdowns/google-vertex-2026-12-13/ page");
+    expect(providerPage).not.toContain('href="/shutdowns/google-vertex-2026-11-19/"');
+    expect(providerPage).not.toContain('href="/shutdowns/google-vertex-2026-12-13/"');
+    expect(shutdownPage).not.toContain("vertex-ai-gemini-retirements-november-december-2026");
+    const text = llmsTxt("https://sunsetdiff.com", [], []);
+    const full = llmsFull("https://sunsetdiff.com", []);
+    expect(text).toContain("/guides/vertex-ai-gemini-retirements-november-december-2026/");
+    expect(full).toContain("/guides/vertex-ai-gemini-retirements-november-december-2026/");
+    expect(lastmodForUrl("https://sunsetdiff.com/guides/vertex-ai-gemini-retirements-november-december-2026/")).toBe("2026-11-02");
+  });
 });

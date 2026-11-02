@@ -28,10 +28,12 @@ import {
   isMinimaxNov18Shutdown,
   isNebiusNov9Shutdown,
   isSonnet45Nov30Shutdown,
+  isVertexNovDecGemini,
   JANUARY_2027_AUDIO_GUIDE_SLUG,
   JANUARY_2027_GPT4_GUIDE_SLUG,
   MINIMAX_NOV18_GUIDE_SLUG,
   SONNET45_NOV30_GUIDE_SLUG,
+  VERTEX_NOV_DEC_GUIDE_SLUG,
 } from "./dataset-guides.ts";
 import type { FaqItem } from "./format.ts";
 
@@ -2461,6 +2463,20 @@ export function guidesForModel(model: ModelRecord, catalog: ModelRecord[]): Mode
   if (isFireworksNov7Shutdown(model)) add(FIREWORKS_NOV7_GUIDE_SLUG);
   if (isNebiusNov9Shutdown(model)) add(NEBIUS_NOV9_GUIDE_SLUG);
   if (isGeminiNov17Shutdown(model)) add(GEMINI_NOV17_GUIDE_SLUG);
+  if (
+    isVertexNovDecGemini(model)
+    || (
+      model.provider === "google-vertex"
+      && (
+        model.id === "gemini-3.8-flash"
+        || model.id === "gemini-3.8-live"
+        || model.id === "veo-3.1-generate-001"
+        || model.id === "veo-3.1-fast-generate-001"
+      )
+    )
+  ) {
+    add(VERTEX_NOV_DEC_GUIDE_SLUG);
+  }
   if (
     isSonnet45Nov30Shutdown(model)
     || (model.provider === "anthropic" && model.id === "claude-sonnet-5-5")

@@ -3,7 +3,7 @@ import path from "node:path";
 import { modelSchema, type ModelRecord } from "../schema.ts";
 import { aliasIdOf, aliasSnapshotView, applyAliasSnapshotShutdowns, isDeprecationsSource } from "./aliases.ts";
 import type { GuidePage } from "./guides.ts";
-import { publishedReplacementIds, longDate } from "./shutdowns.ts";
+import { SHUTDOWN_BATCH_MIN, longDate, publishedReplacementIds, shutdownEventSlug } from "./shutdowns.ts";
 
 const OPENAI_DEPRECATIONS = "https://developers.openai.com/api/docs/deprecations";
 
@@ -274,6 +274,15 @@ export function isGeminiNov17Shutdown(model: ModelRecord): boolean {
   return model.provider === "google-gemini-api"
     && model.shutdown_date === GEMINI_NOV17_SHUTDOWN_DATE
     && model.shutdown_date_kind === "exact";
+}
+
+export function isVertexNovDecGemini(model: ModelRecord): boolean {
+  return model.provider === "google-vertex"
+    && model.shutdown_date_kind === "exact"
+    && (
+      (model.id === VERTEX_FLASH_ID && model.shutdown_date === VERTEX_NOV19_SHUTDOWN_DATE)
+      || (model.id === VERTEX_LIVE_ID && model.shutdown_date === VERTEX_DEC13_SHUTDOWN_DATE)
+    );
 }
 
 export function isSonnet45Nov30Shutdown(model: ModelRecord): boolean {
@@ -663,6 +672,8 @@ export function datasetShutdownGuides(catalog: ModelRecord[] = readCatalog()): G
   if (nebius.length) pages.push(nebiusNov9Guide(nebius, catalog));
   const gemini = rowsFor(isGeminiNov17Shutdown, catalog);
   if (gemini.length) pages.push(geminiNov17Guide(gemini, catalog));
+  const vertexNovDec = rowsFor(isVertexNovDecGemini, catalog);
+  if (vertexNovDec.length) pages.push(vertexNovDecGuide(vertexNovDec, catalog));
   const sonnet45 = rowsFor(isSonnet45Nov30Shutdown, catalog);
   if (sonnet45.length) pages.push(sonnet45Nov30Guide(sonnet45, catalog));
   const slugs = new Set(pages.map((page) => page.slug));
@@ -2415,6 +2426,51 @@ const GEMINI_LIVE_BLURB =
   "Gemini 3.8 Live is the default option for most low-latency voice agent experiences and real-time dialogue without reasoning-induced delays.";
 const GEMINI_CHECKED = "2026-11-01";
 
+/** Checked against the Vertex model versions page on 2026-11-02. */
+export const VERTEX_NOV19_SHUTDOWN_DATE = "2026-11-19";
+export const VERTEX_DEC13_SHUTDOWN_DATE = "2026-12-13";
+export const VERTEX_VEO_FLOOR_DATE = "2026-11-17";
+export const VERTEX_NOV_DEC_GUIDE_SLUG = "vertex-ai-gemini-retirements-november-december-2026";
+export const VERTEX_NOV_DEC_CHECKED = "2026-11-02";
+const VERTEX_FLASH_ID = "gemini-3.6-flash";
+const VERTEX_LIVE_ID = "gemini-live-2.5-flash-native-audio";
+const VERTEX_VEO_IDS = ["veo-3.1-fast-generate-001", "veo-3.1-generate-001"] as const;
+const VERTEX_FLASH_PAGE = "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/gemini/3-6-flash";
+const VERTEX_FLASH_GUIDE = "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/guides/gemini-3-8-flash";
+const VERTEX_LIVE_PAGE = "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/gemini/2-5-flash-live-api";
+const VERTEX_LIVE_38 = "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/gemini/3-8-live";
+const VERTEX_LIVE_MIGRATE = "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/live-api/migrate-from-gemini-2-5-to-gemini-3-8-live";
+const VERTEX_MIGRATE = "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/migrate";
+const VERTEX_EXTEND =
+  "While retirement timelines may be extended, they won't be moved to an earlier date than what is listed.";
+const VERTEX_SHORT =
+  "Short-term availability models remain active until a replacement model is released and a retirement date is announced. When we schedule a model for retirement, we post a fixed date in the following table that gives you at least 45 days to migrate.";
+const VERTEX_STILL =
+  "Even after a replacement launches, a model remains active until we announce its retirement date.";
+const VERTEX_FLASH_BANNER =
+  "Gemini 3.6 Flash will be retired on November 19, 2026. Upgrade to Gemini 3.8 Flash to avoid service disruptions.";
+const VERTEX_FOOTNOTE =
+  "Listed retirement dates refer to retirement of support in Gemini Enterprise Agent Platform. Models may remain accessible through the Gemini API after these dates have passed.";
+const VERTEX_MINIMAL =
+  'thinking_level="MINIMAL" is not available for 3.8 Flash. Explicitly setting thinking_level to MINIMAL will return an API validation error. Valid configurations are LOW, MEDIUM (default), and HIGH.';
+const VERTEX_IGNORED = "These parameters are ignored by the backend.";
+const VERTEX_THROW =
+  "Passing frequency_penalty, presence_penalty or candidate_count will throw an active API error.";
+const VERTEX_REMOVE_LIST =
+  "Remove the following unsupported parameters: frequency_penalty, presence_penalty, candidate_count, temperature, top_p, and top_k.";
+const VERTEX_MODEL_STRING = "Change model string in your API calls to gemini-3.8-flash.";
+const VERTEX_BUDGET =
+  "Replace integer thinking_budget configurations with the string enum thinking_level";
+const VERTEX_PREFILL = "Prefilled model turns are unsupported and must be removed when upgrading.";
+const VERTEX_HISTORY = 'History payloads cannot end with a "model" role turn.';
+const VERTEX_AFFECTIVE = "Always enabled by default.";
+const VERTEX_CONTEXT =
+  "In Gemini 3.8 Live, call send_context_update in the Google Gen AI SDK, or send a context_update message over WebSockets, instead.";
+const VERTEX_HISTORY_SEED =
+  "In Gemini 3.8 Live, if you want to use the send_client_content method to set up history seeding, in the HistoryConfig section of the setup message, set initial_history_in_client_content=True.";
+const VERTEX_INTERRUPT =
+  "When the user is speaking, the scheduling=interrupt downgrades to scheduling=when_idle to provide a smoother user experience.";
+
 function fireworksNov7Guide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePage {
   const when = longDate(FIREWORKS_NOV7_SHUTDOWN_DATE);
   const us = rows.find((model) => model.id === FIREWORKS_US_GLM);
@@ -2871,6 +2927,7 @@ function geminiNov17Guide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePag
     ],
     related: [
       { href: "/shutdowns/google-gemini-api-2026-11-17/", label: `Gemini API shutdowns on ${when}` },
+      { href: `/guides/${VERTEX_NOV_DEC_GUIDE_SLUG}/`, label: "Vertex AI Gemini retirements in November and December 2026" },
       { href: "/providers/google-gemini-api/", label: "Gemini API provider page" },
       { href: "/models/google-gemini-api/gemini-3-8-live/", label: "gemini-3.8-live" },
       { href: "/models/google-gemini-api/gemini-3-8-flash-tts/", label: "gemini-3.8-flash-tts" },
@@ -2904,10 +2961,304 @@ function geminiNov17Guide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePag
       {
         question: "Does this page include Vertex models?",
         answer: vertex.length
-          ? `This table is the Gemini API list. Vertex stores ${idList(vertex)} with shutdown date ${GEMINI_NOV17_SHUTDOWN_DATE}. The stored kind is ${[...new Set(vertex.map((model) => model.shutdown_date_kind))].join(", ")}. ${vertex.every((model) => !publishedReplacementIds(model).length) ? "Those rows have no stored replacement." : "See the Vertex rows for replacements."}`
+          ? `This table is the Gemini API list. Vertex stores ${idList(vertex)} with shutdown date ${GEMINI_NOV17_SHUTDOWN_DATE}. The stored kind is ${[...new Set(vertex.map((model) => model.shutdown_date_kind))].join(", ")}. ${vertex.every((model) => !publishedReplacementIds(model).length) ? "Those rows have no stored replacement." : "See the Vertex rows for replacements."} Vertex gemini-3.6-flash and gemini-live-2.5-flash-native-audio use other dates. See [Vertex AI Gemini retirements in November and December 2026](/guides/${VERTEX_NOV_DEC_GUIDE_SLUG}/).`
           : "No Vertex row shares this shutdown date.",
       },
     ],
     citations: [GEMINI_DEPRECATIONS, GEMINI_MODELS, GEMINI_SPEECH, GEMINI_LIVE_MODEL, GEMINI_LIVE, GEMINI_VERTEX],
+  };
+}
+
+function vertexExact(catalog: ModelRecord[], date: string): ModelRecord[] {
+  return catalog
+    .filter((model) => model.provider === "google-vertex" && model.shutdown_date === date && model.shutdown_date_kind === "exact")
+    .sort((a, b) => a.id.localeCompare(b.id));
+}
+
+function vertexBatchSentence(date: string, count: number): string {
+  const path = `/shutdowns/${shutdownEventSlug("google-vertex", date)}/`;
+  if (count >= SHUTDOWN_BATCH_MIN) {
+    return `${date} has ${count} Google Vertex records with one exact shutdown date, so [${path}](${path}) exists.`;
+  }
+  const noun = count === 1 ? "record" : "records";
+  return `${date} has ${count} Google Vertex ${noun} with an exact shutdown date, so there is no ${path} page.`;
+}
+
+function vertexDateCell(model: ModelRecord): string {
+  if (!model.shutdown_date) return "Not published";
+  if (model.shutdown_date_kind === "not_before") return `${model.shutdown_date} or later`;
+  return shutdownCell(model);
+}
+
+function vertexNovDecGuide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePage {
+  const ordered = [...rows].sort((a, b) => (a.shutdown_date ?? "").localeCompare(b.shutdown_date ?? "") || a.id.localeCompare(b.id));
+  const nov19 = vertexExact(catalog, VERTEX_NOV19_SHUTDOWN_DATE);
+  const dec13 = vertexExact(catalog, VERTEX_DEC13_SHUTDOWN_DATE);
+  const oct20 = vertexExact(catalog, "2026-10-20");
+  const veo = catalog
+    .filter((model) => model.provider === "google-vertex" && (VERTEX_VEO_IDS as readonly string[]).includes(model.id))
+    .sort((a, b) => a.id.localeCompare(b.id));
+  const flash37 = catalog.find((model) => model.provider === "google-vertex" && model.id === "gemini-3.7-flash");
+  const apiFlash = catalog.find((model) => model.provider === "google-gemini-api" && model.id === VERTEX_FLASH_ID);
+  const sources = [
+    { label: "Vertex AI model versions", url: GEMINI_VERTEX },
+    { label: "Gemini 3.6 Flash model page", url: VERTEX_FLASH_PAGE },
+    { label: "Gemini 2.5 Flash Live API model page", url: VERTEX_LIVE_PAGE },
+  ];
+  return {
+    slug: VERTEX_NOV_DEC_GUIDE_SLUG,
+    title: "Vertex AI Gemini retirements in November and December 2026 | SunsetDiff",
+    description: `Vertex AI retires gemini-3.6-flash on ${VERTEX_NOV19_SHUTDOWN_DATE} and gemini-live-2.5-flash-native-audio on ${VERTEX_DEC13_SHUTDOWN_DATE}. Replacements are gemini-3.8-flash and gemini-3.8-live. Veo 3.1 says November 17, 2026 or later.`,
+    h1: "Vertex AI Gemini retirements in November and December 2026",
+    summary: `The Vertex Gemini ids with exact shutdown dates ${VERTEX_NOV19_SHUTDOWN_DATE} and ${VERTEX_DEC13_SHUTDOWN_DATE}, the replacement on the model versions page, and the Veo rows that only print a floor.`,
+    answer: `The dataset has ${ordered.length} Google Vertex Gemini ids with an exact shutdown date in this window: ${idList(ordered)}. The model versions page lists gemini-3.6-flash with retirement date November 19, 2026 and replacement model ID gemini-3.8-flash. It lists gemini-live-2.5-flash-native-audio with retirement date December 13, 2026 and replacement model ID gemini-3.8-live. The 3.6 Flash page says: "${VERTEX_FLASH_BANNER}" The Veo ids veo-3.1-generate-001 and veo-3.1-fast-generate-001 print November 17, 2026 or later, with an empty replacement cell. That is a floor, not a confirmed shutdown on November 17. A shutdown batch page needs at least ${SHUTDOWN_BATCH_MIN} records on one exact date, so there is no /shutdowns/google-vertex-${VERTEX_NOV19_SHUTDOWN_DATE}/ page and no /shutdowns/google-vertex-${VERTEX_DEC13_SHUTDOWN_DATE}/ page.`,
+    checked: VERTEX_NOV_DEC_CHECKED,
+    steps: [
+      {
+        name: "Read the two exact ids",
+        text: `The first table is every Google Vertex id in this guide whose shutdown date is ${VERTEX_NOV19_SHUTDOWN_DATE} or ${VERTEX_DEC13_SHUTDOWN_DATE}. The replacement cell is the official replacement stored from the model versions page. Open the model page before you change a call.`,
+      },
+      {
+        name: "Swap gemini-3.6-flash",
+        text: `The 3.8 Flash guide says: "${VERTEX_MODEL_STRING}" It also says: "${VERTEX_BUDGET}". ${VERTEX_MINIMAL} The same page says temperature, top_k, and top_p are ignored. It says: "${VERTEX_THROW}" Its checklist says: "${VERTEX_REMOVE_LIST}"`,
+      },
+      {
+        name: "Swap the Live model id",
+        text: "The Live migration page's samples set model to gemini-3.8-live. Affective dialog and proactive audio are always enabled on that model. In-session system instruction updates use send_context_update, or a context_update message. The 2.5 Live page lists regional locations. The 3.8 Live page lists us, eu, and us-central1. The migration page does not print a location field to change.",
+      },
+      {
+        name: "Test before each date",
+        text: `Call gemini-3.8-flash before ${longDate(VERTEX_NOV19_SHUTDOWN_DATE)}. Call gemini-3.8-live before ${longDate(VERTEX_DEC13_SHUTDOWN_DATE)}. The model versions page says retirement timelines may be extended, and they will not move earlier. The Veo rows say November 17, 2026 or later. Do not treat that cell as a shutdown on November 17.`,
+      },
+    ],
+    sections: [
+      {
+        heading: "What retires and when",
+        paragraphs: [
+          `These rows are the Google Vertex Gemini models in the dataset with shutdown date ${VERTEX_NOV19_SHUTDOWN_DATE} or ${VERTEX_DEC13_SHUTDOWN_DATE}. The model id links to its SunsetDiff model page. Deprecation date, shutdown date, and replacement are the fields stored on that row. Not published means the field is empty. These rows do not store a deprecation_date.`,
+          `The model versions page puts gemini-3.6-flash in the shorter-availability table: release date July 21, 2026, retirement date November 19, 2026, replacement model ID gemini-3.8-flash. It says: "${VERTEX_SHORT}" And: "${VERTEX_STILL}" The 3.6 Flash page says: "${VERTEX_FLASH_BANNER}" The versions line on that page says retirement date November 19, 2026.`,
+          `The same model versions page puts gemini-live-2.5-flash-native-audio in the 12-month table: release date December 12, 2025, retirement date December 13, 2026, replacement model ID gemini-3.8-live. The Live model page says retirement date December 13, 2026.`,
+          `Both model pages say: "${VERTEX_FOOTNOTE}" The Gemini API deprecations page is a different list. Checked on ${VERTEX_NOV_DEC_CHECKED}, the shutdown cell for gemini-3.6-flash says "No shutdown date announced." It does not list November 19, 2026, December 13, 2026, or the id gemini-live-2.5-flash-native-audio. ${apiFlash ? `The stored Gemini API row for gemini-3.6-flash has shutdown kind ${apiFlash.shutdown_date_kind} and ${apiFlash.shutdown_date ? `shutdown date ${apiFlash.shutdown_date}` : "no shutdown_date"}.` : "The dataset has no Gemini API row for gemini-3.6-flash."} See [Gemini API model shutdowns on November 17, 2026](/guides/${GEMINI_NOV17_GUIDE_SLUG}/).`,
+          flash37
+            ? `gemini-3.7-flash is on the shorter-availability table with retirement date January 28, 2027 and replacement model ID gemini-3.8-flash. The stored shutdown date is ${flash37.shutdown_date ?? "Not published"} (${flash37.shutdown_date_kind}). January 28, 2027 is after mid-December, so that id is not in the table below.`
+            : "The dataset has no gemini-3.7-flash row. The model versions page lists that id with retirement date January 28, 2027, which is after mid-December.",
+        ],
+        table: {
+          caption: `${ordered.length} Vertex Gemini ids with an exact shutdown date on ${VERTEX_NOV19_SHUTDOWN_DATE} or ${VERTEX_DEC13_SHUTDOWN_DATE}.`,
+          headers: ["Model id", "Deprecation date", "Shutdown date", "Recommended replacement"],
+          rows: tableRows(ordered, catalog),
+        },
+        sources,
+      },
+      {
+        heading: "Veo dates that are floors",
+        paragraphs: [
+          veo.length
+            ? `The model versions page lists ${idList(veo)} with retirement date November 17, 2026 or later. The replacement cell is empty. The dataset stores shutdown date ${VERTEX_VEO_FLOOR_DATE} and kind ${[...new Set(veo.map((model) => model.shutdown_date_kind))].join(", ")}.`
+            : "The dataset has no veo-3.1-generate-001 or veo-3.1-fast-generate-001 row.",
+          `The page says: "${VERTEX_EXTEND}" November 17, 2026 is the earliest day in that cell. It is not a confirmed shutdown on that day. This guide does not name a replacement the page does not print.`,
+          "These Veo ids are not Gemini text or Live ids. A generateContent swap to gemini-3.8-flash does not replace a Veo video model.",
+        ],
+        table: veo.length
+          ? {
+              caption: `${veo.length} Vertex Veo ids whose retirement cell says November 17, 2026 or later.`,
+              headers: ["Model id", "Deprecation date", "Retirement cell", "Recommended replacement"],
+              rows: veo.map((model) => [
+                modelLink(model),
+                deprecationCell(model),
+                vertexDateCell(model),
+                replacementText(model, catalog),
+              ]),
+            }
+          : undefined,
+        sources: [{ label: "Vertex AI model versions", url: GEMINI_VERTEX }],
+      },
+      {
+        heading: "Change gemini-3.6-flash to gemini-3.8-flash",
+        paragraphs: [
+          `The 3.8 Flash guide says: "To migrate to 3.8 Flash from 3.7 Flash or 3.6 Flash, do the following steps." Then: "${VERTEX_MODEL_STRING}" Then: "${VERTEX_BUDGET}". HIGH, MEDIUM, and LOW are the values it names. MEDIUM is the default. It also says: "${VERTEX_MINIMAL}"`,
+          `Under mandatory API rules, the same page says deprecated sampling parameters (temperature, top_k, top_p): "${VERTEX_IGNORED}" It says unsupported parameters: "${VERTEX_THROW}" The checklist then says: "${VERTEX_REMOVE_LIST}" The rules section and the checklist do not use the same verb for temperature, top_p, and top_k. This guide does not pick one. Remove the fields the checklist names, and do not send thinking_level MINIMAL.`,
+          `The same page says: "${VERTEX_HISTORY}" And: "${VERTEX_PREFILL}" It does not print an HTTP status or an error body for the retirement date itself. The model versions page says to update the application to the recommended upgrades, test mission critical features, and deploy the updates.`,
+          "The quickstart below sets location to global. The 3.6 Flash page lists model availability as global, and multi-region us and eu. The quickstart is a generateContent call. It is not a Live session.",
+        ],
+        codes: [
+          {
+            caption: "Retiring model id, same client shape as the 3.8 Flash quickstart",
+            code: `from google import genai
+
+client = genai.Client(enterprise=True, project="PROJECT_ID", location="global")
+
+response = client.models.generate_content(
+  model="gemini-3.6-flash",
+  contents="How does AI work?",
+)
+print(response.text)
+`,
+          },
+          {
+            caption: "3.8 Flash quickstart",
+            code: `from google import genai
+
+client = genai.Client(enterprise=True, project="PROJECT_ID", location="global")
+
+response = client.models.generate_content(
+  model="gemini-3.8-flash",
+  contents="How does AI work?",
+)
+print(response.text)
+`,
+          },
+          {
+            caption: "generateContent URL from the 3.8 Flash quickstart. The access-token header on that sample is left out.",
+            code: `curl -X POST \\
+  -H "Content-Type: application/json" \\
+  "https://aiplatform.googleapis.com/v1/projects/PROJECT_ID/locations/global/publishers/google/models/gemini-3.8-flash:generateContent" \\
+  -d '{
+    "contents": {
+      "role": "USER",
+      "parts": { "text": "Why is the sky blue?" }
+    }
+  }'
+`,
+          },
+        ],
+        sources: [
+          { label: "Developer's guide to Gemini 3.8 Flash", url: VERTEX_FLASH_GUIDE },
+          { label: "Gemini 3.6 Flash model page", url: VERTEX_FLASH_PAGE },
+          { label: "Migrate to the latest Gemini models", url: VERTEX_MIGRATE },
+        ],
+      },
+      {
+        heading: "Change the Live model id to gemini-3.8-live",
+        paragraphs: [
+          "The Live migration page describes the move from Gemini 2.5 Flash Live API Native Audio to Gemini 3.8 Live. Its samples set model to gemini-3.8-live. The retiring id on the model versions page is gemini-live-2.5-flash-native-audio. This guide does not invent a connect() call for that old id.",
+          `Affective dialog on 2.5 is "Supported through the enable_affective_dialog flag." On 3.8 Live the cell says: "${VERTEX_AFFECTIVE}" Proactive audio on 2.5 is "Supported through the proactivity flag." On 3.8 Live that cell also says: "${VERTEX_AFFECTIVE}"`,
+          `For history seeding, the page says: "${VERTEX_HISTORY_SEED}" For a system instruction change during a session, it says: "${VERTEX_CONTEXT}" It can replace the system instruction, the list of tools, or both.`,
+          `The checklist says: "${VERTEX_INTERRUPT}" The behavior table says that when the user is speaking, scheduling interrupt on 3.8 Live waits for the user to finish before playing the tool's response. On 2.5, that same cell plays the tool's response over the user. The page also says 3.8 Live supports blocking function calls when the declaration sets behavior=BLOCKING, and that a new input during that call cancels it.`,
+          "The 2.5 Live page lists model availability in us-central1, us-east1, us-east4, us-east5, us-south1, us-west1, us-west4, europe-central2, europe-north1, europe-southwest1, europe-west1, europe-west4, and europe-west8. The 3.8 Live page lists multi-region us and eu, and United States us-central1. us-central1 is on both lists. The migration page does not print a location string to change. A location that is only on the 2.5 list is not on the 3.8 availability list this guide read.",
+          `The 3.8 Live page says retirement date September 25, 2027 or later. That is a floor for the replacement, not a December 13 date. The Live sample calls genai.Client() with no arguments. The 3.8 Flash quickstart uses enterprise=True, a project id, and location global. This guide does not merge those two clients.`,
+        ],
+        codes: [
+          {
+            caption: "Live connect sample from the Gemini 3.8 Live migration page",
+            code: `from google import genai
+from google.genai import types
+
+client = genai.Client()
+
+config = types.LiveConnectConfig(
+    response_modalities=["AUDIO"],
+    media_resolution=types.MediaResolution.MEDIA_RESOLUTION_LOW,
+)
+
+async with client.aio.live.connect(
+    model="gemini-3.8-live",
+    config=config,
+) as session:
+    ...
+`,
+          },
+        ],
+        sources: [
+          { label: "Migrate from Gemini 2.5 Flash Live API to Gemini 3.8 Live", url: VERTEX_LIVE_MIGRATE },
+          { label: "Gemini 2.5 Flash Live API model page", url: VERTEX_LIVE_PAGE },
+          { label: "Gemini 3.8 Live model page", url: VERTEX_LIVE_38 },
+        ],
+      },
+      {
+        heading: "Find the model ids in your code",
+        paragraphs: [
+          "Search the repository for the two Gemini ids in the first table, and for the two Veo ids if you use video models. A hit is a candidate. [How to find every model ID in your codebase](/guides/find-model-ids-in-your-codebase/) covers SDK argument names. The [scan page](/scan/) builds a search from dataset ids that have a shutdown date.",
+          "gemini-3.6-flash on the Gemini API is a different provider row. The Vertex retirement date does not fill in a Gemini API shutdown date. Search configs that set a Vertex location as well as the model id. The Live pages do not share one location list.",
+        ],
+        codes: [{ caption: "ripgrep", code: searchCode([...ordered, ...veo]) }],
+        sources: [{ label: "Vertex AI model versions", url: GEMINI_VERTEX }],
+      },
+      {
+        heading: "Test the replacement before the cutoff",
+        paragraphs: [
+          `Send one real generateContent request to gemini-3.8-flash before ${longDate(VERTEX_NOV19_SHUTDOWN_DATE)}. Send one real Live session to gemini-3.8-live before ${longDate(VERTEX_DEC13_SHUTDOWN_DATE)}. If a Live tool can return no rows, read that payload. The migration page says: "When a tool returns an uninformative or empty response, such as {"results": [], "total_available": 0} or None, the model can't distinguish between \"permanently exhausted\", \"query window too narrow\" or \"invalid argument\"."`,
+          "The [pre-migration test checklist](/guides/pre-migration-test-checklist/) is the longer list: evals, rejected fields, token limits, tools, price, and latency. These Vertex rows do not store a price. The [migrate diff for gemini-3.6-flash](/migrate/google-vertex__gemini-3-6-flash__to__google-vertex__gemini-3-8-flash/) and the [migrate diff for the Live id](/migrate/google-vertex__gemini-live-2-5-flash-native-audio__to__google-vertex__gemini-3-8-live/) show the stored model-id swap.",
+        ],
+        sources: [
+          { label: "Developer's guide to Gemini 3.8 Flash", url: VERTEX_FLASH_GUIDE },
+          { label: "Migrate from Gemini 2.5 Flash Live API to Gemini 3.8 Live", url: VERTEX_LIVE_MIGRATE },
+          { label: "Vertex AI model versions", url: GEMINI_VERTEX },
+        ],
+      },
+      {
+        heading: "Shutdown pages for these dates",
+        paragraphs: [
+          `SunsetDiff publishes a shutdown batch page when at least ${SHUTDOWN_BATCH_MIN} model records share one provider and one exact shutdown date.`,
+          vertexBatchSentence(VERTEX_NOV19_SHUTDOWN_DATE, nov19.length),
+          vertexBatchSentence(VERTEX_DEC13_SHUTDOWN_DATE, dec13.length),
+          `veo-3.1-generate-001 and veo-3.1-fast-generate-001 store ${VERTEX_VEO_FLOOR_DATE} with kind not_before. A floor is not an exact shutdown date, so there is no /shutdowns/google-vertex-${VERTEX_VEO_FLOOR_DATE}/ page. Counting those two rows as exact would still be under ${SHUTDOWN_BATCH_MIN}.`,
+          vertexBatchSentence("2026-10-20", oct20.length),
+          "October 20, 2026 is the gemini-2.5-pro, gemini-2.5-flash, and gemini-2.5-flash-lite batch. It is not the November 19 or December 13 date.",
+        ],
+        sources: [{ label: "Vertex AI model versions", url: GEMINI_VERTEX }],
+      },
+    ],
+    related: [
+      { href: "/models/google-vertex/gemini-3-6-flash/", label: "Vertex gemini-3.6-flash" },
+      { href: "/models/google-vertex/gemini-live-2-5-flash-native-audio/", label: "Vertex gemini-live-2.5-flash-native-audio" },
+      { href: "/models/google-vertex/gemini-3-8-flash/", label: "Vertex gemini-3.8-flash" },
+      { href: "/models/google-vertex/gemini-3-8-live/", label: "Vertex gemini-3.8-live" },
+      { href: "/migrate/google-vertex__gemini-3-6-flash__to__google-vertex__gemini-3-8-flash/", label: "gemini-3.6-flash to gemini-3.8-flash" },
+      { href: "/migrate/google-vertex__gemini-live-2-5-flash-native-audio__to__google-vertex__gemini-3-8-live/", label: "Live id to gemini-3.8-live" },
+      { href: "/providers/google-vertex/", label: "Google Vertex AI provider page" },
+      { href: "/shutdowns/google-vertex-2026-10-20/", label: "Vertex AI shutdowns on October 20, 2026" },
+      { href: `/guides/${GEMINI_NOV17_GUIDE_SLUG}/`, label: "Gemini API model shutdowns on November 17, 2026" },
+      { href: "/guides/why-shutdown-dates-differ-by-platform/", label: "Why shutdown dates differ by platform" },
+      { href: "/guides/find-model-ids-in-your-codebase/", label: "Find model ids in your codebase" },
+      { href: "/guides/pre-migration-test-checklist/", label: "Pre-migration test checklist" },
+      { href: "/scan/", label: "Scan retiring ids" },
+    ],
+    faqs: [
+      {
+        question: "Which Vertex Gemini models retire in November and December 2026?",
+        answer: `The dataset lists ${idList(ordered)}. gemini-3.6-flash retires on ${VERTEX_NOV19_SHUTDOWN_DATE}. gemini-live-2.5-flash-native-audio retires on ${VERTEX_DEC13_SHUTDOWN_DATE}. The model versions page says: "${VERTEX_EXTEND}"`,
+      },
+      {
+        question: "What is the recommended replacement?",
+        answer: `${replacementFaq(ordered, catalog)} The 3.6 Flash page says: "${VERTEX_FLASH_BANNER}"`,
+      },
+      {
+        question: "What changes besides the gemini-3.6-flash model id?",
+        answer: `The 3.8 Flash guide says: "${VERTEX_BUDGET}". ${VERTEX_MINIMAL} It says: "${VERTEX_IGNORED}" It also says: "${VERTEX_THROW}" The checklist says: "${VERTEX_REMOVE_LIST}" And: "${VERTEX_PREFILL}"`,
+      },
+      {
+        question: "What changes for the Live API id?",
+        answer: `Point the Live session at gemini-3.8-live. Affective dialog and proactive audio say: "${VERTEX_AFFECTIVE}" The migration page says: "${VERTEX_CONTEXT}" And: "${VERTEX_HISTORY_SEED}" And: "${VERTEX_INTERRUPT}"`,
+      },
+      {
+        question: "Do the Veo 3.1 models shut down on November 17, 2026?",
+        answer: `No confirmed day is printed. The model versions page says November 17, 2026 or later, and the replacement cell is empty. The page says: "${VERTEX_EXTEND}" The dataset kind is not_before.`,
+      },
+      {
+        question: "Does the Gemini API use these same dates?",
+        answer: `No. The Vertex pages say: "${VERTEX_FOOTNOTE}" Checked on ${VERTEX_NOV_DEC_CHECKED}, the Gemini API deprecations page lists gemini-3.6-flash with shutdown cell "No shutdown date announced." It does not list gemini-live-2.5-flash-native-audio. The November 17, 2026 Gemini API ids are on [Gemini API model shutdowns on November 17, 2026](/guides/${GEMINI_NOV17_GUIDE_SLUG}/).`,
+      },
+      {
+        question: "Why is there no shutdown page for November 19 or December 13?",
+        answer: `A shutdown batch page is published when at least ${SHUTDOWN_BATCH_MIN} model records share one provider and one exact shutdown date. ${vertexBatchSentence(VERTEX_NOV19_SHUTDOWN_DATE, nov19.length)} ${vertexBatchSentence(VERTEX_DEC13_SHUTDOWN_DATE, dec13.length)} There is no /shutdowns/google-vertex-${VERTEX_VEO_FLOOR_DATE}/ page because the Veo date is a floor.`,
+      },
+      {
+        question: "Is gemini-3.7-flash in this window?",
+        answer: flash37
+          ? `No. The model versions page lists gemini-3.7-flash with retirement date January 28, 2027 and replacement model ID gemini-3.8-flash. The stored shutdown date is ${flash37.shutdown_date ?? "Not published"}.`
+          : "No. The model versions page lists gemini-3.7-flash with retirement date January 28, 2027.",
+      },
+    ],
+    citations: [
+      GEMINI_VERTEX,
+      VERTEX_FLASH_PAGE,
+      VERTEX_FLASH_GUIDE,
+      VERTEX_LIVE_PAGE,
+      VERTEX_LIVE_38,
+      VERTEX_LIVE_MIGRATE,
+      VERTEX_MIGRATE,
+      GEMINI_DEPRECATIONS,
+    ],
   };
 }
