@@ -44,6 +44,24 @@ export const AZURE_NOV19_GUIDE_SLUG = "azure-openai-o-series-retirement-november
 export const AZURE_CODEX_MINI_DATE = "2026-11-15";
 export const AZURE_CHAT_LATEST_DATE = "2026-11-17";
 
+/** Checked against the Azure OpenAI retirement schedule on 2026-11-02. */
+export const AZURE_NOV_DEC_GUIDE_SLUG = "azure-openai-retirements-november-december-2026";
+export const AZURE_NOV_DEC_CHECKED = "2026-11-02";
+export const AZURE_CHAT_DEC8_DATE = "2026-12-08";
+export const AZURE_SPEECH_DATE = "2026-12-15";
+export const AZURE_IMAGE_15_DATE = "2026-12-16";
+
+const AZURE_NOV_DEC_IDS = new Set([
+  "codex-mini-2025-05-16",
+  "gpt-chat-latest-2026-05-05",
+  "gpt-chat-latest-2026-05-28",
+  "gpt-chat-latest-2026-06-24",
+  "gpt-image-1.5-2025-12-16",
+  "tts-001",
+  "tts-hd-001",
+  "whisper-001",
+]);
+
 /** Checked against GitHub's October 15, 2026 Copilot changelog. The slug uses this date. */
 export const COPILOT_NOV16_SHUTDOWN_DATE = "2026-11-16";
 export const COPILOT_NOV16_GUIDE_SLUG = "github-copilot-model-retirements-november-16-2026";
@@ -228,6 +246,10 @@ export function isAzureChatLatestNov17(model: ModelRecord): boolean {
     && model.family === "gpt-chat-latest"
     && model.shutdown_date === AZURE_CHAT_LATEST_DATE
     && model.shutdown_date_kind === "exact";
+}
+
+export function isAzureNovDecRetirement(model: ModelRecord): boolean {
+  return model.provider === "azure-openai" && AZURE_NOV_DEC_IDS.has(model.id);
 }
 
 export function isCopilotNov16Shutdown(model: ModelRecord): boolean {
@@ -631,6 +653,8 @@ export function datasetShutdownGuides(catalog: ModelRecord[] = readCatalog()): G
   if (jamba.length) pages.push(jambaNov26Guide(jamba, catalog));
   const azure = rowsFor(isAzureNov19OSeries, catalog);
   if (azure.length) pages.push(azureOSeriesGuide(azure, catalog));
+  const azureNovDec = rowsFor(isAzureNovDecRetirement, catalog);
+  if (azureNovDec.length) pages.push(azureNovDecGuide(azureNovDec, catalog));
   const copilot = rowsFor(isCopilotNov16Shutdown, catalog);
   if (copilot.length) pages.push(copilotNov16Guide(copilot, catalog));
   const fireworks = rowsFor(isFireworksNov7Shutdown, catalog);
@@ -1749,6 +1773,13 @@ const AZURE_NO_REPLACEMENT = "If no replacement exists, customers get 30 days no
 const AZURE_PREVIEW_NOTE = "Preview models aren't recommended for production workloads.";
 const AZURE_FINE_FOOT = "For existing customers only. Otherwise, training retirement occurs at base model retirement.";
 const AZURE_REPLACEMENT_COL = "The Replacement column identifies Microsoft's recommended replacement and, where supported, the target for automatic upgrades at retirement.";
+const AZURE_MIGRATION = "https://learn.microsoft.com/en-us/azure/foundry/foundry-models/concepts/model-migration";
+const AZURE_SHORTLIST = "Is there a named suggested replacement, or do you need to shortlist candidates yourself?";
+const AZURE_INVENTORY = "You also need an inventory of the model deployments your workload uses, including their deployment types (Standard, Provisioned, or Batch).";
+const AZURE_NOTE_EACH = "For each source model, note its retirement date and suggested replacement from the Model retirement schedule.";
+const AZURE_PAYG = "Standard, Global Standard, and Data Zone Standard (pay-as-you-go) deployments are auto-upgraded on a rolling, region-by-region schedule.";
+const AZURE_BATCH_PATH = "Batch deployments follow the side-by-side path: deploy the new model, resubmit jobs, retire the old deployment.";
+const AZURE_PTU = "Provisioned (PTU) deployments are not auto-upgraded.";
 
 const COPILOT_CHANGELOG = "https://github.blog/changelog/2026-10-15-upcoming-deprecation-of-selected-github-copilot-models-in-mid-november";
 const COPILOT_SUPPORTED = "https://docs.github.com/en/copilot/reference/ai-models/supported-models";
@@ -1848,6 +1879,7 @@ function azureOSeriesGuide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePa
           laterChat.length
             ? `Other gpt-chat-latest versions in the dataset have a different shutdown date, or none. The schedule does not name them as the replacement for the ${AZURE_CHAT_LATEST_DATE} rows. ${laterChat.map((model) => `${model.id}: ${model.shutdown_date ?? "Not published"}`).join(". ")}.`
             : "The dataset has no other gpt-chat-latest version rows.",
+          `The deployment steps for these rows, plus gpt-chat-latest 2026-05-28, tts 001, tts-hd 001, whisper 001, and gpt-image-1.5 2025-12-16, are on [Azure OpenAI retirements from November 15 to December 16, 2026](/guides/${AZURE_NOV_DEC_GUIDE_SLUG}/).`,
         ],
         table: codex.length || chat.length
           ? {
@@ -1918,6 +1950,7 @@ function azureOSeriesGuide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePa
     ],
     related: [
       { href: "/shutdowns/azure-openai-2026-11-19/", label: `Azure OpenAI shutdowns on ${when}` },
+      { href: `/guides/${AZURE_NOV_DEC_GUIDE_SLUG}/`, label: "Azure OpenAI retirements from November 15 to December 16, 2026" },
       { href: "/providers/azure-openai/", label: "Azure OpenAI provider page" },
       { href: "/errors/azure-openai-retired-model-410-gone/", label: "Azure OpenAI retired models return 410 Gone" },
       { href: "/guides/find-model-ids-in-your-codebase/", label: "Find model ids in your codebase" },
@@ -1955,6 +1988,225 @@ function azureOSeriesGuide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePa
       },
     ],
     citations: [AZURE_SCHEDULE, AZURE_RETIREMENTS, AZURE_WORKING, AZURE_VERSIONS],
+  };
+}
+
+function azureScheduleLifecycle(model: ModelRecord): string {
+  const excerpt = model.sources.find((source) => source.url === AZURE_SCHEDULE)?.excerpt ?? "";
+  const cell = excerpt.split("|").map((part) => part.trim())[2] ?? "";
+  if (cell === "Deprecated" || cell === "Preview" || cell === "GA" || cell === "Legacy" || cell === "Retired") return cell;
+  return "Not published";
+}
+
+function azureExactCount(catalog: ModelRecord[], date: string): number {
+  return catalog.filter((model) => model.provider === "azure-openai" && model.shutdown_date === date && model.shutdown_date_kind === "exact").length;
+}
+
+function azureBatchSentence(date: string, count: number): string {
+  const path = `/shutdowns/azure-openai-${date}/`;
+  const when = longDate(date);
+  if (count >= 3) {
+    return `${when} has ${count} Azure OpenAI ids with that exact shutdown date, so the batch page is [Azure OpenAI shutdowns on ${when}](${path}).`;
+  }
+  const noun = count === 1 ? "id" : "ids";
+  return `${when} has ${count} Azure OpenAI ${noun} with that exact shutdown date, so there is no ${path} page.`;
+}
+
+function azureNovDecGuide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePage {
+  const ordered = [...rows].sort((a, b) => (a.shutdown_date ?? "").localeCompare(b.shutdown_date ?? "") || a.id.localeCompare(b.id));
+  const dates = ["2026-11-15", "2026-11-17", AZURE_CHAT_DEC8_DATE, AZURE_SPEECH_DATE, AZURE_IMAGE_15_DATE];
+  const batchLines = dates.map((date) => azureBatchSentence(date, azureExactCount(catalog, date)));
+  const chatPeers = catalog
+    .filter((model) => model.provider === "azure-openai" && (model.id === "gpt-chat-latest" || model.family === "gpt-chat-latest") && !AZURE_NOV_DEC_IDS.has(model.id))
+    .sort((a, b) => a.id.localeCompare(b.id));
+  const imagePeers = catalog
+    .filter((model) => model.provider === "azure-openai" && model.id.startsWith("gpt-image-") && !AZURE_NOV_DEC_IDS.has(model.id))
+    .sort((a, b) => a.id.localeCompare(b.id));
+  const realtime = catalog.find((model) => model.provider === "azure-openai" && model.id === "gpt-realtime-mini-2025-12-15");
+  const peerLine = (models: ModelRecord[]) => models.map((model) => `${model.id}: ${model.shutdown_date ?? "Not published"}`).join(". ");
+  const byDate = dates
+    .map((date) => {
+      const group = ordered.filter((model) => model.shutdown_date === date);
+      if (!group.length) return "";
+      return `${date}: ${group.map((model) => `${model.id} (${azureScheduleLifecycle(model)})`).join(", ")}`;
+    })
+    .filter(Boolean)
+    .join(". ");
+  const sources = [
+    { label: "Azure OpenAI retirement schedule", url: AZURE_SCHEDULE },
+    { label: "Foundry Models lifecycle", url: AZURE_RETIREMENTS },
+  ];
+  return {
+    slug: AZURE_NOV_DEC_GUIDE_SLUG,
+    title: "Azure OpenAI retirements from November 15 to December 16, 2026 | SunsetDiff",
+    description: `Azure OpenAI codex-mini retires on ${AZURE_CODEX_MINI_DATE}. Three gpt-chat-latest versions retire on ${AZURE_CHAT_LATEST_DATE} and ${AZURE_CHAT_DEC8_DATE}. tts, tts-hd, and whisper retire on ${AZURE_SPEECH_DATE}. gpt-image-1.5 retires on ${AZURE_IMAGE_15_DATE}. The schedule names no replacement.`,
+    h1: "Azure OpenAI retirements from November 15 to December 16, 2026",
+    summary: `${ordered.length} Azure OpenAI versions retiring from ${AZURE_CODEX_MINI_DATE} through ${AZURE_IMAGE_15_DATE}, the empty replacement cells on the schedule, and what a deployment does on each date.`,
+    answer: `The dataset has ${ordered.length} Azure OpenAI ids in this window. ${byDate}. The retirement schedule's replacement cell is empty on each of those rows, so the table says Not published. The lifecycle page says a Retired model is removed from service and all inference requests return 410 Gone. Standard deployments can auto-upgrade. These rows do not name a replacement, so this page does not name an upgrade target. A deployment set to NoAutoUpgrade stops working. Provisioned deployments are not auto-upgraded.`,
+    checked: AZURE_NOV_DEC_CHECKED,
+    steps: [
+      {
+        name: "Read the date table",
+        text: `The table is these ${ordered.length} Azure OpenAI ids. The lifecycle cell is the schedule's Lifecycle column, copied from the source excerpt stored on the row. Not published in the replacement cell means that field is empty. Open the model page before you change a deployment.`,
+      },
+      {
+        name: "List deployments on the resource",
+        text: "Call Deployments List, or Get-AzCognitiveServicesAccountDeployment, for each Azure OpenAI resource. Read properties.model.name and properties.model.version. A deployment name can differ from the model name. codex-mini version 2025-05-16 is the dataset id codex-mini-2025-05-16. tts version 001 is tts-001.",
+      },
+      {
+        name: "Read versionUpgradeOption",
+        text: "OnceCurrentVersionExpired upgrades the deployment when the retirement date is reached. null means the same thing. NoAutoUpgrade never upgrades, and that deployment stops working. Provisioned deployments are not auto-upgraded.",
+      },
+      {
+        name: "Shortlist a model yourself",
+        text: `The schedule does not name a replacement for any row in the table. Do not wait for an automatic target. Pick a model, deploy it, and send one real request before the shutdown date on that row. The migration page asks: "${AZURE_SHORTLIST}"`,
+      },
+    ],
+    sections: [
+      {
+        heading: "Models and dates",
+        paragraphs: [
+          `These ${ordered.length} ids are the Azure OpenAI rows whose shutdown date is ${AZURE_CODEX_MINI_DATE}, ${AZURE_CHAT_LATEST_DATE}, ${AZURE_CHAT_DEC8_DATE}, ${AZURE_SPEECH_DATE}, or ${AZURE_IMAGE_15_DATE}. The November 19, 2026 o-series rows are a separate guide: [Azure OpenAI o-series retirement on November 19, 2026](/guides/${AZURE_NOV19_GUIDE_SLUG}/). That page also mentions codex-mini and the two November 17 gpt-chat-latest versions.`,
+          `The model id links to its SunsetDiff model page. Lifecycle is the schedule's Lifecycle column. Shutdown date and replacement are the fields stored on the row. Not published means the replacement field is empty. These rows do not store a deprecation_date. ${byDate}.`,
+          `The schedule says: "${AZURE_REPLACEMENT_COL}" This guide does not add a replacement the schedule does not print.`,
+        ],
+        table: {
+          caption: `${ordered.length} Azure OpenAI model ids retiring from ${AZURE_CODEX_MINI_DATE} through ${AZURE_IMAGE_15_DATE}.`,
+          headers: ["Model id", "Lifecycle on the schedule", "Shutdown date", "Recommended replacement"],
+          rows: ordered.map((model) => [
+            modelLink(model),
+            azureScheduleLifecycle(model),
+            shutdownCell(model),
+            replacementText(model, catalog),
+          ]),
+        },
+        sources,
+      },
+      {
+        heading: "Microsoft names no replacement",
+        paragraphs: [
+          "The replacement cell on the retirement schedule is empty for every row in the table. Empty means Microsoft did not name a recommended replacement or an automatic-upgrade target on that row.",
+          chatPeers.length
+            ? `Other gpt-chat-latest rows in the dataset are not the replacement for the versions in the table. The schedule does not name them. ${peerLine(chatPeers)}.`
+            : "The dataset has no other gpt-chat-latest row.",
+          imagePeers.length
+            ? `Other Azure OpenAI image rows in the dataset are not the replacement for gpt-image-1.5 2025-12-16. The schedule does not name them. ${peerLine(imagePeers)}.`
+            : "The dataset has no other gpt-image row.",
+          "The dataset has no other tts, tts-hd, or whisper version. The schedule does not name a speech or transcription replacement for tts 001, tts-hd 001, or whisper 001. It also does not name a replacement for codex-mini 2025-05-16.",
+          `The migration page says: "${AZURE_SHORTLIST}" For these rows, the schedule does not name one, so you shortlist candidates yourself. It also says: "${AZURE_NOTE_EACH}"`,
+        ],
+        sources: [
+          ...sources,
+          { label: "Model migration process", url: AZURE_MIGRATION },
+        ],
+      },
+      {
+        heading: "What happens to a deployment on the date",
+        paragraphs: [
+          `The lifecycle table says Retired means: "${AZURE_RETIRED}" New deployments are not allowed, and existing deployments do not work. The same page says the API value lifecycleStatus Deprecated means the model is retired and inference returns 410 Gone. The docs stage Deprecated is lifecycleStatus Deprecating, and inference still works. codex-mini 2025-05-16 is Deprecated on the schedule now, so inference still works until ${AZURE_CODEX_MINI_DATE}. The sentences and the status map are on [Azure OpenAI retired models return 410 Gone](/errors/azure-openai-retired-model-410-gone/).`,
+          `gpt-chat-latest 2026-05-05, gpt-chat-latest 2026-06-24, gpt-chat-latest 2026-05-28, and tts 001 are Preview on the schedule. The lifecycle page says: "${AZURE_PREVIEW_NOTE}" It also says ${AZURE_PREVIEW_END} And: "${AZURE_NO_REPLACEMENT}" The schedule does not name a replacement, so this page does not pick the upgrade path or the no-replacement path for those preview rows.`,
+          `tts-hd 001, whisper 001, and gpt-image-1.5 2025-12-16 are GA on the schedule. The lifecycle page says: "${AZURE_AUTO}" The migration page says: "${AZURE_PAYG}" The replacement column is the target where an automatic upgrade is supported. These GA rows have an empty replacement cell, so this page does not name the model an auto-upgrade would select.`,
+          `The lifecycle page says: "${AZURE_PROVISIONED}" The migration page says: "${AZURE_PTU}" And: "${AZURE_BATCH_PATH}"`,
+          `Working with models says: "${AZURE_STANDARD_ONLY}" OnceCurrentVersionExpired means: "${AZURE_EXPIRED}" NoAutoUpgrade means: "${AZURE_NO_AUTO}" And: "${AZURE_NULL}"`,
+          `The same page says: "${AZURE_SPECIFIC}" Then: "${AZURE_THEN_DEFAULT}" A deployment you pinned to one of these versions can still move on the retirement date unless versionUpgradeOption is NoAutoUpgrade. NoAutoUpgrade does not move, and the deployment stops. That move still needs a default version. The schedule does not name one for these rows.`,
+        ],
+        sources: [
+          ...sources,
+          { label: "Working with Azure OpenAI models", url: AZURE_WORKING },
+          { label: "Model migration process", url: AZURE_MIGRATION },
+        ],
+      },
+      {
+        heading: "Find deployments that use these versions",
+        paragraphs: [
+          `The migration page says: "${AZURE_INVENTORY}" Working with models says: "${AZURE_LIST}" ${AZURE_NULL_FIELD} The model versions page says: "${AZURE_PORTAL}" And: "${AZURE_REST_VERSION}"`,
+          "The example response puts the model name and version on properties.model. The deployment's own name is the name field next to that object. Match properties.model.name and properties.model.version to the ids in the table. gpt-chat-latest version 2026-05-28 is the dataset id gpt-chat-latest-2026-05-28. whisper version 001 is whisper-001. gpt-image-1.5 version 2025-12-16 is gpt-image-1.5-2025-12-16.",
+          "Also search the repository. A hit is a candidate, not proof a deployment still uses that version. [How to find every model ID in your codebase](/guides/find-model-ids-in-your-codebase/) covers SDK argument names. The [scan page](/scan/) builds a search from dataset ids that have a shutdown date.",
+        ],
+        codes: [
+          {
+            caption: "Azure PowerShell, list deployments for one account",
+            code: `Get-AzCognitiveServicesAccountDeployment -ResourceGroupName {ResourceGroupName} -AccountName {AccountName}\n`,
+          },
+          {
+            caption: "Deployments List",
+            code: `GET https://management.azure.com/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.CognitiveServices/accounts/{accountName}/deployments?api-version=2023-05-01\n`,
+          },
+          { caption: "ripgrep", code: searchCode(ordered) },
+        ],
+        sources: [
+          { label: "Working with Azure OpenAI models", url: AZURE_WORKING },
+          { label: "Model versions", url: AZURE_VERSIONS },
+          { label: "Model migration process", url: AZURE_MIGRATION },
+        ],
+      },
+      {
+        heading: "Move traffic before the date",
+        paragraphs: [
+          `Create a deployment of a model you have tested, point traffic at it, and confirm one real request before the shutdown date on that row. Do that for each date: ${AZURE_CODEX_MINI_DATE}, ${AZURE_CHAT_LATEST_DATE}, ${AZURE_CHAT_DEC8_DATE}, ${AZURE_SPEECH_DATE}, and ${AZURE_IMAGE_15_DATE}.`,
+          "Working with models describes two ways to change a provisioned deployment once you have chosen a target. In-place migration keeps the deployment name and moves traffic. Multi-deployment migration creates a second deployment, shifts traffic, then deletes the old one. Neither section names a target for these rows.",
+          "The [pre-migration test checklist](/guides/pre-migration-test-checklist/) is the longer list: evals, rejected fields, token limits, tools, price, and latency. These Azure rows do not store a price. The [Azure OpenAI provider page](/providers/azure-openai/) lists the other stored rows.",
+        ],
+        sources: [
+          { label: "Model migration process", url: AZURE_MIGRATION },
+          { label: "Working with Azure OpenAI models", url: AZURE_WORKING },
+          { label: "Azure OpenAI retirement schedule", url: AZURE_SCHEDULE },
+        ],
+      },
+      {
+        heading: "Shutdown pages for these dates",
+        paragraphs: [
+          "SunsetDiff publishes a shutdown batch page when at least three model records share one provider and one exact shutdown date.",
+          ...batchLines,
+          `The November 19, 2026 o-series batch is a different set of models. It is [Azure OpenAI shutdowns on November 19, 2026](/shutdowns/azure-openai-${AZURE_NOV19_SHUTDOWN_DATE}/).`,
+        ],
+        sources,
+      },
+    ],
+    related: [
+      { href: "/shutdowns/azure-openai-2026-12-15/", label: "Azure OpenAI shutdowns on December 15, 2026" },
+      { href: "/providers/azure-openai/", label: "Azure OpenAI provider page" },
+      { href: "/errors/azure-openai-retired-model-410-gone/", label: "Azure OpenAI retired models return 410 Gone" },
+      { href: `/guides/${AZURE_NOV19_GUIDE_SLUG}/`, label: "Azure OpenAI o-series retirement on November 19, 2026" },
+      { href: "/guides/find-model-ids-in-your-codebase/", label: "Find model ids in your codebase" },
+      { href: "/guides/pre-migration-test-checklist/", label: "Pre-migration test checklist" },
+      { href: "/scan/", label: "Scan retiring ids" },
+    ],
+    faqs: [
+      {
+        question: "Which Azure OpenAI versions retire between November 15 and December 16, 2026?",
+        answer: `The dataset lists ${idList(ordered)}. ${byDate}. The November 19 o-series ids are not in this list.`,
+      },
+      {
+        question: "What is the official replacement?",
+        answer: `${replacementFaq(ordered, catalog)} The schedule says: "${AZURE_REPLACEMENT_COL}" The replacement cell is empty on each of these rows.`,
+      },
+      {
+        question: "What does Azure return after retirement?",
+        answer: `The lifecycle page says a Retired model is removed from service and: "${AZURE_RETIRED}" See [Azure OpenAI retired models return 410 Gone](/errors/azure-openai-retired-model-410-gone/).`,
+      },
+      {
+        question: "Will every deployment upgrade itself?",
+        answer: `No. The lifecycle page says: "${AZURE_AUTO}" The migration page says: "${AZURE_PAYG}" And: "${AZURE_PTU}" Working with models says: "${AZURE_STANDARD_ONLY}" NoAutoUpgrade means: "${AZURE_NO_AUTO}" ${AZURE_NULL} These rows have no replacement on the schedule, so this page does not name an upgrade target.`,
+      },
+      {
+        question: "How do I find deployments that still use these versions?",
+        answer: `Working with models says: "${AZURE_LIST}" Read properties.model.name and properties.model.version. The model versions page says: "${AZURE_PORTAL}" The migration page says: "${AZURE_INVENTORY}"`,
+      },
+      {
+        question: "Why is there no shutdown page for November 15, November 17, December 8, and December 16?",
+        answer: `A shutdown batch page is published when at least three model records share one provider and one exact shutdown date. ${batchLines.filter((line) => line.includes("there is no")).join(" ")} December 15, 2026 has three ids, so [/shutdowns/azure-openai-${AZURE_SPEECH_DATE}/](/shutdowns/azure-openai-${AZURE_SPEECH_DATE}/) exists.`,
+      },
+      {
+        question: "Why is gpt-realtime-mini 2025-12-15 not in this table?",
+        answer: `Checked on ${AZURE_NOV_DEC_CHECKED}, the retirement schedule prints gpt-realtime-mini version 2025-12-15 twice in the Azure OpenAI table. The first row says GA and retirement 2027-06-15. A later row says GA and retirement 2026-12-15. SunsetDiff keeps the first base-table row when the same model and version is repeated. The stored id is gpt-realtime-mini-2025-12-15 and its shutdown date is ${realtime?.shutdown_date ?? "Not published"}. This guide skips that id.`,
+      },
+      {
+        question: "Does this guide include the November 19 o-series models?",
+        answer: `No. o1, o1-pro, o3, o3-deep-research, o3-mini, o3-pro, and o4-mini retire on ${AZURE_NOV19_SHUTDOWN_DATE}. The schedule names gpt-5.6-sol or gpt-5.6-terra for those rows. See [Azure OpenAI o-series retirement on November 19, 2026](/guides/${AZURE_NOV19_GUIDE_SLUG}/).`,
+      },
+    ],
+    citations: [AZURE_SCHEDULE, AZURE_RETIREMENTS, AZURE_WORKING, AZURE_VERSIONS, AZURE_MIGRATION],
   };
 }
 
