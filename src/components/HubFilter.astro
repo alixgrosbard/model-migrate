@@ -1,0 +1,52 @@
+---
+interface Props {
+  status?: boolean;
+}
+const { status = false } = Astro.props;
+---
+<div class="checks hub-filter">
+  <label>
+    Filter
+    <input id="hub-filter" type="search" placeholder="Name or id" autocomplete="off" />
+  </label>
+  {status ? (
+    <label>
+      Status
+      <select id="hub-status">
+        <option value="">Any</option>
+        <option value="active">active</option>
+        <option value="legacy">legacy</option>
+        <option value="deprecated">deprecated</option>
+        <option value="retired">retired</option>
+      </select>
+    </label>
+  ) : null}
+</div>
+<p id="hub-filter-count" class="note"></p>
+<script>
+  const input = document.querySelector<HTMLInputElement>("#hub-filter");
+  const statusInput = document.querySelector<HTMLSelectElement>("#hub-status");
+  const count = document.querySelector("#hub-filter-count");
+  if (input) {
+    const rows = [...document.querySelectorAll<HTMLElement>("[data-filter]")];
+    const sections = [...document.querySelectorAll<HTMLElement>("[data-hub-section]")];
+    const apply = () => {
+      const query = input.value.trim().toLowerCase();
+      const wanted = statusInput?.value ?? "";
+      let shown = 0;
+      for (const row of rows) {
+        const text = row.getAttribute("data-filter") ?? "";
+        const rowStatus = row.getAttribute("data-status") ?? "";
+        const hit = (query === "" || text.includes(query)) && (wanted === "" || rowStatus === wanted);
+        row.hidden = !hit;
+        if (hit) shown += 1;
+      }
+      for (const section of sections) {
+        section.hidden = section.querySelector("[data-filter]:not([hidden])") == null;
+      }
+      if (count) count.textContent = query || wanted ? `${shown} shown.` : "";
+    };
+    input.addEventListener("input", apply);
+    statusInput?.addEventListener("change", apply);
+  }
+</script>

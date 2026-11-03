@@ -1,0 +1,101 @@
+---
+import Base from "../../layouts/Base.astro";
+import FaqList from "../../components/FaqList.astro";
+import InlineText from "../../components/InlineText.astro";
+import NewsletterForm from "../../components/NewsletterForm.astro";
+import { guideGraph } from "../../jsonld.ts";
+import { GUIDES_INDEX, guideBySlug, guideChecked, guideHeadingId, guidePath, guides } from "../../lib/guides.ts";
+import { loadProviders } from "../../lib/load.ts";
+import { DEFAULT_SITE_URL } from "../../lib/site.ts";
+
+export function getStaticPaths() {
+  return guides.map((guide) => ({ params: { slug: guide.slug } }));
+}
+
+const guide = guideBySlug(Astro.params.slug);
+if (!guide) throw new Error("Missing guide");
+const providers = await loadProviders();
+const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
+const path = guidePath(guide.slug);
+const checkedDate = guideChecked(guide);
+const checked = new Date(`${checkedDate}T00:00:00Z`).toLocaleDateString("en-US", {
+  month: "long",
+  day: "numeric",
+  year: "numeric",
+  timeZone: "UTC",
+});
+const more = guides.filter((item) => item.slug !== guide.slug);
+---
+<Base
+  title={guide.title}
+  description={guide.description}
+  crumbs={[{ name: "Home", path: "/" }, { name: "Guides", path: GUIDES_INDEX }, { name: guide.h1, path }]}
+  extraGraph={guideGraph(site, guide)}
+>
+  <h1>{guide.h1}</h1>
+  <p class="answer"><InlineText text={guide.answer} /></p>
+  <p>Last reviewed <time datetime={checkedDate}>{checked}</time>. Publisher: SunsetDiff.</p>
+  <h2>Steps</h2>
+  <ol>
+    {guide.steps.map((step) => (
+      <li><strong>{step.name}.</strong> {step.text}</li>
+    ))}
+  </ol>
+  {guide.sections.map((section) => (
+    <section id={guideHeadingId(section.heading)}>
+      <h2>{section.heading}</h2>
+      {section.paragraphs.map((paragraph) => <p><InlineText text={paragraph} /></p>)}
+      {section.bullets?.length ? (
+        <ul>
+          {section.bullets.map((bullet) => <li><InlineText text={bullet} /></li>)}
+        </ul>
+      ) : null}
+      {section.table ? (
+        <table>
+          <caption>{section.table.caption}</caption>
+          <thead>
+            <tr>{section.table.headers.map((header) => <th>{header}</th>)}</tr>
+          </thead>
+          <tbody>
+            {section.table.rows.map((row) => (
+              <tr>{row.map((cell) => <td><InlineText text={cell} /></td>)}</tr>
+            ))}
+          </tbody>
+        </table>
+      ) : null}
+      {section.codes?.map((sample) => (
+        <div>
+          <h3>{sample.caption}</h3>
+          <pre><code>{sample.code}</code></pre>
+        </div>
+      ))}
+      {section.sources.length ? (
+        <p>
+          Source{section.sources.length > 1 ? "s" : ""}:{" "}
+          {section.sources.map((source, index) => (
+            <>
+              {index > 0 ? ", " : null}
+              <a href={source.url}>{source.label}</a>
+            </>
+          ))}
+          , checked {checked}.
+        </p>
+      ) : null}
+    </section>
+  ))}
+  <h2>Related SunsetDiff pages</h2>
+  <ul>
+    {guide.related.map((link) => (
+      <li><a href={link.href}>{link.label}</a></li>
+    ))}
+  </ul>
+  <p><a href={GUIDES_INDEX}>All guides</a></p>
+  <FaqList items={guide.faqs} />
+  <h2>More guides</h2>
+  <ul>
+    {more.map((item) => (
+      <li><a href={guidePath(item.slug)}>{item.h1}</a></li>
+    ))}
+  </ul>
+  <NewsletterForm providers={providers} sourcePage={path} />
+</Base>

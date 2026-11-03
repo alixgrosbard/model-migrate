@@ -1,0 +1,78 @@
+---
+import Base from "../../layouts/Base.astro";
+import { datasetGraph } from "../../jsonld.ts";
+import { breakingChangesDatasetGraph } from "../../lib/breaking-changes.ts";
+import { loadModels } from "../../lib/load.ts";
+import { DEFAULT_SITE_URL } from "../../lib/site.ts";
+const models = await loadModels();
+const modified = models.reduce((max, model) => (model.updated_at > max ? model.updated_at : max), "");
+const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
+---
+<Base
+  title="SunsetDiff dataset (JSON and CSV, CC BY 4.0) | SunsetDiff"
+  description="Download the SunsetDiff model retirement dataset as JSON or CSV under CC BY 4.0. Publisher: SunsetDiff."
+  crumbs={[{ name: "Home", path: "/" }, { name: "Data", path: "/data/" }]}
+  extraGraph={[...datasetGraph(site, modified.slice(0, 10)), breakingChangesDatasetGraph(site)]}
+>
+  <h1>SunsetDiff dataset</h1>
+  <p>
+    Cite this dataset as SunsetDiff, “SunsetDiff model retirement dataset,”
+    <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>,
+    <a href="/dataset/sunsetdiff.json">{new URL("/dataset/sunsetdiff.json", site).href}</a>,
+    <a href="/dataset/sunsetdiff.csv">{new URL("/dataset/sunsetdiff.csv", site).href}</a>,
+    <a href="/data/models.json">{new URL("/data/models.json", site).href}</a>,
+    <a href="/data/deprecations.csv">{new URL("/data/deprecations.csv", site).href}</a>,
+    <a href="/data/changelog.json">{new URL("/data/changelog.json", site).href}</a>,
+    <a href="/data/breaking-changes.json">{new URL("/data/breaking-changes.json", site).href}</a>,
+    and
+    <a href="/data/breaking-changes.csv">{new URL("/data/breaking-changes.csv", site).href}</a>.
+    Publisher: SunsetDiff. Each date and spec cites the official page it came from, with a last_checked date. Blank fields were not published there.
+    The same dataset is listed at <a href="https://huggingface.co/datasets/sunsetdiff/ai-model-deprecations">Hugging Face</a>.
+  </p>
+  <h2>Downloads</h2>
+  <ul>
+    <li><a href="/dataset/sunsetdiff.json">sunsetdiff.json</a>: JSON download, CC BY 4.0</li>
+    <li><a href="/dataset/sunsetdiff.csv">sunsetdiff.csv</a>: CSV download, CC BY 4.0</li>
+    <li><a href="/data/models.json">models.json</a>: model records, CC BY 4.0</li>
+    <li><a href="/data/deprecations.csv">deprecations.csv</a>: retiring and deprecated rows, CC BY 4.0</li>
+    <li><a href="/data/changelog.json">changelog.json</a>: versioned change log, CC BY 4.0. The human page is the <a href="/changelog/">deprecation changelog</a>.</li>
+    <li><a href="/data/breaking-changes.json">breaking-changes.json</a>: request settings a replacement rejects, CC BY 4.0</li>
+    <li><a href="/data/breaking-changes.csv">breaking-changes.csv</a>: the same rules as CSV, CC BY 4.0</li>
+    <li><a href="/breaking-changes/">Breaking changes</a>: the human page for that file</li>
+    <li><a href="/api/v1/schema.json">JSON Schema</a></li>
+    <li><a href="/llms.txt">llms.txt</a> and <a href="/llms-full.txt">llms-full.txt</a></li>
+  </ul>
+  <h2>Fields</h2>
+  <p>Each model row has provider, id, slug, display name, status, announced date, deprecation date, shutdown date, shutdown date kind, replacement id, and the source URL with last_checked. Blank fields were not on the official page.</p>
+  <h2>Snapshot</h2>
+  <pre><code>curl -fsSL https://sunsetdiff.com/dataset/sunsetdiff.json -o sunsetdiff.json</code></pre>
+  <h2>JSON API</h2>
+  <ul>
+    <li><a href="/api/v1/index.json">/api/v1/index.json</a></li>
+    <li><a href="/api/v1/providers.json">/api/v1/providers.json</a></li>
+    <li><a href="/api/v1/models.json">/api/v1/models.json</a></li>
+    <li><a href="/api/v1/upcoming.json">/api/v1/upcoming.json</a>: next 90 days</li>
+    <li><a href="/api/v1/changes.json">/api/v1/changes.json</a></li>
+    <li><code>/api/v1/models/&lt;provider&gt;/&lt;slug&gt;.json</code></li>
+    <li><code>/api/v1/lookup/&lt;model-id&gt;.json</code></li>
+    <li><code>/api/v1/migrations/&lt;from&gt;__to__&lt;to&gt;.json</code></li>
+  </ul>
+  <p>Field names, the update cadence, the license, and copy-paste curl and fetch examples are on the <a href="/api/">API docs</a>.</p>
+  <h2>MCP server</h2>
+  <p>The Node service exposes a read-only MCP endpoint at <code>/mcp</code>. Tools: <code>check_model</code>, <code>upcoming_shutdowns</code>, <code>migration_diff</code>, <code>scan_text</code>. Client setup is on the <a href="/mcp/">MCP page</a>.</p>
+  <pre><code>npx github:alixgrosbard/model-migrate mcp</code></pre>
+  <h2 id="github-action">GitHub Action</h2>
+  <pre><code>- uses: alixgrosbard/model-migrate/action@cursor/sunsetdiff-v1-3cab
+  with:
+    warn-days: "60"
+    fail-days: "14"</code></pre>
+  <p>It scans files for known model ids and writes warnings. If the API is down, it uses a bundled snapshot. The action files are on the branch this site deploys from. Inputs and a full workflow are on the <a href="/github-action/">GitHub Action page</a>. Marketplace publishing is a later manual step.</p>
+  <h2>Other machine files</h2>
+  <ul>
+    <li><a href="/llms.txt">llms.txt</a> and <a href="/llms-full.txt">llms-full.txt</a></li>
+    <li><a href="/calendar.ics">calendar.ics</a></li>
+    <li><a href="/deadlines.ics">deadlines.ics</a>: shutdowns in the next 365 days</li>
+    <li><a href="/feed.xml">feed.xml</a>: new deprecations</li>
+    <li><a href="/changes.xml">changes.xml</a></li>
+  </ul>
+</Base>

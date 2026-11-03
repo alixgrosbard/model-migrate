@@ -1,0 +1,113 @@
+---
+import Base from "../../layouts/Base.astro";
+import FaqList from "../../components/FaqList.astro";
+import { scheduleGraph } from "../../jsonld.ts";
+import { clipMeta, today } from "../../lib/format.ts";
+import { monthLabel } from "../../lib/growth.ts";
+import { loadModels, loadProviders } from "../../lib/load.ts";
+import { longDate } from "../../lib/shutdowns.ts";
+import { DEFAULT_SITE_URL } from "../../lib/site.ts";
+import {
+  datedShutdowns,
+  monthKeyPath,
+  newestUpdated,
+  providerCounts,
+  shutdownMonthList,
+  shutdownsInMonth,
+  shutdownsInYear,
+  shutdownYearList,
+  TIMELINE_PATH,
+  toScheduleRows,
+  upcomingShutdowns,
+  yearPath,
+  yearScope,
+} from "../../lib/schedule.ts";
+import type { FaqItem } from "../../lib/format.ts";
+
+const day = today();
+const models = await loadModels();
+const providers = await loadProviders();
+const dated = datedShutdowns(models);
+const upcoming = upcomingShutdowns(models, day);
+const years = shutdownYearList(models);
+const months = shutdownMonthList(models);
+const yearRows = years.map((year) => {
+  const selected = shutdownsInYear(models, year);
+  const rows = toScheduleRows(selected, models, providers, [], day);
+  return { year, path: yearPath(year), count: selected.length, counts: providerCounts(rows, providers).filter((item) => item.count > 0) };
+});
+const monthsByYear = years.map((year) => ({
+  year,
+  months: months.filter((month) => month.startsWith(`${year}-`)).map((month) => ({
+    key: month,
+    label: monthLabel(month),
+    path: monthKeyPath(month),
+    count: shutdownsInMonth(models, month).length,
+  })),
+}));
+const intro = `${dated.length} models have a published shutdown date in this dataset. ${upcoming.length} of those dates fall on or after ${longDate(day)}. Each year and month below is generated from those records.`;
+const faqs: FaqItem[] = [
+  {
+    question: "Which years have announced AI model shutdowns?",
+    answer: years.length
+      ? `This dataset has a published shutdown date in ${years.join(", ")}.`
+      : "No published shutdown date is in this dataset.",
+  },
+  {
+    question: "How many AI models have a published shutdown date?",
+    answer: `${dated.length} models have a published shutdown date. ${upcoming.length} fall on or after ${longDate(day)}. A date that only says not sooner than is not counted.`,
+  },
+];
+for (const year of yearRows) {
+  faqs.push({
+    question: `How many AI models shut down ${yearScope(year.year)}?`,
+    answer: `${year.count} models have a published shutdown date ${yearScope(year.year)}.`,
+  });
+}
+const description = clipMeta(intro);
+const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
+const items = [
+  ...yearRows.map((year) => ({ name: `AI model shutdowns in ${year.year}`, path: year.path })),
+  ...monthsByYear.flatMap((group) => group.months.map((month) => ({ name: `AI model shutdowns in ${month.label}`, path: month.path }))),
+];
+---
+<Base
+  title="AI model shutdown timeline | SunsetDiff"
+  description={description}
+  crumbs={[{ name: "Home", path: "/" }, { name: "Timeline", path: TIMELINE_PATH }]}
+  extraGraph={scheduleGraph(
+    site,
+    {
+      path: TIMELINE_PATH,
+      name: "AI model shutdown timeline",
+      description,
+      modified: newestUpdated(dated),
+      datasetName: "SunsetDiff AI model shutdown timeline",
+      temporalCoverage: years.length ? `${years[0]}/${years[years.length - 1]}` : undefined,
+      aboutUrl: "/data/models.json",
+    },
+    items,
+    faqs,
+  )}
+>
+  <h1>AI model shutdown timeline</h1>
+  <p class="answer">{intro}</p>
+  <p>
+    Future rows, with replacements and platform differences, are on <a href="/upcoming/">upcoming shutdowns</a>.
+    The downloadable calendars are <a href="/calendar.ics">calendar.ics</a> and <a href="/calendar/">the calendar page</a>.
+    <a href="/deadlines/">Deadlines</a> splits the next 30, 90, and 365 days.
+    Data changes are on the <a href="/changelog/">changelog</a>. The <a href="/feed.xml">RSS feed</a> carries the same deprecation changes.
+  </p>
+  {monthsByYear.map((group) => (
+    <section>
+      <h2><a href={yearPath(group.year)}>{group.year}</a></h2>
+      <p>{yearRows.find((year) => year.year === group.year)?.count} models with a published shutdown date {yearScope(group.year)}.</p>
+      <ul>
+        {group.months.map((month) => (
+          <li><a href={month.path}>{month.label}</a>: {month.count} {month.count === 1 ? "model" : "models"}</li>
+        ))}
+      </ul>
+    </section>
+  ))}
+  <FaqList items={faqs} />
+</Base>

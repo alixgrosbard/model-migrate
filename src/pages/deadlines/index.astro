@@ -1,0 +1,66 @@
+---
+import Base from "../../layouts/Base.astro";
+import { loadModels, loadProviders, providerName } from "../../lib/load.ts";
+import { today } from "../../lib/format.ts";
+import { deadlineWindow, formatWindowDate, monthLabel, publicName, shutdownMonths } from "../../lib/growth.ts";
+import { batchHeadline, eventCountLabel, orderShutdownEvents, providerDisplayName, shutdownEventPath, shutdownEvents } from "../../lib/shutdowns.ts";
+
+const providers = await loadProviders();
+const models = await loadModels();
+const day = today();
+const months = shutdownMonths(models);
+const batches = orderShutdownEvents(shutdownEvents(models), day).filter((event) => event.date >= day);
+const windows = [
+  { days: 30, label: "Next 30 days" },
+  { days: 60, label: "Next 60 days" },
+  { days: 90, label: "Next 90 days" },
+  { days: 365, label: "Next 365 days" },
+].map((window) => ({ ...window, rows: deadlineWindow(models, day, window.days) }));
+---
+<Base
+  title="AI model shutdown deadlines | SunsetDiff"
+  description="Upcoming AI model shutdowns for the next 30, 90, and 365 days, from official provider pages."
+  crumbs={[{ name: "Home", path: "/" }, { name: "Deadlines", path: "/deadlines/" }]}
+>
+  <h1>Shutdown deadlines</h1>
+  <p>
+    These lists use published shutdown dates only. A date marked "not sooner than" is a floor, so it is not counted as a deadline.
+    Feeds: <a href="/deadlines.ics">iCal</a> and <a href="/feed.xml">new deprecations (RSS)</a>.
+    <a href="/shutdowns/">Shutdown batches</a> group three or more models that share a provider and an exact date.
+    Month pages are listed below.
+    <a href="/upcoming/">Upcoming</a> lists every announced shutdown from today forward.
+    <a href="/timeline/">Year pages</a> count a whole year. <a href="/feed.xml">RSS</a> is the deprecation feed.
+  </p>
+  {windows.map((window) => (
+    <section>
+      <h2 id={`next-${window.days}`}>{window.label}</h2>
+      <table>
+        <caption>{window.rows.length} models with a published shutdown date in the {window.label.toLowerCase()}.</caption>
+        <thead><tr><th>Shutdown</th><th>Model</th><th>Provider</th></tr></thead>
+        <tbody>
+          {window.rows.length ? window.rows.map((model) => (
+            <tr>
+              <td>{formatWindowDate(model)}</td>
+              <td>
+                <a href={`/models/${model.provider}/${model.slug}/`}>{publicName(model)}</a>
+                {model.provider === "aws-bedrock" && model.region_or_platform_notes ? <><br />{model.region_or_platform_notes}</> : null}
+              </td>
+              <td><a href={`/providers/${model.provider}/`}>{providerName(providers, model.provider)}</a></td>
+            </tr>
+          )) : <tr><td colspan="3">No exact shutdown dates fall in this window.</td></tr>}
+        </tbody>
+      </table>
+    </section>
+  ))}
+  <h2>Upcoming batches</h2>
+  <ul>
+    {batches.length ? batches.map((event) => {
+      const name = providerDisplayName(providers, event.provider);
+      return <li><a href={shutdownEventPath(event)}>{batchHeadline(name, event, day)}</a> ({eventCountLabel(event)})</li>;
+    }) : <li>No upcoming batch has three or more models on one exact date. <a href="/shutdowns/">Past batches</a> stay listed.</li>}
+  </ul>
+  <h2>By month</h2>
+  <ul>
+    {months.map((month) => <li><a href={`/deadlines/${month}/`}>{monthLabel(month)}</a></li>)}
+  </ul>
+</Base>

@@ -1,0 +1,134 @@
+:root {
+  color-scheme: light;
+  --bg: #fffaf5;
+  --ink: #1c1917;
+  --muted: #44403c;
+  --line: #e7e5e4;
+  --accent: #9a3412;
+  --card: #ffffff;
+  --good: #14532d;
+  --bad: #9f1239;
+  --focus: #9a3412;
+}
+
+* { box-sizing: border-box; }
+html { font-size: 100%; }
+body {
+  margin: 0;
+  font-family: "Iowan Old Style", Palatino, Georgia, serif;
+  background: var(--bg);
+  color: var(--ink);
+  line-height: 1.5;
+}
+a { color: var(--accent); }
+a:hover { text-decoration-thickness: 2px; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.skip {
+  position: absolute;
+  left: 0.5rem;
+  top: -4rem;
+  background: var(--ink);
+  color: white;
+  padding: 0.5rem 0.75rem;
+}
+.skip:focus { top: 0.5rem; }
+header, footer, main { padding: 1rem; }
+header, footer { max-width: 68rem; margin: 0 auto; }
+main { max-width: 68rem; margin: 0 auto; }
+nav a { margin-right: 0.8rem; }
+.brand { font-weight: 700; font-size: 1.25rem; text-decoration: none; color: var(--ink); }
+h1 { font-size: 1.8rem; line-height: 1.2; margin-bottom: 0.4rem; }
+h2 { font-size: 1.3rem; }
+.answer, .card, .slot, form, table { background: var(--card); }
+.answer {
+  border-left: 4px solid var(--accent);
+  padding: 0.8rem 1rem;
+  margin: 1rem 0;
+}
+.card, .slot, form {
+  border: 1px solid var(--line);
+  border-radius: 0.4rem;
+  padding: 0.9rem;
+  margin: 1rem 0;
+}
+table { width: 100%; border-collapse: collapse; display: block; overflow-x: auto; }
+th, td { text-align: left; padding: 0.45rem 0.55rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-size: 0.85rem; }
+.badge { display: inline-block; border: 1px solid var(--ink); border-radius: 999px; padding: 0.1rem 0.5rem; font-size: 0.8rem; }
+.higher { color: var(--bad); font-weight: 700; }
+.lower { color: var(--good); font-weight: 700; }
+label { display: block; margin: 0.4rem 0; }
+input[type="email"], input[type="search"], select {
+  width: min(100%, 24rem);
+  font: inherit;
+  padding: 0.45rem;
+  border: 1px solid var(--ink);
+  border-radius: 0.3rem;
+  background: white;
+}
+button, .button {
+  font: inherit;
+  background: var(--ink);
+  color: white;
+  border: 0;
+  border-radius: 0.3rem;
+  padding: 0.45rem 0.7rem;
+  cursor: pointer;
+}
+a.button, a.button:visited {
+  display: inline-block;
+  text-decoration: none;
+  color: white;
+}
+button:disabled,
+input:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.checks label { display: inline-flex; gap: 0.3rem; margin-right: 0.7rem; }
+.hp { position: absolute; left: -9999px; }
+.note { color: var(--muted); font-size: 0.92rem; }
+pre { overflow-x: auto; background: #1c1917; color: #fafaf9; padding: 0.8rem; border-radius: 0.3rem; }
+textarea {
+  width: 100%;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.85rem;
+  padding: 0.6rem;
+  border: 1px solid var(--ink);
+  border-radius: 0.3rem;
+  background: white;
+  color: var(--ink);
+}
+.crumbs ol {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1rem;
+  font-size: 0.92rem;
+}
+.crumbs li { color: var(--muted); }
+.crumbs [aria-current="page"] { color: var(--ink); }
+.hub-filter input[type="search"] { width: min(100%, 18rem); }
+.hub-filter select { width: auto; }
+.months { font-size: 0.85rem; line-height: 1.7; }
+.months a { white-space: nowrap; }
+code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.92em; }
+.tabs { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+.tabs a { border: 1px solid var(--line); padding: 0.2rem 0.45rem; text-decoration: none; }
+footer { color: var(--muted); border-top: 1px solid var(--line); margin-top: 2rem; }
+footer nav { margin-bottom: 0.6rem; }
+footer nav a { margin-right: 0.7rem; }
+footer .listed { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem 0.5rem; font-size: 0.85rem; }
+footer .listed a { display: block; min-width: 0; max-width: 100%; line-height: 0; }
+footer .listed img { display: block; width: 182px; max-width: 100%; height: auto; }
+.faq { margin: 0.8rem 0 1.2rem; }
+.faq h3 { font-size: 1.05rem; margin-bottom: 0.2rem; }
+@media (max-width: 640px) {
+  h1 { font-size: 1.45rem; }
+  nav a { display: inline-block; margin: 0.2rem 0.6rem 0.2rem 0; }
+  footer .listed { gap: 0.35rem 0.4rem; }
+  footer .listed > span { flex-basis: 100%; }
+  footer .listed a { flex: 0 1 calc(50% - 0.2rem); max-width: calc(50% - 0.2rem); }
+}

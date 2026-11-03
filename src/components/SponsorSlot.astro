@@ -1,0 +1,14 @@
+---
+import { loadSponsors } from "../lib/load.ts";
+interface Props { modelName?: string; }
+const { modelName = "retiring models" } = Astro.props;
+const sponsors = await loadSponsors();
+const match = sponsors[0];
+---
+<aside class="slot">
+  {match ? (
+    <p><a href={match.url}>{match.name}</a> — {match.text}</p>
+  ) : (
+    <p><strong>Sponsor this page.</strong> Reach developers migrating off {modelName}. Sponsorships coming soon. <a href="/sponsor/">See the plan</a>.</p>
+  )}
+</aside>

@@ -1,0 +1,53 @@
+---
+import Base from "../../layouts/Base.astro";
+import { githubActionGraph } from "../../jsonld.ts";
+import {
+  ACTION_BEHAVIOR,
+  ACTION_INPUTS,
+  ACTION_REPOSITORY,
+  ACTION_USES,
+  ACTION_WORKFLOW,
+  GITHUB_ACTION_DESCRIPTION,
+  GITHUB_ACTION_PATH,
+  GITHUB_ACTION_TITLE,
+} from "../../lib/github-action-page.ts";
+import { DEFAULT_SITE_URL } from "../../lib/site.ts";
+
+const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
+const repositoryUrl = `https://github.com/${ACTION_REPOSITORY}`;
+---
+<Base
+  title={GITHUB_ACTION_TITLE}
+  description={GITHUB_ACTION_DESCRIPTION}
+  crumbs={[{ name: "Home", path: "/" }, { name: "GitHub Action", path: GITHUB_ACTION_PATH }]}
+  extraGraph={githubActionGraph(site, repositoryUrl)}
+>
+  <h1>GitHub Action</h1>
+  <p class="answer">
+    This repository contains a GitHub Action that flags model ids in a checkout.
+    The example below uses <code>{ACTION_USES}</code>, the ref that contains <code>action/action.yml</code> on the branch this site deploys from.
+    Publisher: SunsetDiff.
+  </p>
+  <h2>What it does</h2>
+  {ACTION_BEHAVIOR.map((paragraph) => <p>{paragraph}</p>)}
+  <p>A separate check that does not use this Action is the <a href="/scan/">ripgrep pattern</a> on the scan page.</p>
+  <h2>Inputs</h2>
+  <table>
+    <caption>Inputs from action/action.yml.</caption>
+    <thead>
+      <tr><th>Input</th><th>Required</th><th>Default</th><th>Meaning</th></tr>
+    </thead>
+    <tbody>
+      {ACTION_INPUTS.map((input) => (
+        <tr>
+          <th scope="row"><code>{input.name}</code></th>
+          <td>{input.required ? "yes" : "no"}</td>
+          <td><code>{input.defaultValue}</code></td>
+          <td>{input.description}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+  <h2>Workflow</h2>
+  <pre><code>{ACTION_WORKFLOW}</code></pre>
+</Base>

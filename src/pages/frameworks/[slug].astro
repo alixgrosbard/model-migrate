@@ -1,0 +1,137 @@
+---
+import Base from "../../layouts/Base.astro";
+import FaqList from "../../components/FaqList.astro";
+import InlineText from "../../components/InlineText.astro";
+import ShutdownTable from "../../components/ShutdownTable.astro";
+import { frameworkGraph } from "../../jsonld.ts";
+import { today } from "../../lib/format.ts";
+import {
+  FRAMEWORKS_CHECKED,
+  FRAMEWORKS_INDEX,
+  frameworkAliasLead,
+  frameworkBySlug,
+  frameworkChatShutdowns,
+  frameworkHeadingId,
+  frameworkPath,
+  frameworkSharedFaqs,
+  frameworkShutdownLead,
+  frameworkUndatedAliases,
+  frameworks,
+} from "../../lib/frameworks.ts";
+import { loadMigrations, loadModels, loadProviders } from "../../lib/load.ts";
+import { toScheduleRows } from "../../lib/schedule.ts";
+import { DEFAULT_SITE_URL } from "../../lib/site.ts";
+
+export function getStaticPaths() {
+  return frameworks.map((page) => ({ params: { slug: page.slug } }));
+}
+
+const page = frameworkBySlug(Astro.params.slug);
+if (!page) throw new Error("Missing framework");
+const models = await loadModels();
+const providers = await loadProviders();
+const migrations = await loadMigrations();
+const day = today();
+const shuttingDown = frameworkChatShutdowns(models, day);
+const aliases = frameworkUndatedAliases(models, shuttingDown);
+const rows = toScheduleRows(shuttingDown, models, providers, migrations, day);
+const lead = frameworkShutdownLead(shuttingDown);
+const aliasLead = frameworkAliasLead(aliases);
+const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
+const path = frameworkPath(page.slug);
+const faqs = [...page.faqs, ...frameworkSharedFaqs];
+const others = frameworks.filter((item) => item.slug !== page.slug);
+const checked = new Date(`${FRAMEWORKS_CHECKED}T00:00:00Z`).toLocaleDateString("en-US", {
+  month: "long",
+  day: "numeric",
+  year: "numeric",
+  timeZone: "UTC",
+});
+---
+<Base
+  title={page.title}
+  description={page.description}
+  crumbs={[{ name: "Home", path: "/" }, { name: "Frameworks", path: FRAMEWORKS_INDEX }, { name: page.name, path }]}
+  extraGraph={frameworkGraph(site, page, faqs)}
+>
+  <h1>{page.h1}</h1>
+  <p class="answer"><InlineText text={page.answer} /></p>
+  <p>Last reviewed <time datetime={FRAMEWORKS_CHECKED}>{checked}</time>. Publisher: SunsetDiff.</p>
+  <h2>Steps</h2>
+  <ol>
+    {page.steps.map((step) => (
+      <li><strong>{step.name}.</strong> {step.text}</li>
+    ))}
+  </ol>
+  {page.sections.map((section) => (
+    <section id={frameworkHeadingId(section.heading)}>
+      <h2>{section.heading}</h2>
+      {section.paragraphs.map((paragraph) => <p><InlineText text={paragraph} /></p>)}
+      {section.bullets?.length ? (
+        <ul>
+          {section.bullets.map((bullet) => <li><InlineText text={bullet} /></li>)}
+        </ul>
+      ) : null}
+      {section.codes?.map((sample) => (
+        <div>
+          <h3>{sample.caption}</h3>
+          <pre><code>{sample.code}</code></pre>
+        </div>
+      ))}
+      {section.sources.length ? (
+        <p>
+          Source{section.sources.length > 1 ? "s" : ""}:{" "}
+          {section.sources.map((source, index) => (
+            <>
+              {index > 0 ? ", " : null}
+              <a href={source.url}>{source.label}</a>
+            </>
+          ))}
+          , checked {checked}.
+        </p>
+      ) : null}
+    </section>
+  ))}
+  <section id="upcoming-shutdowns">
+    <h2>Upcoming shutdowns in this dataset</h2>
+    <p>{lead}</p>
+    {aliasLead ? <p>{aliasLead}</p> : null}
+    <p>
+      Rows are upcoming OpenAI chat models in the gpt-4o, gpt-4.1, gpt-4-turbo, gpt-4, and gpt-3.5-turbo families.
+      Audio, realtime, transcribe, and search ids are not in this table.
+      The same id on another platform is in the other-platforms column.
+      The full calendar is <a href="/upcoming/">upcoming shutdowns</a>.
+      Provider wording for the shutdown day is on <a href="/guides/what-happens-on-model-shutdown-day/">what happens on shutdown day</a>.
+    </p>
+    {rows.length ? (
+      <ShutdownTable rows={rows} caption={`${rows.length} upcoming OpenAI chat shutdowns from this dataset.`} />
+    ) : (
+      <p>No rows matched on the day this page was built.</p>
+    )}
+  </section>
+  <section id="detect-a-dying-model">
+    <h2>Detect a dying model</h2>
+    <p>These checks read SunsetDiff. They do not call the model provider.</p>
+    <ul>
+      <li><a href="/api/v1/upcoming.json">upcoming.json</a> lists dated shutdowns in the next 90 days. No API key. Field notes are on the <a href="/api/">API docs</a>.</li>
+      <li><a href="/api/v1/lookup/gpt-4o.json">lookup/gpt-4o.json</a> reads one id. Replace gpt-4o with the string in your config.</li>
+      <li>The <a href="/mcp/">MCP server</a> tools are check_model, upcoming_shutdowns, migration_diff, and scan_text.</li>
+      <li>A <a href="/badges/">status badge</a> shows the stored status for a model page.</li>
+      <li>The <a href="/scan/">scan page</a> builds a local search for retiring ids. Nothing is uploaded.</li>
+    </ul>
+  </section>
+  <h2>Related SunsetDiff pages</h2>
+  <ul>
+    {page.related.map((link) => (
+      <li><a href={link.href}>{link.label}</a></li>
+    ))}
+  </ul>
+  <h2>Other frameworks</h2>
+  <ul>
+    {others.map((item) => (
+      <li><a href={frameworkPath(item.slug)}>{item.name}</a></li>
+    ))}
+  </ul>
+  <p><a href={FRAMEWORKS_INDEX}>All frameworks</a></p>
+  <FaqList items={faqs} />
+</Base>

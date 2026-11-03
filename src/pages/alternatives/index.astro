@@ -1,0 +1,35 @@
+---
+import Base from "../../layouts/Base.astro";
+import FaqList from "../../components/FaqList.astro";
+import { alternativesGraph } from "../../jsonld.ts";
+import { COMPARISON_CHECKED, COMPARISON_CHECKED_LABEL, comparisonPath, comparisons, hubFaqs } from "../../lib/comparisons.ts";
+import { DEFAULT_SITE_URL } from "../../lib/site.ts";
+
+const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
+const items = comparisons.map((comparison) => ({ name: `SunsetDiff vs ${comparison.name}`, path: comparisonPath(comparison.slug) }));
+---
+<Base
+  title="Where to track AI model deprecations | SunsetDiff"
+  description="SunsetDiff compared with other public AI model deprecation trackers. Each fact links to the page it came from and the day it was checked."
+  crumbs={[{ name: "Home", path: "/" }, { name: "Compare", path: "/alternatives/" }]}
+  extraGraph={alternativesGraph(site, COMPARISON_CHECKED, items, hubFaqs)}
+>
+  <h1>Where to track AI model deprecations</h1>
+  <p class="answer">
+    SunsetDiff is a free static site and a CC BY 4.0 dataset. It records when an AI model shuts down, what the provider names as the replacement, and the published change in price, context, and code.
+    The files need no API key. <a href="/api/">API docs</a>. Publisher: SunsetDiff.
+  </p>
+  <p>
+    Official provider docs are the source for every SunsetDiff date. The pages below compare SunsetDiff with other public trackers.
+    Competitor facts were read from the live pages on {COMPARISON_CHECKED_LABEL}. Each comparison lists those URLs. A detail that was not on the fetched page is left out.
+  </p>
+  <h2>Trackers</h2>
+  <ul>
+    {comparisons.map((comparison) => (
+      <li>
+        <a href={comparisonPath(comparison.slug)}>SunsetDiff vs {comparison.name}</a>. {comparison.summary} <a href={comparison.siteUrl}>{comparison.siteUrl}</a>
+      </li>
+    ))}
+  </ul>
+  <FaqList items={hubFaqs} />
+</Base>

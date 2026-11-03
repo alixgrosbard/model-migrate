@@ -1,0 +1,16 @@
+---
+import Base from "../../layouts/Base.astro";
+
+const target = "/migrate/openai__gpt-4-5-preview__to__openai__gpt-4-1/";
+---
+<Base
+  title="gpt-4.5-preview to gpt-4.1 | SunsetDiff"
+  description="The gpt-4.1 migration page moved when the duplicate slug was merged."
+  crumbs={[{ name: "Home", path: "/" }, { name: "gpt-4.1 migration", path: target }]}
+  robots="noindex"
+  refresh={target}
+  canonicalPath={target}
+>
+  <h1>gpt-4.5-preview to gpt-4.1</h1>
+  <p class="answer"><a href={target}>The migration page</a> uses the gpt-4.1 slug.</p>
+</Base>

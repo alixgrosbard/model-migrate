@@ -1,0 +1,54 @@
+---
+import Base from "../../layouts/Base.astro";
+import FaqList from "../../components/FaqList.astro";
+import { frameworksIndexGraph } from "../../jsonld.ts";
+import { FRAMEWORKS_CHECKED, FRAMEWORKS_INDEX, frameworkHubFaqs, frameworkPath, frameworks } from "../../lib/frameworks.ts";
+import { DEFAULT_SITE_URL } from "../../lib/site.ts";
+
+const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
+const checked = new Date(`${FRAMEWORKS_CHECKED}T00:00:00Z`).toLocaleDateString("en-US", {
+  month: "long",
+  day: "numeric",
+  year: "numeric",
+  timeZone: "UTC",
+});
+const items = frameworks.map((page) => ({ name: page.h1, path: frameworkPath(page.slug) }));
+---
+<Base
+  title="AI framework model ids | SunsetDiff"
+  description="Where LangChain, LiteLLM, the Vercel AI SDK, LlamaIndex, OpenRouter, Pipecat, n8n, and Langflow store a model id, and how to swap a shutdown."
+  crumbs={[{ name: "Home", path: "/" }, { name: "Frameworks", path: FRAMEWORKS_INDEX }]}
+  extraGraph={frameworksIndexGraph(site, items, frameworkHubFaqs)}
+>
+  <h1>Frameworks</h1>
+  <p class="answer">
+    These pages say where a library stores the model id: a constructor argument, a config field, a node field, or a proxy alias.
+    Swap that string when the id is in the shutdown table.
+    The table is built from SunsetDiff records.
+    Framework facts link the official docs.
+    Last reviewed <time datetime={FRAMEWORKS_CHECKED}>{checked}</time>.
+    Publisher: SunsetDiff.
+  </p>
+  <p>
+    LiteLLM and OpenRouter fallback samples stay on
+    <a href="/guides/swap-a-deprecated-model/">How to swap a deprecated model</a>.
+    GPT-6 function tools that Chat Completions rejects are on
+    <a href="/guides/move-function-calling-to-responses-api/">Move function calling to the Responses API</a>
+    and the <a href="/errors/">request errors</a>.
+  </p>
+  <table>
+    <caption>{frameworks.length} frameworks.</caption>
+    <thead>
+      <tr><th>Framework</th><th>Where the model id lives</th></tr>
+    </thead>
+    <tbody>
+      {frameworks.map((page) => (
+        <tr>
+          <td><a href={frameworkPath(page.slug)}>{page.name}</a></td>
+          <td>{page.summary}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+  <FaqList items={frameworkHubFaqs} />
+</Base>

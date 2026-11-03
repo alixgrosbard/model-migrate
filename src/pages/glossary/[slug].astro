@@ -1,0 +1,138 @@
+---
+import Base from "../../layouts/Base.astro";
+import InlineText from "../../components/InlineText.astro";
+import NewsletterForm from "../../components/NewsletterForm.astro";
+import { glossaryTermGraph } from "../../jsonld.ts";
+import { formatWhen } from "../../lib/format.ts";
+import {
+  GLOSSARY_CHECKED,
+  GLOSSARY_INDEX,
+  glossaryDatasetNote,
+  glossaryExamples,
+  glossaryPath,
+  glossaryTermBySlug,
+  glossaryTerms,
+  type GlossaryTerm,
+} from "../../lib/glossary.ts";
+import { publicName } from "../../lib/growth.ts";
+import { loadModels, loadProviders, providerName } from "../../lib/load.ts";
+import { DEFAULT_SITE_URL } from "../../lib/site.ts";
+
+export function getStaticPaths() {
+  return glossaryTerms.map((term) => ({ params: { slug: term.slug } }));
+}
+
+const term = glossaryTermBySlug(Astro.params.slug);
+if (!term) throw new Error("Missing glossary term");
+const page: GlossaryTerm = term;
+const [providers, models] = await Promise.all([loadProviders(), loadModels()]);
+const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
+const path = glossaryPath(page.slug);
+const checked = new Date(`${GLOSSARY_CHECKED}T00:00:00Z`).toLocaleDateString("en-US", {
+  month: "long",
+  day: "numeric",
+  year: "numeric",
+  timeZone: "UTC",
+});
+function sourceChecked(day: string): string {
+  return new Date(`${day}T00:00:00Z`).toLocaleDateString("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+}
+const others = glossaryTerms.filter((item) => item.slug !== page.slug);
+const note = glossaryDatasetNote(page, models);
+---
+<Base
+  title={page.title}
+  description={page.description}
+  crumbs={[{ name: "Home", path: "/" }, { name: "Glossary", path: GLOSSARY_INDEX }, { name: page.name, path }]}
+  extraGraph={glossaryTermGraph(site, page)}
+>
+  <h1>{page.h1}</h1>
+  <p class="answer">{page.definition}</p>
+  <p>Last reviewed <time datetime={GLOSSARY_CHECKED}>{checked}</time>. Publisher: SunsetDiff. A source line names the day that page was read.</p>
+  <p>{note}</p>
+  {page.sections.map((section) => (
+    <section>
+      <h2>{section.heading}</h2>
+      {section.paragraphs.map((paragraph) => <p><InlineText text={paragraph} /></p>)}
+      <p>
+        Source{section.sources.length > 1 ? "s" : ""}:{" "}
+        {section.sources.map((source, index) => (
+          <>
+            {index > 0 ? ", " : null}
+            <a href={source.url}>{source.label}</a>
+          </>
+        ))}
+        , checked {sourceChecked(section.checked)}.
+      </p>
+    </section>
+  ))}
+  <h2>Rows from this dataset</h2>
+  {page.exampleGroups.map((group) => {
+    const rows = glossaryExamples(group.spec, models);
+    if (group.spec.kind === "none") return <p>{group.caption}</p>;
+    return (
+      <div>
+        <h3>{group.caption}</h3>
+        {rows.length ? (
+          <table>
+            <caption>{rows.length} {rows.length === 1 ? "row" : "rows"}.</caption>
+            <thead>
+              <tr><th>Model</th><th>Provider</th><th>Stored status</th><th>Shutdown</th><th>Replacement</th></tr>
+            </thead>
+            <tbody>
+              {rows.map((model) => {
+                const replacement = model.replacements.find((item) => item.kind === "official");
+                return (
+                  <tr>
+                    <td>
+                      <a href={`/models/${model.provider}/${model.slug}/`}>{publicName(model)}</a>
+                      {publicName(model) !== model.id ? <><br /><code>{model.id}</code></> : null}
+                      {group.showNotes && model.region_or_platform_notes ? <><br />{model.region_or_platform_notes}</> : null}
+                    </td>
+                    <td><a href={`/providers/${model.provider}/`}>{providerName(providers, model.provider)}</a></td>
+                    <td>{model.status}</td>
+                    <td>{formatWhen(model)}</td>
+                    <td>
+                      {replacement ? (
+                        <>
+                          <code>{replacement.model_id}</code>
+                          {" "}· <a href={`/replace/${model.provider}/${model.slug}/`}>diff</a>
+                        </>
+                      ) : "Not published"}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        ) : <p>No matching row is in the dataset used to build this page.</p>}
+      </div>
+    );
+  })}
+  <h2>Related SunsetDiff pages</h2>
+  <ul>
+    {page.related.map((link) => (
+      <li><a href={link.href}>{link.label}</a></li>
+    ))}
+  </ul>
+  <p><a href={GLOSSARY_INDEX}>All glossary terms</a></p>
+  <h2>More terms</h2>
+  <ul>
+    {page.seeAlso.map((slug) => {
+      const item = glossaryTermBySlug(slug);
+      return item ? <li><a href={glossaryPath(item.slug)}>{item.name}</a></li> : null;
+    })}
+  </ul>
+  <h2>Every term</h2>
+  <ul>
+    {others.map((item) => (
+      <li><a href={glossaryPath(item.slug)}>{item.name}</a></li>
+    ))}
+  </ul>
+  <NewsletterForm providers={providers} sourcePage={path} />
+</Base>

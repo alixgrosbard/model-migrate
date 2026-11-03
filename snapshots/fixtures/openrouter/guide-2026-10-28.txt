@@ -1,0 +1,1 @@
+expiration_date is the Deprecation date for the model endpoint (null if not deprecated).

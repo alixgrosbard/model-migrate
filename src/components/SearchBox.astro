@@ -1,0 +1,46 @@
+---
+interface Props { heading?: string; }
+const { heading = "Search models" } = Astro.props;
+---
+<form role="search" action="/" method="get">
+  <label for="q">{heading}</label>
+  <input id="q" name="q" type="search" placeholder="gpt-4o or claude-sonnet" />
+  <button type="submit">Search</button>
+  <ul id="hits"></ul>
+</form>
+<script>
+  const input = document.querySelector<HTMLInputElement>("#q");
+  const list = document.querySelector("#hits");
+  if (input && list) {
+    let index: { id: string; provider: string; slug: string; display_name: string; status: string }[] = [];
+    fetch("/search-index.json")
+      .then((response) => response.json())
+      .then((data) => {
+        index = data;
+      })
+      .catch(() => {
+        index = [];
+      });
+    input.addEventListener("input", () => {
+      const query = input.value.trim().toLowerCase();
+      list.innerHTML = "";
+      if (query.length < 2) return;
+      const hits = index
+        .filter((model) => `${model.id} ${model.display_name} ${model.provider}`.toLowerCase().includes(query))
+        .slice(0, 12);
+      for (const hit of hits) {
+        const item = document.createElement("li");
+        const link = document.createElement("a");
+        link.href = `/models/${hit.provider}/${hit.slug}/`;
+        link.textContent = `${hit.display_name} (${hit.provider}): ${hit.status}`;
+        item.append(link);
+        list.append(item);
+      }
+      if (!hits.length) {
+        const item = document.createElement("li");
+        item.textContent = "No matching model id.";
+        list.append(item);
+      }
+    });
+  }
+</script>

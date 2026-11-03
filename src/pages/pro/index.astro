@@ -1,0 +1,49 @@
+---
+import Base from "../../layouts/Base.astro";
+import FaqList from "../../components/FaqList.astro";
+import NewsletterForm from "../../components/NewsletterForm.astro";
+import { loadProviders } from "../../lib/load.ts";
+import {
+  PRO_BILLING_QUESTION,
+  PRO_CTA,
+  PRO_DESCRIPTION,
+  PRO_EARLY_ACCESS,
+  PRO_FEATURES,
+  PRO_NO_CHECKOUT,
+  PRO_TITLE,
+  proCheckoutUrl,
+} from "../../lib/public-copy.ts";
+
+const providers = await loadProviders();
+const checkout = proCheckoutUrl(import.meta.env.PUBLIC_PRO_CHECKOUT_URL);
+const faqs = [{ question: PRO_BILLING_QUESTION, answer: PRO_EARLY_ACCESS }];
+---
+<Base
+  title={PRO_TITLE}
+  description={PRO_DESCRIPTION}
+  crumbs={[{ name: "Home", path: "/" }, { name: "Pro", path: "/pro/" }]}
+  extraGraph={[{
+    "@type": "FAQPage",
+    mainEntity: faqs.map((item) => ({
+      "@type": "Question",
+      name: item.question,
+      acceptedAnswer: { "@type": "Answer", text: item.answer },
+    })),
+  }]}
+>
+  <h1>SunsetDiff Pro</h1>
+  <p class="answer">{PRO_EARLY_ACCESS}</p>
+  <h2>Features</h2>
+  <ul>
+    {PRO_FEATURES.map((feature) => <li>{feature.text} {feature.status}.</li>)}
+  </ul>
+  {checkout ? (
+    <p><a class="button" href={checkout}>{PRO_CTA}</a></p>
+  ) : (
+    <>
+      <p><strong>{PRO_NO_CHECKOUT}</strong></p>
+      <NewsletterForm providers={providers} sourcePage="/pro/" />
+    </>
+  )}
+  <FaqList items={faqs} />
+</Base>

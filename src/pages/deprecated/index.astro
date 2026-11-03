@@ -1,0 +1,29 @@
+---
+import Base from "../../layouts/Base.astro";
+import StatusHub from "../../components/StatusHub.astro";
+import { statusHubGraph } from "../../jsonld.ts";
+import { datasetVersion } from "../../lib/growth.ts";
+import { loadChanges, loadModels, loadProviders } from "../../lib/load.ts";
+import { buildStatusHub } from "../../lib/status-hubs.ts";
+import { today } from "../../lib/format.ts";
+import { DEFAULT_SITE_URL } from "../../lib/site.ts";
+
+const [models, providers, changes] = await Promise.all([loadModels(), loadProviders(), loadChanges()]);
+const page = buildStatusHub({
+  kind: "deprecated",
+  models,
+  providers,
+  version: datasetVersion(changes),
+  day: today(),
+});
+const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
+---
+<Base
+  title={page.title}
+  description={page.description}
+  crumbs={page.crumbs}
+  extraGraph={statusHubGraph(site, page)}
+>
+  <StatusHub page={page} />
+  <p>When two official pages name different shutdown dates, those models are on <a href="/conflicts/">Conflicting dates</a>. The stored shutdown_date stays the deprecations-page date.</p>
+</Base>

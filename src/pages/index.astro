@@ -1,0 +1,159 @@
+---
+import Base from "../layouts/Base.astro";
+import SearchBox from "../components/SearchBox.astro";
+import NewsletterForm from "../components/NewsletterForm.astro";
+import SponsorSlot from "../components/SponsorSlot.astro";
+import { loadModels, loadProviders, providerName } from "../lib/load.ts";
+import { formatWhen, isSoon, officialReplacement, today } from "../lib/format.ts";
+import { HUBS } from "../lib/hubs.ts";
+import { STATUS_HUBS } from "../lib/status-hubs.ts";
+import { publicName } from "../lib/growth.ts";
+import { featuredErrorLinks, featuredModelLinks } from "../lib/featured.ts";
+import { batchHeadline, eventCountLabel, nextDeadlineAnchors, orderShutdownEvents, providerDisplayName, shutdownEventPath, shutdownEvents } from "../lib/shutdowns.ts";
+
+const providers = await loadProviders();
+const models = await loadModels();
+const day = today();
+const soon = models
+  .filter((model) => isSoon(model, day, 30))
+  .sort((a, b) => (a.shutdown_date ?? "").localeCompare(b.shutdown_date ?? ""));
+const recent = models
+  .filter((model) => model.announced_date && model.announced_date <= day)
+  .sort((a, b) => (b.announced_date ?? "").localeCompare(a.announced_date ?? ""))
+  .slice(0, 12);
+const description = "When an AI model shuts down, what replaces it, and what changes in price, context, and code.";
+const batches = orderShutdownEvents(shutdownEvents(models), day).filter((event) => event.date >= day).slice(0, 6);
+const featured = featuredModelLinks(models);
+const featuredErrors = featuredErrorLinks();
+function replacementModel(model: (typeof models)[number]) {
+  const replacement = officialReplacement(model);
+  if (!replacement) return null;
+  return models.find((item) => item.provider === replacement.provider && item.id === replacement.model_id) ?? null;
+}
+---
+<Base title="SunsetDiff: AI model shutdowns and migration diffs" description={description} crumbs={[{ name: "Home", path: "/" }]}>
+  <h1>When a model shuts down, see what actually changes.</h1>
+  <p>{description}</p>
+  <p>
+    {HUBS.map((hub, index) => (
+      <>
+        {index ? " · " : null}
+        <a href={hub.path}>{hub.nav}</a>
+      </>
+    ))}
+    {STATUS_HUBS.map((hub) => <> · <a href={hub.path}>{hub.nav}</a></>)}
+    {" · "}
+    <a href="/frameworks/">Frameworks</a>
+  </p>
+  <SearchBox />
+  <h2>Next deadlines</h2>
+  <ul>
+    {nextDeadlineAnchors(shutdownEvents(models), providers, day).map((item) => (
+      <li><a href={item.href}>{item.label}</a></li>
+    ))}
+  </ul>
+  <h2>Models people look up</h2>
+  <ul>
+    {featured.map((item) => {
+      const model = models.find((row) => `/models/${row.provider}/${row.slug}/` === item.href);
+      const when = model ? formatWhen(model) : "";
+      return (
+        <li>
+          <a href={item.href}>{item.label}</a>
+          {when && when !== "Not published" ? <> ({when})</> : null}
+          {" · "}
+          <a href={`/providers/${item.provider}/`}>{providerName(providers, item.provider)}</a>
+        </li>
+      );
+    })}
+  </ul>
+  <h2>Request errors</h2>
+  <p>
+    These pages quote the failure developers see after a model change, with the official source.
+    <a href="/errors/">All request errors</a>.
+    <a href="/guides/">Guides</a> cover shutdown day, notices, and finding model ids in code.
+  </p>
+  <ul>
+    {featuredErrors.map((item) => <li><a href={item.href}>{item.label}</a></li>)}
+  </ul>
+  <h2 id="soonest">Shutting down in the next 30 days</h2>
+  <table>
+    <caption>Models with a published shutdown date in the next 30 days. Floors that say "not sooner than" are not included.</caption>
+    <thead>
+      <tr><th>Model</th><th>Provider</th><th>Shutdown</th><th>Replacement</th></tr>
+    </thead>
+    <tbody>
+      {soon.length ? soon.map((model) => (
+        <tr>
+          <td>
+            <a href={`/models/${model.provider}/${model.slug}/`}>{publicName(model)}</a>
+            {model.provider === "aws-bedrock" && model.region_or_platform_notes ? <><br />{model.region_or_platform_notes}</> : null}
+          </td>
+          <td><a href={`/providers/${model.provider}/`}>{providerName(providers, model.provider)}</a></td>
+          <td>{formatWhen(model)}</td>
+          <td>
+            {officialReplacement(model) ? (
+              <>
+                {replacementModel(model) ? <a href={`/models/${replacementModel(model)!.provider}/${replacementModel(model)!.slug}/`}>{officialReplacement(model)!.model_id}</a> : officialReplacement(model)!.model_id}
+                {" "}· <a href={`/replace/${model.provider}/${model.slug}/`}>diff</a>
+              </>
+            ) : "Not published"}
+          </td>
+        </tr>
+      )) : <tr><td colspan="4">No exact shutdown dates fall in the next 30 days.</td></tr>}
+    </tbody>
+  </table>
+  <h2 id="shutdowns">Shutdown batches</h2>
+  <p>
+    When one provider shuts down at least three models on the same day, that day has its own page.
+    <a href="/shutdowns/">All shutdown batches</a>.
+    Every announced shutdown from today forward is on <a href="/upcoming/">upcoming</a>.
+    Years are on the <a href="/timeline/">timeline</a>.
+  </p>
+  <ul>
+    {batches.length ? batches.map((event) => {
+      const name = providerDisplayName(providers, event.provider);
+      return <li><a href={shutdownEventPath(event)}>{batchHeadline(name, event, day)}</a> ({eventCountLabel(event)})</li>;
+    }) : <li>No upcoming batch has three or more models on one exact date.</li>}
+  </ul>
+  <h2>Recently announced</h2>
+  <table>
+    <caption>Newest announced deprecations</caption>
+    <thead><tr><th>Announced</th><th>Model</th><th>Shutdown</th></tr></thead>
+    <tbody>
+      {recent.map((model) => (
+        <tr>
+          <td>{model.announced_date}</td>
+          <td><a href={`/models/${model.provider}/${model.slug}/`}>{publicName(model)}</a></td>
+          <td>{formatWhen(model)}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+  <h2>Guides</h2>
+  <p>
+    Practical pages for aliases, shutdown notices, the day a model stops, and the custom GPT retirement.
+    <a href="/guides/">All guides</a>.
+  </p>
+  <ul>
+    <li><a href="/guides/custom-gpt-retirement/">Custom GPT retirement</a></li>
+    <li><a href="/guides/model-aliases-vs-pinned-snapshots/">Model aliases vs pinned snapshots</a></li>
+    <li><a href="/guides/pre-migration-test-checklist/">Pre-migration test checklist</a></li>
+    <li><a href="/guides/why-shutdown-dates-differ-by-platform/">Why the same model shuts down on a different date</a></li>
+    <li><a href="/guides/what-happens-on-model-shutdown-day/">What happens on shutdown day</a></li>
+  </ul>
+  <h2>Where to track AI model deprecations</h2>
+  <p>
+    SunsetDiff is a free static site and a CC BY 4.0 dataset of AI model shutdown dates, official replacements, and the migration diff.
+    The files need no API key. <a href="/api/">API docs</a>. <a href="/alternatives/">Compare other public trackers</a>.
+  </p>
+  <h2>Providers</h2>
+  <ul>
+    {providers.map((provider) => (
+      <li><a href={`/providers/${provider.id}/`}>{provider.name}</a>: <a href={provider.deprecations_url}>official page</a></li>
+    ))}
+  </ul>
+  <SponsorSlot />
+  <p>The <a href="/alerts/">alerts page</a> says what this form stores and which email it can send. The same dates are on the <a href="/feed.xml">RSS feed</a>, the <a href="/calendar/">calendar</a>, the <a href="/api/">JSON API</a>, the <a href="/mcp/">MCP server</a>, and the <a href="/badges/">badges</a>. Those need no signup.</p>
+  <NewsletterForm providers={providers} sourcePage="/" />
+</Base>

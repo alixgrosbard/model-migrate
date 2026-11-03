@@ -1,0 +1,56 @@
+---
+import { badgeAlt, badgeHtml, badgeJsonPath, badgeMarkdown, badgeSvgPath } from "../lib/badges.ts";
+import { today } from "../lib/format.ts";
+import type { ModelRecord } from "../schema.ts";
+
+interface Props {
+  model: ModelRecord;
+  origin: string;
+  models?: ModelRecord[];
+}
+const { model, origin, models = [] } = Astro.props;
+const day = today();
+const alt = badgeAlt(model, day, models);
+const markdown = badgeMarkdown(origin, model, day, models);
+const html = badgeHtml(origin, model, day, models);
+---
+<section class="card">
+  <h2>Add this badge to your README</h2>
+  <p>The image shows the model id and the status from this page. The link opens this page.</p>
+  <p><img src={badgeSvgPath(model)} alt={alt} /></p>
+  <label for="badge-markdown">Markdown</label>
+  <textarea id="badge-markdown" readonly rows="3">{markdown}</textarea>
+  <p>
+    <button type="button" data-copy="badge-markdown">Copy Markdown</button>
+    <span id="badge-markdown-status" class="note" aria-live="polite"></span>
+  </p>
+  <label for="badge-html">HTML</label>
+  <textarea id="badge-html" readonly rows="3">{html}</textarea>
+  <p>
+    <button type="button" data-copy="badge-html">Copy HTML</button>
+    <span id="badge-html-status" class="note" aria-live="polite"></span>
+  </p>
+  <p class="note">
+    shields.io can use the JSON file at <a href={badgeJsonPath(model)}>{badgeJsonPath(model)}</a>.
+    The <a href="/badges/">badges page</a> has the endpoint snippet.
+  </p>
+</section>
+<script>
+  document.addEventListener("click", async (event) => {
+    const target = event.target;
+    if (!(target instanceof Element)) return;
+    const button = target.closest("button[data-copy]");
+    if (!(button instanceof HTMLButtonElement)) return;
+    const id = button.getAttribute("data-copy");
+    const node = id ? document.getElementById(id) : null;
+    const text = node?.textContent ?? "";
+    const status = id ? document.getElementById(`${id}-status`) : null;
+    try {
+      await navigator.clipboard.writeText(text);
+      if (status) status.textContent = "Copied.";
+    } catch {
+      if (node instanceof HTMLTextAreaElement) node.select();
+      if (status) status.textContent = "Clipboard access failed. The snippet is selected so you can copy it.";
+    }
+  });
+</script>

@@ -1,0 +1,41 @@
+---
+import Base from "../../../layouts/Base.astro";
+import StatusHub from "../../../components/StatusHub.astro";
+import { statusHubGraph } from "../../../jsonld.ts";
+import { today } from "../../../lib/format.ts";
+import { datasetVersion } from "../../../lib/growth.ts";
+import { loadChanges, loadModels, loadProviders } from "../../../lib/load.ts";
+import { buildStatusHub, providerStatusTargets, type StatusHubKind } from "../../../lib/status-hubs.ts";
+import { DEFAULT_SITE_URL } from "../../../lib/site.ts";
+
+export async function getStaticPaths() {
+  const models = await loadModels();
+  return providerStatusTargets(models).map((target) => ({
+    params: { provider: target.provider, status: target.status },
+  }));
+}
+
+const providerId = Astro.params.provider;
+const status = Astro.params.status === "deprecated" || Astro.params.status === "retired" ? Astro.params.status : null;
+if (!providerId || !status) throw new Error("Missing provider status page");
+const kind: StatusHubKind = status;
+const [models, providers, changes] = await Promise.all([loadModels(), loadProviders(), loadChanges()]);
+const page = buildStatusHub({
+  kind,
+  providerId,
+  models,
+  providers,
+  version: datasetVersion(changes),
+  day: today(),
+});
+if (!page.count) throw new Error(`No ${kind} models for ${providerId}`);
+const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
+---
+<Base
+  title={page.title}
+  description={page.description}
+  crumbs={page.crumbs}
+  extraGraph={statusHubGraph(site, page)}
+>
+  <StatusHub page={page} />
+</Base>

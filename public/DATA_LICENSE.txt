@@ -1,0 +1,8 @@
+Creative Commons Attribution 4.0 International
+
+The SunsetDiff dataset (the JSON and CSV files under /dataset and /api/v1, and the data files that feed them) is licensed under CC BY 4.0.
+
+You can copy and share it if you give credit to SunsetDiff and link to the license:
+https://creativecommons.org/licenses/by/4.0/
+
+The website code is MIT. See LICENSE.txt.

@@ -1,0 +1,50 @@
+---
+import Base from "../../layouts/Base.astro";
+import { loadModels } from "../../lib/load.ts";
+import { retiringIdPattern, retiringIds } from "../../lib/growth.ts";
+
+const models = await loadModels();
+const ids = retiringIds(models);
+const pattern = retiringIdPattern(models);
+---
+<Base
+  title="Find retiring model ids in your code | SunsetDiff"
+  description="A free pattern for ripgrep. It matches retiring model ids from the SunsetDiff dataset. Nothing is uploaded."
+  crumbs={[{ name: "Home", path: "/" }, { name: "Scan", path: "/scan/" }]}
+>
+  <h1>Find retiring model ids in your code</h1>
+  <p class="answer">
+    This is the free check. Copy the pattern and run it on your machine. SunsetDiff does not upload your repository and does not send email.
+    The ids are the ones with a published shutdown date and a status other than active.
+  </p>
+  <h2>ripgrep</h2>
+  <p>Save the id list as <code>retiring-ids.txt</code>, one id per line, then run:</p>
+  <pre><code>rg -n -F -f retiring-ids.txt</code></pre>
+  <h2>One regular expression</h2>
+  <p>The pattern is an alternation of {ids.length} ids. Dots and other regular-expression characters are escaped. Word boundaries keep shorter ids from matching inside longer ones.</p>
+  <label for="scan-pattern">Retiring model pattern</label>
+  <textarea id="scan-pattern" readonly rows="8">{pattern}</textarea>
+  <p><button type="button" id="copy-pattern">Copy pattern</button></p>
+  <p id="copy-status" class="note" aria-live="polite"></p>
+  <h2>Id list</h2>
+  <label for="scan-ids">One model id per line</label>
+  <textarea id="scan-ids" readonly rows="12">{ids.join("\n")}</textarea>
+  <p>The wider search, including alias shapes and Azure deployment names, is <a href="/guides/find-model-ids-in-your-codebase/">How to find every model ID in your codebase</a>.</p>
+  <h2>What a match means</h2>
+  <p>A match means that id is in the dataset with a published shutdown date. Open the model page for the source link and the date. A line that does not match is not a promise that the model is still available.</p>
+  <script>
+    const button = document.querySelector("#copy-pattern");
+    const pattern = document.querySelector("#scan-pattern");
+    const status = document.querySelector("#copy-status");
+    button?.addEventListener("click", async () => {
+      const text = pattern instanceof HTMLTextAreaElement ? pattern.value : "";
+      try {
+        await navigator.clipboard.writeText(text);
+        if (status) status.textContent = "Pattern copied.";
+      } catch {
+        if (pattern instanceof HTMLTextAreaElement) pattern.select();
+        if (status) status.textContent = "Clipboard access failed. The pattern is selected so you can copy it.";
+      }
+    });
+  </script>
+</Base>

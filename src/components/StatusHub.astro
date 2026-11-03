@@ -1,0 +1,55 @@
+---
+import type { StatusPage } from "../lib/status-hubs.ts";
+import { richTextParts } from "../lib/rich-text.ts";
+import FaqList from "./FaqList.astro";
+
+interface Props {
+  page: StatusPage;
+}
+const { page } = Astro.props;
+const intro = richTextParts(page.intro);
+---
+<h1>{page.h1}</h1>
+<p class="answer">
+  {intro.map((part) => part.href ? <a href={part.href}>{part.text}</a> : part.text)}
+</p>
+{page.groups.length > 1 ? (
+  <ul>
+    {page.groups.map((group) => (
+      <li><a href={`#${group.provider.id}`}>{group.provider.name}</a> ({group.rows.length})</li>
+    ))}
+  </ul>
+) : null}
+{page.groups.length ? page.groups.map((group) => (
+  <section id={group.provider.id}>
+    {page.groups.length > 1 ? (
+      <h2>
+        <a href={`/providers/${group.provider.id}/`}>{group.provider.name}</a>
+      </h2>
+    ) : null}
+    {page.provider ? null : <p><a href={group.path}>{group.rows.length} {page.kind} models</a></p>}
+    <table>
+      <caption>{group.provider.name}: {group.rows.length} {page.kind} models, sorted by shutdown date.</caption>
+      <thead>
+        <tr><th>Model</th><th>Shutdown</th><th>Replacement</th></tr>
+      </thead>
+      <tbody>
+        {group.rows.map((row) => (
+          <tr>
+            <td>
+              <a href={row.modelHref}>{row.name}</a>
+              {row.name !== row.model.id ? <><br /><code>{row.model.id}</code></> : null}
+              {row.model.region_or_platform_notes ? <><br />{row.model.region_or_platform_notes}</> : null}
+            </td>
+            <td>
+              {row.when}
+              <br /><a href={row.sourceUrl}>source</a>, checked {row.sourceChecked}
+            </td>
+            <td><a href={row.replaceHref}>{row.replacementText}</a></td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </section>
+)) : <p>No model records have status {page.kind}.</p>}
+<FaqList items={page.faqs} />

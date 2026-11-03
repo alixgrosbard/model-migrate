@@ -1,0 +1,130 @@
+---
+import type { MigrationRecord, ModelRecord } from "../schema.ts";
+import { money, pct, tokens, visibleName } from "../lib/format.ts";
+interface Props { migration: MigrationRecord; from: ModelRecord; to: ModelRecord; }
+const { migration, from, to } = Astro.props;
+const languages = ["python", "typescript", "curl"] as const;
+const endpointChanges = migration.api_changes.filter((change) => change.kind === "endpoint_change");
+const otherChanges = migration.api_changes.filter((change) => change.kind !== "endpoint_change");
+const hasCode = languages.some((language) => {
+  const snippet = migration.code_change.snippets[language];
+  return snippet.before.trim().length > 0 || snippet.after.trim().length > 0;
+});
+function classFor(value: number | null) {
+  if (value == null || value === 0) return "";
+  return value > 0 ? "higher" : "lower";
+}
+---
+<article class="card" id={`diff-${to.slug}`}>
+  <h3>{visibleName(from)} to {visibleName(to)}</h3>
+  <p>
+    {migration.confidence === "official" ? (
+      <span class="badge">All values from official sources</span>
+    ) : (
+      <span class="badge">Some values not published</span>
+    )}
+    Checked {migration.last_checked}.
+  </p>
+  <h4>Price per 1M tokens</h4>
+  <table>
+    <caption>Price comparison. {migration.price_diff.example_label}</caption>
+    <thead><tr><th>Field</th><th>Old</th><th>New</th><th>Change</th></tr></thead>
+    <tbody>
+      <tr>
+        <th scope="row">Input</th>
+        <td>{money(from.specs.input_price_per_mtok)}</td>
+        <td>{money(to.specs.input_price_per_mtok)}</td>
+        <td class={classFor(migration.price_diff.input_pct_change)}>{pct(migration.price_diff.input_pct_change)}</td>
+      </tr>
+      <tr>
+        <th scope="row">Output</th>
+        <td>{money(from.specs.output_price_per_mtok)}</td>
+        <td>{money(to.specs.output_price_per_mtok)}</td>
+        <td class={classFor(migration.price_diff.output_pct_change)}>{pct(migration.price_diff.output_pct_change)}</td>
+      </tr>
+      <tr>
+        <th scope="row">Cached input</th>
+        <td>{money(from.specs.cached_input_price_per_mtok)}</td>
+        <td>{money(to.specs.cached_input_price_per_mtok)}</td>
+        <td>Not published</td>
+      </tr>
+      <tr>
+        <th scope="row">Example monthly cost</th>
+        <td>{money(migration.price_diff.example_monthly_cost_old)}</td>
+        <td>{money(migration.price_diff.example_monthly_cost_new)}</td>
+        <td>Example only</td>
+      </tr>
+    </tbody>
+  </table>
+  <h4>Context and max output</h4>
+  <table>
+    <caption>Token limits</caption>
+    <thead><tr><th>Limit</th><th>Old</th><th>New</th><th>Change</th></tr></thead>
+    <tbody>
+      <tr>
+        <th scope="row">Context window</th>
+        <td>{tokens(migration.context_diff.old_tokens)}</td>
+        <td>{tokens(migration.context_diff.new_tokens)}</td>
+        <td>{pct(migration.context_diff.change_pct)}</td>
+      </tr>
+      <tr>
+        <th scope="row">Max output</th>
+        <td>{tokens(migration.max_output_diff.old_tokens)}</td>
+        <td>{tokens(migration.max_output_diff.new_tokens)}</td>
+        <td>{pct(migration.max_output_diff.change_pct)}</td>
+      </tr>
+    </tbody>
+  </table>
+  <h4>Capabilities that differ</h4>
+  {migration.capability_changes.length ? (
+    <table>
+      <caption>Only fields with two published values that differ</caption>
+      <thead><tr><th>Field</th><th>Old</th><th>New</th></tr></thead>
+      <tbody>
+        {migration.capability_changes.map((change) => (
+          <tr><th scope="row">{change.field}</th><td>{String(change.old)}</td><td>{String(change.new)}</td></tr>
+        ))}
+      </tbody>
+    </table>
+  ) : <p>No differing capability values are published for both models.</p>}
+  {endpointChanges.length ? (
+    <>
+      <h4>Endpoint changes</h4>
+      <ul>
+        {endpointChanges.map((change) => (
+          <li>{change.detail} <a href={change.source_url}>Source</a></li>
+        ))}
+      </ul>
+    </>
+  ) : null}
+  {otherChanges.length || !endpointChanges.length ? (
+    <>
+      <h4>API changes</h4>
+      {otherChanges.length ? (
+        <ul>
+          {otherChanges.map((change) => (
+            <li>{change.detail} <a href={change.source_url}>Source</a></li>
+          ))}
+        </ul>
+      ) : <p>No parameter change is listed on the official pages we checked. The sample below only swaps the model id.</p>}
+    </>
+  ) : null}
+  {hasCode ? (
+    <>
+      <h4>Code</h4>
+      <div class="tabs">
+        {languages.map((language) => <a href={`#${to.slug}-${language}`}>{language}</a>)}
+      </div>
+      {languages.map((language) => (
+        <div id={`${to.slug}-${language}`}>
+          <h5>{language} before</h5>
+          <pre><code>{migration.code_change.snippets[language].before}</code></pre>
+          <h5>{language} after</h5>
+          <pre><code>{migration.code_change.snippets[language].after}</code></pre>
+        </div>
+      ))}
+    </>
+  ) : null}
+  <h4>Checklist</h4>
+  <ol>{migration.migration_checklist.map((step) => <li>{step}</li>)}</ol>
+</article>
