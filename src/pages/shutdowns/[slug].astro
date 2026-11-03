@@ -84,6 +84,8 @@ const shutdownGuide = guideBySlug(
                   ? "nebius-model-shutdowns-november-9-2026"
                   : event.slug === "google-gemini-api-2026-11-17"
                     ? "gemini-api-model-shutdowns-november-17-2026"
+                    : event.slug === "google-gemini-api-2026-12-01"
+                      ? "gemini-2-5-pro-flash-auto-route-december-1-2026"
                     : undefined,
 );
 const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
@@ -188,7 +190,11 @@ function bedrockSuggestions(model: ModelRecord): { href: string; label: string }
     </table>
   ) : null}
   <p>
-    {past ? "This date has passed. The rows below stay up because people still search after requests fail." : "This date is still ahead. The rows below use the published shutdown date only."}
+    {event.slug === "google-gemini-api-2026-12-01"
+      ? "On this date Google routes gemini-2.5-pro and gemini-2.5-flash to other models and bills those rates. The rows below use the published shutdown date."
+      : past
+        ? "This date has passed. The rows below stay up because people still search after requests fail."
+        : "This date is still ahead. The rows below use the published shutdown date only."}
     {" "}
     <a href={sourceUrl}>{name} deprecation page</a>
     {" · "}

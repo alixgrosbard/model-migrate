@@ -1446,18 +1446,18 @@ const { text } = await generateText({
   {
     slug: "gemini-2-5-flash-no-longer-available-to-new-users",
     provider: "google-gemini-api",
-    checked: "2026-10-24",
+    checked: "2026-11-03",
     cause: "A Gemini API key that counts as a new user calling gemini-2.5-flash.",
     title: "gemini-2.5-flash is no longer available to new users | SunsetDiff",
     description:
-      "GitHub issue ecomAssistant#92 records HTTP 404 for gemini-2.5-flash: models/gemini-2.5-flash is no longer available to new users. Google's deprecations page limits 2.5 access to people who have used those models and says they are not deprecated.",
+      "GitHub issue ecomAssistant#92 records HTTP 404 for gemini-2.5-flash: models/gemini-2.5-flash is no longer available to new users. Google limits 2.5 access to people who have used those models. gemini-2.5-flash is deprecated, with shutdown date December 1, 2026.",
     h1: GEMINI_25_NEW_USERS,
-    lead: "Some Gemini API keys get HTTP 404 on gemini-2.5-flash. Google's deprecations page says access to the 2.5 models is limited to users who have actively used them. It says the models are not deprecated.",
+    lead: "Some Gemini API keys get HTTP 404 on gemini-2.5-flash. Google's deprecations page says access to the 2.5 models is limited to users who have actively used them. gemini-2.5-flash and gemini-2.5-pro are deprecated, with shutdown date December 1, 2026. gemini-2.5-flash-lite is not deprecated.",
     errorQuoted: true,
     errorText: GEMINI_25_NEW_USERS,
     quoteSourceLabel: "GitHub issue LebgaaAbderrahmane/ecomAssistant#92",
     quoteSourceUrl: ISSUE_GEMINI_25,
-    rule: `The issue says Google answers 404 with that message for some API keys, and that older keys still work. The deprecations page says it is limiting access to the 2.5 models to users who have actively used them in the past. It says these models are not deprecated and will continue to be served until further notice through the API. For any new projects it names 3.5 Flash-Lite or 3.8 Flash. The model table on that page uses the ids gemini-3.5-flash-lite and gemini-3.8-flash. The deprecations page does not print the 404 sentence. The issue records the sentence for gemini-2.5-flash. The same access note sits above the gemini-2.5-pro section and the Gemini 2.5 Flash section, which also lists gemini-2.5-flash-lite with no shutdown date announced. A different sentence, recorded for gemini-2.0-flash after that model shut down, is on [This model is no longer available](/errors/gemini-model-no-longer-available/).`,
+    rule: `The issue says Google answers 404 with that message for some API keys, and that older keys still work. Checked 2026-11-03, the deprecations page says access to the 2.5 models is limited to users who have actively used them in the past. gemini-2.5-pro and gemini-2.5-flash are deprecated, with shutdown date December 1, 2026. On that date, requests to gemini-2.5-pro route to gemini-3.8-flash, and requests to gemini-2.5-flash route to gemini-3.5-flash-lite. gemini-2.5-flash-lite is not deprecated and has no shutdown date announced. The deprecations page does not print the 404 sentence. The issue records the sentence for gemini-2.5-flash. The guide is [Gemini 2.5 Pro and Flash auto-route on December 1, 2026](/guides/gemini-2-5-pro-flash-auto-route-december-1-2026/). A different sentence, recorded for gemini-2.0-flash after that model shut down, is on [This model is no longer available](/errors/gemini-model-no-longer-available/).`,
     ruleSourceLabel: "Gemini API deprecations",
     ruleSourceUrl: GEMINI_DEPRECATIONS,
     modelsCaption: "The quoted 404 fragment was recorded for gemini-2.5-flash. The other 2.5 ids are the stable models under the same access note. The issue does not record this sentence for them.",
@@ -1466,19 +1466,19 @@ const { text } = await generateText({
         id: "gemini-2.5-flash",
         provider: "google-gemini-api",
         slug: "gemini-2-5-flash",
-        note: "The GitHub issue records HTTP 404 with the sentence above for this id. The deprecations page lists release date June 17, 2025 and no shutdown date announced.",
+        note: "The GitHub issue records HTTP 404 with the sentence above for this id. The deprecations page lists release date June 17, 2025 and shutdown date December 1, 2026. Requests route to gemini-3.5-flash-lite on that date.",
       },
       {
         id: "gemini-2.5-pro",
         provider: "google-gemini-api",
         slug: "gemini-2-5-pro",
-        note: "The 2.5 Pro section has the same access note. Release date June 17, 2025. No shutdown date announced. The issue does not record this 404 sentence for this id.",
+        note: "Release date June 17, 2025. Shutdown date December 1, 2026. Requests route to gemini-3.8-flash on that date. The issue does not record this 404 sentence for this id.",
       },
       {
         id: "gemini-2.5-flash-lite",
         provider: "google-gemini-api",
         slug: "gemini-2-5-flash-lite",
-        note: "Listed under Gemini 2.5 Flash models, under the same access note. Release date July 22, 2025. No shutdown date announced. The issue does not record this 404 sentence for this id.",
+        note: "Release date July 22, 2025. Google says gemini-2.5-flash-lite is not deprecated and remains available until further notice. No shutdown date announced. The issue does not record this 404 sentence for this id.",
       },
       {
         id: "gemini-3.8-flash",
@@ -1497,7 +1497,7 @@ const { text } = await generateText({
       {
         heading: "Raw SDK",
         text: [
-          "For a new project, call an id the deprecations note names for new projects. The sample uses gemini-3.8-flash. The issue says older keys can still call gemini-2.5-flash. This page does not say the model is shut down.",
+          "For a new project, call gemini-3.8-flash or gemini-3.5-flash-lite. The issue says older keys can still call gemini-2.5-flash. December 1, 2026 is a route to another model, described on the auto-route guide. This 404 is the new-user limit.",
         ],
         samples: [
           {
@@ -1567,6 +1567,7 @@ const { text } = await generateText({
       { href: "/errors/gemini-model-no-longer-available/", label: "This model is no longer available" },
       { href: "/models/google-gemini-api/gemini-2-5-flash/", label: "gemini-2.5-flash" },
       { href: "/models/google-gemini-api/gemini-3-8-flash/", label: "gemini-3.8-flash" },
+      { href: "/guides/gemini-2-5-pro-flash-auto-route-december-1-2026/", label: "Gemini 2.5 Pro and Flash auto-route on December 1, 2026" },
       { href: "/guides/silent-failures-after-model-shutdown/", label: "Silent failures after a model shutdown" },
       { href: "/guides/catch-a-retired-model-before-your-users-do/", label: "Catch a retired model before your users do" },
     ],
@@ -1574,7 +1575,7 @@ const { text } = await generateText({
       {
         question: "Does Google's deprecations page print this 404 sentence?",
         answer:
-          "No. The page says 2.5 access is limited to users who have actively used those models, and that the models are not deprecated. The sentence in the Error text block is from GitHub issue LebgaaAbderrahmane/ecomAssistant#92, which records HTTP 404 for gemini-2.5-flash.",
+          "No. The page says 2.5 access is limited to users who have actively used those models. gemini-2.5-pro and gemini-2.5-flash are deprecated, with shutdown date December 1, 2026. The sentence in the Error text block is from GitHub issue LebgaaAbderrahmane/ecomAssistant#92, which records HTTP 404 for gemini-2.5-flash.",
       },
       {
         question: "Why does an older key still work?",
@@ -1584,7 +1585,7 @@ const { text } = await generateText({
       {
         question: "Which ids does the deprecations page name for a new project?",
         answer:
-          "The note says 3.5 Flash-Lite or 3.8 Flash. The table on that page uses gemini-3.5-flash-lite and gemini-3.8-flash. gemini-2.5-flash, gemini-2.5-pro, and gemini-2.5-flash-lite have no shutdown date announced.",
+          "gemini-2.5-pro routes to gemini-3.8-flash. gemini-2.5-flash routes to gemini-3.5-flash-lite. gemini-2.5-flash-lite has no shutdown date announced. The guide is [Gemini 2.5 Pro and Flash auto-route on December 1, 2026](/guides/gemini-2-5-pro-flash-auto-route-december-1-2026/).",
       },
     ],
     citations: [GEMINI_DEPRECATIONS, ISSUE_GEMINI_25, LITELLM_GEMINI, AI_SDK_GENERATE],
@@ -1592,18 +1593,18 @@ const { text } = await generateText({
   {
     slug: "gemini-model-no-longer-available-to-new-users",
     provider: "google-gemini-api",
-    checked: "2026-11-01",
-    cause: "A new Gemini API user calling gemini-2.5-flash. The same access note covers gemini-2.5-flash-lite and gemini-2.5-pro.",
+    checked: "2026-11-03",
+    cause: "A new Gemini API user calling gemini-2.5-flash. The same access limit covers gemini-2.5-flash-lite and gemini-2.5-pro.",
     title: "This model is no longer available to new users | Gemini API | SunsetDiff",
     description:
-      "GitHub issue Design-your-perfect-AI-Persona#1 records HTTP 404 for gemini-2.5-flash. Google's deprecations page limits 2.5 access to people who have used those models and says they are not deprecated.",
+      "GitHub issue Design-your-perfect-AI-Persona#1 records HTTP 404 for gemini-2.5-flash. Google limits 2.5 access to people who have used those models. gemini-2.5-flash is deprecated, with shutdown date December 1, 2026.",
     h1: "This model is no longer available to new users",
-    lead: "A new Gemini API user can get HTTP 404 on gemini-2.5-flash. Google's deprecations page says access to the 2.5 models is limited to users who have actively used them, and that new projects should use 3.5 Flash-Lite or 3.8 Flash. It says the models are not deprecated.",
+    lead: "A new Gemini API user can get HTTP 404 on gemini-2.5-flash. Google's deprecations page says access to the 2.5 models is limited to users who have actively used them. gemini-2.5-pro and gemini-2.5-flash are deprecated, with shutdown date December 1, 2026. gemini-2.5-flash-lite is not deprecated.",
     errorQuoted: true,
     errorText: GEMINI_25_FULL_ERROR,
     quoteSourceLabel: "GitHub issue oyekamal/Design-your-perfect-AI-Persona#1",
     quoteSourceUrl: ISSUE_GEMINI_25_FULL,
-    rule: `The issue, opened October 31, 2026, prints HTTP 404 with status NOT_FOUND. The message field is the sentence in the Error text block, and it names models/gemini-2.5-flash. The deprecations page does not print that sentence. Under both Gemini 2.5 Pro models and Gemini 2.5 Flash models it says it is limiting access to the 2.5 models to users who have actively used them in the past. It says these models are not deprecated and will continue to be served until further notice through the API. For any new projects it names 3.5 Flash-Lite or 3.8 Flash. The model table on that page uses the ids gemini-3.5-flash-lite and gemini-3.8-flash. The error message names models/gemini-3.8-flash. gemini-2.5-flash, gemini-2.5-flash-lite, and gemini-2.5-pro have no shutdown date announced. The issue records this sentence for gemini-2.5-flash. It does not record it for gemini-2.5-pro or gemini-2.5-flash-lite. Those two ids sit under the same access note. A shorter fragment, from a different issue, is on [gemini-2.5-flash is no longer available to new users](/errors/gemini-2-5-flash-no-longer-available-to-new-users/). A different sentence, recorded for gemini-2.0-flash after that model shut down, is on [This model is no longer available](/errors/gemini-model-no-longer-available/).`,
+    rule: `The issue, opened October 31, 2026, prints HTTP 404 with status NOT_FOUND. The message field is the sentence in the Error text block, and it names models/gemini-2.5-flash. The deprecations page does not print that sentence. Checked 2026-11-03, it says access to the 2.5 models is limited to users who have actively used them in the past. gemini-2.5-pro and gemini-2.5-flash are deprecated, with shutdown date December 1, 2026. On that date, requests to gemini-2.5-pro route to gemini-3.8-flash, and requests to gemini-2.5-flash route to gemini-3.5-flash-lite. gemini-2.5-flash-lite is not deprecated and has no shutdown date announced. The error message names models/gemini-3.8-flash. The issue records this sentence for gemini-2.5-flash. It does not record it for gemini-2.5-pro or gemini-2.5-flash-lite. The guide is [Gemini 2.5 Pro and Flash auto-route on December 1, 2026](/guides/gemini-2-5-pro-flash-auto-route-december-1-2026/). A shorter fragment, from a different issue, is on [gemini-2.5-flash is no longer available to new users](/errors/gemini-2-5-flash-no-longer-available-to-new-users/). A different sentence, recorded for gemini-2.0-flash after that model shut down, is on [This model is no longer available](/errors/gemini-model-no-longer-available/).`,
     ruleSourceLabel: "Gemini API deprecations",
     ruleSourceUrl: GEMINI_DEPRECATIONS,
     modelsCaption: "The quoted 404 was recorded for gemini-2.5-flash. The other 2.5 ids are the stable models under the same access note. The issue does not record this sentence for them.",
@@ -1612,19 +1613,19 @@ const { text } = await generateText({
         id: "gemini-2.5-flash",
         provider: "google-gemini-api",
         slug: "gemini-2-5-flash",
-        note: "The GitHub issue records HTTP 404 and this sentence for models/gemini-2.5-flash. The deprecations page lists release date June 17, 2025 and no shutdown date announced.",
+        note: "The GitHub issue records HTTP 404 and this sentence for models/gemini-2.5-flash. The deprecations page lists release date June 17, 2025 and shutdown date December 1, 2026. Requests route to gemini-3.5-flash-lite on that date.",
       },
       {
         id: "gemini-2.5-pro",
         provider: "google-gemini-api",
         slug: "gemini-2-5-pro",
-        note: "The 2.5 Pro section has the same access note. Release date June 17, 2025. No shutdown date announced. The issue does not record this 404 sentence for this id.",
+        note: "Release date June 17, 2025. Shutdown date December 1, 2026. Requests route to gemini-3.8-flash on that date. The issue does not record this 404 sentence for this id.",
       },
       {
         id: "gemini-2.5-flash-lite",
         provider: "google-gemini-api",
         slug: "gemini-2-5-flash-lite",
-        note: "Listed under Gemini 2.5 Flash models, under the same access note. Release date July 22, 2025. No shutdown date announced. The issue does not record this 404 sentence for this id.",
+        note: "Release date July 22, 2025. Google says gemini-2.5-flash-lite is not deprecated and remains available until further notice. No shutdown date announced. The issue does not record this 404 sentence for this id.",
       },
       {
         id: "gemini-3.8-flash",
@@ -1643,7 +1644,7 @@ const { text } = await generateText({
       {
         heading: "Raw SDK",
         text: [
-          "For a new project, call an id the deprecations note names for new projects. The error message names gemini-3.8-flash. The deprecations note also names 3.5 Flash-Lite, which is gemini-3.5-flash-lite on that page. This page does not say gemini-2.5-flash is shut down.",
+          "For a new project, call gemini-3.8-flash or gemini-3.5-flash-lite. The error message names gemini-3.8-flash. On December 1, 2026, a gemini-2.5-flash request routes to gemini-3.5-flash-lite. The guide is the auto-route page. This 404 is the new-user limit.",
         ],
         samples: [
           {
@@ -1716,13 +1717,14 @@ const { text } = await generateText({
       { href: "/models/google-gemini-api/gemini-2-5-pro/", label: "gemini-2.5-pro" },
       { href: "/models/google-gemini-api/gemini-3-8-flash/", label: "gemini-3.8-flash" },
       { href: "/models/google-gemini-api/gemini-3-5-flash-lite/", label: "gemini-3.5-flash-lite" },
+      { href: "/guides/gemini-2-5-pro-flash-auto-route-december-1-2026/", label: "Gemini 2.5 Pro and Flash auto-route on December 1, 2026" },
       { href: GEMINI_DEPRECATIONS, label: "Gemini API deprecations" },
     ],
     faqs: [
       {
         question: "Does Google's deprecations page print this 404 sentence?",
         answer:
-          "No. The page says 2.5 access is limited to users who have actively used those models, and that the models are not deprecated. The sentence in the Error text block is the message field in GitHub issue [oyekamal/Design-your-perfect-AI-Persona#1](https://github.com/oyekamal/Design-your-perfect-AI-Persona/issues/1), which records HTTP 404 for gemini-2.5-flash.",
+          "No. The page says 2.5 access is limited to users who have actively used those models. gemini-2.5-pro and gemini-2.5-flash are deprecated, with shutdown date December 1, 2026. The sentence in the Error text block is the message field in GitHub issue [oyekamal/Design-your-perfect-AI-Persona#1](https://github.com/oyekamal/Design-your-perfect-AI-Persona/issues/1), which records HTTP 404 for gemini-2.5-flash.",
       },
       {
         question: "Who gets this error?",
@@ -1732,7 +1734,7 @@ const { text } = await generateText({
       {
         question: "Is gemini-2.5-flash shut down?",
         answer:
-          "No. The deprecations page says these models are not deprecated and will continue to be served until further notice. gemini-2.5-flash, gemini-2.5-pro, and gemini-2.5-flash-lite have no shutdown date announced.",
+          "gemini-2.5-flash and gemini-2.5-pro have shutdown date December 1, 2026. On that date the request routes to another model and the bill changes. gemini-2.5-flash-lite has no shutdown date announced. The guide is [Gemini 2.5 Pro and Flash auto-route on December 1, 2026](/guides/gemini-2-5-pro-flash-auto-route-december-1-2026/).",
       },
       {
         question: "Which ids should a new project call?",

@@ -483,6 +483,16 @@ async function main() {
         throw new Error(`Copilot page is missing GitHub's surface list: ${rel}`);
       }
       if (html.includes("start failing")) throw new Error(`Copilot page still uses API failure wording: ${rel}`);
+    } else if (event.slug === "google-gemini-api-2026-12-01") {
+      if (!html.includes("automatically route to gemini-3.8-flash")) {
+        throw new Error(`Gemini December 1 page is missing the gemini-2.5-pro route: ${rel}`);
+      }
+      if (!html.includes("automatically route to gemini-3.5-flash-lite")) {
+        throw new Error(`Gemini December 1 page is missing the gemini-2.5-flash route: ${rel}`);
+      }
+      if (html.includes("start failing") || html.includes("started failing")) {
+        throw new Error(`Gemini December 1 page says the request fails: ${rel}`);
+      }
     } else {
       if (!html.includes("shutting down") || !html.includes("start failing")) {
         throw new Error(`Upcoming shutdown page is missing future wording: ${rel}`);

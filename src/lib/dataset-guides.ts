@@ -79,6 +79,12 @@ const NEBIUS_AUGUST_SHUTDOWN_DATE = "2026-08-31";
 export const GEMINI_NOV17_SHUTDOWN_DATE = "2026-11-17";
 export const GEMINI_NOV17_GUIDE_SLUG = "gemini-api-model-shutdowns-november-17-2026";
 
+/** Checked against the Gemini API deprecations page on 2026-11-03. The slug uses this date. */
+export const GEMINI_DEC1_SHUTDOWN_DATE = "2026-12-01";
+export const GEMINI_DEC1_GUIDE_SLUG = "gemini-2-5-pro-flash-auto-route-december-1-2026";
+export const GEMINI_DEC1_CHECKED = "2026-11-03";
+const GEMINI_DEC1_IDS = ["gemini-2.5-pro", "gemini-2.5-flash"] as const;
+
 /** Checked against Anthropic's deprecations page on 2026-11-01. The slug uses this date. */
 export const SONNET45_NOV30_SHUTDOWN_DATE = "2026-11-30";
 export const SONNET45_NOV30_GUIDE_SLUG = "claude-sonnet-4-5-shutdown-november-30-2026";
@@ -283,6 +289,21 @@ export function isGeminiNov17Shutdown(model: ModelRecord): boolean {
   return model.provider === "google-gemini-api"
     && model.shutdown_date === GEMINI_NOV17_SHUTDOWN_DATE
     && model.shutdown_date_kind === "exact";
+}
+
+export function isGeminiDec1AutoRoute(model: ModelRecord): boolean {
+  return model.provider === "google-gemini-api"
+    && (GEMINI_DEC1_IDS as readonly string[]).includes(model.id)
+    && model.shutdown_date === GEMINI_DEC1_SHUTDOWN_DATE
+    && model.shutdown_date_kind === "exact";
+}
+
+export function showsGeminiDec1Guide(model: ModelRecord): boolean {
+  if (model.provider !== "google-gemini-api") return false;
+  return isGeminiDec1AutoRoute(model)
+    || model.id === "gemini-2.5-flash-lite"
+    || model.id === "gemini-3.8-flash"
+    || model.id === "gemini-3.5-flash-lite";
 }
 
 export function isVertexNovDecGemini(model: ModelRecord): boolean {
@@ -954,6 +975,8 @@ export function datasetShutdownGuides(catalog: ModelRecord[] = readCatalog()): G
   if (nebius.length) pages.push(nebiusNov9Guide(nebius, catalog));
   const gemini = rowsFor(isGeminiNov17Shutdown, catalog);
   if (gemini.length) pages.push(geminiNov17Guide(gemini, catalog));
+  const geminiDec1 = rowsFor(isGeminiDec1AutoRoute, catalog);
+  if (geminiDec1.length) pages.push(geminiDec1Guide(geminiDec1, catalog));
   const vertexNovDec = rowsFor(isVertexNovDecGemini, catalog);
   if (vertexNovDec.length) pages.push(vertexNovDecGuide(vertexNovDec, catalog));
   const openrouterNovDec = rowsFor(isOpenRouterNovDecExpiration, catalog);
@@ -2688,6 +2711,26 @@ const NEBIUS_API = "Affected Serverless models will no longer be available via A
 const NEBIUS_DEDICATED_NOTE = "Dedicated Endpoints for these models will be unaffected by this change.";
 
 const GEMINI_DEPRECATIONS = "https://ai.google.dev/gemini-api/docs/deprecations";
+const GEMINI_DEPRECATIONS_CURRENT = "https://aistudio.google.com/docs/deprecations";
+const GEMINI_38_GUIDE = "https://aistudio.google.com/docs/whats-new-gemini-3.8";
+const GEMINI_38_MIGRATE = "https://aistudio.google.com/docs/whats-new-gemini-3.8#migrate-to-gemini-3-8-flash";
+const GEMINI_36_GUIDE = "https://aistudio.google.com/docs/whats-new-gemini-3.6";
+const GEMINI_35_LITE_MIGRATE = "https://aistudio.google.com/docs/whats-new-gemini-3.6#migrate-to-gemini-3-5-flash-lite";
+const GEMINI_36_API_CHANGES = "https://aistudio.google.com/docs/whats-new-gemini-3.6#api-changes-and-parameter-updates";
+const GEMINI_PRICING_38 = "https://aistudio.google.com/docs/pricing#gemini-3.8-flash";
+const GEMINI_PRICING_35 = "https://aistudio.google.com/docs/pricing#gemini-3.5-flash-lite";
+const GEMINI_PRO_CALLOUT =
+  "gemini-2.5-pro is deprecated and is no longer available to select in Google AI Studio. Access through the API is limited to existing users who have actively used it in the past. Effective December 1, 2026, all API requests to gemini-2.5-pro will automatically route to gemini-3.8-flash and be billed at Gemini 3.8 Flash rates. Review the breaking API changes in the Gemini 3.8 Flash migration guide before December 1, 2026.";
+const GEMINI_FLASH_CALLOUT =
+  "gemini-2.5-flash is deprecated and is no longer available to select in Google AI Studio. Effective December 1, 2026, all API requests to gemini-2.5-flash will automatically route to gemini-3.5-flash-lite and be billed at Gemini 3.5 Flash-Lite rates. Review the breaking API changes in the Gemini 3.5 Flash-Lite migration guide before December 1, 2026. Access to the 2.5 models is limited to users who have actively used them in the past. gemini-2.5-flash-lite is not deprecated and remains available through the API until further notice.";
+const GEMINI_38_PRICE =
+  "Gemini 3.8 Flash is available at an introductory rate of $0.75/1M input tokens and $3.75/1M output tokens through December 31, 2026. Standard pricing of $1.50/1M input tokens and $7.50/1M output tokens takes effect January 1, 2027.";
+const GEMINI_35_PRICE = "$0.30/1M input tokens and $2.50/1M output tokens";
+const GEMINI_38_MINIMAL = "minimal thinking level is not supported for Gemini 3.8 Flash and will return an error.";
+const GEMINI_SAMPLING_IGNORED =
+  "temperature, top_p, and top_k are deprecated and ignored. In future model generations, supplying these parameters returns an HTTP 400 error.";
+const GEMINI_PREFILL_400 =
+  "API requests ending with a non-empty model role turn are disallowed and return an HTTP 400 Error.";
 const GEMINI_MODELS = "https://ai.google.dev/gemini-api/docs/models";
 const GEMINI_SPEECH = "https://ai.google.dev/gemini-api/docs/speech-generation";
 const GEMINI_LIVE_MODEL = "https://ai.google.dev/gemini-api/docs/models/gemini-3.8-live";
@@ -3545,6 +3588,221 @@ async with client.aio.live.connect(
       VERTEX_LIVE_MIGRATE,
       VERTEX_MIGRATE,
       GEMINI_DEPRECATIONS,
+    ],
+  };
+}
+
+function geminiDec1Guide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePage {
+  const when = longDate(GEMINI_DEC1_SHUTDOWN_DATE);
+  const ordered = [...rows].sort((a, b) => a.id.localeCompare(b.id));
+  const lite = catalog.find((model) => model.provider === "google-gemini-api" && model.id === "gemini-2.5-flash-lite");
+  const sources = [
+    { label: "Gemini API deprecations", url: GEMINI_DEPRECATIONS_CURRENT },
+    { label: "Gemini 3.8 Flash migration guide", url: GEMINI_38_MIGRATE },
+    { label: "Gemini 3.5 Flash-Lite migration guide", url: GEMINI_35_LITE_MIGRATE },
+  ];
+  return {
+    slug: GEMINI_DEC1_GUIDE_SLUG,
+    title: "Gemini 2.5 Pro and Flash auto-route on December 1, 2026 | SunsetDiff",
+    description: `On ${GEMINI_DEC1_SHUTDOWN_DATE}, Gemini API requests to gemini-2.5-pro route to gemini-3.8-flash, and requests to gemini-2.5-flash route to gemini-3.5-flash-lite. The bill follows the replacement. gemini-2.5-flash-lite stays.`,
+    h1: "Gemini 2.5 Pro and Flash auto-route on December 1, 2026",
+    summary: `What Google says happens to gemini-2.5-pro and gemini-2.5-flash on ${GEMINI_DEC1_SHUTDOWN_DATE}: the replacement id, the bill, existing-user access, and the id that stays.`,
+    answer: `On ${when}, Google says API requests to gemini-2.5-pro automatically route to gemini-3.8-flash and are billed at Gemini 3.8 Flash rates. Requests to gemini-2.5-flash automatically route to gemini-3.5-flash-lite and are billed at Gemini 3.5 Flash-Lite rates. The response comes from the replacement model. Both ids are already deprecated, and API access is already limited to people who have used them. gemini-2.5-flash-lite is not deprecated. The deprecations page also says a date in the table is the earliest day a model might be retired.`,
+    checked: GEMINI_DEC1_CHECKED,
+    steps: [
+      {
+        name: "Read the two ids",
+        text: `The table is gemini-2.5-pro and gemini-2.5-flash. Each shutdown cell is ${GEMINI_DEC1_SHUTDOWN_DATE}. The replacement cell is the id Google names. Open the model page before you change a call.`,
+      },
+      {
+        name: "Pin the replacement and send a test",
+        text: `Call gemini-3.8-flash by that id before ${when} if your code uses gemini-2.5-pro. Call gemini-3.5-flash-lite by that id before ${when} if your code uses gemini-2.5-flash. Leaving the old id in the request means Google chooses the replacement and the bill on ${when}.`,
+      },
+      {
+        name: "Read the migration guide before you switch",
+        text: "The 3.8 Flash guide says to replace thinking_budget with thinking_level, and that minimal returns an error on gemini-3.8-flash. It says to remove temperature, top_p, top_k, candidate_count, and prefilled model turns. The 3.5 Flash-Lite checklist says to apply the same parameter rules as 3.6 Flash, and that its default thinking_level is minimal.",
+      },
+      {
+        name: "Leave gemini-2.5-flash-lite alone",
+        text: "Google says gemini-2.5-flash-lite is not deprecated and remains available through the API until further notice. Its shutdown cell says no shutdown date announced. Do not point those calls at gemini-3.5-flash-lite unless you are choosing a different model on purpose.",
+      },
+    ],
+    sections: [
+      {
+        heading: "What happens on December 1, 2026",
+        paragraphs: [
+          `Google's caution for gemini-2.5-pro says: "${GEMINI_PRO_CALLOUT}"`,
+          `Google's caution for gemini-2.5-flash says: "${GEMINI_FLASH_CALLOUT}"`,
+          `The table lists shutdown date December 1, 2026 for both ids. The pro replacement cell names gemini-3.8-flash. The flash replacement cell names gemini-3.5-flash-lite. Both cells say the id is no longer available to select in Google AI Studio, and that API requests automatically route on ${when}.`,
+          `The same page defines shutdown as: "${GEMINI_SHUTDOWN}" The caution for these two ids is more specific: the request is answered by the replacement model, and the bill uses that model's rates. This guide follows the caution for these two ids.`,
+          `The page also says: "${GEMINI_EARLIEST}" The caution says the route is effective ${when}. This guide does not pick which sentence wins if Google sends a later day. Until that notice, the stored shutdown date is ${GEMINI_DEC1_SHUTDOWN_DATE}.`,
+        ],
+        table: {
+          caption: `${ordered.length} Gemini API ids with shutdown date ${GEMINI_DEC1_SHUTDOWN_DATE}.`,
+          headers: ["Model id", "Deprecation date", "Shutdown date", "Recommended replacement"],
+          rows: tableRows(ordered, catalog),
+        },
+        sources,
+      },
+      {
+        heading: "The bill changes",
+        paragraphs: [
+          "The deprecations page says gemini-2.5-pro requests are billed at Gemini 3.8 Flash rates, and gemini-2.5-flash requests are billed at Gemini 3.5 Flash-Lite rates. It links the pricing page for each rate. It does not print a dollar amount in the caution.",
+          `The Gemini 3.8 Flash page says: "${GEMINI_38_PRICE}" The Gemini 3.6 page's model table prints ${GEMINI_35_PRICE} for gemini-3.5-flash-lite. This guide did not copy cached, batch, or long-context tiers from the pricing page, and it does not compare those figures with the current gemini-2.5-pro or gemini-2.5-flash price.`,
+        ],
+        sources: [
+          { label: "Gemini API deprecations", url: GEMINI_DEPRECATIONS_CURRENT },
+          { label: "What's new in Gemini 3.8 Flash", url: GEMINI_38_GUIDE },
+          { label: "What's new in Gemini 3.6 Flash and 3.5 Flash-Lite", url: GEMINI_36_GUIDE },
+          { label: "Gemini 3.8 Flash pricing anchor", url: GEMINI_PRICING_38 },
+          { label: "Gemini 3.5 Flash-Lite pricing anchor", url: GEMINI_PRICING_35 },
+        ],
+      },
+      {
+        heading: "Access is already limited",
+        paragraphs: [
+          "The pro caution says API access is limited to existing users who have actively used gemini-2.5-pro in the past. The flash caution says access to the 2.5 models is limited to users who have actively used them in the past. A new user can already get HTTP 404. That limit is separate from the December 1 route.",
+          "The recorded 404 sentences are on [gemini-2.5-flash is no longer available to new users](/errors/gemini-2-5-flash-no-longer-available-to-new-users/) and [This model is no longer available to new users](/errors/gemini-model-no-longer-available-to-new-users/). The deprecations page does not print those sentences.",
+          lite
+            ? `gemini-2.5-flash-lite is a different id. The flash caution says it is not deprecated and remains available through the API until further notice. The stored row has status ${lite.status}, shutdown kind ${lite.shutdown_date_kind}, and ${lite.shutdown_date ? `shutdown date ${lite.shutdown_date}` : "no shutdown_date"}.`
+            : "The dataset has no gemini-2.5-flash-lite row.",
+        ],
+        sources: [{ label: "Gemini API deprecations", url: GEMINI_DEPRECATIONS_CURRENT }],
+      },
+      {
+        heading: "Pin the replacement before December 1",
+        paragraphs: [
+          `Set the model field to gemini-3.8-flash or gemini-3.5-flash-lite and send one real request before ${when}. That is the test. An old id left in the client is the id Google routes on ${when}, so the test never runs against the model you will be billed for.`,
+          "The samples below use the Interactions API shape from the Gemini 3.8 Flash quickstart. The second sample keeps that shape and uses the model id from the 3.5 Flash-Lite migration checklist. The 3.6 Flash quickstart uses gemini-3.6-flash, so this guide does not present that sample as a 3.5 Flash-Lite quickstart.",
+        ],
+        codes: [
+          {
+            caption: "Old id. On December 1, 2026 Google routes this call to gemini-3.8-flash.",
+            code: `from google import genai
+
+client = genai.Client()
+
+interaction = client.interactions.create(
+    model="gemini-2.5-pro",
+    input="Write a three.js script that renders a realistic 3D black hole."
+)
+
+print(interaction.output_text)
+`,
+          },
+          {
+            caption: "Pinned replacement, from the Gemini 3.8 Flash quickstart",
+            code: `from google import genai
+
+client = genai.Client()
+
+interaction = client.interactions.create(
+    model="gemini-3.8-flash",
+    input="Write a three.js script that renders a realistic 3D black hole."
+)
+
+print(interaction.output_text)
+`,
+          },
+          {
+            caption: "Same client shape, with the gemini-3.5-flash-lite id from the migration checklist",
+            code: `from google import genai
+
+client = genai.Client()
+
+interaction = client.interactions.create(
+    model="gemini-3.5-flash-lite",
+    input="Write a three.js script that renders a realistic 3D black hole."
+)
+
+print(interaction.output_text)
+`,
+          },
+          {
+            caption: "ripgrep",
+            code: searchCode(ordered),
+          },
+        ],
+        sources: [
+          { label: "What's new in Gemini 3.8 Flash", url: GEMINI_38_GUIDE },
+          { label: "Migrate to gemini-3.5-flash-lite", url: GEMINI_35_LITE_MIGRATE },
+        ],
+      },
+      {
+        heading: "Breaking changes the migration guides name",
+        paragraphs: [
+          `The 3.8 Flash checklist says to change the model string to gemini-3.8-flash, and to replace thinking_budget with thinking_level. The values it names are low, medium, and high. Medium is the default. It says: "${GEMINI_38_MINIMAL}"`,
+          "The same checklist says to remove temperature, top_p, top_k, and candidate_count. It says candidate_count is unsupported in Gemini 3 and later. It says to remove prefilled model turns and to use previous_interaction_id for multi-turn history. It points at the 3.6 API changes for those parameter rules.",
+          `The 3.6 page says: "${GEMINI_SAMPLING_IGNORED}" It also says: "${GEMINI_PREFILL_400}" The 3.8 page tells you to remove the fields. It does not print a sample response body for a temperature field on gemini-3.8-flash. This guide does not add one.`,
+          `The 3.5 Flash-Lite checklist says to change the model string to gemini-3.5-flash-lite. It says the default thinking_level is minimal, and to leave minimal for high-volume extraction, routing, or classification. It says to set medium or high for autonomous subagents that use tools, code execution, or multi-step reasoning. It says to apply the same parameter rules as 3.6 Flash.`,
+          "Both checklists mention function-calling payload shape and thought signatures. The pages to read are linked below. This guide does not restate a rule it did not quote.",
+        ],
+        sources: [
+          { label: "Migrate to gemini-3.8-flash", url: GEMINI_38_MIGRATE },
+          { label: "Migrate to gemini-3.5-flash-lite", url: GEMINI_35_LITE_MIGRATE },
+          { label: "Gemini 3.6 API changes", url: GEMINI_36_API_CHANGES },
+        ],
+      },
+      {
+        heading: "Find the ids and open the shutdown page",
+        paragraphs: [
+          "Search for gemini-2.5-pro and gemini-2.5-flash. A hit on gemini-2.5-flash-lite is a different model. [How to find every model ID in your codebase](/guides/find-model-ids-in-your-codebase/) covers SDK argument names. The [scan page](/scan/) builds a search from dataset ids that have a shutdown date.",
+          `SunsetDiff publishes a shutdown batch page when at least ${SHUTDOWN_BATCH_MIN} model records share one provider and one exact shutdown date. These two ids are under that count, and the page is published anyway: [Gemini API shutdowns on ${when}](/shutdowns/google-gemini-api-${GEMINI_DEC1_SHUTDOWN_DATE}/). Vertex gemini-2.5-pro already has its own retirement date. See [why shutdown dates differ by platform](/guides/why-shutdown-dates-differ-by-platform/).`,
+        ],
+        sources: [{ label: "Gemini API deprecations", url: GEMINI_DEPRECATIONS_CURRENT }],
+      },
+    ],
+    related: [
+      { href: "/models/google-gemini-api/gemini-2-5-pro/", label: "gemini-2.5-pro" },
+      { href: "/models/google-gemini-api/gemini-2-5-flash/", label: "gemini-2.5-flash" },
+      { href: "/models/google-gemini-api/gemini-2-5-flash-lite/", label: "gemini-2.5-flash-lite" },
+      { href: "/models/google-gemini-api/gemini-3-8-flash/", label: "gemini-3.8-flash" },
+      { href: "/models/google-gemini-api/gemini-3-5-flash-lite/", label: "gemini-3.5-flash-lite" },
+      { href: "/migrate/google-gemini-api__gemini-2-5-pro__to__google-gemini-api__gemini-3-8-flash/", label: "gemini-2.5-pro to gemini-3.8-flash" },
+      { href: "/migrate/google-gemini-api__gemini-2-5-flash__to__google-gemini-api__gemini-3-5-flash-lite/", label: "gemini-2.5-flash to gemini-3.5-flash-lite" },
+      { href: `/shutdowns/google-gemini-api-${GEMINI_DEC1_SHUTDOWN_DATE}/`, label: `Gemini API shutdowns on ${when}` },
+      { href: "/providers/google-gemini-api/", label: "Google Gemini API" },
+      { href: `/guides/${GEMINI_NOV17_GUIDE_SLUG}/`, label: "Gemini API model shutdowns on November 17, 2026" },
+      { href: "/guides/why-shutdown-dates-differ-by-platform/", label: "Why shutdown dates differ by platform" },
+      { href: "/guides/pre-migration-test-checklist/", label: "Pre-migration test checklist" },
+      { href: "/errors/gemini-model-no-longer-available-to-new-users/", label: "New-user 404" },
+      { href: "/scan/", label: "Scan retiring ids" },
+    ],
+    faqs: [
+      {
+        question: "What happens to gemini-2.5-pro and gemini-2.5-flash on December 1, 2026?",
+        answer: `Google says requests to gemini-2.5-pro automatically route to gemini-3.8-flash and are billed at Gemini 3.8 Flash rates. Requests to gemini-2.5-flash automatically route to gemini-3.5-flash-lite and are billed at Gemini 3.5 Flash-Lite rates. The caution says: "${GEMINI_PRO_CALLOUT}"`,
+      },
+      {
+        question: "Does the request start failing on that date?",
+        answer: `The caution says the request automatically routes and the bill changes. It does not say the call starts returning an error on ${when}. The page's general shutdown sentence is: "${GEMINI_SHUTDOWN}"`,
+      },
+      {
+        question: "Is gemini-2.5-flash-lite deprecated?",
+        answer: `No. The flash caution says: "gemini-2.5-flash-lite is not deprecated and remains available through the API until further notice." The table cell says no shutdown date announced.`,
+      },
+      {
+        question: "Can a new API key call these models today?",
+        answer: `The pro caution says access is limited to existing users who have actively used gemini-2.5-pro. The flash caution says access to the 2.5 models is limited to users who have actively used them in the past. That limit is already in effect. It is separate from the ${when} route.`,
+      },
+      {
+        question: "How do I test the replacement before December 1, 2026?",
+        answer: `Set model to gemini-3.8-flash or gemini-3.5-flash-lite and send one real request before ${when}. The [pre-migration test checklist](/guides/pre-migration-test-checklist/) is the longer list. The migrate diffs are [gemini-2.5-pro to gemini-3.8-flash](/migrate/google-gemini-api__gemini-2-5-pro__to__google-gemini-api__gemini-3-8-flash/) and [gemini-2.5-flash to gemini-3.5-flash-lite](/migrate/google-gemini-api__gemini-2-5-flash__to__google-gemini-api__gemini-3-5-flash-lite/).`,
+      },
+      {
+        question: "Is December 1, 2026 the final day?",
+        answer: `The caution says the route is effective ${when}. The page also says: "${GEMINI_EARLIEST}" The stored shutdown date stays ${GEMINI_DEC1_SHUTDOWN_DATE} until Google prints a later day.`,
+      },
+    ],
+    citations: [
+      GEMINI_DEPRECATIONS_CURRENT,
+      GEMINI_38_GUIDE,
+      GEMINI_38_MIGRATE,
+      GEMINI_36_GUIDE,
+      GEMINI_35_LITE_MIGRATE,
+      GEMINI_36_API_CHANGES,
+      GEMINI_PRICING_38,
+      GEMINI_PRICING_35,
     ],
   };
 }
