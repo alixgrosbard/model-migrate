@@ -14,7 +14,7 @@ import { CHANGELOG_MD_URL as FIREWORKS_CHANGELOG, QUICKSTART_MD_URL as FIREWORKS
 import { CHANGELOG_SITEMAPS, SUPPORTED_URL as COPILOT_SUPPORTED } from "../scrapers/github-copilot.ts";
 import { MODELS_MD_URL as MINIMAX_MODELS } from "../scrapers/minimax.ts";
 import { CHANGELOG_MD_URL as CLOUDFLARE_CHANGELOG, POST_MD_URL as CLOUDFLARE_POST } from "../scrapers/cloudflare-workers-ai.ts";
-import { DEPRECATIONS_URL as GEMINI_URL, PRICING_URL as GEMINI_PRICING } from "../scrapers/google-gemini-api.ts";
+import { DEPRECATIONS_MD_URL as GEMINI_URL, PRICING_MD_URL as GEMINI_PRICING } from "../scrapers/google-gemini-api.ts";
 import { DEPRECATIONS_URL as VERTEX_URL } from "../scrapers/google-vertex.ts";
 import { MODELS_URL as MISTRAL_URL, PRICING_URL as MISTRAL_PRICING } from "../scrapers/mistral.ts";
 import { DEPRECATIONS_URL as OPENAI_URL, PRICING_URL as OPENAI_PRICING } from "../scrapers/openai.ts";

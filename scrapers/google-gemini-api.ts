@@ -6,27 +6,40 @@ import { applyPrice, baseModel } from "./lib/model.ts";
 import { politeFetch } from "./lib/fetch.ts";
 import type { ScrapedModel } from "./lib/types.ts";
 
+/** Cited on each row. This URL 301s to the AI Studio page. */
 export const DEPRECATIONS_URL = "https://ai.google.dev/gemini-api/docs/deprecations";
+/**
+ * The body the refresh reads. The HTML URL above redirects to an AI Studio
+ * shell with no table. Appending .md returns the deprecation tables.
+ */
+export const DEPRECATIONS_MD_URL = "https://aistudio.google.com/docs/deprecations.md";
 export const PRICING_URL = "https://ai.google.dev/gemini-api/docs/pricing";
+/** Same move as the deprecations page. The .md URL is the document. */
+export const PRICING_MD_URL = "https://aistudio.google.com/docs/pricing.md";
 
 export async function scrape(checked = todayISO()): Promise<ScrapedModel[]> {
-  const html = await politeFetch(DEPRECATIONS_URL);
-  const pricing = await politeFetch(PRICING_URL);
+  const html = await politeFetch(DEPRECATIONS_MD_URL);
+  const pricing = await politeFetch(PRICING_MD_URL);
   return parseGemini(html, pricing, checked);
 }
 
+interface DepTable {
+  rows: string[][];
+  note: string | null;
+}
+
 export function parseGemini(html: string, pricing = "", checked = todayISO()): ScrapedModel[] {
-  const $ = loadHtml(html);
+  const tables = deprecationTables(html);
   const models: ScrapedModel[] = [];
   const shutdownTextById = new Map<string, string>();
-  $("table").each((_, table) => {
-    const rows = tableRows($, table);
+  for (const table of tables) {
+    const rows = table.rows;
     const header = (rows[0] ?? []).map((cell) => cell.toLowerCase());
-    if (!header.includes("model") || !header.some((cell) => cell.includes("shutdown"))) return;
-    const modelIdx = header.indexOf("model");
+    const modelIdx = header.findIndex((cell) => cell === "model" || cell === "agent");
     const releaseIdx = header.findIndex((cell) => cell.includes("release"));
     const shutdownIdx = header.findIndex((cell) => cell.includes("shutdown"));
     const replacementIdx = header.findIndex((cell) => cell.includes("replacement"));
+    if (modelIdx < 0 || shutdownIdx < 0) continue;
     for (const row of rows.slice(1)) {
       const id = (row[modelIdx] ?? "").trim();
       if (!isModelId(id)) continue;
@@ -64,7 +77,7 @@ export function parseGemini(html: string, pricing = "", checked = todayISO()): S
         }),
       );
     }
-  });
+  }
 
   const prices = parseGeminiPricing(pricing);
   for (const model of models) {
@@ -77,9 +90,74 @@ export function parseGemini(html: string, pricing = "", checked = todayISO()): S
     }
   }
   const unique = dedupe(models);
-  applyGemini25AccessNotes($, unique);
+  if (html.includes("{% table %}")) applyMarkdownAccessNotes(tables, unique);
+  else applyGemini25AccessNotes(loadHtml(html), unique);
   applyPricingShutdownWarnings(unique, pricing, shutdownTextById, checked);
   return unique;
+}
+
+function deprecationTables(html: string): DepTable[] {
+  if (html.includes("{% table %}")) return markdownDeprecationTables(html);
+  return htmlDeprecationTables(html);
+}
+
+function htmlDeprecationTables(html: string): DepTable[] {
+  const $ = loadHtml(html);
+  const tables: DepTable[] = [];
+  $("table").each((_, table) => {
+    const rows = tableRows($, table);
+    const header = (rows[0] ?? []).map((cell) => cell.toLowerCase());
+    if (!header.includes("model") || !header.some((cell) => cell.includes("shutdown"))) return;
+    tables.push({ rows, note: null });
+  });
+  return tables;
+}
+
+/** AI Studio docs print tables as `{% table %}` star rows, not HTML tables. */
+function markdownDeprecationTables(text: string): DepTable[] {
+  const tables: DepTable[] = [];
+  const re = /\{%\s*table\s*%\}([\s\S]*?)\{%\s*\/table\s*%\}/g;
+  for (const match of text.matchAll(re)) {
+    const rows = markdownTableRows(match[1]);
+    const header = (rows[0] ?? []).map((cell) => cell.toLowerCase());
+    const modelIdx = header.findIndex((cell) => cell === "model" || cell === "agent");
+    if (modelIdx < 0 || !header.some((cell) => cell.includes("shutdown"))) continue;
+    tables.push({ rows, note: calloutBefore(text, match.index ?? 0) });
+  }
+  return tables;
+}
+
+function markdownTableRows(body: string): string[][] {
+  const rows: string[][] = [];
+  for (const block of body.split(/^\s*---\s*$/m)) {
+    const cells: string[] = [];
+    for (const line of block.split("\n")) {
+      const match = line.match(/^\s*\*\s?(.*)$/);
+      if (!match) continue;
+      cells.push(cleanMarkdown(match[1]));
+    }
+    if (cells.length) rows.push(cells);
+  }
+  return rows;
+}
+
+function cleanMarkdown(cell: string): string {
+  return cell
+    .replace(/\[([^\]]*)\]\([^)]*\)/g, "$1")
+    .replace(/`/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function calloutBefore(text: string, tableStart: number): string | null {
+  const before = text.slice(0, tableStart);
+  const prevTable = before.lastIndexOf("{% /table %}");
+  const chunk = before.slice(prevTable + 1);
+  const matches = [...chunk.matchAll(/\{%\s*callout[^%]*%\}([\s\S]*?)\{%\s*\/callout\s*%\}/g)];
+  const last = matches.at(-1);
+  if (!last) return null;
+  const plain = cleanMarkdown(last[1].replace(/\{%\s*\/?[\w-]+[^%]*%\}/g, " "));
+  return plain || null;
 }
 
 const GEMINI_25_LIMITED = new Set<string>(GEMINI_25_RESTRICTED_IDS);
@@ -90,32 +168,53 @@ const GEMINI_25_LIMITED = new Set<string>(GEMINI_25_RESTRICTED_IDS);
  * those tables keep their own shutdown dates and do not get this sentence.
  * A later scrape that drops the aside drops the note with it.
  */
+export function gemini25AccessQuote(text: string): string | null {
+  const flat = text.replace(/\s+/g, " ").trim().replace(/^Note:\s*/i, "");
+  const limited =
+    flat.includes("limiting access to the 2.5 models") || /access to the 2\.5 models is limited/i.test(flat);
+  if (limited && /not deprecated/i.test(flat)) return flat;
+  return null;
+}
+
 function applyGemini25AccessNotes($: ReturnType<typeof loadHtml>, models: ScrapedModel[]) {
   const byId = new Map(models.map((model) => [model.id, model]));
   let pending: string | null = null;
   $("aside, table").each((_, node) => {
     if (node.tagName === "aside") {
-      const text = $(node).text().replace(/\s+/g, " ").trim().replace(/^Note:\s*/i, "");
-      pending =
-        text.includes("limiting access to the 2.5 models") && text.includes("not deprecated") ? text : null;
+      const text = $(node).text().replace(/\s+/g, " ").trim();
+      pending = gemini25AccessQuote(text);
       return;
     }
     const quote = pending;
     pending = null;
     if (!quote) return;
     const rows = tableRows($, node);
-    const header = (rows[0] ?? []).map((cell) => cell.toLowerCase());
-    if (!header.includes("model") || !header.some((cell) => cell.includes("shutdown"))) return;
-    const modelIdx = header.indexOf("model");
-    const note = `The [Gemini API deprecations](${DEPRECATIONS_URL}) page says: "${quote}"`;
-    for (const row of rows.slice(1)) {
-      const id = (row[modelIdx] ?? "").trim();
-      if (!GEMINI_25_LIMITED.has(id)) continue;
-      const model = byId.get(id);
-      if (!model || model.region_or_platform_notes?.includes(quote)) continue;
-      model.region_or_platform_notes = [model.region_or_platform_notes, note].filter(Boolean).join(" ");
-    }
+    attachAccessQuote(byId, rows, quote);
   });
+}
+
+function applyMarkdownAccessNotes(tables: DepTable[], models: ScrapedModel[]) {
+  const byId = new Map(models.map((model) => [model.id, model]));
+  for (const table of tables) {
+    if (!table.note) continue;
+    const quote = gemini25AccessQuote(table.note);
+    if (!quote) continue;
+    attachAccessQuote(byId, table.rows, quote);
+  }
+}
+
+function attachAccessQuote(byId: Map<string, ScrapedModel>, rows: string[][], quote: string) {
+  const header = (rows[0] ?? []).map((cell) => cell.toLowerCase());
+  const modelIdx = header.findIndex((cell) => cell === "model" || cell === "agent");
+  if (modelIdx < 0 || !header.some((cell) => cell.includes("shutdown"))) return;
+  const note = `The [Gemini API deprecations](${DEPRECATIONS_URL}) page says: "${quote}"`;
+  for (const row of rows.slice(1)) {
+    const id = (row[modelIdx] ?? "").trim();
+    if (!GEMINI_25_LIMITED.has(id)) continue;
+    const model = byId.get(id);
+    if (!model || model.region_or_platform_notes?.includes(quote)) continue;
+    model.region_or_platform_notes = [model.region_or_platform_notes, note].filter(Boolean).join(" ");
+  }
 }
 
 /** Official wording: "automatically routes API requests to <id>", plus the shorter "auto-routes to <id>". */
@@ -152,6 +251,10 @@ function geminiStatus(date: string | null, kind: ScrapedModel["shutdown_date_kin
 export function parseGeminiPricing(html: string): Map<string, { input: number | null; output: number | null; cached: number | null; context: number | null }> {
   const map = new Map<string, { input: number | null; output: number | null; cached: number | null; context: number | null }>();
   if (!html) return map;
+  // The AI Studio pricing page is {% table %} markdown. This reader expects the
+  // older HTML page, where each model id is its own line. Skip rather than
+  // invent a price from a table cell.
+  if (html.includes("{% table %}") && !/<table[\s>]/i.test(html)) return map;
   const $ = loadHtml(html);
   const text = $("main").text().replace(/\u00a0/g, " ");
   const lines = text.split("\n").map((line) => line.trim()).filter(Boolean);

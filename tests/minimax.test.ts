@@ -13,6 +13,7 @@ import { requestErrorsForProvider } from "../src/lib/request-errors.ts";
 import { llmsTxt } from "../src/lib/llms.ts";
 import { sitemapSection } from "../src/lib/sitemaps.ts";
 import { loadModels, loadProviders } from "../src/lib/load.ts";
+import { GATE_EXEMPT } from "../scrapers/sanity.ts";
 import { modelSchema, type ModelRecord } from "../src/schema.ts";
 
 const checked = "2026-10-30";
@@ -154,6 +155,7 @@ describe("MiniMax records", () => {
     expect(retired.every((model) => model.shutdown_date === null)).toBe(true);
     const run = readFileSync("scrapers/run.ts", "utf8");
     expect(run).toContain("MiniMax model list was not applied. Stored MiniMax rows stay.");
-    expect(run).toContain('if (provider === "minimax") continue;');
+    expect(run).toContain("applyProviderGate");
+    expect(GATE_EXEMPT.has("minimax")).toBe(true);
   });
 });

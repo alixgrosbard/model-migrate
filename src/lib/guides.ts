@@ -657,7 +657,7 @@ const guidePages: GuidePage[] = [
       {
         heading: "gemini-2.5-pro",
         paragraphs: [
-          "The Gemini API deprecations page lists gemini-2.5-pro with no shutdown date announced. It also says access to 2.5 models is limited to users who have already used them, and that the models are not deprecated.",
+          "The Gemini API deprecations page lists gemini-2.5-pro as deprecated, with shutdown date December 1, 2026, and replacement gemini-3.8-flash. It says API access is limited to existing users, and that requests route to gemini-3.8-flash on that date. gemini-2.5-flash-lite is the 2.5 id that page still calls not deprecated.",
           "The Vertex model versions table lists gemini-2.5-pro with release date June 17, 2025, retirement date October 20, 2026, and replacement gemini-3.8-flash or gemini-3.5-flash.",
         ],
         sources: [

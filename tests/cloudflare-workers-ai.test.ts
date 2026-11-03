@@ -13,6 +13,7 @@ import { requestErrorsForProvider } from "../src/lib/request-errors.ts";
 import { llmsTxt } from "../src/lib/llms.ts";
 import { sitemapSection } from "../src/lib/sitemaps.ts";
 import { loadModels, loadProviders } from "../src/lib/load.ts";
+import { GATE_EXEMPT } from "../scrapers/sanity.ts";
 import { modelSchema, type ModelRecord } from "../src/schema.ts";
 
 const checked = "2026-10-30";
@@ -188,6 +189,7 @@ describe("Cloudflare Workers AI records", () => {
     expect(sitemapSection("/shutdowns/cloudflare-workers-ai-2026-05-30/")).toBe("sitemap-dates.xml");
     const run = readFileSync("scrapers/run.ts", "utf8");
     expect(run).toContain("Cloudflare Workers AI changelog was not applied. Stored Cloudflare Workers AI rows stay.");
-    expect(run).toContain('if (provider === "cloudflare-workers-ai") continue;');
+    expect(run).toContain("applyProviderGate");
+    expect(GATE_EXEMPT.has("cloudflare-workers-ai")).toBe(true);
   });
 });

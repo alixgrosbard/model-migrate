@@ -26,7 +26,7 @@ If `PUBLIC_SERVICE_URL` is not set, the deprecation-alert form stays disabled. I
 
 JSON files in `data/` are the source of truth. Scrapers read official public pages only. Every date and spec links to the page it came from, with a last_checked date. Missing values stay empty and the site says "Not published". A live scrape also reads official model docs for price, context window, and max output, and leaves a field empty when that page does not publish it.
 
-Refresh runs in GitHub Actions every 6 hours (`.github/workflows/refresh.yml`). If a scraper returns nothing, or more than 30% fewer rows than last time, it does not overwrite data and opens one `scraper-broken` issue.
+Refresh runs in GitHub Actions every 6 hours (`.github/workflows/refresh.yml`). If one scraper returns nothing, or more than 30% fewer rows than last time, that provider's stored rows stay and the job opens or updates one `scraper-broken` issue. The other providers are still written.
 
 ```bash
 npm run scrape

@@ -16,9 +16,9 @@
   {
     "id": "google-gemini-api",
     "name": "Google Gemini API",
-    "deprecations_url": "https://ai.google.dev/gemini-api/docs/deprecations",
-    "pricing_url": "https://ai.google.dev/gemini-api/docs/pricing",
-    "models_url": "https://ai.google.dev/gemini-api/docs/models"
+    "deprecations_url": "https://aistudio.google.com/docs/deprecations",
+    "pricing_url": "https://aistudio.google.com/docs/pricing",
+    "models_url": "https://aistudio.google.com/docs/models"
   },
   {
     "id": "google-vertex",

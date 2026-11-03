@@ -163,7 +163,7 @@ export const glossaryTerms: GlossaryTerm[] = [
         "Gemini API and Vertex AI",
         [
           "The Gemini API page says a deprecation is the announcement that Google no longer provides support and that the model will be shut down. After shutdown the model is turned off and the endpoint is no longer available. A date in the table is the earliest the model might be retired. The exact day is sent later, with advance notice.",
-          "The same page says some Gemini 2.5 models are not deprecated and stay up until further notice. Vertex lists a retirement date per model id. A listed Vertex date will not move earlier, though it may be extended.",
+          "The same page says gemini-2.5-flash-lite is not deprecated. gemini-2.5-pro and gemini-2.5-flash are deprecated, with shutdown date December 1, 2026. Vertex lists a retirement date per model id. A listed Vertex date will not move earlier, though it may be extended.",
         ],
         [
           { label: "Gemini API deprecations", url: GEMINI_DEPRECATIONS },

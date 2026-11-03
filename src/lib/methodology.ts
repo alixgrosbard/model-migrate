@@ -43,13 +43,13 @@ export const SCRAPE_TARGETS: ScrapeTarget[] = [
   },
   {
     provider: "Google Gemini API",
-    url: "https://ai.google.dev/gemini-api/docs/deprecations",
-    role: "Parsed for deprecation-table rows. shutdown_date comes from this page.",
+    url: "https://aistudio.google.com/docs/deprecations.md",
+    role: "Parsed for deprecation-table rows. shutdown_date comes from this page. The HTML URL https://ai.google.dev/gemini-api/docs/deprecations redirects to an AI Studio shell with no table, so the refresh reads this markdown file. A stored source URL stays https://ai.google.dev/gemini-api/docs/deprecations.",
   },
   {
     provider: "Google Gemini API",
-    url: "https://ai.google.dev/gemini-api/docs/pricing",
-    role: "Parsed for prices and for shutdown sentences. A sentence that names a different day is recorded as a conflict.",
+    url: "https://aistudio.google.com/docs/pricing.md",
+    role: "Fetched as markdown. The older HTML price lines are still parsed. These markdown price tables are a different shape, so a blank parse leaves the stored price. A shutdown sentence is recorded only when the page prints that wording. A stored price source uses https://ai.google.dev/gemini-api/docs/pricing.",
   },
   {
     provider: "Google Vertex AI",
@@ -290,13 +290,13 @@ export const METHODOLOGY_SECTIONS: MethodologySection[] = [
     paragraphs: [
       "The workflow is .github/workflows/refresh.yml. GitHub runs a schedule from the repository's default branch. The job checks out cursor/sunsetdiff-v1-3cab, which is the branch in render.yaml that Render deploys.",
       "Two cron lines are registered: minute 17 of 00:00, 06:00, 12:00, and 18:00 UTC, and minute 47 of 03:00, 09:00, 15:00, and 21:00 UTC. A scheduled run is skipped when the newest commit on that branch whose message starts with \"data: refresh\" is less than 5 hours old. A manual run is not skipped. The workflow comment says the scrape still happens about every 6 hours.",
-      "The job runs the scrape, then npm test. A data commit is created only when both succeed. That commit is allowed to change only data/, snapshots/, and action/snapshot/. The job refuses to push if any other path would change. A failed scrape, a failed test, or a failed data build opens or updates one GitHub issue labeled scraper-broken and does not push the data. A failed push opens or updates an issue labeled refresh-push-failed. A later refresh that succeeds closes the open issues with those labels.",
+      "The job runs the scrape, then npm test. A data commit is created only when both succeed. That commit is allowed to change only data/, snapshots/, and action/snapshot/. The job refuses to push if any other path would change. A scrape that throws, a failed test, or a failed data build opens or updates one GitHub issue labeled scraper-broken and does not push the data. A provider that fails the sanity gate does not stop the other providers. That provider's stored rows stay, the other providers are pushed, and the job opens or updates the scraper-broken issue instead of closing it. A failed push opens or updates an issue labeled refresh-push-failed. A later refresh with no skipped provider and a successful push closes the open issues with those labels.",
     ],
   },
   {
     heading: "Sanity gate and tests",
     paragraphs: [
-      "Before any model file is replaced, each provider's new row count is checked. Zero rows fails the gate. When the previous file set had rows, a new count below 70 percent of that previous count also fails. The error text says the count is more than 30 percent below the previous count. A count of exactly 70 percent passes. If any provider fails, the command exits before writeModels runs, so the model files are not replaced. The refresh job commits only after the scrape and the tests succeed, so a failed gate is not pushed.",
+      "Before any model file is replaced, each provider's new row count is checked. Zero rows fails the gate. When the previous file set had rows, a new count below 70 percent of that previous count also fails. The error text says the count is more than 30 percent below the previous count. A count of exactly 70 percent passes. A provider that fails this check is removed from the write. The log says its row change was not applied and its stored rows stay. The other providers are still written. The log also prints a line that starts with SCRAPER_PROVIDER_FAILURE. The refresh job commits the providers that passed, then opens or updates one GitHub issue labeled scraper-broken. It does not close that issue while a provider was skipped.",
       "OpenRouter is decided before that gate. A failed or incomplete models API read, or a row drop that the stored expiration dates do not explain, removes OpenRouter from the scrape and keeps the stored rows. That does not fail the other providers. The OpenRouter count is not sent through the zero-row check.",
       "Nebius Token Factory is decided before that gate. A failed read, a page that no longer matches the deprecation table, or a missing row whose shutdown date is still ahead removes Nebius from the scrape and keeps the stored rows. That does not fail the other providers. The Nebius count is not sent through the zero-row check.",
       "MiniMax is decided before that gate. A failed read, a page that no longer has the retirement notice and the Retired Models table, or a missing row whose shutdown date is still ahead removes MiniMax from the scrape and keeps the stored rows. That does not fail the other providers.",

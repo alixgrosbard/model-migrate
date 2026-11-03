@@ -14,6 +14,7 @@ import { loadModels, loadProviders } from "../src/lib/load.ts";
 import { requestErrorsForProvider } from "../src/lib/request-errors.ts";
 import { shutdownEventPath, shutdownEvents } from "../src/lib/shutdowns.ts";
 import { sitemapSection } from "../src/lib/sitemaps.ts";
+import { GATE_EXEMPT } from "../scrapers/sanity.ts";
 import { modelSchema, type ModelRecord } from "../src/schema.ts";
 
 const checked = "2026-10-29";
@@ -167,7 +168,8 @@ describe("GitHub Copilot records", () => {
     expect(sitemapSection("/2026/11/")).toBe("sitemap-dates.xml");
     const run = readFileSync("scrapers/run.ts", "utf8");
     expect(run).toContain("GitHub Copilot pages were not applied. Stored GitHub Copilot rows stay.");
-    expect(run).toContain('if (provider === "github-copilot") continue;');
+    expect(run).toContain("applyProviderGate");
+    expect(GATE_EXEMPT.has("github-copilot")).toBe(true);
   });
 
   it("resolves Copilot CLI ids on lookup, including ids another provider already uses", async () => {
