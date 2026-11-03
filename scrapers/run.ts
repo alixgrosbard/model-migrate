@@ -302,7 +302,7 @@ async function scrapeAll(previous: ModelRecord[]): Promise<Map<string, ScrapedMo
   // page that names the undated alias is attached by enrichSpecs. Building
   // the alias before that page is attached drops it, and the next refresh
   // deletes the saved alias record.
-  addUndatedAliasStubs(groups, checked);
+  addUndatedAliasStubs(groups, checked, previous);
   return groups;
 }
 
@@ -356,12 +356,22 @@ function addReplacementStubs(groups: Map<string, ScrapedModel[]>, checkedOn: str
   }
 }
 
-function addUndatedAliasStubs(groups: Map<string, ScrapedModel[]>, checkedOn: string) {
+function addUndatedAliasStubs(groups: Map<string, ScrapedModel[]>, checkedOn: string, previous: ModelRecord[]) {
   const now = `${checkedOn}T00:00:00.000Z`;
   for (const [provider, list] of groups) {
+    const storedDocs = new Map<string, ModelRecord["sources"]>();
+    for (const old of previous) {
+      if (old.provider !== provider) continue;
+      const docs = old.sources.filter((source) => /\/models\//i.test(source.url) || /model docs/i.test(source.label));
+      if (docs.length) storedDocs.set(old.id, docs);
+    }
     const present = new Set(list.map((model) => model.id));
     const added = missingAliasModels(
-      list.map((model) => ({ ...model, slug: model.slug || slugify(model.id) })),
+      list.map((model) => {
+        const extra = (storedDocs.get(model.id) ?? []).filter((source) => !model.sources.some((item) => item.url === source.url));
+        const withDocs = extra.length ? { ...model, sources: [...model.sources, ...extra] } : model;
+        return { ...withDocs, slug: withDocs.slug || slugify(withDocs.id) };
+      }),
       now,
     ).filter((model) => model.provider === provider && !present.has(model.id));
     for (const model of added) {

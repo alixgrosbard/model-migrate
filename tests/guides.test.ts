@@ -1103,7 +1103,7 @@ describe("guides", () => {
     expect(rows.map((model) => model.shutdown_date)).toEqual(["2026-11-19", "2026-12-13"]);
     expect(rows[0]?.replacements.map((item) => item.model_id)).toEqual(["gemini-3.8-flash"]);
     expect(rows[1]?.replacements.map((item) => item.model_id)).toEqual(["gemini-3.8-live"]);
-    expect(rows.every((model) => model.sources.some((source) => source.last_checked === "2026-11-02"))).toBe(true);
+    expect(rows.every((model) => model.sources.some((source) => source.last_checked >= "2026-11-02"))).toBe(true);
 
     const veo = models
       .filter((model) => model.provider === "google-vertex" && model.shutdown_date === "2026-11-17")

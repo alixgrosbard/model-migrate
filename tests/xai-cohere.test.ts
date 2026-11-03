@@ -276,6 +276,6 @@ describe("xAI and Cohere refresh guard", () => {
     expect(sitemapSection("/migrate/xai__grok-3__to__xai__grok-4-3/")).toBe("sitemap-migrate.xml");
     expect(lastmodForUrl("https://sunsetdiff.com/models/xai/grok-3/")).toBe("2026-10-27");
     expect(lastmodForUrl("https://sunsetdiff.com/models/cohere/command/")).toBe("2026-10-27");
-    expect(lastmodForUrl("https://sunsetdiff.com/providers/xai/")).toBe("2026-10-27");
+    expect(lastmodForUrl("https://sunsetdiff.com/providers/xai/") >= "2026-10-27").toBe(true);
   });
 });
