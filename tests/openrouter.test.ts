@@ -14,6 +14,7 @@ import {
 import { modelSchema } from "../src/schema.ts";
 import { llmsTxt } from "../src/lib/llms.ts";
 import { loadModels, loadProviders } from "../src/lib/load.ts";
+import { sitemapSection } from "../src/lib/sitemaps.ts";
 
 const checked = "2026-10-28";
 const body = readFileSync("snapshots/fixtures/openrouter/models-2026-10-28.json", "utf8");
@@ -160,8 +161,90 @@ describe("OpenRouter models API", () => {
       checked,
     );
     expect(dropped).toEqual([]);
+
+    const sameDay = carryForwardDocumentedModels(
+      [
+        {
+          id: "nousresearch/hermes-3-llama-3.1-70b",
+          provider: "openrouter",
+          status: "deprecated",
+          shutdown_date: "2026-11-02",
+          shutdown_date_kind: "not_before",
+          sources: [{ url: MODELS_URL, label: "OpenRouter models API" }],
+        },
+      ],
+      [],
+      "2026-11-02",
+    );
+    expect(sameDay).toMatchObject([
+      {
+        id: "nousresearch/hermes-3-llama-3.1-70b",
+        status: "deprecated",
+        shutdown_date: "2026-11-02",
+      },
+    ]);
+  });
+
+  it("keeps a new expiration when an older id leaves the list on its expiration day", () => {
+    const checkedDay = "2026-11-02";
+    const previous = [
+      { id: "nousresearch/hermes-3-llama-3.1-70b", deprecation_date: "2026-11-02", shutdown_date: "2026-11-02" },
+      { id: "nousresearch/hermes-3-llama-3.1-405b", deprecation_date: "2026-11-02", shutdown_date: "2026-11-02" },
+      { id: "x-ai/grok-imagine-image-quality", deprecation_date: "2026-11-02", shutdown_date: "2026-11-02" },
+      { id: "z-ai/glm-4.5", deprecation_date: "2026-12-31", shutdown_date: "2026-12-31" },
+    ];
+    const next = [
+      { id: "z-ai/glm-4.5" },
+      { id: "thinkingmachines/inkling:free" },
+      { id: "thinkingmachines/inkling-small:free" },
+    ];
+    expect(openRouterDecision(next, previous, checkedDay)).toBe("use");
+    expect(openRouterDecision(next.filter((row) => row.id !== "z-ai/glm-4.5"), previous, checkedDay)).toBe("keep");
+
+    const payload = {
+      data: [
+        inklingRow("thinkingmachines/inkling:free", "thinkingmachines/inkling-20260715", "Thinking Machines: Inkling (free)"),
+        inklingRow(
+          "thinkingmachines/inkling-small:free",
+          "thinkingmachines/inkling-small-20260730",
+          "Thinking Machines: Inkling Small (free)",
+        ),
+        { id: "thinkingmachines/inkling", name: "Thinking Machines: Inkling", expiration_date: null },
+      ],
+      total_count: 3,
+      links: { next: null },
+    };
+    const models = parseOpenRouter(JSON.stringify(payload), docs, "2026-11-03");
+    expect(models?.map((model) => model.id)).toEqual([
+      "thinkingmachines/inkling-small:free",
+      "thinkingmachines/inkling:free",
+    ]);
+    for (const model of models ?? []) {
+      expect(model.status).toBe("deprecated");
+      expect(model.deprecation_date).toBe("2026-11-04");
+      expect(model.shutdown_date).toBe("2026-11-04");
+      expect(model.shutdown_date_kind).toBe("not_before");
+      expect(model.replacements).toEqual([]);
+      expect(model.sources[0]).toMatchObject({ url: MODELS_URL, label: "OpenRouter models API" });
+      expect(model.sources.map((source) => source.url)).toEqual([MODELS_URL, MODELS_DOC_URL, MODEL_SCHEMA_URL]);
+    }
   });
 });
+
+function inklingRow(id: string, canonical: string, name: string) {
+  return {
+    id,
+    canonical_slug: canonical,
+    name,
+    expiration_date: "2026-11-04",
+    context_length: 1048576,
+    architecture: { input_modalities: ["text", "image", "audio"], output_modalities: ["text"] },
+    pricing: { prompt: "0", completion: "0" },
+    top_provider: { max_completion_tokens: 262144 },
+    supported_parameters: ["tools", "reasoning"],
+    reasoning: { mandatory: false },
+  };
+}
 
 describe("OpenRouter records", () => {
   it("is wired into the provider list, llms.txt, and the refresh guard", async () => {
@@ -173,8 +256,21 @@ describe("OpenRouter records", () => {
     const text = llmsTxt("https://sunsetdiff.com", providers, [], {
       openrouterPages: models.sort((a, b) => a.id.localeCompare(b.id)),
     });
+    const inkling = models.find((model) => model.id === "thinkingmachines/inkling:free");
+    const small = models.find((model) => model.id === "thinkingmachines/inkling-small:free");
+    expect(inkling?.shutdown_date).toBe("2026-11-04");
+    expect(small?.shutdown_date).toBe("2026-11-04");
+    expect(inkling?.shutdown_date_kind).toBe("not_before");
+    expect(small?.shutdown_date_kind).toBe("not_before");
+    expect(inkling?.sources[0]?.url).toBe(MODELS_URL);
+    expect(small?.sources[0]?.url).toBe(MODELS_URL);
     expect(text).toContain("/providers/openrouter/");
     expect(text).toContain("/models/openrouter/poolside-laguna-s-2-1-free/");
+    expect(text).toContain("/models/openrouter/thinkingmachines-inkling-free/");
+    expect(text).toContain("/models/openrouter/thinkingmachines-inkling-small-free/");
+    expect(sitemapSection("/providers/openrouter/")).toBe("sitemap-core.xml");
+    expect(sitemapSection("/models/openrouter/thinkingmachines-inkling-free/")).toBe("sitemap-models.xml");
+    expect(sitemapSection("/models/openrouter/thinkingmachines-inkling-small-free/")).toBe("sitemap-models.xml");
     const run = readFileSync("scrapers/run.ts", "utf8");
     expect(run).toContain("OpenRouter models API could not be read. Stored OpenRouter rows stay.");
     expect(run).toContain("if (provider === \"openrouter\") continue;");
