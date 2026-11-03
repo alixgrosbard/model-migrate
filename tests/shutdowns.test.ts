@@ -9,6 +9,7 @@ import { visibleName } from "../src/lib/format.ts";
 import {
   batchChecklist,
   batchDescription,
+  batchDocumentTitle,
   batchExtras,
   batchFaqs,
   batchHeadline,
@@ -191,6 +192,50 @@ describe("shutdown batches", () => {
     expect(vertexExtras.note).toContain("Verified");
     expect(vertexExtras.note).toContain("October 20, 2026");
     expect(`${vertexExtras.note} ${vertexExtras.faqs.map((item) => item.answer).join(" ")}`).not.toMatch(/[—–]/);
+  });
+
+  it("leads a future shutdown title with a model display name from that page", async () => {
+    const models = await loadModels();
+    const providers = await loadProviders();
+    const today = "2026-11-03";
+    const events = shutdownEvents(models);
+    const upcoming = events.filter((event) => event.date >= today && event.slug !== "github-copilot-2026-11-16" && event.slug !== "aws-bedrock-2026-11-13");
+    expect(upcoming.length).toBeGreaterThan(0);
+    for (const event of upcoming) {
+      const providerName = providers.find((provider) => provider.id === event.provider)!.name;
+      const title = batchDocumentTitle(providerName, event, today);
+      expect(event.models.some((model) => title.includes(visibleName(model)))).toBe(true);
+      expect(batchHeadline(providerName, event, today)).toBe(title);
+      const description = batchDescription(providerName, event, today);
+      expect(description.length).toBeLessThanOrEqual(160);
+      expect(`${title} ${description}`).not.toMatch(/[—–]/);
+    }
+    const past = events.find((event) => event.slug === "google-gemini-api-2026-10-22");
+    expect(past).toBeTruthy();
+    const pastName = providers.find((provider) => provider.id === past!.provider)!.name;
+    expect(batchDocumentTitle(pastName, past!, today)).toBe(shutdownEventTitle(pastName, past!, today));
+    expect(batchHeadline(pastName, past!, today)).toBe(shutdownEventTitle(pastName, past!, today));
+
+    const named = shutdownEvents([
+      stub("openai", "gpt-4", "2026-12-01", "gpt-5.6-sol"),
+      stub("openai", "gpt-4-turbo", "2026-12-01"),
+      stub("openai", "o1", "2026-12-01", "gpt-5.6-sol"),
+    ])[0];
+    expect(batchDocumentTitle("OpenAI", named, today)).toBe("gpt-4, gpt-4-turbo and o1 on OpenAI Dec 1, 2026");
+    expect(batchHeadline("OpenAI", named, today)).toBe("gpt-4, gpt-4-turbo and o1 on OpenAI Dec 1, 2026");
+    expect(batchDescription("OpenAI", named, today)).toBe(
+      "gpt-4, gpt-4-turbo and o1 are shutting down on OpenAI Dec 1, 2026. Replacement: gpt-5.6-sol.",
+    );
+    expect(batchDocumentTitle("OpenAI", named, "2026-12-02")).toBe("OpenAI models shut down on December 1, 2026");
+    const bare = shutdownEvents([
+      stub("mistral", "voxtral-mini", "2027-04-30"),
+      stub("mistral", "mistral-large", "2027-04-30"),
+      stub("mistral", "mistral-medium", "2027-04-30"),
+    ])[0];
+    expect(batchDescription("Mistral", bare, today)).toBe(
+      "mistral-large, mistral-medium and voxtral-mini are shutting down on Mistral Apr 30, 2027.",
+    );
+    expect(batchDescription("Mistral", bare, today)).not.toMatch(/replacement/i);
   });
 
   it("links a migrate page only when that migration was published", () => {

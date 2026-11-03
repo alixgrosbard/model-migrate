@@ -1,5 +1,5 @@
 import type { MigrationRecord, ModelRecord, Provider } from "../schema.ts";
-import { clipMeta, type FaqItem } from "./format.ts";
+import { clipMeta, visibleName, type FaqItem } from "./format.ts";
 
 const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
@@ -258,10 +258,11 @@ export function eventCountLabel(event: ShutdownEvent): string {
 }
 
 export function batchHeadline(providerName: string, event: ShutdownEvent, day: string): string {
-  return bedrockHeadline(providerName, event, day) ?? batchExtras(event).headline ?? shutdownEventTitle(providerName, event, day);
+  if (event.slug === COPILOT_NOV16_SLUG) return shutdownEventTitle(providerName, event, day);
+  return bedrockHeadline(providerName, event, day) ?? batchExtras(event).headline ?? modelLedOrGenericTitle(providerName, event, day);
 }
 
-/** Document title. The Copilot November 16 page names the models. The H1 stays the headline. */
+/** Document title. Copilot November 16 keeps its hand-tuned title. Other future pages use the same line as the H1. */
 export function batchDocumentTitle(providerName: string, event: ShutdownEvent, day: string): string {
   if (event.slug === COPILOT_NOV16_SLUG) return COPILOT_NOV16_TITLE;
   return batchHeadline(providerName, event, day);
@@ -296,16 +297,157 @@ export function batchDescription(providerName: string, event: ShutdownEvent, day
         : `gpt-4, gpt-3.5-turbo, and o1 are ${event.models.length} OpenAI model IDs shutting down ${when}. Replacements include gpt-5.6-sol, gpt-5.6-terra, and gpt-5.6-luna.`,
     );
   }
+  if (!isPastShutdown(event.date, day)) return modelLedDescription(providerName, event);
   return shutdownEventDescription(providerName, event, day);
 }
 
-/** Bedrock dates on these pages are not worldwide. The headline says so. */
+/** Keep the model list near this length. The page adds " | SunsetDiff" after it. */
+const MODEL_LED_TITLE_MAX = 65;
+
+const SHORT_MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+function shortDate(iso: string): string {
+  const match = iso.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!match) return iso;
+  const month = SHORT_MONTHS[Number(match[2]) - 1];
+  if (!month) return iso;
+  return `${month} ${Number(match[3])}, ${match[1]}`;
+}
+
+function modelLedOrGenericTitle(providerName: string, event: ShutdownEvent, day: string): string {
+  if (isPastShutdown(event.date, day)) return shutdownEventTitle(providerName, event, day);
+  return modelLedTitle(providerName, event, day);
+}
+
+/**
+ * Names to lead with. These strings are display names from the rows.
+ * A dated snapshot stays behind its alias when that alias is also in the batch.
+ * Then an id other rows use as their family, then the family with more rows.
+ * An id that contains a year, or ends in a 4-digit version, comes after a plain id.
+ */
+function rankedModels(event: ShutdownEvent): ModelRecord[] {
+  const ids = new Set(event.models.map((model) => model.id));
+  const childCount = new Map<string, number>();
+  const familySize = new Map<string, number>();
+  const lineKey = (model: ModelRecord) => (model.family && model.family !== model.id ? model.family : model.id);
+  const datedId = (id: string) => /(?:19|20)\d{2}/.test(id) || /-\d{4}$/.test(id);
+  const snapshotInBatch = (model: ModelRecord) => Boolean(model.family && model.family !== model.id && ids.has(model.family));
+  for (const model of event.models) {
+    if (model.family && model.family !== model.id) childCount.set(model.family, (childCount.get(model.family) ?? 0) + 1);
+    const key = lineKey(model);
+    familySize.set(key, (familySize.get(key) ?? 0) + 1);
+  }
+  return [...event.models].sort((a, b) => {
+    const snapshot = Number(snapshotInBatch(a)) - Number(snapshotInBatch(b));
+    if (snapshot) return snapshot;
+    const children = (childCount.get(b.id) ?? 0) - (childCount.get(a.id) ?? 0);
+    if (children) return children;
+    const line = (familySize.get(lineKey(b)) ?? 0) - (familySize.get(lineKey(a)) ?? 0);
+    if (line) return line;
+    const dated = Number(datedId(a.id)) - Number(datedId(b.id));
+    if (dated) return dated;
+    return a.id.localeCompare(b.id) || a.slug.localeCompare(b.slug);
+  });
+}
+
+function notableDisplayNames(event: ShutdownEvent): string[] {
+  const names: string[] = [];
+  const seen = new Set<string>();
+  for (const model of rankedModels(event)) {
+    const name = visibleName(model);
+    if (seen.has(name)) continue;
+    seen.add(name);
+    names.push(name);
+  }
+  return names;
+}
+
+/** Official replacement ids for the display names actually written in the sentence, in that order. */
+function replacementIdsForNames(event: ShutdownEvent, names: string[]): string[] {
+  const wanted = new Set(names);
+  const ids: string[] = [];
+  const seen = new Set<string>();
+  for (const model of rankedModels(event)) {
+    if (!wanted.has(visibleName(model))) continue;
+    for (const id of publishedReplacementIds(model)) {
+      if (seen.has(id)) continue;
+      seen.add(id);
+      ids.push(id);
+    }
+  }
+  return ids;
+}
+
+function nameList(shown: string[], rest: number): string {
+  if (rest > 0) {
+    const more = `${rest} more`;
+    if (shown.length === 1) return `${shown[0]} and ${more}`;
+    return `${shown.join(", ")} and ${more}`;
+  }
+  if (shown.length <= 1) return shown[0] ?? "";
+  if (shown.length === 2) return `${shown[0]} and ${shown[1]}`;
+  return `${shown.slice(0, -1).join(", ")} and ${shown[shown.length - 1]}`;
+}
+
+function modelLedTitle(providerName: string, event: ShutdownEvent, day: string): string {
+  const names = notableDisplayNames(event);
+  if (!names.length) return shutdownEventTitle(providerName, event, day);
+  const regional = event.provider === "aws-bedrock" ? " in some Regions" : "";
+  const tail = ` on ${providerName} ${shortDate(event.date)}${regional}`;
+  const form = (count: number) => `${nameList(names.slice(0, count), names.length - count)}${tail}`;
+  let count = Math.min(3, names.length);
+  while (count > 1 && form(count).length > MODEL_LED_TITLE_MAX) count -= 1;
+  return form(count);
+}
+
+function modelLedDescription(providerName: string, event: ShutdownEvent): string {
+  const names = notableDisplayNames(event);
+  const anyReplacement = event.models.some((model) => publishedReplacementIds(model).length > 0);
+  const regional = event.provider === "aws-bedrock" ? " in some Regions" : "";
+  const when = shortDate(event.date);
+  const sentence = (shownCount: number, repCount: number): string => {
+    const count = Math.min(shownCount, names.length);
+    const shown = names.slice(0, count);
+    const rest = names.length - count;
+    const verb = shown.length + rest === 1 ? "is" : "are";
+    let text = `${nameList(shown, rest)} ${verb} shutting down on ${providerName} ${when}${regional}.`;
+    const reps = replacementIdsForNames(event, shown);
+    const picked = reps.slice(0, repCount);
+    if (picked.length) {
+      const repRest = reps.length - picked.length;
+      const label = picked.length === 1 && repRest === 0 ? "Replacement" : "Replacements";
+      text += ` ${label}: ${nameList(picked, repRest)}.`;
+    }
+    return text;
+  };
+  const attempts: [number, number][] = [];
+  const seenAttempt = new Set<string>();
+  const addAttempt = (shown: number, repCount: number) => {
+    const key = `${shown}:${repCount}`;
+    if (seenAttempt.has(key)) return;
+    seenAttempt.add(key);
+    attempts.push([shown, repCount]);
+  };
+  if (anyReplacement) {
+    for (const repCount of [3, 2, 1]) {
+      for (const shown of [3, 2, 1]) addAttempt(shown, repCount);
+    }
+  }
+  for (const shown of [3, 2, 1]) addAttempt(shown, 0);
+  for (const [shown, repCount] of attempts) {
+    const text = sentence(shown, repCount);
+    if (text.length <= 160) return text;
+  }
+  return clipMeta(sentence(1, 0));
+}
+
+/** Bedrock dates on these pages are not worldwide. The headline says so. Future pages name the models instead. */
 function bedrockHeadline(providerName: string, event: ShutdownEvent, day: string): string | null {
   if (event.provider !== "aws-bedrock") return null;
   if (event.date === "2026-11-13") return "Bedrock Claude 3, 3.5 and 3.7 End of Life: Nov 13, 2026 in some Regions";
   const when = longDate(event.date);
   if (isPastShutdown(event.date, day)) return `${providerName} models shut down on ${when} in some Regions`;
-  return `${providerName} models shutting down ${when} in some Regions`;
+  return null;
 }
 
 export function limitBedrockAnswer(event: ShutdownEvent, answer: string): string {
