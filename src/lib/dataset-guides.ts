@@ -24,6 +24,18 @@ export const JANUARY_6_TTS_SHUTDOWN_DATE = "2027-01-06";
 export const JANUARY_20_AUDIO_SHUTDOWN_DATE = "2027-01-20";
 export const JANUARY_2027_AUDIO_GUIDE_SLUG = "openai-audio-realtime-tts-shutdowns-january-2027";
 
+/** Checked against the OpenAI deprecations page and transcription guides on 2026-11-03. */
+export const FEBRUARY_26_TRANSCRIBE_SHUTDOWN_DATE = "2027-02-26";
+export const FEBRUARY_26_TRANSCRIBE_GUIDE_SLUG = "openai-whisper-gpt-4o-transcribe-shutdown-february-26-2027";
+export const FEBRUARY_26_TRANSCRIBE_CHECKED = "2026-11-03";
+const FEBRUARY_26_TRANSCRIBE_IDS = [
+  "whisper-1",
+  "gpt-4o-transcribe",
+  "gpt-4o-mini-transcribe",
+  "gpt-4o-mini-transcribe-2025-12-15",
+  "gpt-4o-transcribe-diarize",
+] as const;
+
 /** Checked against the MiniMax rows. The slug uses this date. */
 export const MINIMAX_NOV18_SHUTDOWN_DATE = "2026-11-18";
 export const MINIMAX_NOV18_GUIDE_SLUG = "minimax-m2-5-m2-7-shutdown-november-18-2026";
@@ -187,12 +199,76 @@ const TRANSCRIBE_FEB =
   "whisper-1, gpt-4o-transcribe, gpt-4o-mini-transcribe, gpt-4o-transcribe-diarize, and /v1/audio/translations are deprecated and will shut down on February 26, 2027.";
 const TRANSCRIBE_LANGUAGE =
   "For gpt-transcribe, languages replaces the singular language field. Don't send both fields.";
+const TRANSCRIBE_NOTICE =
+  "On August 26, 2026, we notified developers using whisper-1, gpt-4o-transcribe, gpt-4o-mini-transcribe, and gpt-4o-transcribe-diarize of their deprecation and removal from the API on February 26, 2027.";
+const TRANSCRIBE_SEE_GUIDE = "For information about the recommended replacements, see the transcription guide.";
+const TRANSCRIBE_START =
+  "Start with gpt-transcribe. This is the recommended model for transcribing recorded speech in its original language. The specialized examples for speaker labels, word timestamps, and subtitle formats below use deprecated models.";
+const TRANSCRIBE_FILE_LIMIT = "Files can be up to 25 MB. Supported input formats are mp3, mp4, mpeg, mpga, m4a, wav, and webm.";
+const TRANSCRIBE_LIVE_POINTER = "For audio that is still arriving from a microphone, call, or media stream, use Realtime transcription.";
+const TRANSCRIBE_STREAM_SET =
+  "Set stream=true with gpt-transcribe. The Transcriptions API returns transcript events as the model transcribes each part of the recording.";
+const TRANSCRIBE_STREAM_FILE =
+  "File transcription can stream partial text while the model processes a completed recording. This doesn't require a Realtime session.";
+const TRANSCRIBE_STREAM_OLD =
+  "Existing gpt-4o-transcribe, gpt-4o-mini-transcribe, and gpt-4o-transcribe-diarize integrations also support file streaming. whisper-1 doesn't.";
+const TRANSCRIBE_STREAM_LIVE =
+  "For live audio from a microphone, call, or media stream, use the Realtime transcription guide instead of the file-oriented streaming path above. It covers the current transcription-session flow and the recommended realtime path with gpt-live-transcribe.";
+const TRANSCRIBE_DIARIZE =
+  "Existing integrations can use the deprecated gpt-4o-transcribe-diarize model to identify who speaks during different parts of a recording until February 26, 2027. This specialized speaker-labeling model isn't the recommended model for ordinary file transcription.";
+const TRANSCRIBE_DIARIZE_FORMAT =
+  'Request the diarized_json response format to receive segments with speaker, start, and end metadata. For audio longer than 30 seconds, set chunking_strategy to "auto" or a voice activity detection configuration.';
+const TRANSCRIBE_KNOWN_SPEAKERS =
+  "You can optionally supply up to four short audio references with known_speaker_names[] and known_speaker_references[] to map segments onto known speakers.";
+const TRANSCRIBE_SPEAKER_REALTIME =
+  "Speaker labeling is available through /v1/audio/transcriptions. It isn't supported in Realtime transcription sessions.";
+const TRANSCRIBE_NO_PROMPT = "Existing gpt-4o-transcribe and gpt-4o-mini-transcribe integrations also support prompting. gpt-4o-transcribe-diarize doesn't support prompts.";
+const TRANSCRIBE_WHISPER_PROMPT =
+  "For whisper-1, prompts have a 224-token limit and provide less control than the recommended transcription model.";
+const TRANSCRIBE_WHISPER_LANGS =
+  "Whisper supports 98 languages, but accuracy varies by language. Existing models that accept one language hint use language instead of languages.";
+const TRANSCRIBE_TIMESTAMPS =
+  "Existing integrations can use the deprecated whisper-1 model for word or segment timestamps until February 26, 2027. The timestamp_granularities[] parameter returns structured timestamp data for captioning and video editing.";
+const TRANSCRIBE_TIMESTAMP_ONLY = "The timestamp_granularities[] parameter is only supported for whisper-1.";
+const TRANSCRIBE_TRANSLATE =
+  "The deprecated /v1/audio/translations endpoint uses whisper-1 to translate a completed audio recording into English. It remains available until February 26, 2027. Unlike transcription, which preserves the recording's original language, this endpoint returns English text only.";
+const TRANSCRIBE_TRANSLATE_MOVE =
+  "Migrate to Realtime translation with gpt-realtime-translate at /v1/realtime/translations. This requires a translation session, streamed audio input, and translation events. Changing only the model ID in a /v1/audio/translations request doesn't migrate it.";
+const LIVE_TRANSCRIBE_START =
+  "Start with gpt-live-transcribe. Use file transcription if your audio is already recorded, or see the Transcription overview to compare the workflows.";
+const LIVE_TRANSCRIBE_WS =
+  "For server-side WebSocket transcription with a standard API key, connect to wss://api.openai.com/v1/realtime?intent=transcription. Use the authentication header shown in the WebSocket guide, but omit model from the URL. That guide's model-based URL creates a conversation session and doesn't accept the transcription update below.";
+const LIVE_TRANSCRIBE_PCM = "This example uses 24 kHz PCM audio.";
+const LIVE_TRANSCRIBE_DELAY_FIELD =
+  "Start by setting audio.input.transcription.delay and testing against your real audio.";
+const GPT_TRANSCRIBE_BLURB =
+  "GPT Transcribe is a speech-to-text model for completed audio files, streamed file transcripts, and committed turns in Realtime sessions over WebSocket.";
+const GPT_LIVE_BLURB =
+  "GPT Live Transcribe is a streaming speech-to-text model for applications that need low-latency transcript deltas from live audio.";
+const DEPRECATED_WHEN_ANNOUNCED =
+  "When we announce that a model or endpoint is being deprecated, it immediately becomes deprecated. All deprecated models and endpoints will also have a shut down date.";
+const TRANSCRIBE_KEYWORD_REJECT =
+  "Keep each keyword on one line and don't include <, >, a carriage return, or a line feed. The API rejects the entire request when it encounters one of these characters or when prompt exceeds the model's length limit.";
+const LIVE_TRANSCRIBE_VAD =
+  "In gpt-live-transcribe transcription sessions, omit audio.input.turn_detection or set it to null. The model doesn't support server_vad or semantic_vad.";
+const LIVE_TRANSCRIBE_LANG =
+  "gpt-live-transcribe uses languages instead of the singular language field. Don't send both.";
+const LIVE_TRANSCRIBE_NO_DETECT = "gpt-live-transcribe doesn't return detected-language predictions.";
+const LIVE_TRANSCRIBE_NO_FIELDS =
+  "gpt-live-transcribe doesn't return word-level timestamps, speaker labels, or transcription confidence scores. If your application requires timestamps or speaker labels, use a compatible file transcription model or add an application-level fallback.";
+const LIVE_TRANSCRIBE_DELAY =
+  "The exact delay in milliseconds can vary by model configuration, so benchmark with representative audio instead of assuming a fixed timing per level.";
+const TRANSCRIBE_PRICE_HEADER = "Prices per 1M tokens unless noted.";
 const OPENAI_IMAGE_GUIDE = "https://developers.openai.com/api/docs/guides/image-generation";
 const OPENAI_SUNBURST = "https://developers.openai.com/api/docs/models/gpt-image-2.5-sunburst";
 const OPENAI_TTS = "https://developers.openai.com/api/docs/guides/text-to-speech";
 const OPENAI_REALTIME = "https://developers.openai.com/api/docs/guides/realtime";
 const OPENAI_REALTIME_CONVERSATIONS = "https://developers.openai.com/api/docs/guides/realtime-conversations";
 const OPENAI_TRANSCRIBE = "https://developers.openai.com/api/docs/guides/speech-to-text";
+const OPENAI_LIVE_TRANSCRIBE = "https://developers.openai.com/api/docs/guides/realtime-transcription";
+const OPENAI_GPT_TRANSCRIBE = "https://developers.openai.com/api/docs/models/gpt-transcribe";
+const OPENAI_GPT_LIVE_TRANSCRIBE = "https://developers.openai.com/api/docs/models/gpt-live-transcribe";
+const OPENAI_PRICING = "https://developers.openai.com/api/docs/pricing";
 const OPENAI_AUDIO_15 = "https://developers.openai.com/api/docs/models/gpt-audio-1.5";
 const OPENAI_REALTIME_21 = "https://developers.openai.com/api/docs/models/gpt-realtime-2.1";
 const OPENAI_REALTIME_21_MINI = "https://developers.openai.com/api/docs/models/gpt-realtime-2.1-mini";
@@ -347,6 +423,13 @@ export function isJanuary2027AudioShutdown(model: ModelRecord): boolean {
   if (model.provider !== "openai") return false;
   if (model.shutdown_date !== JANUARY_6_TTS_SHUTDOWN_DATE && model.shutdown_date !== JANUARY_20_AUDIO_SHUTDOWN_DATE) return false;
   return model.shutdown_date_kind === "exact" || model.shutdown_date_kind === "via_snapshots";
+}
+
+export function isFebruary2027TranscribeShutdown(model: ModelRecord): boolean {
+  return model.provider === "openai"
+    && (FEBRUARY_26_TRANSCRIBE_IDS as readonly string[]).includes(model.id)
+    && model.shutdown_date === FEBRUARY_26_TRANSCRIBE_SHUTDOWN_DATE
+    && model.shutdown_date_kind === "exact";
 }
 
 function modelLink(model: ModelRecord): string {
@@ -945,6 +1028,7 @@ const OPENAI_WAVE_GUIDE_SLUGS = new Set([
   DECEMBER_11_GUIDE_SLUG,
   JANUARY_2027_AUDIO_GUIDE_SLUG,
   JANUARY_2027_GPT4_GUIDE_SLUG,
+  FEBRUARY_26_TRANSCRIBE_GUIDE_SLUG,
 ]);
 
 export function datasetShutdownGuides(catalog: ModelRecord[] = readCatalog()): GuidePage[] {
@@ -957,6 +1041,8 @@ export function datasetShutdownGuides(catalog: ModelRecord[] = readCatalog()): G
   if (audio.length) pages.push(januaryAudioGuide(audio, catalog));
   const january = rowsFor(isJanuary2027Gpt4Shutdown, catalog);
   if (january.length) pages.push(januaryGuide(january, catalog));
+  const transcribe = rowsFor(isFebruary2027TranscribeShutdown, catalog);
+  if (transcribe.length) pages.push(februaryTranscribeGuide(transcribe, catalog));
   const minimax = rowsFor(isMinimaxNov18Shutdown, catalog);
   if (minimax.length) pages.push(minimaxGuide(minimax, catalog));
   const bedrock = rowsFor(isBedrockNov13Shutdown, catalog);
@@ -1070,6 +1156,7 @@ function decemberGuide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePage {
       { href: "/providers/openai/", label: "OpenAI provider page" },
       { href: `/guides/${DECEMBER_1_IMAGE_GUIDE_SLUG}/`, label: "OpenAI image models shutting down on December 1, 2026" },
       { href: `/guides/${JANUARY_2027_AUDIO_GUIDE_SLUG}/`, label: "OpenAI speech, audio, and realtime shutdowns in January 2027" },
+      { href: `/guides/${FEBRUARY_26_TRANSCRIBE_GUIDE_SLUG}/`, label: "whisper-1 and GPT-4o transcribe shutdown on February 26, 2027" },
       { href: `/guides/${JANUARY_2027_GPT4_GUIDE_SLUG}/`, label: "GPT-4.1 and GPT-4o shutdown in January 2027" },
       { href: "/guides/find-model-ids-in-your-codebase/", label: "Find model ids in your codebase" },
       { href: "/guides/pre-migration-test-checklist/", label: "Pre-migration test checklist" },
@@ -1183,6 +1270,7 @@ function januaryGuide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePage {
       { href: `/guides/${DECEMBER_1_IMAGE_GUIDE_SLUG}/`, label: "OpenAI image models shutting down on December 1, 2026" },
       { href: `/guides/${DECEMBER_11_GUIDE_SLUG}/`, label: "OpenAI shutdowns on December 11, 2026" },
       { href: `/guides/${JANUARY_2027_AUDIO_GUIDE_SLUG}/`, label: "OpenAI speech, audio, and realtime shutdowns in January 2027" },
+      { href: `/guides/${FEBRUARY_26_TRANSCRIBE_GUIDE_SLUG}/`, label: "whisper-1 and GPT-4o transcribe shutdown on February 26, 2027" },
       { href: "/guides/model-aliases-vs-pinned-snapshots/", label: "Model aliases vs pinned snapshots" },
       { href: "/guides/find-model-ids-in-your-codebase/", label: "Find model ids in your codebase" },
       { href: "/guides/pre-migration-test-checklist/", label: "Pre-migration test checklist" },
@@ -1313,6 +1401,7 @@ function december1ImageGuide(rows: ModelRecord[], catalog: ModelRecord[]): Guide
       { href: "/providers/openai/", label: "OpenAI provider page" },
       { href: `/guides/${DECEMBER_11_GUIDE_SLUG}/`, label: "OpenAI shutdowns on December 11, 2026" },
       { href: `/guides/${JANUARY_2027_AUDIO_GUIDE_SLUG}/`, label: "OpenAI speech, audio, and realtime shutdowns in January 2027" },
+      { href: `/guides/${FEBRUARY_26_TRANSCRIBE_GUIDE_SLUG}/`, label: "whisper-1 and GPT-4o transcribe shutdown on February 26, 2027" },
       { href: "/models/openai/gpt-image-2-5-sunburst/", label: "gpt-image-2.5-sunburst" },
       { href: "/models/openai/gpt-image-2-5-flare/", label: "gpt-image-2.5-flare" },
       { href: "/api/", label: "Free lookup API" },
@@ -1395,7 +1484,7 @@ function januaryAudioGuide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePa
         paragraphs: [
           `These rows are the OpenAI ids in the dataset with shutdown date ${JANUARY_20_AUDIO_SHUTDOWN_DATE}.`,
           `OpenAI's deprecations page says: "${AUDIO_NOTICE}" That table lists gpt-realtime with snapshot gpt-realtime-2025-08-28, gpt-audio with snapshot gpt-audio-2025-08-28, gpt-4o-audio, gpt-4o-realtime, gpt-realtime-mini with snapshot gpt-realtime-mini-2025-12-15, gpt-audio-mini with snapshot gpt-audio-mini-2025-12-15, gpt-4o-mini-realtime, gpt-4o-mini-audio, and gpt-4o-mini-transcribe-2025-03-20.`,
-          "gpt-realtime-mini-2025-10-06 and gpt-audio-mini-2025-10-06 are not in this table. Their stored shutdown date is 2026-07-23. gpt-4o-mini-transcribe and gpt-4o-mini-transcribe-2025-12-15 are not in this table. Their stored shutdown date is 2027-02-26.",
+          `gpt-realtime-mini-2025-10-06 and gpt-audio-mini-2025-10-06 are not in this table. Their stored shutdown date is 2026-07-23. gpt-4o-mini-transcribe and gpt-4o-mini-transcribe-2025-12-15 are not in this table. Their stored shutdown date is 2027-02-26. Those ids, plus whisper-1, gpt-4o-transcribe, and gpt-4o-transcribe-diarize, are in the [February 26, 2027 transcription guide](/guides/${FEBRUARY_26_TRANSCRIBE_GUIDE_SLUG}/).`,
         ],
         table: {
           caption: `${audio.length} OpenAI audio, realtime, and transcription ids with shutdown date ${JANUARY_20_AUDIO_SHUTDOWN_DATE}.`,
@@ -1445,7 +1534,7 @@ function januaryAudioGuide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePa
         paragraphs: [
           "The deprecations page names gpt-audio-1.5 for gpt-4o-audio, gpt-4o-mini-audio, gpt-audio, gpt-audio-2025-08-28, gpt-audio-mini, and gpt-audio-mini-2025-12-15. The gpt-audio-1.5 model page says Chat Completions at v1/chat/completions is supported. It lists v1/realtime and v1/audio/speech as not supported. Keep the chat completions call and change the model id. Do not send gpt-audio-1.5 to the Realtime API.",
           "The deprecations page names gpt-realtime-2.1 for gpt-4o-realtime, gpt-realtime, and gpt-realtime-2025-08-28. It names gpt-realtime-2.1-mini for gpt-4o-mini-realtime, gpt-realtime-mini, and gpt-realtime-mini-2025-12-15. The gpt-realtime-2.1 model page lists v1/realtime as supported, and lists v1/chat/completions and v1/audio/speech as not supported. It says GPT-Realtime-2.1 supports speech-to-speech interactions with configurable reasoning effort. That page does not print a parameter that gpt-realtime must drop.",
-          `The deprecations page names gpt-4o-mini-transcribe-2025-12-15 as the replacement for gpt-4o-mini-transcribe-2025-03-20. That replacement snapshot, and the alias gpt-4o-mini-transcribe, shut down on 2027-02-26. The file transcription page says: "${TRANSCRIBE_FEB}" For the models that page recommends after that later date, it says: "${TRANSCRIBE_LANGUAGE}" That languages field is documented for gpt-transcribe. The page does not say the December 15 snapshot rejects language.`,
+          `The deprecations page names gpt-4o-mini-transcribe-2025-12-15 as the replacement for gpt-4o-mini-transcribe-2025-03-20. That replacement snapshot, and the alias gpt-4o-mini-transcribe, shut down on 2027-02-26. The [February 26, 2027 transcription guide](/guides/${FEBRUARY_26_TRANSCRIBE_GUIDE_SLUG}/) covers those ids. The file transcription page says: "${TRANSCRIBE_FEB}" For the models that page recommends after that later date, it says: "${TRANSCRIBE_LANGUAGE}" That languages field is documented for gpt-transcribe. The page does not say the December 15 snapshot rejects language.`,
         ],
         sources: [
           { label: "OpenAI deprecations", url: OPENAI_DEPRECATIONS },
@@ -1471,6 +1560,7 @@ function januaryAudioGuide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePa
       { href: `/guides/${DECEMBER_1_IMAGE_GUIDE_SLUG}/`, label: "OpenAI image models shutting down on December 1, 2026" },
       { href: `/guides/${DECEMBER_11_GUIDE_SLUG}/`, label: "OpenAI shutdowns on December 11, 2026" },
       { href: `/guides/${JANUARY_2027_GPT4_GUIDE_SLUG}/`, label: "GPT-4.1 and GPT-4o shutdown in January 2027" },
+      { href: `/guides/${FEBRUARY_26_TRANSCRIBE_GUIDE_SLUG}/`, label: "whisper-1 and GPT-4o transcribe shutdown on February 26, 2027" },
       { href: "/models/openai/gpt-realtime-2-1-mini/", label: "gpt-realtime-2.1-mini" },
       { href: "/models/openai/gpt-realtime-2-1/", label: "gpt-realtime-2.1" },
       { href: "/models/openai/gpt-audio-1-5/", label: "gpt-audio-1.5" },
@@ -1511,6 +1601,226 @@ function januaryAudioGuide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePa
       OPENAI_AUDIO_15,
       OPENAI_REALTIME_21,
       OPENAI_REALTIME_21_MINI,
+    ],
+  };
+}
+
+function februaryTranscribeGuide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePage {
+  const when = longDate(FEBRUARY_26_TRANSCRIBE_SHUTDOWN_DATE);
+  const march = catalog.find((model) => model.provider === "openai" && model.id === "gpt-4o-mini-transcribe-2025-03-20");
+  return {
+    slug: FEBRUARY_26_TRANSCRIBE_GUIDE_SLUG,
+    title: `whisper-1 and GPT-4o transcribe shutdown on ${when} | SunsetDiff`,
+    description: `whisper-1, gpt-4o-transcribe, gpt-4o-mini-transcribe, gpt-4o-mini-transcribe-2025-12-15, and gpt-4o-transcribe-diarize shut down on ${FEBRUARY_26_TRANSCRIBE_SHUTDOWN_DATE}. OpenAI names gpt-live-transcribe or gpt-transcribe.`,
+    h1: `whisper-1 and GPT-4o transcribe shutdown on ${when}`,
+    summary: `The five OpenAI transcription ids with shutdown date ${FEBRUARY_26_TRANSCRIBE_SHUTDOWN_DATE}, the stored replacements, and the file versus live call the docs describe.`,
+    answer: `The dataset has ${rows.length} OpenAI transcription ids with shutdown date ${FEBRUARY_26_TRANSCRIBE_SHUTDOWN_DATE}: ${idList(rows)}. OpenAI's deprecations page says: "${TRANSCRIBE_NOTICE}" The recommended replacement on each row is gpt-live-transcribe or gpt-transcribe. The same page says: "${TRANSCRIBE_SEE_GUIDE}" The file transcription page says to start with gpt-transcribe for recorded speech. The realtime transcription page says to start with gpt-live-transcribe for live audio. OpenAI's deprecations page also says: "${ACCESSIBLE}"`,
+    checked: FEBRUARY_26_TRANSCRIBE_CHECKED,
+    steps: [
+      {
+        name: "Read the five ids",
+        text: `The table lists whisper-1, gpt-4o-transcribe, gpt-4o-mini-transcribe, gpt-4o-mini-transcribe-2025-12-15, and gpt-4o-transcribe-diarize. gpt-4o-mini-transcribe-2025-03-20 is not in this table. Its stored shutdown date is ${JANUARY_20_AUDIO_SHUTDOWN_DATE}.`,
+      },
+      {
+        name: "Pick the call, not only the string",
+        text: "A completed file stays on POST /v1/audio/transcriptions with gpt-transcribe. Live audio from a microphone, call, or media stream moves to a realtime transcription session with gpt-live-transcribe. gpt-live-transcribe is not a supported model for the file endpoint.",
+      },
+      {
+        name: "Test before the date",
+        text: `Call the replacement that matches the audio you send now. Do that before ${when}. Speaker labels are documented on gpt-4o-transcribe-diarize. Word timestamps are documented on whisper-1. The realtime page says gpt-live-transcribe does not return either.`,
+      },
+    ],
+    sections: [
+      {
+        heading: "Models shutting down",
+        paragraphs: [
+          `These rows are the OpenAI transcription ids in the dataset with shutdown date ${FEBRUARY_26_TRANSCRIBE_SHUTDOWN_DATE}. The model id links to its SunsetDiff model page. Deprecation date, shutdown date, and replacement are the fields stored on that row. Not published means the field is empty.`,
+          `OpenAI's deprecations page says: "${TRANSCRIBE_NOTICE}" The section date on that page is August 26, 2026. These rows store 2026-08-26 as announced_date. deprecation_date is empty. The same page says: "${DEPRECATED_WHEN_ANNOUNCED}"`,
+          `The shutdown table on that page lists whisper-1, gpt-4o-transcribe, and gpt-4o-transcribe-diarize with replacement gpt-live-transcribe or gpt-transcribe. The gpt-4o-mini-transcribe row lists snapshot gpt-4o-mini-transcribe-2025-12-15 in the model column, and the same replacement. That snapshot is its own row here. It is not a model that stays up after ${when}.`,
+          march
+            ? `gpt-4o-mini-transcribe-2025-03-20 is not in this table. The January 20, 2027 deprecations table names gpt-4o-mini-transcribe-2025-12-15 as its replacement. That snapshot then shuts down on ${FEBRUARY_26_TRANSCRIBE_SHUTDOWN_DATE}. The stored row is ${modelLink(march)}.`
+            : `gpt-4o-mini-transcribe-2025-03-20 is not in this table. The January 20, 2027 deprecations table names gpt-4o-mini-transcribe-2025-12-15 as its replacement.`,
+        ],
+        table: {
+          caption: `${rows.length} OpenAI transcription ids with shutdown date ${FEBRUARY_26_TRANSCRIBE_SHUTDOWN_DATE}.`,
+          headers: ["Model id", "Deprecation date", "Shutdown date", "Recommended replacement"],
+          rows: tableRows(rows, catalog),
+        },
+        sources: [{ label: "OpenAI deprecations", url: OPENAI_DEPRECATIONS }],
+      },
+      {
+        heading: "What breaks",
+        paragraphs: [
+          `On ${when} these ids reach the shutdown date stored in the dataset. The file transcription page says: "${TRANSCRIBE_FEB}" OpenAI's deprecations page says: "${ACCESSIBLE}" The same page uses sunset and shut down for that moment. It does not print an HTTP status for it.`,
+          `A 400 from a field the replacement rejects is a different failure. This guide does not invent an error body. The file transcription page says: "${TRANSCRIBE_LANGUAGE}" It also says: "${TRANSCRIBE_KEYWORD_REJECT}" It does not print the error sentence.`,
+        ],
+        sources: [
+          { label: "OpenAI deprecations", url: OPENAI_DEPRECATIONS },
+          { label: "OpenAI file transcription", url: OPENAI_TRANSCRIBE },
+        ],
+      },
+      {
+        heading: "Find the model ids in your code",
+        paragraphs: [
+          "Search the repository for every id in the table. A file transcription helper and a live caption session often live in different files. [How to find every model ID in your codebase](/guides/find-model-ids-in-your-codebase/) covers SDK argument names. The [scan page](/scan/) builds a search from dataset ids that have a shutdown date.",
+          "OpenAI's deprecations page says to call the List models endpoint, GET /v1/models, and read each model's optional shutdown_date field. When present, the field is a YYYY-MM-DD string, or null if no shutdown date has been announced. The same field is on the Retrieve a model endpoint.",
+          "You can also read one id from the free SunsetDiff lookup file. [whisper-1](/api/v1/lookup/whisper-1.json) is one of these rows. The [API page](/api/) lists the other files. No key and no signup. The [alerts page](/alerts/) is the free email form. That page says what the form stores and the one welcome email it can send.",
+        ],
+        codes: [{ caption: "ripgrep", code: searchCode(rows) }],
+        sources: [{ label: "OpenAI deprecations", url: OPENAI_DEPRECATIONS }],
+      },
+      {
+        heading: "Recorded files stay on the transcriptions endpoint",
+        paragraphs: [
+          `The file transcription page says: "${TRANSCRIBE_START}" It also says: "${TRANSCRIBE_LIVE_POINTER}" Send the audio file to /v1/audio/transcriptions with model gpt-transcribe. The gpt-transcribe model page says: "${GPT_TRANSCRIBE_BLURB}" That page lists v1/audio/transcriptions and v1/realtime/transcription_sessions as supported. It lists v1/audio/translations, v1/realtime, and v1/audio/speech as not supported. It lists streaming as a supported feature.`,
+          `The file transcription page says: "${TRANSCRIBE_FILE_LIMIT}" It says: "${TRANSCRIBE_LANGUAGE}" It also says: "${TRANSCRIBE_KEYWORD_REJECT}" Use prompt for unstructured context about the recording, keywords for literal terms you expect to hear, and languages for the expected input languages. The page says keywords are hints, not required output.`,
+          `For a completed file, streaming stays on that same endpoint. The page says: "${TRANSCRIBE_STREAM_FILE}" And: "${TRANSCRIBE_STREAM_SET}" It also says: "${TRANSCRIBE_STREAM_OLD}" Live audio is a different call. The page says: "${TRANSCRIBE_STREAM_LIVE}"`,
+          `The file transcription page says: "${TRANSCRIBE_NO_PROMPT}" And: "${TRANSCRIBE_WHISPER_PROMPT}" For languages it says: "${TRANSCRIBE_WHISPER_LANGS}"`,
+        ],
+        codes: [
+          {
+            caption: "File transcription shape from the speech-to-text guide. Model id only.",
+            code: `import fs from "fs";
+import OpenAI from "openai";
+
+const openai = new OpenAI();
+const transcription = await openai.audio.transcriptions.create({
+  file: fs.createReadStream("fixtures/audio.wav"),
+  model: "gpt-transcribe",
+});
+`,
+          },
+        ],
+        sources: [
+          { label: "OpenAI file transcription", url: OPENAI_TRANSCRIBE },
+          { label: "gpt-transcribe", url: OPENAI_GPT_TRANSCRIBE },
+        ],
+      },
+      {
+        heading: "Live audio uses a transcription session",
+        paragraphs: [
+          `The realtime transcription page says: "${LIVE_TRANSCRIBE_START}" The gpt-live-transcribe model page says: "${GPT_LIVE_BLURB}" That page lists v1/realtime/transcription_sessions as supported. It lists v1/audio/transcriptions as not supported. It also lists v1/audio/translations, v1/realtime, and v1/audio/speech as not supported, and streaming as a supported feature. Putting gpt-live-transcribe on POST /v1/audio/transcriptions is not the call those pages describe.`,
+          `The realtime transcription page says: "${LIVE_TRANSCRIBE_WS}" After the connection opens, send session.update with type transcription and set the transcription model to gpt-live-transcribe. The page says: "For browser audio, see WebRTC." It says: "${LIVE_TRANSCRIBE_PCM}" And: "${LIVE_TRANSCRIBE_VAD}"`,
+          `The same page says: "${LIVE_TRANSCRIBE_LANG}" It also says: "${LIVE_TRANSCRIBE_NO_DETECT}" Prompt, keywords, and languages are the context fields on that session. The page says: "${LIVE_TRANSCRIBE_DELAY_FIELD}" The starting points it lists are below. It says: "${LIVE_TRANSCRIBE_DELAY}"`,
+        ],
+        bullets: [
+          "minimal for the most latency-sensitive interactions.",
+          "low for low-latency live captions.",
+          "medium for a balanced latency/accuracy tradeoff.",
+          "high when accuracy matters more than immediate display.",
+          "xhigh when your workflow can tolerate the most delay for more context.",
+        ],
+        codes: [
+          {
+            caption: "session.update from the realtime transcription guide. turn_detection stays null.",
+            code: `{
+  "type": "session.update",
+  "session": {
+    "type": "transcription",
+    "audio": {
+      "input": {
+        "format": { "type": "audio/pcm", "rate": 24000 },
+        "transcription": { "model": "gpt-live-transcribe" },
+        "turn_detection": null
+      }
+    }
+  }
+}
+`,
+          },
+        ],
+        sources: [
+          { label: "OpenAI realtime transcription", url: OPENAI_LIVE_TRANSCRIBE },
+          { label: "gpt-live-transcribe", url: OPENAI_GPT_LIVE_TRANSCRIBE },
+          { label: "OpenAI deprecations", url: OPENAI_DEPRECATIONS },
+        ],
+      },
+      {
+        heading: "Diarization, timestamps, and translation",
+        paragraphs: [
+          `The file transcription page says: "${TRANSCRIBE_DIARIZE}" It says: "${TRANSCRIBE_DIARIZE_FORMAT}" It also says: "${TRANSCRIBE_KNOWN_SPEAKERS}" Reference clips on that page are between 2 and 10 seconds. The page says: "${TRANSCRIBE_SPEAKER_REALTIME}" The deprecations page names gpt-live-transcribe or gpt-transcribe for gpt-4o-transcribe-diarize. It does not name a current model that returns speaker labels after ${when}.`,
+          `The realtime transcription page says: "${LIVE_TRANSCRIBE_NO_FIELDS}" The file transcription page says: "${TRANSCRIBE_TIMESTAMPS}" And: "${TRANSCRIBE_TIMESTAMP_ONLY}" Those pages do not say gpt-transcribe returns word timestamps or speaker labels.`,
+          `The file transcription page says: "${TRANSCRIBE_TRANSLATE}" It says: "${TRANSCRIBE_TRANSLATE_MOVE}" The deprecations table lists /v1/audio/translations on the same shutdown date, with replacement v1/realtime/translations. That endpoint is not a model row in the table above. The stored model page is [gpt-realtime-translate](/models/openai/gpt-realtime-translate/).`,
+        ],
+        sources: [
+          { label: "OpenAI file transcription", url: OPENAI_TRANSCRIBE },
+          { label: "OpenAI realtime transcription", url: OPENAI_LIVE_TRANSCRIBE },
+          { label: "OpenAI deprecations", url: OPENAI_DEPRECATIONS },
+        ],
+      },
+      {
+        heading: "Price on the pricing page",
+        paragraphs: [
+          `The pricing page's transcription table says: "${TRANSCRIBE_PRICE_HEADER}" The estimated cost column is a per-minute price. On that table, gpt-live-transcribe is $0.017 per minute, gpt-transcribe is $0.0045 per minute, gpt-4o-transcribe is $0.006 per minute, gpt-4o-mini-transcribe is $0.003 per minute, and gpt-4o-transcribe-diarize is $0.006 per minute. A row labeled Whisper is $0.006 per minute. The page does not label that row whisper-1.`,
+          "Input and output on the same table follow the per-1M-token header. gpt-4o-transcribe and gpt-4o-transcribe-diarize list input $2.50 and output $10.00. gpt-4o-mini-transcribe lists input $1.25 and output $5.00. gpt-transcribe, gpt-live-transcribe, and the Whisper row show a dash for input and output. The gpt-transcribe model page lists transcription audio at $0.0045 per minute. The gpt-live-transcribe model page lists realtime audio at $0.017 per minute.",
+        ],
+        sources: [
+          { label: "OpenAI pricing", url: OPENAI_PRICING },
+          { label: "gpt-transcribe", url: OPENAI_GPT_TRANSCRIBE },
+          { label: "gpt-live-transcribe", url: OPENAI_GPT_LIVE_TRANSCRIBE },
+        ],
+      },
+      {
+        heading: "Test the replacement before the cutoff",
+        paragraphs: [
+          `OpenAI's deprecations page says the notice period is time to evaluate the recommended replacement, test application behavior, and finish the migration before the model is no longer available. For a recorded file, test gpt-transcribe on POST /v1/audio/transcriptions before ${when}. For live audio, test gpt-live-transcribe in a transcription session before ${when}.`,
+          "The [pre-migration test checklist](/guides/pre-migration-test-checklist/) is the longer list: evals, rejected fields, token limits, tools, price, and latency.",
+        ],
+        sources: [{ label: "OpenAI deprecations", url: OPENAI_DEPRECATIONS }],
+      },
+    ],
+    related: [
+      { href: "/shutdowns/openai-2027-02-26/", label: `OpenAI shutdowns on ${when}` },
+      { href: "/shutdowns/openai-2027-01-20/", label: "OpenAI shutdowns on January 20, 2027" },
+      { href: "/providers/openai/", label: "OpenAI provider page" },
+      { href: `/guides/${JANUARY_2027_AUDIO_GUIDE_SLUG}/`, label: "OpenAI speech, audio, and realtime shutdowns in January 2027" },
+      { href: "/models/openai/whisper-1/", label: "whisper-1" },
+      { href: "/models/openai/gpt-transcribe/", label: "gpt-transcribe" },
+      { href: "/models/openai/gpt-live-transcribe/", label: "gpt-live-transcribe" },
+      { href: "/models/openai/gpt-realtime-translate/", label: "gpt-realtime-translate" },
+      { href: "/api/", label: "Free lookup API" },
+      { href: "/alerts/", label: "Shutdown alerts signup" },
+      { href: "/guides/find-model-ids-in-your-codebase/", label: "Find model ids in your codebase" },
+      { href: "/guides/pre-migration-test-checklist/", label: "Pre-migration test checklist" },
+      { href: "/scan/", label: "Scan retiring ids" },
+    ],
+    faqs: [
+      {
+        question: `Which transcription ids shut down on ${when}?`,
+        answer: `The dataset lists ${idList(rows)} with shutdown date ${FEBRUARY_26_TRANSCRIBE_SHUTDOWN_DATE}. gpt-4o-mini-transcribe-2025-03-20 is not in that list. Its shutdown date is ${JANUARY_20_AUDIO_SHUTDOWN_DATE}. The deprecations page says: "${TRANSCRIBE_NOTICE}"`,
+      },
+      {
+        question: "What is the recommended replacement?",
+        answer: `The deprecations page names gpt-live-transcribe or gpt-transcribe for each id in the table. It says: "${TRANSCRIBE_SEE_GUIDE}" The file transcription page says to start with gpt-transcribe for recorded speech. The realtime transcription page says to start with gpt-live-transcribe for live audio. ${replacementFaq(rows, catalog)}`,
+      },
+      {
+        question: "Can I only change the model string on /v1/audio/transcriptions?",
+        answer: `For a completed file, the file transcription page sends the file to /v1/audio/transcriptions with gpt-transcribe. The gpt-transcribe model page lists that route as supported. The gpt-live-transcribe model page lists v1/audio/transcriptions as not supported and v1/realtime/transcription_sessions as supported. For gpt-transcribe, the file page says: "${TRANSCRIBE_LANGUAGE}"`,
+      },
+      {
+        question: "Do the replacements return speaker labels or word timestamps?",
+        answer: `The realtime transcription page says: "${LIVE_TRANSCRIBE_NO_FIELDS}" The file transcription page says speaker labeling is not supported in Realtime transcription sessions, and that timestamp_granularities[] is only supported for whisper-1. Those pages do not say gpt-transcribe returns speaker labels or word timestamps. gpt-4o-transcribe-diarize and whisper-1 remain available for those jobs until ${FEBRUARY_26_TRANSCRIBE_SHUTDOWN_DATE}.`,
+      },
+      {
+        question: "What happens to /v1/audio/translations?",
+        answer: `The file transcription page says: "${TRANSCRIBE_TRANSLATE}" It says: "${TRANSCRIBE_TRANSLATE_MOVE}" The deprecations table lists that endpoint on ${FEBRUARY_26_TRANSCRIBE_SHUTDOWN_DATE}, with replacement v1/realtime/translations.`,
+      },
+      {
+        question: "What does OpenAI say happens at shut down?",
+        answer: `OpenAI's deprecations page says: "${ACCESSIBLE}" That page does not print an HTTP status for that moment.`,
+      },
+      {
+        question: "Is a deprecation date stored?",
+        answer: `No deprecation_date is stored on these rows. The deprecations section is dated August 26, 2026, and the dataset stores 2026-08-26 as announced_date. The page says: "${DEPRECATED_WHEN_ANNOUNCED}"`,
+      },
+    ],
+    citations: [
+      OPENAI_DEPRECATIONS,
+      OPENAI_TRANSCRIBE,
+      OPENAI_LIVE_TRANSCRIBE,
+      OPENAI_GPT_TRANSCRIBE,
+      OPENAI_GPT_LIVE_TRANSCRIBE,
+      OPENAI_PRICING,
     ],
   };
 }
