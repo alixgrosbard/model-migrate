@@ -15,6 +15,7 @@ import {
 import { llmsTxt } from "../src/lib/llms.ts";
 import { loadModels, loadProviders } from "../src/lib/load.ts";
 import { requestErrorsForProvider } from "../src/lib/request-errors.ts";
+import { GATE_EXEMPT } from "../scrapers/sanity.ts";
 import { sitemapSection } from "../src/lib/sitemaps.ts";
 import { modelSchema, type ModelRecord } from "../src/schema.ts";
 
@@ -146,6 +147,7 @@ describe("Fireworks records", () => {
     ).toBe("sitemap-migrate.xml");
     const run = readFileSync("scrapers/run.ts", "utf8");
     expect(run).toContain("Fireworks changelog was not applied. Stored Fireworks rows stay.");
-    expect(run).toContain('if (provider === "fireworks") continue;');
+    expect(run).toContain("applyProviderGate");
+    expect(GATE_EXEMPT.has("fireworks")).toBe(true);
   });
 });

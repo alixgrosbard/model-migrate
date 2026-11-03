@@ -15,6 +15,7 @@ import { replacementNoteText, replacementRetirement } from "../src/lib/replaceme
 import { llmsTxt } from "../src/lib/llms.ts";
 import { sitemapSection } from "../src/lib/sitemaps.ts";
 import { loadModels, loadProviders } from "../src/lib/load.ts";
+import { GATE_EXEMPT } from "../scrapers/sanity.ts";
 import { modelSchema, type ModelRecord } from "../src/schema.ts";
 
 const checked = "2026-10-28";
@@ -182,6 +183,7 @@ describe("Nebius records", () => {
     expect(sitemapSection("/migrate/nebius__zai-org-glm-5-1__to__nebius__zai-org-glm-5-2/")).toBe("sitemap-migrate.xml");
     const run = readFileSync("scrapers/run.ts", "utf8");
     expect(run).toContain("Nebius deprecation pages were not applied. Stored Nebius rows stay.");
-    expect(run).toContain('if (provider === "nebius") continue;');
+    expect(run).toContain("applyProviderGate");
+    expect(GATE_EXEMPT.has("nebius")).toBe(true);
   });
 });

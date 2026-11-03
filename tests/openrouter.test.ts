@@ -11,6 +11,7 @@ import {
   parseOpenRouter,
   perMillionTokens,
 } from "../scrapers/openrouter.ts";
+import { GATE_EXEMPT } from "../scrapers/sanity.ts";
 import { modelSchema } from "../src/schema.ts";
 import { llmsTxt } from "../src/lib/llms.ts";
 import { loadModels, loadProviders } from "../src/lib/load.ts";
@@ -273,6 +274,7 @@ describe("OpenRouter records", () => {
     expect(sitemapSection("/models/openrouter/thinkingmachines-inkling-small-free/")).toBe("sitemap-models.xml");
     const run = readFileSync("scrapers/run.ts", "utf8");
     expect(run).toContain("OpenRouter models API could not be read. Stored OpenRouter rows stay.");
-    expect(run).toContain("if (provider === \"openrouter\") continue;");
+    expect(run).toContain("applyProviderGate");
+    expect(GATE_EXEMPT.has("openrouter")).toBe(true);
   });
 });

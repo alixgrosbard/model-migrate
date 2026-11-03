@@ -71,6 +71,13 @@ jobs:
         run: |
           set -o pipefail
           npm run scrape 2>&1 | tee "$RUNNER_TEMP/scrape.log"
+          status="$?"
+          if grep -q '^SCRAPER_PROVIDER_FAILURE ' "$RUNNER_TEMP/scrape.log"; then
+            echo "provider_failure=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "provider_failure=false" >> "$GITHUB_OUTPUT"
+          fi
+          exit "$status"
       - name: Test
         id: test
         run: |
@@ -202,16 +209,41 @@ jobs:
         if: success()
         env:
           GH_TOKEN: ${{ github.token }}
-          SCRAPER_RECOVERED: "1"
+          SCRAPER_RECOVERED: ${{ steps.scrape.outputs.provider_failure == 'true' && '0' || '1' }}
         run: |
           set -euo pipefail
-          node scripts/open-scraper-issue.mjs
+          if [ "$SCRAPER_RECOVERED" = "1" ]; then
+            node scripts/open-scraper-issue.mjs
+          else
+            echo "A provider was skipped. Leaving the scraper-broken issue open."
+          fi
           numbers="$(gh issue list --state open --label refresh-push-failed --limit 20 --json number --jq '.[].number')"
           for number in $numbers; do
             gh issue comment "$number" --body "The refresh passed and the data commit was pushed. This issue is closed."
             gh issue close "$number" --reason completed
             echo "Closed issue #${number}"
           done
+      - name: Flag providers whose stored rows were kept
+        if: success() && steps.scrape.outputs.provider_failure == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          {
+            echo "A provider failed the sanity gate or threw during the scrape. That provider's stored rows were kept. Other providers were still written."
+            echo
+            echo "Run: ${RUN_URL}"
+            echo
+            grep '^SCRAPER_PROVIDER_FAILURE ' "$RUNNER_TEMP/scrape.log" || true
+            echo
+            echo "### scrape log"
+            echo '```'
+            tail -n 80 "$RUNNER_TEMP/scrape.log"
+            echo '```'
+          } > "$RUNNER_TEMP/failure.md"
+          SCRAPER_ERROR="$(cat "$RUNNER_TEMP/failure.md")" node scripts/open-scraper-issue.mjs
       - name: Open or update the failure issue
         if: failure() && (steps.scrape.outcome == 'failure' || steps.test.outcome == 'failure' || steps.commit.outcome == 'failure')
         env:

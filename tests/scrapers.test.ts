@@ -13,7 +13,7 @@ import { modelSchema } from "../src/schema.ts";
 import { parseMistral } from "../scrapers/mistral.ts";
 import { parseOpenAI } from "../scrapers/openai.ts";
 import { parseVertex } from "../scrapers/google-vertex.ts";
-import { sanityCheck } from "../scrapers/sanity.ts";
+import { applyProviderGate, providerKeptLine, sanityCheck } from "../scrapers/sanity.ts";
 import { carryForwardDocumentedModels } from "../scrapers/carry.ts";
 import { addDocumentedOpenAIModels, applyCodexPlatformNotes, documentedOpenAIIds } from "../scrapers/openai-catalog.ts";
 import { baseModel } from "../scrapers/lib/model.ts";
@@ -289,34 +289,40 @@ describe("official snapshots", () => {
     }
   });
 
-  it("keeps the Gemini 2.5 new-user limit on the three stable Gemini API rows", () => {
-    const deprecations = read(newestSnapshot("google-gemini-api"));
-    const pricing = read(newestSnapshot("google-gemini-api", "-pricing"));
+  it("keeps the Gemini 2.5 new-user limit on the old HTML snapshot", () => {
+    const deprecations = read("snapshots/google-gemini-api/2026-11-02.html");
+    const pricing = read("snapshots/google-gemini-api/2026-11-02-pricing.html");
     const models = parseGemini(deprecations, pricing, "2026-11-01");
-    for (const [id, slug] of [
-      ["gemini-2.5-flash", "gemini-2-5-flash"],
-      ["gemini-2.5-flash-lite", "gemini-2-5-flash-lite"],
-      ["gemini-2.5-pro", "gemini-2-5-pro"],
-    ] as const) {
+    for (const id of ["gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-2.5-pro"]) {
       const parsed = models.find((model) => model.id === id);
-      const stored = JSON.parse(read(`data/models/google-gemini-api/${slug}.json`)) as {
-        status: string;
-        shutdown_date: string | null;
-        region_or_platform_notes: string;
-      };
       expect(parsed?.status).toBe("active");
       expect(parsed?.shutdown_date).toBeNull();
       expect(parsed?.region_or_platform_notes).toContain(GEMINI_25_ACCESS_QUOTE);
       expect(parsed?.region_or_platform_notes).toContain(GEMINI_25_ACCESS_SOURCE);
       expect(parsed?.region_or_platform_notes).toContain("Release date on the deprecations page:");
-      expect(stored.status).toBe("active");
-      expect(stored.shutdown_date).toBeNull();
-      expect(stored.region_or_platform_notes).toBe(parsed?.region_or_platform_notes);
     }
     for (const id of ["gemini-2.5-flash-preview-09-25", "gemini-2.5-pro-preview-06-05", "gemini-3.8-flash"]) {
       expect(models.find((model) => model.id === id)?.region_or_platform_notes ?? "").not.toContain(
         "limiting access to the 2.5 models",
       );
+    }
+    const live = parseGemini(read(newestSnapshot("google-gemini-api")), read(newestSnapshot("google-gemini-api", "-pricing")), "2026-11-03");
+    for (const [id, slug] of [
+      ["gemini-2.5-flash", "gemini-2-5-flash"],
+      ["gemini-2.5-flash-lite", "gemini-2-5-flash-lite"],
+      ["gemini-2.5-pro", "gemini-2-5-pro"],
+    ] as const) {
+      const parsed = live.find((model) => model.id === id);
+      const stored = JSON.parse(read(`data/models/google-gemini-api/${slug}.json`)) as {
+        status: string;
+        shutdown_date: string | null;
+        replacements: { model_id: string }[];
+        region_or_platform_notes: string;
+      };
+      expect(stored.status).toBe(parsed?.status);
+      expect(stored.shutdown_date).toBe(parsed?.shutdown_date ?? null);
+      expect(stored.replacements.map((item) => item.model_id)).toEqual(parsed?.replacements.map((item) => item.model_id) ?? []);
+      expect(stored.region_or_platform_notes).toBe(parsed?.region_or_platform_notes);
     }
     const bare = `
       <table>
@@ -490,6 +496,38 @@ describe("refresh pipeline", () => {
   });
 });
 
+describe("AI Studio deprecations markdown", () => {
+  it("reads shutdown rows from the markdown tables", () => {
+    const models = parseGemini(read(fixture("google-gemini-api", "deprecations-2026-11-03.md")), "", "2026-11-03");
+    expect(models.length).toBeGreaterThan(80);
+    const pro = models.find((model) => model.id === "gemini-2.5-pro");
+    expect(pro?.status).toBe("deprecated");
+    expect(pro?.shutdown_date).toBe("2026-12-01");
+    expect(pro?.shutdown_date_kind).toBe("exact");
+    expect(pro?.replacements.map((item) => item.model_id)).toEqual(["gemini-3.8-flash"]);
+    expect(pro?.sources[0]?.url).toBe(DEPRECATIONS_URL);
+    const flash = models.find((model) => model.id === "gemini-2.5-flash");
+    expect(flash?.shutdown_date).toBe("2026-12-01");
+    expect(flash?.replacements.map((item) => item.model_id)).toEqual(["gemini-3.5-flash-lite"]);
+    const lite = models.find((model) => model.id === "gemini-2.5-flash-lite");
+    expect(lite?.status).toBe("active");
+    expect(lite?.shutdown_date).toBeNull();
+    expect(lite?.region_or_platform_notes).toContain("gemini-2.5-flash-lite is not deprecated");
+    expect(models.find((model) => model.id === "gemini-3.7-flash")?.region_or_platform_notes).toContain(
+      "requests auto-routed to gemini-3.8-flash",
+    );
+    expect(models.find((model) => model.id === "veo-3.0-generate-001")?.replacements.map((item) => item.model_id)).toEqual([
+      "gemini-omni-1.1-flash",
+    ]);
+    expect(models.find((model) => model.id === "deep-research-pro-preview-12-2025")?.shutdown_date).toBe("2026-10-23");
+    expect(models.find((model) => model.id === "gemini-3.5-transcribe-live")?.status).toBe("active");
+    expect(models.find((model) => model.id === "gemini-3.5-transcribe-live")?.shutdown_date).toBeNull();
+    expect(models.find((model) => model.id === "gemini-2.5-flash-preview-09-2025")?.region_or_platform_notes ?? "").not.toContain(
+      "not deprecated",
+    );
+  });
+});
+
 describe("sanity gate", () => {
   it("does not accept an empty scrape", () => {
     expect(sanityCheck("openai", 0, 100).ok).toBe(false);
@@ -497,6 +535,26 @@ describe("sanity gate", () => {
   it("does not accept a drop of more than 30 percent", () => {
     expect(sanityCheck("openai", 60, 100).ok).toBe(false);
     expect(sanityCheck("openai", 70, 100).ok).toBe(true);
+  });
+  it("drops a 0-row provider and keeps the others", () => {
+    const scraped = new Map<string, unknown[]>([
+      ["openai", [{ id: "gpt-4o" }]],
+      ["google-gemini-api", []],
+      ["anthropic", [{ id: "claude-sonnet" }]],
+    ]);
+    const skips = applyProviderGate(
+      scraped,
+      new Map([
+        ["openai", 1],
+        ["google-gemini-api", 80],
+        ["anthropic", 1],
+      ]),
+    );
+    expect(skips).toEqual([{ provider: "google-gemini-api", reason: "google-gemini-api returned 0 rows" }]);
+    expect([...scraped.keys()]).toEqual(["openai", "anthropic"]);
+    expect(providerKeptLine("google-gemini-api")).toBe(
+      "google-gemini-api row change was not applied. Stored rows stay.",
+    );
   });
 });
 

@@ -144,8 +144,19 @@ describe("gemini 2.5 access", () => {
     for (const file of ["gemini-2-5-pro.json", "gemini-2-5-flash.json", "gemini-2-5-flash-lite.json"]) {
       const record = await model("google-gemini-api", file);
       expect(gemini25Restricted(record)).toBe(true);
-      expect(badgeView(record, day).message).toBe("existing users only");
-      expect(badgeView(record, day).color).toBe("green");
+      if (record.status === "active" && !record.shutdown_date) {
+        expect(badgeView(record, day).message).toBe("existing users only");
+        expect(badgeView(record, day).color).toBe("green");
+      } else {
+        expect(badgeView(record, day).message).not.toBe("existing users only");
+      }
+      const dated = {
+        ...record,
+        status: "deprecated" as const,
+        shutdown_date: "2026-12-01",
+        shutdown_date_kind: "exact" as const,
+      };
+      expect(badgeView(dated, day).message).toBe("retires 2026-12-01");
     }
     const other = await model("openai", "gpt-4o-2024-08-06.json");
     expect(gemini25Restricted(other)).toBe(false);

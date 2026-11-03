@@ -13,7 +13,7 @@ import { applyAnthropicOverview, parseAnthropic, parseAnthropicPricing, priceFor
 import { DEPRECATIONS_URL as ANTHROPIC_URL } from "./anthropic.ts";
 import { parseAzure, POLICY_URL as AZURE_POLICY, SCHEDULE_URL as AZURE_SCHEDULE } from "./azure-openai.ts";
 import { LEGACY_URL as AWS_LEGACY, parseBedrock, POLICY_URL as AWS_POLICY } from "./aws-bedrock.ts";
-import { DEPRECATIONS_URL as GEMINI_URL, parseGemini, parseGeminiPricing, PRICING_URL as GEMINI_PRICING } from "./google-gemini-api.ts";
+import { DEPRECATIONS_MD_URL as GEMINI_URL, parseGemini, parseGeminiPricing, PRICING_MD_URL as GEMINI_PRICING } from "./google-gemini-api.ts";
 import { DEPRECATIONS_URL as VERTEX_URL, parseVertex } from "./google-vertex.ts";
 import { MODELS_URL as MISTRAL_URL, parseMistral, PRICING_URL as MISTRAL_PRICING } from "./mistral.ts";
 import { NEWS_URL as DEEPSEEK_NEWS, PRICING_URL as DEEPSEEK_PRICING, UPDATES_URL as DEEPSEEK_UPDATES, parseDeepSeek } from "./deepseek.ts";
@@ -31,7 +31,7 @@ import { DEPRECATIONS_URL as OPENAI_URL, parseOpenAI, parseOpenAIPricing, PRICIN
 import { addDocumentedOpenAIModels, applyCodexPlatformNotes, OPENAI_MODELS_INDEX_URL } from "./openai-catalog.ts";
 import { canonicalizeModel, realContentKey, recordIdentity } from "../src/lib/stable-export.ts";
 import { writeMigrations } from "./write-migrations.ts";
-import { sanityCheck } from "./sanity.ts";
+import { applyProviderGate, PROVIDER_FAILURE_PREFIX, providerKeptLine } from "./sanity.ts";
 import { enrichSpecs } from "./enrich.ts";
 
 const root = process.cwd();
@@ -60,22 +60,11 @@ async function main() {
       scraped.delete("openrouter");
     }
   }
-  const failures: string[] = [];
-  for (const [provider, models] of scraped) {
-    if (provider === "openrouter") continue;
-    if (provider === "nebius") continue;
-    if (provider === "together") continue;
-    if (provider === "fireworks") continue;
-    if (provider === "github-copilot") continue;
-    if (provider === "minimax") continue;
-    if (provider === "cloudflare-workers-ai") continue;
-    const result = sanityCheck(provider, models.length, previousCounts.get(provider) ?? 0);
-    if (!result.ok && result.reason) failures.push(result.reason);
-  }
-  if (failures.length) {
-    console.error(failures.join("\n"));
-    process.exitCode = 1;
-    return;
+  const skips = applyProviderGate(scraped, previousCounts);
+  for (const skip of skips) {
+    console.error(skip.reason);
+    console.error(providerKeptLine(skip.provider));
+    console.error(`${PROVIDER_FAILURE_PREFIX} ${skip.reason}`);
   }
 
   const merged = merge(previous, scraped, stamped, checked);
@@ -107,34 +96,49 @@ async function loadOpenAIModelIndex(): Promise<string> {
 }
 
 async function loadGroq(url: string, fixture: string, name: "deprecations" | "models"): Promise<string> {
-  if (fromSnapshots) return readSnapshot(path.join(root, fixture));
-  const body = await politeFetch(url);
-  const { mkdir: mk, writeFile: wf } = await import("node:fs/promises");
-  await mk(path.join(root, "snapshots", "groq"), { recursive: true });
-  await wf(path.join(root, "snapshots", "groq", `${name}-${checked}.md`), body);
-  return body;
+  try {
+    if (fromSnapshots) return await readSnapshot(path.join(root, fixture));
+    const body = await politeFetch(url);
+    const { mkdir: mk, writeFile: wf } = await import("node:fs/promises");
+    await mk(path.join(root, "snapshots", "groq"), { recursive: true });
+    await wf(path.join(root, "snapshots", "groq", `${name}-${checked}.md`), body);
+    return body;
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : error);
+    return "";
+  }
 }
 
 async function loadMarkdown(url: string, fixture: string, provider: string, name: string, markdown = false): Promise<string> {
-  if (fromSnapshots) return readSnapshot(path.join(root, fixture));
-  const body = await politeFetch(url, markdown ? { markdown: true } : undefined);
-  const { mkdir: mk, writeFile: wf } = await import("node:fs/promises");
-  await mk(path.join(root, "snapshots", provider), { recursive: true });
-  await wf(path.join(root, "snapshots", provider, `${name}-${checked}.md`), body);
-  return body;
+  try {
+    if (fromSnapshots) return await readSnapshot(path.join(root, fixture));
+    const body = await politeFetch(url, markdown ? { markdown: true } : undefined);
+    const { mkdir: mk, writeFile: wf } = await import("node:fs/promises");
+    await mk(path.join(root, "snapshots", provider), { recursive: true });
+    await wf(path.join(root, "snapshots", provider, `${name}-${checked}.md`), body);
+    return body;
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : error);
+    return "";
+  }
 }
 
 async function loadText(url: string, snapshot: string, provider: string, suffix = ""): Promise<string> {
-  if (fromSnapshots) return readSnapshot(path.join(root, snapshot));
-  const body = await politeFetch(url);
-  const ext = snapshot.endsWith(".md") ? "" : suffix;
-  if (!snapshot.endsWith(".md")) await saveSnapshot(provider, body, checked, ext);
-  else {
-    const { mkdir: mk, writeFile: wf } = await import("node:fs/promises");
-    await mk(path.join(root, "snapshots", provider), { recursive: true });
-    await wf(path.join(root, "snapshots", provider, `pricing-${checked}.md`), body);
+  try {
+    if (fromSnapshots) return await readSnapshot(path.join(root, snapshot));
+    const body = await politeFetch(url);
+    const ext = snapshot.endsWith(".md") ? "" : suffix;
+    if (!snapshot.endsWith(".md")) await saveSnapshot(provider, body, checked, ext);
+    else {
+      const { mkdir: mk, writeFile: wf } = await import("node:fs/promises");
+      await mk(path.join(root, "snapshots", provider), { recursive: true });
+      await wf(path.join(root, "snapshots", provider, `pricing-${checked}.md`), body);
+    }
+    return body;
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : error);
+    return "";
   }
-  return body;
 }
 
 async function scrapeAll(previous: ModelRecord[]): Promise<Map<string, ScrapedModel[]>> {
@@ -153,8 +157,12 @@ async function scrapeAll(previous: ModelRecord[]): Promise<Map<string, ScrapedMo
   const vertexHtml = await loadText(VERTEX_URL, "snapshots/fixtures/google-vertex/2026-10-17.html", "google-vertex");
   const awsHtml = await loadText(AWS_LEGACY, "snapshots/fixtures/aws-bedrock/2026-10-17-legacy.html", "aws-bedrock", "-legacy");
   if (!fromSnapshots) {
-    const policy = await politeFetch(AWS_POLICY);
-    await saveSnapshot("aws-bedrock", policy, checked);
+    try {
+      const policy = await politeFetch(AWS_POLICY);
+      await saveSnapshot("aws-bedrock", policy, checked);
+    } catch (error) {
+      console.error(error instanceof Error ? error.message : error);
+    }
   }
   const azureSchedule = await loadText(AZURE_SCHEDULE, "snapshots/fixtures/azure-openai/2026-10-17-schedule.html", "azure-openai", "-schedule");
   const azurePolicy = await loadText(AZURE_POLICY, "snapshots/fixtures/azure-openai/2026-10-17.html", "azure-openai");
@@ -173,76 +181,86 @@ async function scrapeAll(previous: ModelRecord[]): Promise<Map<string, ScrapedMo
   const cohereDeprecations = await loadMarkdown(COHERE_DEPRECATIONS, "snapshots/fixtures/cohere/deprecations-2026-10-27.md", "cohere", "deprecations");
   const cohereModels = await loadMarkdown(COHERE_MODELS, "snapshots/fixtures/cohere/models-2026-10-27.md", "cohere", "models");
 
-  const openai = parseOpenAI(openaiHtml, openaiPricing, checked);
-  const anthropic = parseAnthropic(anthropicHtml, anthropicPricing, checked);
-  applyAnthropicOverview(anthropic, anthropicModels, checked);
-  const gemini = parseGemini(geminiHtml, geminiPricing, checked);
-  const vertex = parseVertex(vertexHtml, checked);
-  const aws = parseBedrock(awsHtml, checked);
-  const azure = parseAzure(azureSchedule, azurePolicy, checked);
-  const mistral = parseMistral(mistralHtml, mistralPricing, checked);
-  const deepseek = parseDeepSeek(deepseekUpdates, deepseekPricing, deepseekNews, checked);
-  const groq = parseGroq(groqDeprecations, groqModels, checked);
-  const xai = parseXai({ models: xaiModels, pricing: xaiPricing, may15: xaiMay15, nov2: xaiNov2, releaseNotes: xaiRelease }, checked);
-  const cohere = parseCohere(cohereDeprecations, cohereModels, checked);
-  const openrouter = await loadOpenRouterModels({ fromSnapshots, checked, root });
-  const nebiusPages = await loadNebiusPages({ fromSnapshots, checked, root });
-  const nebius = assembleNebius(
-    nebiusPages.november,
-    nebiusPages.august,
-    checked,
-    previous.filter((model) => model.provider === "nebius"),
-  );
-  if (!nebius) {
-    console.error("Nebius deprecation pages were not applied. Stored Nebius rows stay.");
-  }
-  const togetherPages = await loadTogetherPages({ fromSnapshots, checked, root });
-  const together = assembleTogether(
-    togetherPages,
-    checked,
-    previous.filter((model) => model.provider === "together"),
-  );
-  if (!together) {
-    console.error("Together deprecations page was not applied. Stored Together rows stay.");
-  }
-  const fireworksPages = await loadFireworksPages({ fromSnapshots, checked, root });
-  const fireworks = assembleFireworks(
-    fireworksPages,
-    checked,
-    previous.filter((model) => model.provider === "fireworks"),
-  );
-  if (!fireworks) {
-    console.error("Fireworks changelog was not applied. Stored Fireworks rows stay.");
-  }
-  const copilotPages = await loadCopilotPages({ fromSnapshots, checked, root });
-  const copilot = assembleCopilot(
-    copilotPages,
-    checked,
-    previous.filter((model) => model.provider === "github-copilot"),
-  );
-  if (!copilot) {
-    console.error("GitHub Copilot pages were not applied. Stored GitHub Copilot rows stay.");
-  }
-  const minimaxPage = await loadMinimaxPage({ fromSnapshots, checked, root });
-  const minimax = assembleMinimax(
-    minimaxPage,
-    checked,
-    previous.filter((model) => model.provider === "minimax"),
-  );
-  if (!minimax) {
-    console.error("MiniMax model list was not applied. Stored MiniMax rows stay.");
-  }
-  const cloudflarePages = await loadCloudflarePages({ fromSnapshots, checked, root });
-  const cloudflare = assembleCloudflare(
-    cloudflarePages,
-    checked,
-    previous.filter((model) => model.provider === "cloudflare-workers-ai"),
-  );
-  if (!cloudflare) {
-    console.error("Cloudflare Workers AI changelog was not applied. Stored Cloudflare Workers AI rows stay.");
-  }
+  const openai = guardParse("openai", () => parseOpenAI(openaiHtml, openaiPricing, checked));
+  const anthropic = guardParse("anthropic", () => {
+    const models = parseAnthropic(anthropicHtml, anthropicPricing, checked);
+    applyAnthropicOverview(models, anthropicModels, checked);
+    return models;
+  });
+  const gemini = guardParse("google-gemini-api", () => parseGemini(geminiHtml, geminiPricing, checked));
+  const vertex = guardParse("google-vertex", () => parseVertex(vertexHtml, checked));
+  const aws = guardParse("aws-bedrock", () => parseBedrock(awsHtml, checked));
+  const azure = guardParse("azure-openai", () => parseAzure(azureSchedule, azurePolicy, checked));
+  const mistral = guardParse("mistral", () => parseMistral(mistralHtml, mistralPricing, checked));
+  const deepseek = guardParse("deepseek", () => parseDeepSeek(deepseekUpdates, deepseekPricing, deepseekNews, checked));
+  const groq = guardParse("groq", () => parseGroq(groqDeprecations, groqModels, checked));
+  const xai = guardParse("xai", () => parseXai({ models: xaiModels, pricing: xaiPricing, may15: xaiMay15, nov2: xaiNov2, releaseNotes: xaiRelease }, checked));
+  const cohere = guardParse("cohere", () => parseCohere(cohereDeprecations, cohereModels, checked));
+  const openrouter = await guardStep("openrouter", () => loadOpenRouterModels({ fromSnapshots, checked, root }));
+  const nebius = await guardStep("nebius", async () => {
+    const nebiusPages = await loadNebiusPages({ fromSnapshots, checked, root });
+    const models = assembleNebius(
+      nebiusPages.november,
+      nebiusPages.august,
+      checked,
+      previous.filter((model) => model.provider === "nebius"),
+    );
+    if (!models) console.error("Nebius deprecation pages were not applied. Stored Nebius rows stay.");
+    return models;
+  });
+  const together = await guardStep("together", async () => {
+    const togetherPages = await loadTogetherPages({ fromSnapshots, checked, root });
+    const models = assembleTogether(
+      togetherPages,
+      checked,
+      previous.filter((model) => model.provider === "together"),
+    );
+    if (!models) console.error("Together deprecations page was not applied. Stored Together rows stay.");
+    return models;
+  });
+  const fireworks = await guardStep("fireworks", async () => {
+    const fireworksPages = await loadFireworksPages({ fromSnapshots, checked, root });
+    const models = assembleFireworks(
+      fireworksPages,
+      checked,
+      previous.filter((model) => model.provider === "fireworks"),
+    );
+    if (!models) console.error("Fireworks changelog was not applied. Stored Fireworks rows stay.");
+    return models;
+  });
+  const copilot = await guardStep("github-copilot", async () => {
+    const copilotPages = await loadCopilotPages({ fromSnapshots, checked, root });
+    const models = assembleCopilot(
+      copilotPages,
+      checked,
+      previous.filter((model) => model.provider === "github-copilot"),
+    );
+    if (!models) console.error("GitHub Copilot pages were not applied. Stored GitHub Copilot rows stay.");
+    return models;
+  });
+  const minimax = await guardStep("minimax", async () => {
+    const minimaxPage = await loadMinimaxPage({ fromSnapshots, checked, root });
+    const models = assembleMinimax(
+      minimaxPage,
+      checked,
+      previous.filter((model) => model.provider === "minimax"),
+    );
+    if (!models) console.error("MiniMax model list was not applied. Stored MiniMax rows stay.");
+    return models;
+  });
+  const cloudflare = await guardStep("cloudflare-workers-ai", async () => {
+    const cloudflarePages = await loadCloudflarePages({ fromSnapshots, checked, root });
+    const models = assembleCloudflare(
+      cloudflarePages,
+      checked,
+      previous.filter((model) => model.provider === "cloudflare-workers-ai"),
+    );
+    if (!models) console.error("Cloudflare Workers AI changelog was not applied. Stored Cloudflare Workers AI rows stay.");
+    return models;
+  });
 
-  const groups = new Map<string, ScrapedModel[]>([
+  const groups = new Map<string, ScrapedModel[]>();
+  const parsed = [
     ["openai", openai],
     ["anthropic", anthropic],
     ["google-gemini-api", gemini],
@@ -254,7 +272,10 @@ async function scrapeAll(previous: ModelRecord[]): Promise<Map<string, ScrapedMo
     ["groq", groq],
     ["xai", xai],
     ["cohere", cohere],
-  ]);
+  ] as const;
+  for (const [provider, models] of parsed) {
+    if (models) groups.set(provider, models);
+  }
   if (openrouter) groups.set("openrouter", openrouter);
   if (nebius) groups.set("nebius", nebius);
   if (together) groups.set("together", together);
@@ -283,6 +304,32 @@ async function scrapeAll(previous: ModelRecord[]): Promise<Map<string, ScrapedMo
   // deletes the saved alias record.
   addUndatedAliasStubs(groups, checked);
   return groups;
+}
+
+function reportProviderFailure(provider: string, error: unknown) {
+  const message = error instanceof Error ? error.message : String(error);
+  const reason = `${provider} failed: ${message}`;
+  console.error(reason);
+  console.error(providerKeptLine(provider));
+  console.error(`${PROVIDER_FAILURE_PREFIX} ${reason}`);
+}
+
+function guardParse(provider: string, run: () => ScrapedModel[]): ScrapedModel[] | null {
+  try {
+    return run();
+  } catch (error) {
+    reportProviderFailure(provider, error);
+    return null;
+  }
+}
+
+async function guardStep<T>(provider: string, run: () => Promise<T>): Promise<T | null> {
+  try {
+    return await run();
+  } catch (error) {
+    reportProviderFailure(provider, error);
+    return null;
+  }
 }
 
 function addReplacementStubs(groups: Map<string, ScrapedModel[]>, checkedOn: string) {

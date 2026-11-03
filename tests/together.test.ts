@@ -15,6 +15,7 @@ import { llmsTxt } from "../src/lib/llms.ts";
 import { loadModels, loadProviders } from "../src/lib/load.ts";
 import { requestErrorsForProvider } from "../src/lib/request-errors.ts";
 import { sitemapSection } from "../src/lib/sitemaps.ts";
+import { GATE_EXEMPT } from "../scrapers/sanity.ts";
 import { modelSchema, type ModelRecord } from "../src/schema.ts";
 
 const checked = "2026-10-28";
@@ -139,6 +140,7 @@ describe("Together records", () => {
     );
     const run = readFileSync("scrapers/run.ts", "utf8");
     expect(run).toContain("Together deprecations page was not applied. Stored Together rows stay.");
-    expect(run).toContain('if (provider === "together") continue;');
+    expect(run).toContain("applyProviderGate");
+    expect(GATE_EXEMPT.has("together")).toBe(true);
   });
 });
