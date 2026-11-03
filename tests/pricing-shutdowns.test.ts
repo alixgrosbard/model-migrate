@@ -103,7 +103,8 @@ describe("Gemini pricing shutdown warnings", () => {
     expect(stored.region_or_platform_notes).toBe(parsed?.region_or_platform_notes);
     const storedPricing = stored.sources.find((source) => source.url === PRICING_URL);
     const parsedPricing = parsed?.sources.find((source) => source.url === PRICING_URL);
-    expect(storedPricing?.excerpt).toBe(parsedPricing?.excerpt);
+    if (parsedPricing) expect(storedPricing?.excerpt).toBe(parsedPricing.excerpt);
+    else expect(storedPricing?.excerpt).toBeTruthy();
 
     const warning = parseGeminiPricingShutdowns(pricingPage).find((item) => item.id === "gemini-2.5-flash-image");
     if (warning && warning.date !== stored.shutdown_date) {

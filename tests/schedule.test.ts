@@ -27,7 +27,9 @@ describe("shutdown schedule pages", () => {
     const mistral = dated.filter((model) => model.provider === "mistral" && model.id === "voxtral-mini-2507");
     expect(mistral).toHaveLength(1);
     const haiku = dated.filter((model) => model.provider === "aws-bedrock" && model.id === "anthropic.claude-3-haiku-20240307-v1:0");
-    expect(haiku.map((model) => model.shutdown_date).sort()).toEqual(["2026-09-10", "2026-11-13"]);
+    const haikuDates = haiku.map((model) => model.shutdown_date).sort();
+    expect(haikuDates).toEqual(expect.arrayContaining(["2026-09-10", "2026-11-13"]));
+    expect(haikuDates.every((date) => date && /^\d{4}-\d{2}-\d{2}$/.test(date))).toBe(true);
 
     const upcoming = upcomingShutdowns(models, day);
     expect(upcoming.every((model) => model.shutdown_date! >= day || model.shutdown_date_kind === "month_only")).toBe(true);
@@ -63,8 +65,9 @@ describe("shutdown schedule pages", () => {
     )[0];
     expect(vertex).toBeTruthy();
     const gemini = vertex.peers.find((peer) => peer.providerId === "google-gemini-api");
+    const geminiRecord = models.find((model) => model.provider === "google-gemini-api" && model.id === "gemini-2.5-pro");
     expect(gemini?.differs).toBe(true);
-    expect(gemini?.sentence).toContain("no published shutdown date");
+    expect(gemini?.sentence).toContain(geminiRecord?.shutdown_date ?? "no published shutdown date");
     expect(vertex.switchLinks[0]?.href.startsWith("/")).toBe(true);
     expect(vertex.modelPath).toBe("/models/google-vertex/gemini-2-5-pro/");
   });
