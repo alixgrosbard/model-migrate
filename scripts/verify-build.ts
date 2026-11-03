@@ -356,6 +356,16 @@ async function main() {
     if (!html.includes('"Article"') && !html.includes('"HowTo"')) throw new Error(`JSON-LD missing Article or HowTo in ${rel}`);
     if (!html.includes('"BreadcrumbList"')) throw new Error(`JSON-LD missing BreadcrumbList in ${rel}`);
     if (!html.includes(guideChecked(guide))) throw new Error(`Guide is missing the review date: ${rel}`);
+    if (guide.slug === "amazon-bedrock-open-weight-models-shutdown-march-30-2027") {
+      const guidesSitemap = await readFile(path.join(dist, "sitemap-guides.xml"), "utf8");
+      if (!guidesSitemap.includes(rel)) throw new Error(`sitemap-guides.xml is missing ${rel}`);
+      if (!html.includes('"FAQPage"')) throw new Error("March 30, 2027 guide is missing FAQPage JSON-LD");
+      if (!html.includes("no official replacement")) throw new Error("March 30, 2027 guide is missing the replacement cell");
+      const modelPage = await readFile(path.join(dist, "models/aws-bedrock/deepseek-r1-v1-0/index.html"), "utf8");
+      if (!modelPage.includes(rel)) throw new Error("deepseek.r1-v1:0 model page is missing the March 30, 2027 guide");
+      const shutdownPage = await readFile(path.join(dist, "shutdowns/aws-bedrock-2027-03-30/index.html"), "utf8");
+      if (!shutdownPage.includes(rel)) throw new Error("March 30, 2027 shutdown page is missing the guide");
+    }
     if (guide.slug === "custom-gpt-retirement") {
       const origin = siteOrigin();
       if (!html.includes(`<title>${guide.title}</title>`)) throw new Error("Custom GPT guide title mismatch");
