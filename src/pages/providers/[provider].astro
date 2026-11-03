@@ -168,6 +168,8 @@ const openaiGuides = provider.id === "openai"
       AWS does not name a replacement model ID.
       Those two ids are short of the three-model batch, so there is no /shutdowns/aws-bedrock-2026-11-26/ page.
       <a href="/guides/amazon-bedrock-ai21-jamba-shutdown-november-26-2026/">Jamba 1.5 shutdown guide</a>.
+      November 27, 2026 is the end of life the legacy lifecycle page lists for Claude 3 Haiku and Claude 3 Sonnet in ca-central-1.
+      <a href="/shutdowns/aws-bedrock-2026-11-27/">November 27, 2026 shutdowns</a>.
       <a href="/errors/bedrock-model-version-has-reached-the-end-of-its-life/">End of life error</a>.
       <a href="/#soonest">Soonest shutdowns on the homepage</a>.
     </p>
@@ -207,6 +209,11 @@ const openaiGuides = provider.id === "openai"
       That page says the table date is the earliest possible retirement.
       <a href="/shutdowns/google-gemini-api-2026-11-17/">November 17, 2026 shutdowns</a>.
       <a href="/guides/gemini-api-model-shutdowns-november-17-2026/">November 17, 2026 model guide</a>.
+      December 1, 2026 is the shutdown date that page lists for gemini-2.5-pro and gemini-2.5-flash.
+      On that date, requests to gemini-2.5-pro route to gemini-3.8-flash, and requests to gemini-2.5-flash route to gemini-3.5-flash-lite.
+      gemini-2.5-flash-lite is not deprecated.
+      <a href="/shutdowns/google-gemini-api-2026-12-01/">December 1, 2026 shutdowns</a>.
+      <a href="/guides/gemini-2-5-pro-flash-auto-route-december-1-2026/">December 1, 2026 auto-route guide</a>.
       <a href="/#soonest">Soonest shutdowns on the homepage</a>.
     </p>
   ) : (

@@ -9,6 +9,7 @@ import {
   DECEMBER_11_GUIDE_SLUG,
   DECEMBER_1_IMAGE_GUIDE_SLUG,
   FIREWORKS_NOV7_GUIDE_SLUG,
+  GEMINI_DEC1_GUIDE_SLUG,
   GEMINI_NOV17_GUIDE_SLUG,
   NEBIUS_NOV9_GUIDE_SLUG,
   datasetShutdownGuides,
@@ -22,7 +23,9 @@ import {
   isDecember11OpenAiShutdown,
   isDecember1ImageShutdown,
   isFireworksNov7Shutdown,
+  isGeminiDec1AutoRoute,
   isGeminiNov17Shutdown,
+  showsGeminiDec1Guide,
   isJanuary2027AudioShutdown,
   isJanuary2027Gpt4Shutdown,
   isMinimaxNov18Shutdown,
@@ -657,7 +660,7 @@ const guidePages: GuidePage[] = [
       {
         heading: "gemini-2.5-pro",
         paragraphs: [
-          "The Gemini API deprecations page lists gemini-2.5-pro as deprecated, with shutdown date December 1, 2026, and replacement gemini-3.8-flash. It says API access is limited to existing users, and that requests route to gemini-3.8-flash on that date. gemini-2.5-flash-lite is the 2.5 id that page still calls not deprecated.",
+          "The Gemini API deprecations page lists gemini-2.5-pro as deprecated, with shutdown date December 1, 2026, and replacement gemini-3.8-flash. It says API access is limited to existing users, and that requests route to gemini-3.8-flash on that date. gemini-2.5-flash routes to gemini-3.5-flash-lite on the same day. gemini-2.5-flash-lite is the 2.5 id that page still calls not deprecated. The step-by-step page is [Gemini 2.5 Pro and Flash auto-route on December 1, 2026](/guides/gemini-2-5-pro-flash-auto-route-december-1-2026/).",
           "The Vertex model versions table lists gemini-2.5-pro with release date June 17, 2025, retirement date October 20, 2026, and replacement gemini-3.8-flash or gemini-3.5-flash.",
         ],
         sources: [
@@ -1417,7 +1420,7 @@ curl -fsSL https://sunsetdiff.com/api/v1/upcoming.json
         heading: "Alert when the run has no output",
         paragraphs: [
           "Fail before the rest of the job runs. The status codes in the table are the ones to raise on. An empty model result is the second check: the handler may have caught the error and returned no text.",
-          "Gemini is the partial case. ecomAssistant#92 says one key that counts as a new user gets HTTP 404 for gemini-2.5-flash, and older keys still work. A retry on a second key can hide that some calls never ran. Google's deprecations page says 2.5 access is limited to users who have actively used those models, and that the models are not deprecated.",
+          "Gemini is the partial case. ecomAssistant#92 says one key that counts as a new user gets HTTP 404 for gemini-2.5-flash, and older keys still work. A retry on a second key can hide that some calls never ran. Google's deprecations page says 2.5 access is limited to users who have actively used those models. gemini-2.5-pro and gemini-2.5-flash are deprecated, with shutdown date December 1, 2026. gemini-2.5-flash-lite is not deprecated. The step-by-step page is [Gemini 2.5 Pro and Flash auto-route on December 1, 2026](/guides/gemini-2-5-pro-flash-auto-route-december-1-2026/).",
         ],
         codes: [
           {
@@ -1474,7 +1477,7 @@ curl -fsSL https://sunsetdiff.com/api/v1/lookup/gpt-4.1-nano.json
       {
         question: "Why did one Gemini key work and another return 404?",
         answer:
-          "ecomAssistant#92 says a key that counts as a new user gets HTTP 404 for gemini-2.5-flash, and older keys still work. Google's deprecations page says 2.5 access is limited to users who have actively used those models, and that the models are not deprecated.",
+          "ecomAssistant#92 says a key that counts as a new user gets HTTP 404 for gemini-2.5-flash, and older keys still work. Google's deprecations page says 2.5 access is limited to users who have actively used those models. gemini-2.5-pro and gemini-2.5-flash are deprecated, with shutdown date December 1, 2026. gemini-2.5-flash-lite is not deprecated.",
       },
       {
         question: "Where is the DeepSeek API retirement in SunsetDiff?",
@@ -2468,6 +2471,7 @@ export function guidesForModel(model: ModelRecord, catalog: ModelRecord[]): Mode
   if (showsOpenRouterNovDecGuide(model)) add(OPENROUTER_NOV_DEC_GUIDE_SLUG);
   if (isNebiusNov9Shutdown(model)) add(NEBIUS_NOV9_GUIDE_SLUG);
   if (isGeminiNov17Shutdown(model)) add(GEMINI_NOV17_GUIDE_SLUG);
+  if (showsGeminiDec1Guide(model) || isGeminiDec1AutoRoute(model)) add(GEMINI_DEC1_GUIDE_SLUG);
   if (
     isVertexNovDecGemini(model)
     || (

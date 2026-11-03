@@ -27,6 +27,7 @@ import {
   shutdownEventPath,
   shutdownEventTitle,
   shutdownEvents,
+  SMALL_SHUTDOWN_BATCHES,
 } from "../src/lib/shutdowns.ts";
 
 const day = "2026-10-19";
@@ -60,11 +61,17 @@ describe("shutdown batches", () => {
       const key = `${model.provider}|${model.shutdown_date}`;
       expected.set(key, (expected.get(key) ?? 0) + 1);
     }
-    const keys = [...expected.entries()].filter(([, count]) => count >= 3).map(([key]) => key).sort();
+    const keys = [...expected.entries()]
+      .filter(([key, count]) => count >= 3 || SMALL_SHUTDOWN_BATCHES.has(key))
+      .map(([key]) => key)
+      .sort();
     expect(events.map((event) => `${event.provider}|${event.date}`).sort()).toEqual(keys);
     expect(events.length).toBeGreaterThan(0);
+    expect(events.some((event) => event.slug === "google-gemini-api-2026-12-01")).toBe(true);
+    expect(events.some((event) => event.slug === "aws-bedrock-2026-11-27")).toBe(true);
     for (const event of events) {
-      expect(event.models.length).toBeGreaterThanOrEqual(3);
+      const minimum = SMALL_SHUTDOWN_BATCHES.has(`${event.provider}|${event.date}`) ? 1 : 3;
+      expect(event.models.length).toBeGreaterThanOrEqual(minimum);
       expect(event.models.every((model) => model.shutdown_date === event.date && model.shutdown_date_kind === "exact")).toBe(true);
       expect(new Set(event.models.map((model) => model.provider))).toEqual(new Set([event.provider]));
     }

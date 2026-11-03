@@ -1,5 +1,5 @@
 import type { MigrationRecord, ModelRecord, Provider } from "../schema.ts";
-import { GEMINI_25_ACCESS_CHECKED, GEMINI_25_ACCESS_SOURCE, gemini25Restricted } from "./access.ts";
+import { gemini25Restricted } from "./access.ts";
 import { aliasLead, aliasReplacementSentence, aliasSnapshotView } from "./aliases.ts";
 import { disagreementNote } from "./conflicts.ts";
 
@@ -155,7 +155,7 @@ export function modelFaqs(
       question: `Is ${visibleName(model)} deprecated?`,
       answer:
         gemini25Restricted(model) && model.status === "active" && !model.shutdown_date
-          ? `${visibleName(model)} status is ${model.status}. Google's deprecations page says these models are not deprecated, and limits access to users who have actively used the 2.5 models in the past. Source: ${GEMINI_25_ACCESS_SOURCE}, checked ${GEMINI_25_ACCESS_CHECKED}.`
+          ? `${visibleName(model)} status is ${model.status}. Checked 2026-11-03, the Gemini API deprecations page says gemini-2.5-flash-lite is not deprecated and remains available through the API until further notice. Access to the 2.5 models is limited to users who have actively used them in the past. gemini-2.5-pro and gemini-2.5-flash are deprecated, with shutdown date December 1, 2026. Source: https://aistudio.google.com/docs/deprecations.`
           : `${visibleName(model)} status is ${model.status}.`,
     },
   ];

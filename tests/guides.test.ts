@@ -37,6 +37,7 @@ const ALLOWED_HOSTS = new Set([
   "developers.openai.com",
   "platform.claude.com",
   "ai.google.dev",
+  "aistudio.google.com",
   "docs.cloud.google.com",
   "firebase.google.com",
   "learn.microsoft.com",
@@ -1300,5 +1301,82 @@ describe("guides", () => {
     expect(text).toContain("/guides/openrouter-model-expirations-november-december-2026/");
     expect(full).toContain("/guides/openrouter-model-expirations-november-december-2026/");
     expect(lastmodForUrl("https://sunsetdiff.com/guides/openrouter-model-expirations-november-december-2026/")).toBe("2026-11-02");
+  });
+
+  it("builds the Gemini 2.5 Pro and Flash December 1 auto-route guide", async () => {
+    const models = await loadModels();
+    const rows = models
+      .filter((model) => model.provider === "google-gemini-api" && model.shutdown_date === "2026-12-01" && model.shutdown_date_kind === "exact")
+      .sort((a, b) => a.id.localeCompare(b.id));
+    expect(rows.map((model) => model.id)).toEqual(["gemini-2.5-flash", "gemini-2.5-pro"]);
+    expect(rows[0]?.replacements.map((item) => item.model_id)).toEqual(["gemini-3.5-flash-lite"]);
+    expect(rows[1]?.replacements.map((item) => item.model_id)).toEqual(["gemini-3.8-flash"]);
+    const lite = models.find((model) => model.provider === "google-gemini-api" && model.id === "gemini-2.5-flash-lite");
+    expect(lite?.status).toBe("active");
+    expect(lite?.shutdown_date).toBeNull();
+
+    const { shutdownEvents, batchLead, batchHeadline } = await import("../src/lib/shutdowns.ts");
+    const { loadProviders } = await import("../src/lib/load.ts");
+    const providers = await loadProviders();
+    const event = shutdownEvents(models).find((item) => item.slug === "google-gemini-api-2026-12-01");
+    const bedrock = shutdownEvents(models).find((item) => item.slug === "aws-bedrock-2026-11-27");
+    expect(event?.models.map((model) => model.id)).toEqual(["gemini-2.5-flash", "gemini-2.5-pro"]);
+    expect(bedrock?.models.map((model) => model.id).sort()).toEqual([
+      "anthropic.claude-3-haiku-20240307-v1:0",
+      "anthropic.claude-3-sonnet-20240229-v1:0",
+    ]);
+    const name = providers.find((provider) => provider.id === "google-gemini-api")!.name;
+    const lead = batchLead(name, event!, "2026-11-03");
+    expect(lead).toContain("gemini-3.8-flash");
+    expect(lead).toContain("gemini-3.5-flash-lite");
+    expect(lead).toContain("not deprecated");
+    expect(lead).not.toContain("start failing");
+    const title = batchHeadline(name, event!, "2026-11-03");
+    expect(title).toContain("gemini-2.5-flash");
+    expect(title).toContain("Dec 1, 2026");
+    const bedrockName = providers.find((provider) => provider.id === "aws-bedrock")!.name;
+    const bedrockTitle = batchHeadline(bedrockName, bedrock!, "2026-11-03");
+    expect(bedrockTitle).toContain("Claude 3");
+    expect(bedrockTitle).toContain("in some Regions");
+
+    const guide = guides.find((item) => item.slug === "gemini-2-5-pro-flash-auto-route-december-1-2026");
+    expect(guide).toBeTruthy();
+    if (!guide) return;
+    expect(guidePath(guide.slug)).toBe("/guides/gemini-2-5-pro-flash-auto-route-december-1-2026/");
+    expect(guideChecked(guide)).toBe("2026-11-03");
+    const blob = JSON.stringify(guide);
+    expect(blob).toContain("gemini-2.5-pro will automatically route to gemini-3.8-flash");
+    expect(blob).toContain("gemini-2.5-flash will automatically route to gemini-3.5-flash-lite");
+    expect(blob).toContain("gemini-2.5-flash-lite is not deprecated");
+    expect(blob).toContain("$0.75/1M input tokens");
+    expect(blob).toContain("$0.30/1M input tokens and $2.50/1M output tokens");
+    expect(blob).toContain("minimal thinking level is not supported");
+    expect(blob).toContain("https://aistudio.google.com/docs/deprecations");
+    expect(blob).toContain("https://aistudio.google.com/docs/whats-new-gemini-3.8#migrate-to-gemini-3-8-flash");
+    expect(blob).toContain("https://aistudio.google.com/docs/whats-new-gemini-3.6#migrate-to-gemini-3-5-flash-lite");
+    expect(blob).toContain("/shutdowns/google-gemini-api-2026-12-01/");
+    expect(blob).not.toMatch(/[—–]/);
+    const sample = guide.sections.flatMap((section) => section.codes ?? []).map((item) => item.code).join("\n");
+    expect(sample).toContain('model="gemini-3.8-flash"');
+    expect(sample).toContain('model="gemini-3.5-flash-lite"');
+    expect(sample).toContain('model="gemini-2.5-pro"');
+    expect(sitemapSection(guidePath(guide.slug))).toBe("sitemap-guides.xml");
+    expect(guidesForModel(rows[0], models).map((link) => link.href)[0]).toBe(guidePath(guide.slug));
+    expect(guidesForModel(rows[1], models).map((link) => link.href)[0]).toBe(guidePath(guide.slug));
+    expect(guidesForModel(lite!, models).map((link) => link.href)).toContain(guidePath(guide.slug));
+    const graph = guideGraph("https://sunsetdiff.com/", guide);
+    expect(graph.some((node) => node["@type"] === "HowTo")).toBe(true);
+    expect(graph.some((node) => node["@type"] === "FAQPage")).toBe(true);
+    const providerPage = readFileSync("src/pages/providers/[provider].astro", "utf8");
+    const shutdownPage = readFileSync("src/pages/shutdowns/[slug].astro", "utf8");
+    expect(providerPage).toContain("/guides/gemini-2-5-pro-flash-auto-route-december-1-2026/");
+    expect(providerPage).toContain("/shutdowns/google-gemini-api-2026-12-01/");
+    expect(providerPage).toContain("/shutdowns/aws-bedrock-2026-11-27/");
+    expect(shutdownPage).toContain("gemini-2-5-pro-flash-auto-route-december-1-2026");
+    const text = llmsTxt("https://sunsetdiff.com", [], []);
+    const full = llmsFull("https://sunsetdiff.com", []);
+    expect(text).toContain("/guides/gemini-2-5-pro-flash-auto-route-december-1-2026/");
+    expect(full).toContain("/guides/gemini-2-5-pro-flash-auto-route-december-1-2026/");
+    expect(lastmodForUrl("https://sunsetdiff.com/guides/gemini-2-5-pro-flash-auto-route-december-1-2026/")).toBe("2026-11-03");
   });
 });

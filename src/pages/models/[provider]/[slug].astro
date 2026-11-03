@@ -6,7 +6,7 @@ import InlineText from "../../../components/InlineText.astro";
 import NewsletterForm from "../../../components/NewsletterForm.astro";
 import SponsorSlot from "../../../components/SponsorSlot.astro";
 import { loadChanges, loadMigrations, loadModels, loadProviders } from "../../../lib/load.ts";
-import { GEMINI_25_ACCESS_CHECKED, GEMINI_25_ACCESS_QUOTE, GEMINI_25_ACCESS_SOURCE, gemini25Restricted } from "../../../lib/access.ts";
+import { gemini25Restricted } from "../../../lib/access.ts";
 import { CONFLICTS_PATH, disagreementNote, noteWithoutDisagreement } from "../../../lib/conflicts.ts";
 import { aliasSnapshotView } from "../../../lib/aliases.ts";
 import { answerSentence, autoRouteStatusText, formatWhen, metaDescription, modelFaqs, modelTitle, money, relatedModels, tokens, uniqueVisibleName } from "../../../lib/format.ts";
@@ -51,7 +51,8 @@ const retiringReplacements = replacementRetirement(model, models);
 const onCopilotNov16 = shutdownEvents(models).some(
   (event) => event.slug === COPILOT_NOV16_SLUG && event.models.some((item) => item.provider === model.provider && item.slug === model.slug),
 );
-const statusLabel = alias?.badgeMessage ?? autoRouteStatusText(model) ?? (restrictedAccess ? "existing users only" : model.status);
+const datedShutdown = Boolean(model.shutdown_date) && model.shutdown_date_kind !== "none";
+const statusLabel = alias?.badgeMessage ?? autoRouteStatusText(model) ?? (restrictedAccess && !datedShutdown ? "existing users only" : model.status);
 const specRows: [string, string, string][] = [
   ["Input price / 1M", money(model.specs.input_price_per_mtok), "input_price_per_mtok"],
   ["Output price / 1M", money(model.specs.output_price_per_mtok), "output_price_per_mtok"],
@@ -106,8 +107,18 @@ const specRows: [string, string, string][] = [
         <tr>
           <th scope="row">Access</th>
           <td>
-            <q>{GEMINI_25_ACCESS_QUOTE}</q>
-            {" "}<a href={GEMINI_25_ACCESS_SOURCE}>Source</a>, checked {GEMINI_25_ACCESS_CHECKED}.
+            {datedShutdown ? (
+              <>
+                Google limits API access to users who have actively used this model.
+                {" "}<a href="/guides/gemini-2-5-pro-flash-auto-route-december-1-2026/">December 1, 2026 auto-route guide</a>.
+              </>
+            ) : (
+              <>
+                Google says access to the 2.5 models is limited to users who have actively used them in the past. gemini-2.5-flash-lite is not deprecated and remains available through the API until further notice.
+                {" "}<a href="https://aistudio.google.com/docs/deprecations">Source</a>, checked 2026-11-03.
+              </>
+            )}
+            {" "}
             {" "}The <a href="/errors/gemini-model-no-longer-available-to-new-users/">new-user 404</a> quotes the sentence recorded for gemini-2.5-flash.
             {" "}The <a href="/errors/gemini-model-no-longer-available/">shutdown 404 page</a> quotes a different sentence recorded for gemini-2.0-flash.
             {model.id === "gemini-2.5-flash" ? (

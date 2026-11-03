@@ -6,6 +6,17 @@ const MONTHS = ["January", "February", "March", "April", "May", "June", "July", 
 /** A batch page exists only when this many models share one provider and one exact shutdown date. */
 export const SHUTDOWN_BATCH_MIN = 3;
 
+/**
+ * Exact dates that still get a /shutdowns/ page with fewer than SHUTDOWN_BATCH_MIN rows.
+ * shutdownEvents reads the current dataset. A reroute note or a region limit does not
+ * drop a row when shutdown_date_kind is exact. These two dates have two exact rows each,
+ * which is why the three-model rule hid them. Other two-row dates stay unpublished.
+ */
+export const SMALL_SHUTDOWN_BATCHES = new Set([
+  "google-gemini-api|2026-12-01",
+  "aws-bedrock|2026-11-27",
+]);
+
 /** GitHub changelog post for the November 16, 2026 Copilot retirements. */
 export const COPILOT_NOV16_SLUG = "github-copilot-2026-11-16";
 export const COPILOT_NOV16_PATH = `/shutdowns/${COPILOT_NOV16_SLUG}/`;
@@ -56,6 +67,7 @@ export function shutdownEventPath(event: Pick<ShutdownEvent, "slug">): string {
 
 /**
  * One event per provider and exact shutdown date with at least three model records.
+ * SMALL_SHUTDOWN_BATCHES also publishes the named two-row dates.
  * "Not sooner than" dates are floors, so they are not events. Month-only dates are not a single day.
  */
 export function shutdownEvents(models: ModelRecord[]): ShutdownEvent[] {
@@ -68,8 +80,8 @@ export function shutdownEvents(models: ModelRecord[]): ShutdownEvent[] {
     groups.set(key, list);
   }
   const events: ShutdownEvent[] = [];
-  for (const list of groups.values()) {
-    if (list.length < SHUTDOWN_BATCH_MIN) continue;
+  for (const [key, list] of groups) {
+    if (list.length < SHUTDOWN_BATCH_MIN && !SMALL_SHUTDOWN_BATCHES.has(key)) continue;
     const modelsInEvent = [...list].sort((a, b) => a.id.localeCompare(b.id) || a.slug.localeCompare(b.slug));
     const date = modelsInEvent[0].shutdown_date!;
     const provider = modelsInEvent[0].provider;
@@ -463,11 +475,14 @@ export function batchLead(providerName: string, event: ShutdownEvent, day: strin
   if (event.slug === COPILOT_NOV16_SLUG) return copilotNov16Lead();
   if (isModelIdBatch(event)) return openAiShortAnswer(event, day);
   if (event.provider === "aws-bedrock" && event.date === "2026-11-13") return bedrockShortAnswer(day);
+  if (event.provider === "google-gemini-api" && event.date === "2026-12-01") return geminiDec1Lead(day);
+  if (event.provider === "aws-bedrock" && event.date === "2026-11-27") return bedrockNov27Lead(day);
   return batchExtras(event).lead ?? shutdownEventLead(providerName, event, day);
 }
 
 export function batchChecklist(event: ShutdownEvent, day: string): string[] {
   if (event.slug === COPILOT_NOV16_SLUG) return copilotNov16Checklist();
+  if (event.provider === "google-gemini-api" && event.date === "2026-12-01") return geminiDec1Checklist();
   const steps = shutdownEventChecklist(event, day);
   if (event.provider === "aws-bedrock" && event.date === "2026-11-13" && !isPastShutdown(event.date, day)) {
     steps[0] = "Find every request that still uses these model ids before November 13, 2026 in some Regions.";
@@ -480,6 +495,7 @@ export function batchFaqs(providerName: string, event: ShutdownEvent, day: strin
   const extras = batchExtras(event);
   if (isModelIdBatch(event)) return openAiOct23Faqs(event, day);
   if (event.provider === "aws-bedrock" && event.date === "2026-11-13") return bedrockNov13Faqs(day);
+  if (event.provider === "google-gemini-api" && event.date === "2026-12-01") return geminiDec1Faqs(day);
   const generic = shutdownEventFaqs(providerName, event, day);
   const items = [...generic, ...extras.faqs];
   return items.map((item) => ({ ...item, answer: limitBedrockAnswer(event, item.answer) }));
@@ -749,8 +765,78 @@ export function batchExtras(event: ShutdownEvent): BatchExtras {
       note: "This page is the GPT-4o and GPT-4.1 snapshots OpenAI is removing on January 14, 2027. Earlier GPT-4o and GPT-4.1 snapshots are on the October 23, 2026 page.",
     };
   }
+  if (event.provider === "aws-bedrock" && event.date === "2026-11-27") {
+    return {
+      ...EMPTY_EXTRAS,
+      showRegions: true,
+      note: "November 27, 2026 is the end-of-life date the legacy lifecycle page lists for Claude 3 Haiku and Claude 3 Sonnet in ca-central-1. The same model ids use other dates in other Regions. November 13, 2026 is a different batch. Claude 3 Haiku already reached end of life on September 10, 2026 in another set of Regions.",
+      checkedUrl: "https://docs.aws.amazon.com/bedrock/latest/userguide/model-lifecycle-legacy.html",
+    };
+  }
+  if (event.provider === "google-gemini-api" && event.date === "2026-12-01") {
+    return {
+      ...EMPTY_EXTRAS,
+      note: "The deprecations page also says the shutdown dates in the table are the earliest possible dates, and that Google will communicate the exact shutdown date with advance notice. The caution for these two ids says the route is effective December 1, 2026. gemini-2.5-flash-lite is not in this batch.",
+      checkedUrl: "https://aistudio.google.com/docs/deprecations",
+    };
+  }
   if (event.provider === "aws-bedrock") return { ...EMPTY_EXTRAS, showRegions: true };
   return EMPTY_EXTRAS;
+}
+
+function geminiDec1Lead(day: string): string {
+  const when = longDate("2026-12-01");
+  const past = isPastShutdown("2026-12-01", day);
+  const route = past
+    ? `On ${when}, requests to gemini-2.5-pro automatically routed to gemini-3.8-flash and were billed at Gemini 3.8 Flash rates. Requests to gemini-2.5-flash automatically routed to gemini-3.5-flash-lite and were billed at Gemini 3.5 Flash-Lite rates.`
+    : `On ${when}, requests to gemini-2.5-pro automatically route to gemini-3.8-flash and are billed at Gemini 3.8 Flash rates. Requests to gemini-2.5-flash automatically route to gemini-3.5-flash-lite and are billed at Gemini 3.5 Flash-Lite rates.`;
+  const access = past ? "Access was already limited to existing users." : "Access is already limited to existing users.";
+  return `${route} The response comes from the replacement model. ${access} gemini-2.5-flash-lite stays available. Google says that id is not deprecated. Source: Gemini API deprecations page.`;
+}
+
+function bedrockNov27Lead(day: string): string {
+  const past = isPastShutdown("2026-11-27", day);
+  if (past) {
+    return "Claude 3 Haiku and Claude 3 Sonnet reached end of life on November 27, 2026 in ca-central-1. The same model ids use other dates in other Regions. AWS does not name a replacement on the lifecycle page. Requests failed after end of life in the Regions on the row. Source: AWS Bedrock legacy lifecycle page.";
+  }
+  return "Amazon Bedrock lists November 27, 2026 as the end of life for Claude 3 Haiku and Claude 3 Sonnet in ca-central-1. The same model ids use other dates in other Regions. AWS does not name a replacement on the lifecycle page. After end of life, requests fail in the Regions on the row. Source: AWS Bedrock legacy lifecycle page.";
+}
+
+function geminiDec1Checklist(): string[] {
+  return [
+    "Search the repository for gemini-2.5-pro and gemini-2.5-flash before December 1, 2026.",
+    "Send one real request to gemini-3.8-flash and one real request to gemini-3.5-flash-lite before that date. Read the migration guide for that id first.",
+    "Set the model id in the request to the replacement. An old id left in place is the id Google routes, and the bill follows the replacement, on December 1, 2026.",
+    "Leave calls that use gemini-2.5-flash-lite on gemini-2.5-flash-lite. Google says that id is not deprecated.",
+  ];
+}
+
+function geminiDec1Faqs(day: string): FaqItem[] {
+  const when = longDate("2026-12-01");
+  const past = isPastShutdown("2026-12-01", day);
+  return [
+    {
+      question: past ? `Which Gemini API models routed on ${when}?` : `Which Gemini API models route on ${when}?`,
+      answer:
+        "gemini-2.5-pro routes to gemini-3.8-flash. gemini-2.5-flash routes to gemini-3.5-flash-lite. gemini-2.5-flash-lite has no shutdown date on the deprecations page.",
+    },
+    {
+      question: past ? `What happened to an API request on ${when}?` : `What happens to an API request on ${when}?`,
+      answer: past
+        ? `Google says the request automatically routed to the replacement model and was billed at that model's rates. The caution does not say the call started returning an error on ${when}.`
+        : `Google says the request automatically routes to the replacement model and is billed at that model's rates. The caution does not say the call starts returning an error on ${when}.`,
+    },
+    {
+      question: "Does the bill change?",
+      answer:
+        "Yes. gemini-2.5-pro requests are billed at Gemini 3.8 Flash rates. gemini-2.5-flash requests are billed at Gemini 3.5 Flash-Lite rates. This page does not print a dollar amount. The pricing links are on the deprecations page.",
+    },
+    {
+      question: "Is gemini-2.5-flash-lite in this batch?",
+      answer:
+        "No. The deprecations page says gemini-2.5-flash-lite is not deprecated and remains available through the API until further notice. Its shutdown cell says no shutdown date announced.",
+    },
+  ];
 }
 
 const OPENAI_OCT23_GROUPS: IdGroup[] = [

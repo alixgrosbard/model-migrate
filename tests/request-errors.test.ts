@@ -177,7 +177,7 @@ describe("request error pages", () => {
     expect(geminiNewUsers?.models.map((item) => item.id)).toContain("gemini-2.5-flash");
     expect(requestErrors.find((page) => page.slug === "gemini-model-no-longer-available")?.models.some((item) => item.id === "gemini-2.5-flash")).toBe(false);
     const geminiFull = requestErrors.find((page) => page.slug === "gemini-model-no-longer-available-to-new-users");
-    expect(geminiFull?.checked).toBe("2026-11-01");
+    expect(geminiFull?.checked).toBe("2026-11-03");
     expect(geminiFull?.errorQuoted).toBe(true);
     expect(geminiFull?.errorText).toBe(
       "This model models/gemini-2.5-flash is no longer available to new users. Please update your code to use models/gemini-3.8-flash for the latest features and improvements. We recommend you to use the Interactions API (https://ai.google.dev/gemini-api/docs/get-started).",
