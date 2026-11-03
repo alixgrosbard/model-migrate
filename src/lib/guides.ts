@@ -26,6 +26,7 @@ import {
   isGeminiDec1AutoRoute,
   isGeminiNov17Shutdown,
   showsGeminiDec1Guide,
+  isFebruary2027TranscribeShutdown,
   isJanuary2027AudioShutdown,
   isJanuary2027Gpt4Shutdown,
   isMinimaxNov18Shutdown,
@@ -35,6 +36,7 @@ import {
   isVertexNovDecGemini,
   OPENROUTER_NOV_DEC_GUIDE_SLUG,
   showsOpenRouterNovDecGuide,
+  FEBRUARY_26_TRANSCRIBE_GUIDE_SLUG,
   JANUARY_2027_AUDIO_GUIDE_SLUG,
   JANUARY_2027_GPT4_GUIDE_SLUG,
   MINIMAX_NOV18_GUIDE_SLUG,
@@ -2458,6 +2460,7 @@ export function guidesForModel(model: ModelRecord, catalog: ModelRecord[]): Mode
   if (isDecember1ImageShutdown(model)) add(DECEMBER_1_IMAGE_GUIDE_SLUG);
   if (isDecember11OpenAiShutdown(model)) add(DECEMBER_11_GUIDE_SLUG);
   if (isJanuary2027AudioShutdown(model)) add(JANUARY_2027_AUDIO_GUIDE_SLUG);
+  if (isFebruary2027TranscribeShutdown(model)) add(FEBRUARY_26_TRANSCRIBE_GUIDE_SLUG);
   if (isJanuary2027Gpt4Shutdown(model)) add(JANUARY_2027_GPT4_GUIDE_SLUG);
   if (isMinimaxNov18Shutdown(model)) add(MINIMAX_NOV18_GUIDE_SLUG);
   if (isBedrockNov13Shutdown(model) || (model.provider === "aws-bedrock" && model.id === "anthropic.claude-3-haiku-20240307-v1:0")) {

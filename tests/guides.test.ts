@@ -6,6 +6,9 @@ import {
   DECEMBER_11_SHUTDOWN_DATE,
   DECEMBER_1_IMAGE_GUIDE_SLUG,
   DECEMBER_1_IMAGE_SHUTDOWN_DATE,
+  FEBRUARY_26_TRANSCRIBE_CHECKED,
+  FEBRUARY_26_TRANSCRIBE_GUIDE_SLUG,
+  FEBRUARY_26_TRANSCRIBE_SHUTDOWN_DATE,
   JANUARY_2027_AUDIO_GUIDE_SLUG,
   JANUARY_2027_GPT4_GUIDE_SLUG,
   JANUARY_2027_SHUTDOWN_DATE,
@@ -13,12 +16,13 @@ import {
   JANUARY_6_TTS_SHUTDOWN_DATE,
   isDecember11OpenAiShutdown,
   isDecember1ImageShutdown,
+  isFebruary2027TranscribeShutdown,
   isJanuary2027AudioShutdown,
   isJanuary2027Gpt4Shutdown,
 } from "../src/lib/dataset-guides.ts";
 import { GUIDES_CHECKED, GUIDES_INDEX, guideChecked, guidePath, guides, guidesForModel } from "../src/lib/guides.ts";
-import { loadModels } from "../src/lib/load.ts";
-import { publishedReplacementIds } from "../src/lib/shutdowns.ts";
+import { loadModels, loadProviders } from "../src/lib/load.ts";
+import { batchDocumentTitle, providerDisplayName, publishedReplacementIds, shutdownEvents } from "../src/lib/shutdowns.ts";
 import { lastmodForUrl } from "../src/lib/lastmod.ts";
 import { llmsFull, llmsTxt } from "../src/lib/llms.ts";
 import { contentAliasFiles } from "../src/lib/shortcuts.ts";
@@ -465,6 +469,109 @@ describe("guides", () => {
     expect(shutdownPage).toContain(JANUARY_2027_AUDIO_GUIDE_SLUG);
     expect(llmsTxt("https://sunsetdiff.com", [], [])).toContain(guidePath(image.slug));
     expect(llmsFull("https://sunsetdiff.com", [])).toContain(guidePath(audio.slug));
+    expect(audioBlob).toContain(`/guides/${FEBRUARY_26_TRANSCRIBE_GUIDE_SLUG}/`);
+  });
+
+  it("builds the February 26, 2027 transcription guide from the dataset", async () => {
+    const models = await loadModels();
+    const providers = await loadProviders();
+    const rows = models.filter(isFebruary2027TranscribeShutdown).sort((a, b) => a.id.localeCompare(b.id));
+    expect(rows.map((model) => model.id)).toEqual([
+      "gpt-4o-mini-transcribe",
+      "gpt-4o-mini-transcribe-2025-12-15",
+      "gpt-4o-transcribe",
+      "gpt-4o-transcribe-diarize",
+      "whisper-1",
+    ]);
+    expect(rows.every((model) => model.shutdown_date === FEBRUARY_26_TRANSCRIBE_SHUTDOWN_DATE)).toBe(true);
+    expect(rows.every((model) => model.announced_date === "2026-08-26")).toBe(true);
+    expect(rows.every((model) => model.deprecation_date === null)).toBe(true);
+    for (const model of rows) {
+      expect(publishedReplacementIds(model)).toEqual(["gpt-live-transcribe", "gpt-transcribe"]);
+    }
+
+    const guide = guides.find((item) => item.slug === FEBRUARY_26_TRANSCRIBE_GUIDE_SLUG);
+    expect(guide).toBeTruthy();
+    if (!guide) return;
+    expect(guidePath(guide.slug)).toBe("/guides/openai-whisper-gpt-4o-transcribe-shutdown-february-26-2027/");
+    expect(guideChecked(guide)).toBe(FEBRUARY_26_TRANSCRIBE_CHECKED);
+    expect(guide.h1).toContain("February 26, 2027");
+    expect(guide.h1).toContain("whisper-1");
+    expect(sitemapSection(guidePath(guide.slug))).toBe("sitemap-guides.xml");
+
+    const table = guide.sections.find((section) => section.heading === "Models shutting down")?.table;
+    expect(table?.headers).toEqual(["Model id", "Deprecation date", "Shutdown date", "Recommended replacement"]);
+    expect(table?.rows.map((row) => row[0])).toEqual(
+      rows.map((model) => `[${model.id}](/models/${model.provider}/${model.slug}/)`),
+    );
+    for (const row of table?.rows ?? []) {
+      expect(row[3]).toContain("gpt-live-transcribe");
+      expect(row[3]).toContain("gpt-transcribe");
+    }
+
+    const blob = JSON.stringify(guide);
+    expect(blob).toContain("On August 26, 2026, we notified developers using whisper-1");
+    expect(blob).toContain("will shut down on February 26, 2027");
+    expect(blob).toContain("no longer be accessible");
+    expect(blob).toContain("Start with gpt-transcribe");
+    expect(blob).toContain("Start with gpt-live-transcribe");
+    expect(blob).toContain("languages replaces the singular language field");
+    expect(blob).toContain("v1/audio/transcriptions");
+    expect(blob).toContain("v1/realtime/transcription_sessions");
+    expect(blob).toContain("doesn't return word-level timestamps, speaker labels, or transcription confidence scores");
+    expect(blob).toContain("timestamp_granularities[] parameter is only supported for whisper-1");
+    expect(blob).toContain("gpt-realtime-translate");
+    expect(blob).toContain("/v1/realtime/translations");
+    expect(blob).toContain("$0.0045");
+    expect(blob).toContain("$0.017");
+    expect(blob).toContain("$0.006");
+    expect(blob).toContain("$0.003");
+    expect(blob).toContain("does not label that row whisper-1");
+    expect(blob).toContain("https://developers.openai.com/api/docs/deprecations");
+    expect(blob).toContain("https://developers.openai.com/api/docs/guides/speech-to-text");
+    expect(blob).toContain("https://developers.openai.com/api/docs/guides/realtime-transcription");
+    expect(blob).toContain("https://developers.openai.com/api/docs/pricing");
+    expect(blob).toContain("/api/v1/lookup/whisper-1.json");
+    expect(blob).toContain("/alerts/");
+    expect(blob).toContain("/shutdowns/openai-2027-02-26/");
+    expect(blob).not.toContain("HTTP 404");
+    expect(guide.sections.some((section) => section.heading === "What breaks")).toBe(true);
+    expect(guide.sections.some((section) => section.heading === "Find the model ids in your code")).toBe(true);
+    expect(guide.faqs.length).toBeGreaterThanOrEqual(4);
+
+    const pageFacts = JSON.stringify({
+      answer: guide.answer,
+      steps: guide.steps,
+      sections: guide.sections,
+    });
+    for (const faq of guide.faqs) {
+      for (const date of faq.answer.match(/\d{4}-\d{2}-\d{2}/g) ?? []) {
+        expect(pageFacts).toContain(date);
+      }
+    }
+
+    const whisper = models.find((model) => model.id === "whisper-1")!;
+    const diarize = models.find((model) => model.id === "gpt-4o-transcribe-diarize")!;
+    const live = models.find((model) => model.id === "gpt-live-transcribe")!;
+    expect(guidesForModel(whisper, models).map((link) => link.href)).toContain(`/guides/${FEBRUARY_26_TRANSCRIBE_GUIDE_SLUG}/`);
+    expect(guidesForModel(diarize, models).map((link) => link.href)).toContain(`/guides/${FEBRUARY_26_TRANSCRIBE_GUIDE_SLUG}/`);
+    expect(guidesForModel(live, models).map((link) => link.href)).not.toContain(`/guides/${FEBRUARY_26_TRANSCRIBE_GUIDE_SLUG}/`);
+
+    const providerPage = readFileSync("src/pages/providers/[provider].astro", "utf8");
+    const shutdownPage = readFileSync("src/pages/shutdowns/[slug].astro", "utf8");
+    expect(providerPage).toContain(FEBRUARY_26_TRANSCRIBE_GUIDE_SLUG);
+    expect(shutdownPage).toContain(FEBRUARY_26_TRANSCRIBE_GUIDE_SLUG);
+    expect(llmsTxt("https://sunsetdiff.com", [], [])).toContain(guidePath(guide.slug));
+    expect(llmsFull("https://sunsetdiff.com", [])).toContain(guidePath(guide.slug));
+
+    const event = shutdownEvents(models).find((item) => item.slug === "openai-2027-02-26");
+    expect(event).toBeTruthy();
+    if (!event) return;
+    expect(event.models.map((model) => model.id).sort()).toEqual(rows.map((model) => model.id));
+    const name = providerDisplayName(providers, event.provider);
+    const title = batchDocumentTitle(name, event, "2026-11-03");
+    expect(event.models.some((model) => title.includes(model.id))).toBe(true);
+    expect(title).toBe("gpt-4o-mini-transcribe and 4 more on OpenAI Feb 26, 2027");
   });
 
   it("builds the MiniMax November 18 guide from the dataset", async () => {
