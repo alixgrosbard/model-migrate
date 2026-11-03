@@ -50,6 +50,11 @@ export const BEDROCK_JAMBA_NOV26_GUIDE_SLUG = "amazon-bedrock-ai21-jamba-shutdow
 const JAMBA_CHECKED = "2026-11-02";
 const JAMBA_IDS = ["ai21.jamba-1-5-large-v1:0", "ai21.jamba-1-5-mini-v1:0"] as const;
 
+/** Checked against the Bedrock legacy lifecycle page on 2026-11-03. The slug uses this date. */
+export const BEDROCK_MAR30_SHUTDOWN_DATE = "2027-03-30";
+export const BEDROCK_MAR30_GUIDE_SLUG = "amazon-bedrock-open-weight-models-shutdown-march-30-2027";
+const BEDROCK_MAR30_CHECKED = "2026-11-03";
+
 /** Checked against the Azure OpenAI retirement schedule. The slug uses this date. */
 export const AZURE_NOV19_SHUTDOWN_DATE = "2026-11-19";
 export const AZURE_NOV19_GUIDE_SLUG = "azure-openai-o-series-retirement-november-19-2026";
@@ -319,6 +324,12 @@ export function isBedrockJambaNov26Shutdown(model: ModelRecord): boolean {
   return model.provider === "aws-bedrock"
     && (JAMBA_IDS as readonly string[]).includes(model.id)
     && model.shutdown_date === BEDROCK_JAMBA_NOV26_SHUTDOWN_DATE
+    && model.shutdown_date_kind === "exact";
+}
+
+export function isBedrockMar30OpenWeightShutdown(model: ModelRecord): boolean {
+  return model.provider === "aws-bedrock"
+    && model.shutdown_date === BEDROCK_MAR30_SHUTDOWN_DATE
     && model.shutdown_date_kind === "exact";
 }
 
@@ -1049,6 +1060,8 @@ export function datasetShutdownGuides(catalog: ModelRecord[] = readCatalog()): G
   if (bedrock.length) pages.push(bedrockGuide(bedrock, catalog));
   const jamba = rowsFor(isBedrockJambaNov26Shutdown, catalog);
   if (jamba.length) pages.push(jambaNov26Guide(jamba, catalog));
+  const bedrockMar30 = rowsFor(isBedrockMar30OpenWeightShutdown, catalog);
+  if (bedrockMar30.length) pages.push(bedrockMar30Guide(bedrockMar30, catalog));
   const azure = rowsFor(isAzureNov19OSeries, catalog);
   if (azure.length) pages.push(azureOSeriesGuide(azure, catalog));
   const azureNovDec = rowsFor(isAzureNovDecRetirement, catalog);
@@ -2377,6 +2390,334 @@ function jambaNov26Guide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePage
       BEDROCK_JAMBA_MINI,
       BEDROCK_REGIONS,
       CLAUDE_DEPRECATIONS,
+    ],
+  };
+}
+
+const BEDROCK_MODELS = "https://docs.aws.amazon.com/bedrock/latest/userguide/model-cards.html";
+const CARD_DEEPSEEK_R1 = "https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-deepseek-deepseek-r1.html";
+const CARD_DEEPSEEK_V31 = "https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-deepseek-deepseek-v3-1.html";
+const CARD_DEEPSEEK_V32 = "https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-deepseek-deepseek-v3-2.html";
+const CARD_LLAMA33 = "https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-meta-llama-3-3-70b-instruct.html";
+const CARD_LLAMA3170 = "https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-meta-llama-3-1-70b-instruct.html";
+const CARD_LLAMA318 = "https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-meta-llama-3-1-8b-instruct.html";
+const CARD_LLAMA370 = "https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-meta-llama-3-70b-instruct.html";
+const CARD_LLAMA38 = "https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-meta-llama-3-8b-instruct.html";
+const CARD_MAVERICK = "https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-meta-llama-4-maverick-17b-instruct.html";
+const CARD_SCOUT = "https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-meta-llama-4-scout-17b-instruct.html";
+const CARD_GEMMA4_31 = "https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-google-gemma-4-31b.html";
+const CARD_GEMMA4_26 = "https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-google-gemma-4-26b-a4b.html";
+const CARD_GEMMA4_E2B = "https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-google-gemma-4-e2b.html";
+const CARD_M25 = "https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-minimax-minimax-m2-5.html";
+const CARD_MISTRAL_LARGE3 = "https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-mistral-ai-mistral-large-3.html";
+const CARD_MINISTRAL14 = "https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-mistral-ai-ministral-14b-3-0.html";
+const CARD_MINISTRAL8 = "https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-mistral-ai-ministral-3-8b.html";
+const CARD_MINISTRAL3 = "https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-mistral-ai-ministral-3b.html";
+const CARD_MAGISTRAL = "https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-mistral-ai-magistral-small-2509.html";
+const CARD_KIMI = "https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-moonshot-ai-kimi-k2-thinking.html";
+const CARD_KIMI25 = "https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-moonshot-ai-kimi-k2-5.html";
+const CARD_KIMI3 = "https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-moonshot-ai-kimi-k3.html";
+const CARD_NANO12 = "https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-nvidia-nvidia-nemotron-nano-12b-v2-vl-bf16.html";
+const CARD_NANO9 = "https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-nvidia-nvidia-nemotron-nano-9b-v2.html";
+const CARD_NANO3 = "https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-nvidia-nemotron-nano-3-30b.html";
+const CARD_SUPER = "https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-nvidia-nemotron-super-3-120b.html";
+const CARD_QWEN30 = "https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-qwen-qwen3-coder-30b-a3b-instruct.html";
+const CARD_QWEN480 = "https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-qwen-qwen3-coder-480b-a35b-instruct.html";
+const CARD_CODER_NEXT = "https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-qwen-qwen3-coder-next.html";
+const CARD_GLM47 = "https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-zai-glm-4-7.html";
+const CARD_GLM_FLASH = "https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-zai-glm-4-7-flash.html";
+const CARD_GLM5 = "https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-zai-glm-5.html";
+const CARD_GLM53 = "https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-zai-glm-5-3.html";
+const GEMMA4_MANTLE = "Gemma 4 models are available only on the bedrock-mantle endpoint.";
+const MAR30_GEO: [string, string, string, string][] = [
+  ["deepseek.r1-v1:0", "bedrock-runtime", "us.deepseek.r1-v1:0", "Not supported"],
+  ["meta.llama3-1-70b-instruct-v1:0", "bedrock-runtime", "us.meta.llama3-1-70b-instruct-v1:0", "Not supported"],
+  ["meta.llama3-1-8b-instruct-v1:0", "bedrock-runtime", "us.meta.llama3-1-8b-instruct-v1:0", "Not supported"],
+  ["meta.llama3-3-70b-instruct-v1:0", "bedrock-runtime", "us.meta.llama3-3-70b-instruct-v1:0", "Not supported"],
+  ["meta.llama4-maverick-17b-instruct-v1:0", "bedrock-runtime", "us.meta.llama4-maverick-17b-instruct-v1:0", "Not supported"],
+  ["meta.llama4-scout-17b-instruct-v1:0", "bedrock-runtime", "us.meta.llama4-scout-17b-instruct-v1:0", "Not supported"],
+  ["nvidia.nemotron-nano-12b-v2", "bedrock-runtime", "us-gov.nvidia.nemotron-nano-12b-v2", "Not supported"],
+  ["nvidia.nemotron-nano-9b-v2", "bedrock-runtime", "us-gov.nvidia.nemotron-nano-9b-v2", "Not supported"],
+];
+
+function mar30Table(rows: ModelRecord[], catalog: ModelRecord[]): string[][] {
+  return rows.map((model) => {
+    const official = replacementText(model, catalog);
+    return [
+      modelLink(model),
+      deprecationCell(model),
+      shutdownCell(model),
+      model.region_or_platform_notes ?? "Not published",
+      official === "Not published" ? "no official replacement" : official,
+    ];
+  });
+}
+
+function bedrockMar30Guide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePage {
+  const when = longDate(BEDROCK_MAR30_SHUTDOWN_DATE);
+  const linkFor = (id: string) => {
+    const model = rows.find((item) => item.id === id);
+    return model ? modelLink(model) : id;
+  };
+  const sources = [
+    { label: "Amazon Bedrock model lifecycle (legacy)", url: BEDROCK_LEGACY },
+    { label: "Amazon Bedrock model lifecycle", url: BEDROCK_POLICY },
+    { label: "Models at a glance", url: BEDROCK_MODELS },
+  ];
+  return {
+    slug: BEDROCK_MAR30_GUIDE_SLUG,
+    title: `Amazon Bedrock open-weight models shutdown on ${when} | SunsetDiff`,
+    description: `${rows.length} Amazon Bedrock model ids reach end of life on ${BEDROCK_MAR30_SHUTDOWN_DATE}. AWS does not name a replacement model ID. Requests fail after that date.`,
+    h1: `Amazon Bedrock open-weight models shutdown on ${when}`,
+    summary: `The ${rows.length} Bedrock ids in the dataset with shutdown date ${BEDROCK_MAR30_SHUTDOWN_DATE}, the fact that AWS does not name a replacement, and the geo ids the model cards print.`,
+    answer: `The dataset has ${rows.length} Amazon Bedrock ids with shutdown date ${BEDROCK_MAR30_SHUTDOWN_DATE}. The legacy lifecycle page lists each one as Legacy, with legacy date September 30, 2026, EOL date March 30, 2027, and public extended access start date To be announced. The page does not use the words open-weight. It says: "${JAMBA_LEGACY_INTRO}" It does not name a model ID. It also says: "${BEDROCK_FAIL}"`,
+    checked: BEDROCK_MAR30_CHECKED,
+    steps: [
+      {
+        name: "Read the ids and the Regions",
+        text: `The table lists every Bedrock id in the dataset whose shutdown date is ${BEDROCK_MAR30_SHUTDOWN_DATE}. The Regions column is the note stored from the lifecycle page. A Region that is not on that row is not covered by this date. Open the model page before you change a call.`,
+      },
+      {
+        name: "Find bare ids and prefixed ids",
+        text: "Search the repository for the bare model ids and for the geo ids in the cross-Region table. Also check SDK defaults, agent configs, and notebooks. A us. or us-gov. prefix is a different string from the bare id.",
+      },
+      {
+        name: "Change modelId yourself",
+        text: `The lifecycle page says to update application code before ${when}. It does not name the id to send. On the Converse API, that string is the modelId argument. A same-family Active id later in this guide is not an AWS recommendation.`,
+      },
+      {
+        name: "Test the call you will keep",
+        text: `Call the id you chose from the Region you use, with a prompt you send now, before ${when}. Call GetFoundationModel or ListFoundationModels in that Region and read modelLifecycle first.`,
+      },
+    ],
+    sections: [
+      {
+        heading: "Models shutting down",
+        paragraphs: [
+          `These rows are every Amazon Bedrock model in the dataset with shutdown date ${BEDROCK_MAR30_SHUTDOWN_DATE}. The model id links to its SunsetDiff model page. The Legacy date column is the deprecation_date stored on the row. The Regions column is region_or_platform_notes. The last column is the official replacement stored on the row. no official replacement means that list is empty.`,
+          `The current lifecycle policy page says: "${JAMBA_POLICY_SPLIT}" These rows are on the legacy page. That page says: "${BEDROCK_ONLY_DATES}" It also says: "${BEDROCK_REGION_SPLIT}"`,
+          `The legacy table says: "${JAMBA_LEGACY_INTRO}" Every stored replacements list on these rows is empty. AWS did not name a replacement. This guide does not write one into the dataset.`,
+          "The lifecycle page names one DeepSeek-V3.1 row with two ids: deepseek.v3-v1:0 on bedrock-runtime and deepseek.v3.1 on bedrock-mantle. It does the same for Kimi K2 Thinking (moonshot.kimi-k2-thinking on bedrock-runtime, moonshotai.kimi-k2-thinking on bedrock-mantle) and for both Qwen3 Coder rows. The page names the 27B Google model Gemma 3 27B PT and prints the model ID google.gemma-3-27b-it. There is no separate DeepSeek V3 id on that table.",
+        ],
+        table: {
+          caption: `${rows.length} Bedrock model ids with shutdown date ${BEDROCK_MAR30_SHUTDOWN_DATE}. AWS did not name a replacement.`,
+          headers: ["Model id", "Legacy date stored", "Shutdown date", "Regions", "Official replacement"],
+          rows: mar30Table(rows, catalog),
+        },
+        sources: [
+          { label: "Amazon Bedrock model lifecycle (legacy)", url: BEDROCK_LEGACY },
+          { label: "Amazon Bedrock model lifecycle", url: BEDROCK_POLICY },
+        ],
+      },
+      {
+        heading: "What a call does after this date",
+        paragraphs: [
+          `The legacy page says: "${BEDROCK_FAIL}" It also says: "${BEDROCK_MIGRATE}" It does not print an exception name. The model cards checked for this date do not print one either. This guide does not copy the Claude 3 Haiku exception onto these ids.`,
+          `While a model is Legacy, the same page says: "${BEDROCK_LEGACY_ACCESS}" And: "${BEDROCK_NO_THROUGHPUT}"`,
+          `The public extended access column on every one of these rows says To be announced. The page says: "${JAMBA_EXTENDED}" It does not print a price for these ids. This guide does not invent one.`,
+        ],
+        sources: [{ label: "Amazon Bedrock model lifecycle (legacy)", url: BEDROCK_LEGACY }],
+      },
+      {
+        heading: "Cross-Region inference profile ids",
+        paragraphs: [
+          "The dataset stores the bare model ids. A geo id adds a prefix. The cards below print a geo inference ID. None of them print an eu. prefix. Global inference ID is Not supported on each of these rows.",
+          "The DeepSeek-R1 card's Converse sample sends modelId us.deepseek.r1-v1:0 with region_name us-east-1. Changing only deepseek.r1-v1:0 leaves that prefixed id in place.",
+          "Llama 3 70B Instruct and Llama 3 8B Instruct print Not supported for the geo inference ID and for the global inference ID. The other model cards in this shutdown set also print Not supported for both. That includes DeepSeek-V3.1, Gemma 3, MiniMax M2, MiniMax M2.1, Devstral 2, Mistral 7B, Mixtral 8x7B, both Voxtral ids, Kimi K2 Thinking, both Qwen3 Coder ids, GLM 4.7, and GLM 4.7 Flash. The Nemotron mantle rows also say Not supported. This guide does not invent an eu. id for any of them.",
+          `The limited model selection page says: "${BEDROCK_PROFILE_GAP}"`,
+        ],
+        table: {
+          caption: "Geo inference IDs printed on the model cards for this shutdown date.",
+          headers: ["Model id", "Endpoint", "Geo inference ID", "Global inference ID"],
+          rows: MAR30_GEO.map(([id, endpoint, geo, global]) => [linkFor(id), endpoint, geo, global]),
+        },
+        sources: [
+          { label: "DeepSeek-R1 model card", url: CARD_DEEPSEEK_R1 },
+          { label: "Llama 3.1 70B Instruct model card", url: CARD_LLAMA3170 },
+          { label: "Llama 3.1 8B Instruct model card", url: CARD_LLAMA318 },
+          { label: "Llama 3.3 70B Instruct model card", url: CARD_LLAMA33 },
+          { label: "Llama 4 Maverick model card", url: CARD_MAVERICK },
+          { label: "Llama 4 Scout model card", url: CARD_SCOUT },
+          { label: "Nemotron Nano 12B v2 model card", url: CARD_NANO12 },
+          { label: "Nemotron Nano 9B v2 model card", url: CARD_NANO9 },
+          { label: "Llama 3 70B Instruct model card", url: CARD_LLAMA370 },
+          { label: "Llama 3 8B Instruct model card", url: CARD_LLAMA38 },
+          { label: "DeepSeek-V3.1 model card", url: CARD_DEEPSEEK_V31 },
+          { label: "Kimi K2 Thinking model card", url: CARD_KIMI },
+          { label: "Qwen3-Coder-30B model card", url: CARD_QWEN30 },
+          { label: "Qwen3 Coder 480B model card", url: CARD_QWEN480 },
+          { label: "GLM 4.7 model card", url: CARD_GLM47 },
+          { label: "GLM 4.7 Flash model card", url: CARD_GLM_FLASH },
+          { label: "Inference profiles with limited model selection", url: BEDROCK_LIMITED },
+        ],
+      },
+      {
+        heading: "Same-family models AWS did not name",
+        paragraphs: [
+          "The legacy page says to migrate to an Active model. It does not name the id. Models at a glance still lists newer names in some of these families. The cards below say Active and EOL date N/A. AWS did not name them as replacements. They are not stored on these rows.",
+          `The Gemma 4 E2B card says: "${GEMMA4_MANTLE}" The Gemma 4 31B and Gemma 4 26B-A4B cards list a bedrock-mantle row and do not list a bedrock-runtime row. A bedrock-runtime Converse call cannot send those ids.`,
+          "Models at a glance still names Llama 3.2 and Llama 3.1 405B. The legacy page lists those ids under models that have reached EOL, with EOL date July 7, 2026. They are not Active replacements for the March 30, 2027 Llama rows. This guide does not name a Llama id to send.",
+          "The Kimi K2.5 card says the geo inference ID and the global inference ID are Not supported. The Kimi K3 card prints us.moonshotai.kimi-k3 in the commercial AWS Regions, in.moonshotai.kimi-k3 in the India Regions, and global.moonshotai.kimi-k3. The GLM 5 card says geo and global are Not supported. The GLM 5.3 card prints model ID zai.glm-5.3, says the in-region endpoint URL is Not supported, and prints geo id us.zai.glm-5.3 and global id global.zai.glm-5.3.",
+        ],
+        table: {
+          caption: "Active ids on Bedrock model cards. AWS did not name these as replacements.",
+          headers: ["Retiring models", "Active id on a model card", "What the card says"],
+          rows: [
+            ["DeepSeek-R1 and DeepSeek-V3.1", "deepseek.v3.2", "Active. EOL date N/A. Geo and global are Not supported."],
+            ["Gemma 3 4B IT, 12B IT, and 27B PT", "google.gemma-4-31b, google.gemma-4-26b-a4b, google.gemma-4-e2b", "Active. EOL date N/A. bedrock-mantle only."],
+            ["Llama 3, 3.1, 3.3, and Llama 4", "no official replacement", "No newer Active Llama id on the legacy page or on Models at a glance."],
+            ["MiniMax M2 and MiniMax M2.1", "minimax.minimax-m2.5", "Active. EOL date N/A. Geo and global are Not supported."],
+            ["Mistral 7B Instruct and Mixtral 8x7B Instruct", "mistral.mistral-large-3-675b-instruct, mistral.ministral-3-14b-instruct, mistral.ministral-3-8b-instruct, mistral.ministral-3-3b-instruct, mistral.magistral-small-2509", "Active. EOL date N/A. Newer Mistral text ids. AWS did not name them."],
+            ["Devstral 2 123B and both Voxtral ids", "no official replacement", "Models at a glance does not list a newer Devstral id or a newer Voxtral id."],
+            ["Kimi K2 Thinking", "moonshotai.kimi-k2.5, moonshotai.kimi-k3", "Active. EOL date N/A."],
+            ["Nemotron Nano 9B v2 and 12B v2", "nvidia.nemotron-nano-3-30b, nvidia.nemotron-super-3-120b", "Active. EOL date N/A."],
+            ["Qwen3 Coder 30B and 480B", "qwen.qwen3-coder-next", "Active. EOL date N/A. Geo and global are Not supported."],
+            ["GLM 4.7 and GLM 4.7 Flash", "zai.glm-5, zai.glm-5.3", "Active. EOL date N/A. Read the GLM 5.3 inference ids before you send a bare id."],
+          ],
+        },
+        sources: [
+          { label: "Models at a glance", url: BEDROCK_MODELS },
+          { label: "Amazon Bedrock model lifecycle (legacy)", url: BEDROCK_LEGACY },
+          { label: "DeepSeek V3.2 model card", url: CARD_DEEPSEEK_V32 },
+          { label: "Gemma 4 31B model card", url: CARD_GEMMA4_31 },
+          { label: "Gemma 4 26B-A4B model card", url: CARD_GEMMA4_26 },
+          { label: "Gemma 4 E2B model card", url: CARD_GEMMA4_E2B },
+          { label: "MiniMax M2.5 model card", url: CARD_M25 },
+          { label: "Mistral Large 3 model card", url: CARD_MISTRAL_LARGE3 },
+          { label: "Ministral 14B 3.0 model card", url: CARD_MINISTRAL14 },
+          { label: "Ministral 3 8B model card", url: CARD_MINISTRAL8 },
+          { label: "Ministral 3B model card", url: CARD_MINISTRAL3 },
+          { label: "Magistral Small 2509 model card", url: CARD_MAGISTRAL },
+          { label: "Kimi K2.5 model card", url: CARD_KIMI25 },
+          { label: "Kimi K3 model card", url: CARD_KIMI3 },
+          { label: "Nemotron Nano 3 30B model card", url: CARD_NANO3 },
+          { label: "Nemotron Super 3 120B model card", url: CARD_SUPER },
+          { label: "Qwen3 Coder Next model card", url: CARD_CODER_NEXT },
+          { label: "GLM 5 model card", url: CARD_GLM5 },
+          { label: "GLM 5.3 model card", url: CARD_GLM53 },
+        ],
+      },
+      {
+        heading: "Change the Converse modelId",
+        paragraphs: [
+          "The DeepSeek-R1 card's Converse sample creates a bedrock-runtime client with region_name us-east-1 and sends modelId us.deepseek.r1-v1:0. The sample below changes that argument to deepseek.v3.2. The DeepSeek V3.2 card lists that id on bedrock-runtime and says the model lifecycle is Active. AWS did not name it as the replacement for deepseek.r1-v1:0 or for any other id in the table above.",
+          "The V3.2 card says the geo inference ID is Not supported. The sample does not add a us. prefix. Do not send us.deepseek.v3.2. That id is not on the card.",
+          "Use the same modelId field for the other retiring ids. Pick the Active id you will actually call. Gemma 4 ids are on bedrock-mantle, so they do not belong in this bedrock-runtime client.",
+        ],
+        codes: [{
+          caption: "boto3 Converse. modelId changed from the DeepSeek-R1 card sample. AWS did not name this replacement.",
+          code: `import boto3
+
+client = boto3.client("bedrock-runtime", region_name="us-east-1")
+response = client.converse(
+    modelId="deepseek.v3.2",
+    messages=[{"role": "user", "content": [{"text": "Hello"}]}],
+)
+`,
+        }],
+        sources: [
+          { label: "DeepSeek-R1 model card", url: CARD_DEEPSEEK_R1 },
+          { label: "DeepSeek V3.2 model card", url: CARD_DEEPSEEK_V32 },
+          { label: "Amazon Bedrock model lifecycle (legacy)", url: BEDROCK_LEGACY },
+        ],
+      },
+      {
+        heading: "Find the model ids in your code",
+        paragraphs: [
+          "Search the repository for the bare ids and for the geo ids in the table above. A hit is a candidate, not proof the call still runs. [How to find every model ID in your codebase](/guides/find-model-ids-in-your-codebase/) covers SDK argument names. The [scan page](/scan/) builds a search from dataset ids that have a shutdown date.",
+          `The lifecycle page tells you to update application code before the EOL date. It does not name the id to send. The [pre-migration test checklist](/guides/pre-migration-test-checklist/) is the longer list: evals, rejected fields, token limits, tools, price, and latency. These rows do not store a price. The batch page for this date is [/shutdowns/aws-bedrock-2027-03-30/](/shutdowns/aws-bedrock-2027-03-30/).`,
+        ],
+        codes: [{
+          caption: "ripgrep, bare ids plus the geo ids the cards print",
+          code: bedrockSearch([
+            ...rows.map((model) => model.id),
+            ...MAR30_GEO.map((row) => row[2]),
+          ]),
+        }],
+        sources: [
+          { label: "Amazon Bedrock model lifecycle (legacy)", url: BEDROCK_LEGACY },
+          { label: "DeepSeek-R1 model card", url: CARD_DEEPSEEK_R1 },
+        ],
+      },
+    ],
+    related: [
+      { href: "/shutdowns/aws-bedrock-2027-03-30/", label: `Bedrock shutdowns on ${when}` },
+      { href: "/providers/aws-bedrock/", label: "Amazon Bedrock provider page" },
+      { href: `/guides/${BEDROCK_NOV13_GUIDE_SLUG}/`, label: "Amazon Bedrock Claude 3 shutdown on November 13, 2026" },
+      { href: `/guides/${BEDROCK_JAMBA_NOV26_GUIDE_SLUG}/`, label: "Amazon Bedrock AI21 Jamba shutdown on November 26, 2026" },
+      { href: "/guides/find-model-ids-in-your-codebase/", label: "Find model ids in your codebase" },
+      { href: "/guides/pre-migration-test-checklist/", label: "Pre-migration test checklist" },
+      { href: "/guides/what-happens-on-model-shutdown-day/", label: "What happens on shutdown day" },
+      { href: "/scan/", label: "Scan retiring ids" },
+    ],
+    faqs: [
+      {
+        question: `Which Bedrock model ids reach end of life on ${when}?`,
+        answer: `The dataset lists ${rows.length} ids with shutdown date ${BEDROCK_MAR30_SHUTDOWN_DATE}: ${idList(rows)}. The legacy lifecycle page lists each one as Legacy, with legacy date September 30, 2026 and EOL date March 30, 2027.`,
+      },
+      {
+        question: "Does March 30, 2027 apply in every AWS Region?",
+        answer: `The legacy page says: "${BEDROCK_REGION_SPLIT}" The Regions cell is different for each model. Call ListFoundationModels or GetFoundationModel in the Region you use and read modelLifecycle.`,
+      },
+      {
+        question: "What is the official recommended replacement?",
+        answer: `no official replacement. The stored replacements list is empty on every row in this guide. The legacy page says: "${JAMBA_LEGACY_INTRO}" It also says: "${BEDROCK_MIGRATE}" Neither sentence names a model ID. Same-family Active ids on other model cards are not a recommendation from that page.`,
+      },
+      {
+        question: "What happens to a call after March 30, 2027?",
+        answer: `The legacy page says: "${BEDROCK_FAIL}" It does not print an exception name. The model cards checked for these ids do not print one either. Migration will not happen automatically.`,
+      },
+      {
+        question: "Which cross-Region ids does AWS print for these models?",
+        answer: "The DeepSeek-R1 card prints us.deepseek.r1-v1:0. The Llama 3.1 70B, Llama 3.1 8B, Llama 3.3 70B, Llama 4 Maverick, and Llama 4 Scout cards print a us. geo id and say the global inference ID is Not supported. The two Nemotron Nano cards print us-gov.nvidia.nemotron-nano-12b-v2 and us-gov.nvidia.nemotron-nano-9b-v2 on bedrock-runtime. No card in this set prints an eu. id.",
+      },
+      {
+        question: "Can I keep a us. prefix on the new modelId?",
+        answer: "Only when the new model's card prints that prefixed id. The DeepSeek V3.2 card says the geo inference ID is Not supported, so the Converse sample on this page sends deepseek.v3.2 with no prefix. The DeepSeek-R1 card sample sends us.deepseek.r1-v1:0. Replacing the bare id and leaving the prefix does not finish the change.",
+      },
+      {
+        question: "What does To be announced mean here?",
+        answer: `The legacy table prints To be announced in the public extended access start date column for every id in this guide. The page says: "${JAMBA_EXTENDED}" It does not print a start date or a price for these ids.`,
+      },
+    ],
+    citations: [
+      BEDROCK_LEGACY,
+      BEDROCK_POLICY,
+      BEDROCK_MODELS,
+      BEDROCK_LIMITED,
+      CARD_DEEPSEEK_R1,
+      CARD_DEEPSEEK_V31,
+      CARD_DEEPSEEK_V32,
+      CARD_LLAMA33,
+      CARD_LLAMA3170,
+      CARD_LLAMA318,
+      CARD_LLAMA370,
+      CARD_LLAMA38,
+      CARD_MAVERICK,
+      CARD_SCOUT,
+      CARD_GEMMA4_31,
+      CARD_GEMMA4_26,
+      CARD_GEMMA4_E2B,
+      CARD_M25,
+      CARD_MISTRAL_LARGE3,
+      CARD_MINISTRAL14,
+      CARD_MINISTRAL8,
+      CARD_MINISTRAL3,
+      CARD_MAGISTRAL,
+      CARD_KIMI,
+      CARD_KIMI25,
+      CARD_KIMI3,
+      CARD_NANO12,
+      CARD_NANO9,
+      CARD_NANO3,
+      CARD_SUPER,
+      CARD_QWEN30,
+      CARD_QWEN480,
+      CARD_CODER_NEXT,
+      CARD_GLM47,
+      CARD_GLM_FLASH,
+      CARD_GLM5,
+      CARD_GLM53,
     ],
   };
 }

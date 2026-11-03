@@ -1486,4 +1486,99 @@ describe("guides", () => {
     expect(full).toContain("/guides/gemini-2-5-pro-flash-auto-route-december-1-2026/");
     expect(lastmodForUrl("https://sunsetdiff.com/guides/gemini-2-5-pro-flash-auto-route-december-1-2026/")).toBe("2026-11-03");
   });
+
+  it("builds the Bedrock March 30, 2027 open-weight guide and links it from a model page", async () => {
+    const models = await loadModels();
+    const rows = models
+      .filter((model) => model.provider === "aws-bedrock" && model.shutdown_date === "2027-03-30" && model.shutdown_date_kind === "exact")
+      .sort((a, b) => a.id.localeCompare(b.id));
+    expect(rows.map((model) => model.id)).toEqual([
+      "deepseek.r1-v1:0",
+      "deepseek.v3-v1:0",
+      "deepseek.v3.1",
+      "google.gemma-3-12b-it",
+      "google.gemma-3-27b-it",
+      "google.gemma-3-4b-it",
+      "meta.llama3-1-70b-instruct-v1:0",
+      "meta.llama3-1-8b-instruct-v1:0",
+      "meta.llama3-3-70b-instruct-v1:0",
+      "meta.llama3-70b-instruct-v1:0",
+      "meta.llama3-8b-instruct-v1:0",
+      "meta.llama4-maverick-17b-instruct-v1:0",
+      "meta.llama4-scout-17b-instruct-v1:0",
+      "minimax.minimax-m2",
+      "minimax.minimax-m2.1",
+      "mistral.devstral-2-123b",
+      "mistral.mistral-7b-instruct-v0:2",
+      "mistral.mixtral-8x7b-instruct-v0:1",
+      "mistral.voxtral-mini-3b-2507",
+      "mistral.voxtral-small-24b-2507",
+      "moonshot.kimi-k2-thinking",
+      "moonshotai.kimi-k2-thinking",
+      "nvidia.nemotron-nano-12b-v2",
+      "nvidia.nemotron-nano-9b-v2",
+      "qwen.qwen3-coder-30b-a3b-instruct",
+      "qwen.qwen3-coder-30b-a3b-v1:0",
+      "qwen.qwen3-coder-480b-a35b-instruct",
+      "qwen.qwen3-coder-480b-a35b-v1:0",
+      "zai.glm-4.7",
+      "zai.glm-4.7-flash",
+    ]);
+    expect(rows.every((model) => model.status === "legacy")).toBe(true);
+    expect(rows.every((model) => model.deprecation_date === "2026-09-30")).toBe(true);
+    expect(rows.every((model) => model.replacements.length === 0)).toBe(true);
+    for (const model of rows) expectSourceChecked(model.sources[0]?.last_checked, "2026-11-03");
+
+    const { shutdownEvents } = await import("../src/lib/shutdowns.ts");
+    expect(shutdownEvents(models).map((event) => event.slug)).toContain("aws-bedrock-2027-03-30");
+
+    const guide = guides.find((item) => item.slug === "amazon-bedrock-open-weight-models-shutdown-march-30-2027");
+    expect(guide).toBeTruthy();
+    if (!guide) return;
+    expect(guidePath(guide.slug)).toBe("/guides/amazon-bedrock-open-weight-models-shutdown-march-30-2027/");
+    expect(guideChecked(guide)).toBe("2026-11-03");
+    expect(guide.h1).toContain("March 30, 2027");
+    const table = guide.sections.find((section) => section.heading === "Models shutting down")?.table;
+    expect(table?.headers).toEqual(["Model id", "Legacy date stored", "Shutdown date", "Regions", "Official replacement"]);
+    expect(table?.rows).toHaveLength(rows.length);
+    expect(table?.rows.map((row) => row[0])).toEqual(
+      rows.map((model) => `[${model.id}](/models/${model.provider}/${model.slug}/)`),
+    );
+    expect(table?.rows.every((row) => row[2] === "2027-03-30")).toBe(true);
+    expect(table?.rows.every((row) => row[4] === "no official replacement")).toBe(true);
+    const blob = JSON.stringify(guide);
+    expect(blob).toContain("Migrate to an Active model before the EOL date.");
+    expect(blob).toContain("Migration will not happen automatically.");
+    expect(blob).toContain("requests made to this version will fail");
+    expect(blob).toContain("To be announced");
+    expect(blob).toContain("us.deepseek.r1-v1:0");
+    expect(blob).toContain("us-gov.nvidia.nemotron-nano-9b-v2");
+    expect(blob).toContain("No card in this set prints an eu. id.");
+    expect(blob).toContain("deepseek.v3.2");
+    expect(blob).toContain("AWS did not name");
+    const sample = guide.sections.flatMap((section) => section.codes ?? []).map((item) => item.code).join("\n");
+    expect(sample).toContain("client.converse(");
+    expect(sample).toContain('modelId="deepseek.v3.2"');
+    expect(blob).toContain("/shutdowns/aws-bedrock-2027-03-30/");
+    expect(blob).toContain("https://docs.aws.amazon.com/bedrock/latest/userguide/model-lifecycle-legacy.html");
+    expect(blob).toContain("https://docs.aws.amazon.com/bedrock/latest/userguide/model-cards.html");
+    expect(blob).not.toMatch(/[—–]/);
+    expect(sitemapSection(guidePath(guide.slug))).toBe("sitemap-guides.xml");
+    expect(guidesForModel(rows[0], models).map((link) => link.href)).toContain(guidePath(guide.slug));
+    for (const model of rows) {
+      expect(guidesForModel(model, models).map((link) => link.href)).toContain(guidePath(guide.slug));
+    }
+    const graph = guideGraph("https://sunsetdiff.com/", guide);
+    expect(graph.some((node) => node["@type"] === "HowTo")).toBe(true);
+    expect(graph.some((node) => node["@type"] === "FAQPage")).toBe(true);
+    const providerPage = readFileSync("src/pages/providers/[provider].astro", "utf8");
+    const shutdownPage = readFileSync("src/pages/shutdowns/[slug].astro", "utf8");
+    expect(providerPage).toContain("/guides/amazon-bedrock-open-weight-models-shutdown-march-30-2027/");
+    expect(providerPage).toContain("/shutdowns/aws-bedrock-2027-03-30/");
+    expect(shutdownPage).toContain("amazon-bedrock-open-weight-models-shutdown-march-30-2027");
+    const text = llmsTxt("https://sunsetdiff.com", [], []);
+    const full = llmsFull("https://sunsetdiff.com", []);
+    expect(text).toContain("/guides/amazon-bedrock-open-weight-models-shutdown-march-30-2027/");
+    expect(full).toContain("/guides/amazon-bedrock-open-weight-models-shutdown-march-30-2027/");
+  });
 });

@@ -4,6 +4,7 @@ import {
   AZURE_NOV19_GUIDE_SLUG,
   AZURE_NOV_DEC_GUIDE_SLUG,
   BEDROCK_JAMBA_NOV26_GUIDE_SLUG,
+  BEDROCK_MAR30_GUIDE_SLUG,
   BEDROCK_NOV13_GUIDE_SLUG,
   COPILOT_NOV16_GUIDE_SLUG,
   DECEMBER_11_GUIDE_SLUG,
@@ -18,6 +19,7 @@ import {
   isAzureNov19OSeries,
   isAzureNovDecRetirement,
   isBedrockJambaNov26Shutdown,
+  isBedrockMar30OpenWeightShutdown,
   isBedrockNov13Shutdown,
   isCopilotNov16Shutdown,
   isDecember11OpenAiShutdown,
@@ -2467,6 +2469,7 @@ export function guidesForModel(model: ModelRecord, catalog: ModelRecord[]): Mode
     add(BEDROCK_NOV13_GUIDE_SLUG);
   }
   if (isBedrockJambaNov26Shutdown(model)) add(BEDROCK_JAMBA_NOV26_GUIDE_SLUG);
+  if (isBedrockMar30OpenWeightShutdown(model)) add(BEDROCK_MAR30_GUIDE_SLUG);
   if (isAzureNovDecRetirement(model)) add(AZURE_NOV_DEC_GUIDE_SLUG);
   if (isAzureNov19OSeries(model) || isAzureCodexMini(model) || isAzureChatLatestNov17(model)) add(AZURE_NOV19_GUIDE_SLUG);
   if (isCopilotNov16Shutdown(model)) add(COPILOT_NOV16_GUIDE_SLUG);
