@@ -52,11 +52,17 @@ export function isDocumentedActiveModel(model: CarryModel): boolean {
 /**
  * A stored retirement whose official page later drops the row.
  * The shutdown already happened, so the missing row is not a retraction.
+ * OpenRouter's date is a removal floor. A row that leaves the list on that
+ * day stays, with the same status and the same date. The API does not
+ * publish a new retirement day for a missing id.
  */
 export function isRetiredOfficialRecord(model: CarryModel, today: string): boolean {
   if (!model.sources.some(isOfficialSource)) return false;
   if (model.status === "retired") return true;
-  return Boolean(model.shutdown_date && compareDate(model.shutdown_date, today) < 0);
+  if (!model.shutdown_date) return false;
+  const compare = compareDate(model.shutdown_date, today);
+  if (model.provider === "openrouter") return compare <= 0;
+  return compare < 0;
 }
 
 /** Put back official records the latest scrape did not emit. Upcoming deprecations rows stay gone. */

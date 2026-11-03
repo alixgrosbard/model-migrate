@@ -1219,7 +1219,7 @@ describe("guides", () => {
       const model = models.find((item) => item.provider === "openrouter" && item.id === id);
       return model ? [{ model, date }] : [];
     });
-    expect(stored.map(({ model }) => model.id)).toEqual(live.map(([id]) => id).filter((id) => !id.startsWith("thinkingmachines/")));
+    expect(stored.map(({ model }) => model.id)).toEqual(live.map(([id]) => id));
     expect(stored.every(({ model, date }) => model.shutdown_date === date && model.shutdown_date_kind === "not_before")).toBe(true);
     expect(stored.every(({ model }) => model.replacements.length === 0)).toBe(true);
 
@@ -1245,8 +1245,10 @@ describe("guides", () => {
     expect(table?.rows.map((row) => row[1])).toEqual(live.map(([, date]) => date));
     expect(table?.rows.every((row) => row[3] === "Not published")).toBe(true);
     expect(table?.rows[0]?.[0]).toBe("[meta-llama/llama-3.1-70b-instruct](/models/openrouter/meta-llama-llama-3-1-70b-instruct/)");
-    expect(table?.rows[1]?.[0]).toBe("thinkingmachines/inkling-small:free");
-    expect(table?.rows[2]?.[0]).toBe("thinkingmachines/inkling:free");
+    expect(table?.rows[1]?.[0]).toBe(
+      "[thinkingmachines/inkling-small:free](/models/openrouter/thinkingmachines-inkling-small-free/)",
+    );
+    expect(table?.rows[2]?.[0]).toBe("[thinkingmachines/inkling:free](/models/openrouter/thinkingmachines-inkling-free/)");
     expect(table?.rows[3]?.[2]).toBe("Not before 2026-11-11. The model may be removed after it.");
     const canonical = guide.sections.find((section) => section.heading === "canonical_slug is not a replacement")?.table;
     expect(canonical?.rows.some((row) => row[1] === "z-ai/glm-4.7-20251222")).toBe(true);

@@ -3552,7 +3552,7 @@ async with client.aio.live.connect(
 /**
  * expiration_date values read from the OpenRouter models API on 2026-11-02.
  * Every non-null expiration_date in that response is in this list.
- * The stored model files were not edited to match this check.
+ * The ingest stores each id from the models API, including the Thinking Machines rows.
  */
 export const OPENROUTER_NOV_DEC_CHECKED = "2026-11-02";
 export const OPENROUTER_NOV_DEC_GUIDE_SLUG = "openrouter-model-expirations-november-december-2026";
@@ -3751,7 +3751,7 @@ function openRouterNovDecGuide(rows: ModelRecord[], catalog: ModelRecord[]): Gui
         heading: "Find the model ids in your code",
         paragraphs: [
           "Search the repository for each id in the table. Where canonical_slug differs, search for that string too. A hit is a candidate. Open the call and read the model field before you edit it. [How to find every model ID in your codebase](/guides/find-model-ids-in-your-codebase/) covers SDK argument names.",
-          `The [scan page](/scan/) builds its pattern from exact and month-only shutdown dates. not_before is left out, so these OpenRouter slugs are not in that pattern. The [GitHub Action](/github-action/) says: "${OPENROUTER_ACTION_QUOTE}" The stored rows are deprecated, so a hit on a stored slug is reported. The Action still uses the stored day when it chooses a warning or an error. That does not turn the floor into an exact shutdown day. The two Thinking Machines slugs are not stored, so the Action does not know them until a row exists.`,
+          `The [scan page](/scan/) builds its pattern from exact and month-only shutdown dates. not_before is left out, so these OpenRouter slugs are not in that pattern. The [GitHub Action](/github-action/) says: "${OPENROUTER_ACTION_QUOTE}" The stored rows are deprecated, so a hit on a stored slug is reported. The Action still uses the stored day when it chooses a warning or an error. That does not turn the floor into an exact shutdown day. thinkingmachines/inkling:free and thinkingmachines/inkling-small:free are stored, so the Action reports those slugs too.`,
           "The quickstart says the examples use ~openai/gpt-sol-latest. Search for the expiring slugs, not only for that alias.",
         ],
         codes: [{ caption: "ripgrep, fixed strings, ids and canonical_slug values", code: openRouterSearch(searchIds) }],

@@ -75,7 +75,9 @@ export function parseOpenRouter(body: string, docs: OpenRouterDocs, checked: str
 
 /**
  * A failed or partial OpenRouter read must not wipe stored rows or fail the other providers.
- * A smaller list is applied only when every missing id already had an expiration date before the check day.
+ * A smaller list is applied when every missing id already had an expiration date on or before
+ * the check day. Models leave the list on that day. A missing id whose date is still later
+ * keeps the stored rows, so a short response cannot drop an upcoming model or hide a new one.
  */
 export function openRouterDecision(
   next: { id: string }[] | null,
@@ -87,7 +89,7 @@ export function openRouterDecision(
   const nextIds = new Set(next.map((row) => row.id));
   const dropped = previous.filter((row) => !nextIds.has(row.id));
   if (dropped.length === 0) return "use";
-  if (dropped.every((row) => expiredBefore(row, checked))) return "use";
+  if (dropped.every((row) => expirationReached(row, checked))) return "use";
   return "keep";
 }
 
@@ -297,9 +299,10 @@ export function perMillionTokens(value: unknown): number | null {
   return Number(`${pad.slice(0, point)}.${pad.slice(point)}`);
 }
 
-function expiredBefore(row: OpenRouterPrior, checked: string): boolean {
+/** The expiration day counts. OpenRouter removes the row on that day, not the day after. */
+function expirationReached(row: OpenRouterPrior, checked: string): boolean {
   const date = row.deprecation_date ?? row.shutdown_date;
-  return Boolean(date && date < checked);
+  return Boolean(date && date <= checked);
 }
 
 function isOpenRouterId(id: string): boolean {
