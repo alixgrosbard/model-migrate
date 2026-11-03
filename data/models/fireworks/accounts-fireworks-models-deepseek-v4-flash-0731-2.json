@@ -4,7 +4,7 @@
   "provider": "fireworks",
   "display_name": "DeepSeek V4 Flash (0731) Serverless Training",
   "family": null,
-  "status": "deprecated",
+  "status": "retired",
   "announced_date": null,
   "deprecation_date": null,
   "shutdown_date": "2026-11-02",
@@ -22,7 +22,7 @@
     {
       "url": "https://docs.fireworks.ai/updates/changelog",
       "label": "Fireworks AI changelog",
-      "last_checked": "2026-11-02",
+      "last_checked": "2026-11-03",
       "excerpt": "DeepSeek V4 Flash (0731) will be removed"
     }
   ],
@@ -48,5 +48,5 @@
     "specs_sources": {}
   },
   "first_seen": "2026-10-28T12:33:26.950Z",
-  "updated_at": "2026-10-28T12:33:26.950Z"
+  "updated_at": "2026-11-03T11:23:31.016Z"
 }
