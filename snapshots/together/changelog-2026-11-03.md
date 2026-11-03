@@ -4,6 +4,12 @@
 
 # Changelog
 
+**November 3, 2026**
+
+## Post-training: FP4 preparation for MiniMax M3.1 Flash
+
+You can now deploy a MiniMax M3.1 Flash adapter on dedicated model inference by first [preparing it for FP4 inference](https://docs.together.ai/docs/post-training/prepare-for-fp4-inference.md). The base model already ships in its serving format, so the job only merges the adapter, which takes about 1 hour.
+
 **November 2, 2026**
 
 ## Post-training: GLM-5.3 Flash

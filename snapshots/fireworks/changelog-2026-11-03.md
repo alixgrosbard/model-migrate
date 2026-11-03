@@ -8,6 +8,18 @@
 
 All
 
+**2026-11-03**
+
+Inference
+
+# New Serverless mode: Ultra-fast (Preview)
+
+**Ultra-fast** is a new high-speed Serverless mode, now in Preview, for highly latency-sensitive applications. Ultra-fast variants aim for 6-8x generation speed, and up to 10x for agentic coding tasks. Like Fast, it is not a different model, so output quality is the same.
+
+Ultra-fast is available for **DeepSeek V4.1 Flash 1017**. To use it, set `model` to `accounts/fireworks/routers/deepseek-v4p1-flash-1017-ultrafast`. Priority tier is not available for Ultra-fast.
+
+Ultra-fast is priced at a premium and has lower rate limits than the standard model. Preview modes are under active development and may change quickly. See [Serverless Modes](https://docs.fireworks.ai/serverless/serverless-modes.md), [Serverless pricing](https://docs.fireworks.ai/serverless/pricing.md), and [Serverless rate limits](https://docs.fireworks.ai/serverless/rate-limits.md#models-by-tier).
+
 **2026-10-27**
 
 Inference

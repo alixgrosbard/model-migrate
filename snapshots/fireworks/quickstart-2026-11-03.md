@@ -36,15 +36,15 @@ Once you have your API key, export it as an environment variable in your termina
 > >
 > > The SDK is currently in alpha. Use the `--pre` flag when installing to get the latest version.
 >
-> ```bash pip theme={null}
+> ```bash pip theme={null} theme={null}
 > pip install --pre fireworks-ai
 > ```
 >
-> ```bash poetry theme={null}
+> ```bash poetry theme={null} theme={null}
 > poetry add --pre fireworks-ai
 > ```
 >
-> ```bash uv theme={null}
+> ```bash uv theme={null} theme={null}
 > uv add --pre fireworks-ai
 > ```
 >
@@ -211,7 +211,7 @@ You should see a response like: `"¡Hola!"`
 
 > [!TIP]
 >
-> For **Priority tier** (`service_tier: "priority"`) and **Fast**, see [Serverless Modes](https://docs.fireworks.ai/serverless/serverless-modes.md).
+> For **Priority tier** (`service_tier: "priority"`), **Fast**, and **Ultra-fast (Preview)**, see [Serverless Modes](https://docs.fireworks.ai/serverless/serverless-modes.md).
 
 ## Common use cases
 
