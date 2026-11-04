@@ -228,6 +228,17 @@ const openaiGuides = provider.id === "openai"
       <a href="/guides/gemini-2-5-pro-flash-auto-route-december-1-2026/">December 1, 2026 auto-route guide</a>.
       <a href="/#soonest">Soonest shutdowns on the homepage</a>.
     </p>
+  ) : provider.id === "mistral" ? (
+    <p>
+      Official page: <a href={provider.deprecations_url}>{provider.deprecations_url}</a>.
+      April 30, 2027 is the retirement date the models page lists for mistral-large-2512, mistral-medium-3-5, voxtral-mini-2602, voxtral-mini-transcribe-realtime-2602, and voxtral-mini-tts-2603.
+      The deprecation date on those rows is October 31, 2026.
+      The Replacement column names Mistral Large 4, Voxtral Mini Transcribe 3, Voxtral Mini Transcribe Realtime 3, and Voxtral TTS 3.
+      The stored replacements field on those five rows is empty.
+      <a href="/shutdowns/mistral-2027-04-30/">April 30, 2027 shutdowns</a>.
+      <a href="/guides/mistral-large-3-medium-3-5-voxtral-retirement-april-30-2027/">April 30, 2027 retirement guide</a>.
+      <a href="/#soonest">Soonest shutdowns on the homepage</a>.
+    </p>
   ) : (
     <p>Official source: <a href={provider.deprecations_url}>{provider.deprecations_url}</a>. <a href="/#soonest">Soonest shutdowns on the homepage</a>.</p>
   )}

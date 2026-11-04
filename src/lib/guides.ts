@@ -16,6 +16,8 @@ import {
   NEBIUS_NOV9_GUIDE_SLUG,
   datasetShutdownGuides,
   isAzureApril14Retirement,
+  isMistralApril30Retirement,
+  MISTRAL_APRIL30_GUIDE_SLUG,
   isAzureChatLatestNov17,
   isAzureCodexMini,
   isAzureNov19OSeries,
@@ -2476,6 +2478,7 @@ export function guidesForModel(model: ModelRecord, catalog: ModelRecord[]): Mode
   if (isBedrockJambaNov26Shutdown(model)) add(BEDROCK_JAMBA_NOV26_GUIDE_SLUG);
   if (isBedrockMar30OpenWeightShutdown(model)) add(BEDROCK_MAR30_GUIDE_SLUG);
   if (isAzureApril14Retirement(model)) add(AZURE_APRIL14_GUIDE_SLUG);
+  if (isMistralApril30Retirement(model)) add(MISTRAL_APRIL30_GUIDE_SLUG);
   if (isAzureNovDecRetirement(model)) add(AZURE_NOV_DEC_GUIDE_SLUG);
   if (isAzureNov19OSeries(model) || isAzureCodexMini(model) || isAzureChatLatestNov17(model)) add(AZURE_NOV19_GUIDE_SLUG);
   if (isCopilotNov16Shutdown(model)) add(COPILOT_NOV16_GUIDE_SLUG);
