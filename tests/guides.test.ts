@@ -946,6 +946,124 @@ describe("guides", () => {
     expect(lastmodForUrl("https://sunsetdiff.com/guides/azure-openai-retirements-november-december-2026/")).toBe("2026-11-02");
   });
 
+  it("builds the Azure OpenAI April 14, 2027 GPT-4.1 and GPT-4o guide from the dataset", async () => {
+    const models = await loadModels();
+    const ids = [
+      "gpt-4.1-2025-04-14",
+      "gpt-4.1-mini-2025-04-14",
+      "gpt-4.1-nano-2025-04-14",
+      "gpt-4o-2024-08-06",
+      "gpt-4o-2024-11-20",
+      "gpt-4o-mini-2024-07-18",
+    ];
+    const rows = models
+      .filter((model) => model.provider === "azure-openai" && ids.includes(model.id))
+      .sort((a, b) => a.id.localeCompare(b.id));
+    expect(rows.map((model) => model.id)).toEqual(ids);
+    expect(rows.map((model) => model.shutdown_date)).toEqual(ids.map(() => "2027-04-14"));
+    expect(rows.map((model) => model.replacements.map((item) => item.model_id))).toEqual([
+      [],
+      [],
+      [],
+      ["gpt-5.1"],
+      ["gpt-5.1"],
+      [],
+    ]);
+    const version = models.find((model) => model.provider === "azure-openai" && model.id === "gpt-5.1-2025-11-13");
+    expect(version?.shutdown_date).toBe("2027-07-13");
+    expect(version?.replacements).toEqual([]);
+    const guide = guides.find((item) => item.slug === "azure-openai-gpt-4-1-gpt-4o-retirement-april-14-2027");
+    expect(guide).toBeTruthy();
+    if (!guide) return;
+    expect(guidePath(guide.slug)).toBe("/guides/azure-openai-gpt-4-1-gpt-4o-retirement-april-14-2027/");
+    expect(guideChecked(guide)).toBe("2026-11-04");
+    expect(guide.h1).toBe("Azure OpenAI GPT-4.1 and GPT-4o retirement on April 14, 2027");
+    const table = guide.sections.find((section) => section.heading === "Models and dates")?.table;
+    expect(table?.headers).toEqual(["Model id", "Lifecycle on the schedule", "Shutdown date", "Recommended replacement"]);
+    expect(table?.rows.map((row) => row[0])).toEqual(
+      rows.map((model) => `[${model.id}](/models/${model.provider}/${model.slug}/)`),
+    );
+    expect(table?.rows.map((row) => row[1])).toEqual([
+      "Deprecated",
+      "Deprecated",
+      "Deprecated",
+      "Deprecated",
+      "Legacy",
+      "Deprecated",
+    ]);
+    expect(table?.rows.map((row) => row[2])).toEqual(rows.map((model) => model.shutdown_date));
+    expect(table?.rows.map((row) => row[3])).toEqual([
+      "Not published",
+      "Not published",
+      "Not published",
+      "[gpt-5.1](/models/azure-openai/gpt-5-1/)",
+      "[gpt-5.1](/models/azure-openai/gpt-5-1/)",
+      "Not published",
+    ]);
+    const blob = JSON.stringify(guide);
+    expect(blob).toContain("All inference requests return 410 Gone.");
+    expect(blob).toContain("Provisioned deployments are NOT auto-upgraded.");
+    expect(blob).toContain("The model deployment never automatically upgrades.");
+    expect(blob).toContain("2027-07-13");
+    expect(blob).toContain("2027-04-01");
+    expect(blob).toContain("will be removed from the API on April 1, 2027");
+    expect(blob).toContain("do not print 2027-04-01 as a shutdown date for gpt-5.1");
+    expect(blob).toContain("gpt-5.1 (2025-11-13)");
+    expect(blob).toContain("No earlier than 2027-04-01");
+    expect(blob).toContain("2027-10-14");
+    expect(blob).toContain("2027-10-01");
+    expect(blob).toContain("https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule");
+    expect(blob).toContain("https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirements");
+    expect(blob).toContain("https://learn.microsoft.com/en-us/azure/foundry/openai/how-to/working-with-models");
+    expect(blob).toContain("https://developers.openai.com/api/docs/deprecations");
+    expect(blob).toContain("/providers/azure-openai/");
+    expect(blob).toContain("/shutdowns/azure-openai-2027-04-14/");
+    expect(blob).toContain("/errors/azure-openai-retired-model-410-gone/");
+    expect(blob).toContain("/guides/openai-gpt-5-1-codex-nano-shutdown-april-1-2027/");
+    expect(blob).toContain("/models/azure-openai/gpt-5-1-2025-11-13/");
+    expect(blob).not.toMatch(/[—–]/);
+    expect(guide.steps.map((step) => step.name)).toEqual([
+      "Find deployments",
+      "Pick a replacement",
+      "Test",
+      "Redeploy before the date",
+    ]);
+    const pageFacts = JSON.stringify({
+      answer: guide.answer,
+      steps: guide.steps,
+      sections: guide.sections,
+    });
+    for (const faq of guide.faqs) {
+      for (const date of faq.answer.match(/\d{4}-\d{2}-\d{2}/g) ?? []) {
+        expect(pageFacts).toContain(date);
+      }
+    }
+    expect(sitemapSection(guidePath(guide.slug))).toBe("sitemap-guides.xml");
+    for (const model of rows) {
+      expect(guidesForModel(model, models).map((link) => link.href)).toContain(guidePath(guide.slug));
+    }
+    const graph = guideGraph("https://sunsetdiff.com/", guide);
+    expect(graph.some((node) => node["@type"] === "Article")).toBe(true);
+    expect(graph.some((node) => node["@type"] === "HowTo")).toBe(true);
+    expect(graph.some((node) => node["@type"] === "FAQPage")).toBe(true);
+    expect(graph.find((node) => node["@type"] === "Article")).toMatchObject({
+      datePublished: "2026-11-04",
+      dateModified: "2026-11-04",
+    });
+    const providerPage = readFileSync("src/pages/providers/[provider].astro", "utf8");
+    const shutdownPage = readFileSync("src/pages/shutdowns/[slug].astro", "utf8");
+    expect(providerPage).toContain("/guides/azure-openai-gpt-4-1-gpt-4o-retirement-april-14-2027/");
+    expect(providerPage).toContain('href="/shutdowns/azure-openai-2027-04-14/"');
+    expect(shutdownPage).toContain("azure-openai-gpt-4-1-gpt-4o-retirement-april-14-2027");
+    const text = llmsTxt("https://sunsetdiff.com", [], []);
+    const full = llmsFull("https://sunsetdiff.com", []);
+    expect(text).toContain("/guides/azure-openai-gpt-4-1-gpt-4o-retirement-april-14-2027/");
+    expect(full).toContain("/guides/azure-openai-gpt-4-1-gpt-4o-retirement-april-14-2027/");
+    expect(lastmodForUrl("https://sunsetdiff.com/guides/azure-openai-gpt-4-1-gpt-4o-retirement-april-14-2027/")).toBe("2026-11-04");
+    const april = guides.find((item) => item.slug === "openai-gpt-5-1-codex-nano-shutdown-april-1-2027");
+    expect(april?.related.some((link) => link.href === guidePath(guide.slug))).toBe(true);
+  });
+
   it("builds the GitHub Copilot November 16 guide from the dataset", async () => {
     const models = await loadModels();
     const rows = models
