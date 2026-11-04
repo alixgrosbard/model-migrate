@@ -2,6 +2,12 @@
 
 # Release Notes
 
+## November
+
+### grok-imagine-image-quality retired
+
+Requests to `grok-imagine-image-quality` and `grok-imagine-image-pro` are now served by `grok-imagine-image-2.0-low`: `grok-imagine-image-2.0` with `quality` set to `low`, at a lower per-image price. No request changes are needed. `usage.cost_in_usd_ticks` on each response reflects the lower price, and gRPC responses (xAI SDK) report `grok-imagine-image-2.0-low` as the `model`. See the [migration guide](/developers/migration/imagine-image-quality-nov-2).
+
 ## October
 
 ### Custom moderation controls
