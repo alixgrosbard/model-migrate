@@ -16,6 +16,8 @@ import {
   NEBIUS_NOV9_GUIDE_SLUG,
   datasetShutdownGuides,
   isAzureApril14Retirement,
+  isAzureJuly13Retirement,
+  AZURE_JULY13_GUIDE_SLUG,
   isMistralApril30Retirement,
   MISTRAL_APRIL30_GUIDE_SLUG,
   isVertexApril1EmbeddingShutdown,
@@ -2480,6 +2482,7 @@ export function guidesForModel(model: ModelRecord, catalog: ModelRecord[]): Mode
   if (isBedrockJambaNov26Shutdown(model)) add(BEDROCK_JAMBA_NOV26_GUIDE_SLUG);
   if (isBedrockMar30OpenWeightShutdown(model)) add(BEDROCK_MAR30_GUIDE_SLUG);
   if (isAzureApril14Retirement(model)) add(AZURE_APRIL14_GUIDE_SLUG);
+  if (isAzureJuly13Retirement(model)) add(AZURE_JULY13_GUIDE_SLUG);
   if (isMistralApril30Retirement(model)) add(MISTRAL_APRIL30_GUIDE_SLUG);
   if (isVertexApril1EmbeddingShutdown(model)) add(VERTEX_EMBED_APRIL1_GUIDE_SLUG);
   if (isAzureNovDecRetirement(model)) add(AZURE_NOV_DEC_GUIDE_SLUG);

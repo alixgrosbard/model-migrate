@@ -363,6 +363,19 @@ describe("official snapshots", () => {
       "gemini-3.5-flash-lite",
     ]);
   });
+
+  it("keeps the current Vertex multimodalembedding pin and skips retired @ pins", () => {
+    const models = parseVertex(read(newestSnapshot("google-vertex")), "2026-11-04");
+    const row = models.find((model) => model.id === "multimodalembedding@001");
+    expect(row?.shutdown_date).toBe("2027-04-01");
+    expect(row?.shutdown_date_kind).toBe("exact");
+    expect(row?.status).toBe("deprecated");
+    expect(row?.replacements).toEqual([]);
+    expect(row?.region_or_platform_notes).toBe("Release date on the Vertex model versions page: 2024-02-12.");
+    expect(row?.sources[0]?.excerpt).toBe("multimodalembedding@001 | February 12, 2024 | April 1, 2027");
+    expect(models.some((model) => model.id.includes("textembedding-gecko"))).toBe(false);
+    expect(models.some((model) => model.id.startsWith("imagegeneration@"))).toBe(false);
+  });
 });
 
 describe("refresh pipeline", () => {

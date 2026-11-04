@@ -33,7 +33,10 @@ export function parseVertex(html: string, checked = todayISO()): ScrapedModel[] 
     const replaceIdx = header.findIndex((cell) => cell.includes("replacement") || cell.includes("upgrade"));
     for (const row of rows.slice(1)) {
       const id = (row[idIdx] ?? "").trim();
-      if (!isModelId(id)) continue;
+      // Vertex pins some versions with @, as in multimodalembedding@001.
+      // Retired-table pins such as textembedding-gecko@001 stay out of the dataset.
+      const versionPin = /^[A-Za-z][A-Za-z0-9.-]*@[0-9]+$/.test(id);
+      if (!isModelId(id) && !(versionPin && !retiredSection)) continue;
       const retirement = parseDate(row[retireIdx] ?? "");
       const release = releaseIdx >= 0 ? parseDate(row[releaseIdx] ?? "") : { date: null, kind: "none" as const };
       const replacement = (row[replaceIdx] ?? "").trim();
