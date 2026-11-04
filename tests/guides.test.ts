@@ -73,6 +73,7 @@ const ALLOWED_HOSTS = new Set([
   "github.blog",
   "docs.fireworks.ai",
   "docs.tokenfactory.nebius.com",
+  "docs.mistral.ai",
 ]);
 
 describe("guides", () => {
@@ -1062,6 +1063,101 @@ describe("guides", () => {
     expect(lastmodForUrl("https://sunsetdiff.com/guides/azure-openai-gpt-4-1-gpt-4o-retirement-april-14-2027/")).toBe("2026-11-04");
     const april = guides.find((item) => item.slug === "openai-gpt-5-1-codex-nano-shutdown-april-1-2027");
     expect(april?.related.some((link) => link.href === guidePath(guide.slug))).toBe(true);
+  });
+
+  it("builds the Mistral April 30, 2027 Large, Medium, and Voxtral guide from the dataset", async () => {
+    const models = await loadModels();
+    const ids = [
+      "mistral-large-2512",
+      "mistral-medium-3-5",
+      "voxtral-mini-2602",
+      "voxtral-mini-transcribe-realtime-2602",
+      "voxtral-mini-tts-2603",
+    ];
+    const rows = models
+      .filter((model) => model.provider === "mistral" && ids.includes(model.id))
+      .sort((a, b) => a.id.localeCompare(b.id));
+    expect(rows.map((model) => model.id)).toEqual(ids);
+    expect(rows.map((model) => model.deprecation_date)).toEqual(ids.map(() => "2026-10-31"));
+    expect(rows.map((model) => model.shutdown_date)).toEqual(ids.map(() => "2027-04-30"));
+    expect(rows.every((model) => model.replacements.length === 0)).toBe(true);
+    const guide = guides.find((item) => item.slug === "mistral-large-3-medium-3-5-voxtral-retirement-april-30-2027");
+    expect(guide).toBeTruthy();
+    if (!guide) return;
+    expect(guidePath(guide.slug)).toBe("/guides/mistral-large-3-medium-3-5-voxtral-retirement-april-30-2027/");
+    expect(guideChecked(guide)).toBe("2026-11-04");
+    expect(guide.h1).toBe("Mistral Large 3, Medium 3.5, and Voxtral retirement on April 30, 2027");
+    const table = guide.sections.find((section) => section.heading === "Models and dates")?.table;
+    expect(table?.headers).toEqual(["Model", "Retirement date", "Official replacement"]);
+    expect(table?.rows.map((row) => row[0])).toEqual(
+      rows.map((model) => `[${model.id}](/models/${model.provider}/${model.slug}/)`),
+    );
+    expect(table?.rows.map((row) => row[1])).toEqual(ids.map(() => "2027-04-30"));
+    expect(table?.rows.map((row) => row[2])).toEqual([
+      "Mistral Large 4 (mistral-large-4)",
+      "Mistral Large 4 (mistral-large-4)",
+      "Voxtral Mini Transcribe 3 (voxtral-mini-transcribe-3-0)",
+      "Voxtral Mini Transcribe Realtime 3 (voxtral-mini-transcribe-realtime-3-0)",
+      "Voxtral TTS 3 (voxtral-mini-tts-3-0)",
+    ]);
+    const blob = JSON.stringify(guide);
+    expect(blob).toContain("fail with a 404 error");
+    expect(blob).toContain("The replacements field is empty");
+    expect(blob).toContain("Not published");
+    expect(blob).toContain("mistral-large-4-0");
+    expect(blob).toContain("voxtral-mini-tts-latest will point to Voxtral 3 within a month of GA.");
+    expect(blob).toContain("timestamp_granularities accepts segment only");
+    expect(blob).toContain("2026-10-06");
+    expect(blob).toContain("2026-10-20");
+    expect(blob).toContain("does not print a deprecation line");
+    expect(blob).toContain("https://docs.mistral.ai/models");
+    expect(blob).toContain("https://docs.mistral.ai/inference/model-lifecycle");
+    expect(blob).toContain("https://docs.mistral.ai/resources/changelogs");
+    expect(blob).toContain("https://docs.mistral.ai/studio/audio/migrate-from-voxtral-2");
+    expect(blob).toContain("https://docs.mistral.ai/studio/audio/overview");
+    expect(blob).toContain("/providers/mistral/");
+    expect(blob).toContain("/shutdowns/mistral-2027-04-30/");
+    expect(blob).not.toMatch(/[—–]/);
+    expect(guide.steps.map((step) => step.name)).toEqual([
+      "Change the text model id",
+      "Test the new text id",
+      "Move the audio models separately",
+    ]);
+    const pageFacts = JSON.stringify({
+      answer: guide.answer,
+      steps: guide.steps,
+      sections: guide.sections,
+    });
+    for (const faq of guide.faqs) {
+      for (const date of faq.answer.match(/\d{4}-\d{2}-\d{2}/g) ?? []) {
+        expect(pageFacts).toContain(date);
+      }
+    }
+    expect(sitemapSection(guidePath(guide.slug))).toBe("sitemap-guides.xml");
+    for (const model of rows) {
+      expect(guidesForModel(model, models).map((link) => link.href)).toContain(guidePath(guide.slug));
+    }
+    const other = models.find((model) => model.provider === "mistral" && model.id === "voxtral-mini-2507");
+    expect(other).toBeTruthy();
+    expect(guidesForModel(other!, models).map((link) => link.href)).not.toContain(guidePath(guide.slug));
+    const graph = guideGraph("https://sunsetdiff.com/", guide);
+    expect(graph.some((node) => node["@type"] === "Article")).toBe(true);
+    expect(graph.some((node) => node["@type"] === "HowTo")).toBe(true);
+    expect(graph.some((node) => node["@type"] === "FAQPage")).toBe(true);
+    expect(graph.find((node) => node["@type"] === "Article")).toMatchObject({
+      datePublished: "2026-11-04",
+      dateModified: "2026-11-04",
+    });
+    const providerPage = readFileSync("src/pages/providers/[provider].astro", "utf8");
+    const shutdownPage = readFileSync("src/pages/shutdowns/[slug].astro", "utf8");
+    expect(providerPage).toContain("/guides/mistral-large-3-medium-3-5-voxtral-retirement-april-30-2027/");
+    expect(providerPage).toContain('href="/shutdowns/mistral-2027-04-30/"');
+    expect(shutdownPage).toContain("mistral-large-3-medium-3-5-voxtral-retirement-april-30-2027");
+    const text = llmsTxt("https://sunsetdiff.com", [], []);
+    const full = llmsFull("https://sunsetdiff.com", []);
+    expect(text).toContain("/guides/mistral-large-3-medium-3-5-voxtral-retirement-april-30-2027/");
+    expect(full).toContain("/guides/mistral-large-3-medium-3-5-voxtral-retirement-april-30-2027/");
+    expect(lastmodForUrl("https://sunsetdiff.com/guides/mistral-large-3-medium-3-5-voxtral-retirement-april-30-2027/")).toBe("2026-11-04");
   });
 
   it("builds the GitHub Copilot November 16 guide from the dataset", async () => {

@@ -93,6 +93,19 @@ const AZURE_APRIL14_IDS = [
   "gpt-4o-mini-2024-07-18",
 ] as const;
 
+/** Checked against the Mistral models page, model cards, lifecycle page, and changelog on 2026-11-04. */
+export const MISTRAL_APRIL30_SHUTDOWN_DATE = "2027-04-30";
+export const MISTRAL_APRIL30_DEPRECATION_DATE = "2026-10-31";
+export const MISTRAL_APRIL30_GUIDE_SLUG = "mistral-large-3-medium-3-5-voxtral-retirement-april-30-2027";
+export const MISTRAL_APRIL30_CHECKED = "2026-11-04";
+const MISTRAL_APRIL30_IDS = [
+  "mistral-large-2512",
+  "mistral-medium-3-5",
+  "voxtral-mini-2602",
+  "voxtral-mini-transcribe-realtime-2602",
+  "voxtral-mini-tts-2603",
+] as const;
+
 const AZURE_NOV_DEC_IDS = new Set([
   "codex-mini-2025-05-16",
   "gpt-chat-latest-2026-05-05",
@@ -383,6 +396,13 @@ export function isAzureApril14Retirement(model: ModelRecord): boolean {
   return model.provider === "azure-openai"
     && (AZURE_APRIL14_IDS as readonly string[]).includes(model.id)
     && model.shutdown_date === AZURE_APRIL14_SHUTDOWN_DATE
+    && model.shutdown_date_kind === "exact";
+}
+
+export function isMistralApril30Retirement(model: ModelRecord): boolean {
+  return model.provider === "mistral"
+    && (MISTRAL_APRIL30_IDS as readonly string[]).includes(model.id)
+    && model.shutdown_date === MISTRAL_APRIL30_SHUTDOWN_DATE
     && model.shutdown_date_kind === "exact";
 }
 
@@ -1110,6 +1130,8 @@ export function datasetShutdownGuides(catalog: ModelRecord[] = readCatalog()): G
   if (azureNovDec.length) pages.push(azureNovDecGuide(azureNovDec, catalog));
   const azureApril14 = rowsFor(isAzureApril14Retirement, catalog);
   if (azureApril14.length) pages.push(azureApril14Guide(azureApril14, catalog));
+  const mistralApril30 = rowsFor(isMistralApril30Retirement, catalog);
+  if (mistralApril30.length) pages.push(mistralApril30Guide(mistralApril30));
   const copilot = rowsFor(isCopilotNov16Shutdown, catalog);
   if (copilot.length) pages.push(copilotNov16Guide(copilot, catalog));
   const fireworks = rowsFor(isFireworksNov7Shutdown, catalog);
@@ -3729,6 +3751,263 @@ function azureApril14Guide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePa
       },
     ],
     citations: [AZURE_SCHEDULE, AZURE_RETIREMENTS, AZURE_WORKING, AZURE_VERSIONS, AZURE_MIGRATION, OPENAI_DEPRECATIONS],
+  };
+}
+
+const MISTRAL_MODELS_URL = "https://docs.mistral.ai/models";
+const MISTRAL_LIFECYCLE_URL = "https://docs.mistral.ai/inference/model-lifecycle";
+const MISTRAL_CHANGELOG_URL = "https://docs.mistral.ai/resources/changelogs";
+const MISTRAL_LARGE3_URL = "https://docs.mistral.ai/models/mistral-large-3-25-12";
+const MISTRAL_MEDIUM_URL = "https://docs.mistral.ai/models/mistral-medium-3-5-26-04";
+const MISTRAL_VOX_TRANSCRIBE_URL = "https://docs.mistral.ai/models/voxtral-mini-transcribe-26-02";
+const MISTRAL_VOX_REALTIME_URL = "https://docs.mistral.ai/models/voxtral-mini-transcribe-realtime-26-02";
+const MISTRAL_VOX_TTS_URL = "https://docs.mistral.ai/models/voxtral-tts-26-03";
+const MISTRAL_LARGE4_URL = "https://docs.mistral.ai/models/mistral-large-4-0";
+const MISTRAL_VOX_TRANSCRIBE3_URL = "https://docs.mistral.ai/models/voxtral-mini-transcribe-3-0";
+const MISTRAL_VOX_REALTIME3_URL = "https://docs.mistral.ai/models/voxtral-mini-transcribe-realtime-3-0";
+const MISTRAL_VOX_TTS3_URL = "https://docs.mistral.ai/models/voxtral-mini-tts-3-0";
+const MISTRAL_AUDIO_URL = "https://docs.mistral.ai/studio/audio/overview";
+const MISTRAL_VOX_MIGRATE_URL = "https://docs.mistral.ai/studio/audio/migrate-from-voxtral-2";
+const MISTRAL_STILL = "A deprecated model still answers requests until its retirement date. A retired model no longer does: use its replacement.";
+const MISTRAL_404 = "During the deprecation period, the model remains accessible. Once retired, requests to its identifiers fail with a 404 error.";
+const MISTRAL_ALIAS_WARN = "Using an alias may expose you to silent updates in model behavior and pricing. For precise control, pin your deployment to a specific major.minor version identifier.";
+const MISTRAL_PREVIEW_UPDATES = "Allow silent updates.";
+const MISTRAL_PREVIEW_PATH = "Have no guaranteed path to General Availability, and may be retired before reaching it.";
+const MISTRAL_ANNOUNCED = "Deprecation is announced as soon as a replacement model is available. The replacement can be in General Availability or Public Preview.";
+const MISTRAL_LARGE4_RELEASE = "Mistral Large 4 (mistral-large-4) is now available in Public Preview.";
+const MISTRAL_VOX3_RELEASE = "We released the Voxtral 3 audio family, our next generation of speech-to-text and text-to-speech models. All four models are in Public Preview.";
+const MISTRAL_MAP = "Replace each Voxtral 2 model ID with the ID of its Voxtral 3 replacement. Each Voxtral 3 model also answers to the aliases in the last column.";
+const MISTRAL_WORD = "Word timestamps are gone. timestamp_granularities accepts segment only, and word returns a 400 error.";
+const MISTRAL_LOCK = "A realtime session locks its settings when the first audio chunk arrives. A later session.update gets an error event.";
+const MISTRAL_TTS_ALIAS = "voxtral-mini-tts-latest will point to Voxtral 3 within a month of GA.";
+const MISTRAL_AUDIO_COVER = "The audio docs cover Voxtral 3. If your code still calls Voxtral 2 models, Migrate from Voxtral 2 lists what to change.";
+const MISTRAL_USE_LARGE = "This model is deprecated. Use Mistral Large 4 for new integrations.";
+const MISTRAL_USE_TRANSCRIBE = "This model is deprecated. Use Voxtral Mini Transcribe 3 for new integrations.";
+const MISTRAL_USE_REALTIME = "This model is deprecated. Use Voxtral Mini Transcribe Realtime 3 for new integrations.";
+const MISTRAL_USE_TTS = "This model is deprecated. Use Voxtral TTS 3 for new integrations.";
+
+function mistralApril30Official(id: string): string {
+  if (id === "mistral-large-2512" || id === "mistral-medium-3-5") return "Mistral Large 4 (mistral-large-4)";
+  if (id === "voxtral-mini-2602") return "Voxtral Mini Transcribe 3 (voxtral-mini-transcribe-3-0)";
+  if (id === "voxtral-mini-transcribe-realtime-2602") return "Voxtral Mini Transcribe Realtime 3 (voxtral-mini-transcribe-realtime-3-0)";
+  if (id === "voxtral-mini-tts-2603") return "Voxtral TTS 3 (voxtral-mini-tts-3-0)";
+  return "Not published";
+}
+
+function mistralApril30Search(): string {
+  const ids = [
+    ...MISTRAL_APRIL30_IDS,
+    "mistral-large-latest",
+    "mistral-medium-3",
+    "mistral-medium-latest",
+    "voxtral-mini-latest",
+    "voxtral-mini-realtime-latest",
+    "voxtral-mini-tts-latest",
+  ];
+  return `rg -n -w ${ids.map((id) => `-e '${id}'`).join(" ")}\n`;
+}
+
+function mistralApril30Guide(rows: ModelRecord[]): GuidePage {
+  const ordered = [...rows].sort((a, b) => a.id.localeCompare(b.id));
+  const when = longDate(MISTRAL_APRIL30_SHUTDOWN_DATE);
+  const deprecatedOn = longDate(MISTRAL_APRIL30_DEPRECATION_DATE);
+  const empty = ordered.filter((model) => publishedReplacementIds(model).length === 0);
+  const noteLines = ordered.map((model) => `${model.id}: ${model.region_or_platform_notes ?? "no note is stored"}`).join(" ");
+  const textIds = ordered.filter((model) => model.id.startsWith("mistral-"));
+  const audioIds = ordered.filter((model) => model.id.startsWith("voxtral-"));
+  const sources = [
+    { label: "Mistral models", url: MISTRAL_MODELS_URL },
+    { label: "Mistral model lifecycle", url: MISTRAL_LIFECYCLE_URL },
+  ];
+  const cardSources = [
+    { label: "Mistral Large 3", url: MISTRAL_LARGE3_URL },
+    { label: "Mistral Medium 3.5", url: MISTRAL_MEDIUM_URL },
+    { label: "Voxtral Mini Transcribe 2", url: MISTRAL_VOX_TRANSCRIBE_URL },
+    { label: "Voxtral Mini Transcribe Realtime", url: MISTRAL_VOX_REALTIME_URL },
+    { label: "Voxtral TTS", url: MISTRAL_VOX_TTS_URL },
+  ];
+  const replacementSources = [
+    { label: "Mistral Large 4", url: MISTRAL_LARGE4_URL },
+    { label: "Voxtral Mini Transcribe 3", url: MISTRAL_VOX_TRANSCRIBE3_URL },
+    { label: "Voxtral Mini Transcribe Realtime 3", url: MISTRAL_VOX_REALTIME3_URL },
+    { label: "Voxtral TTS 3", url: MISTRAL_VOX_TTS3_URL },
+  ];
+  return {
+    slug: MISTRAL_APRIL30_GUIDE_SLUG,
+    title: `Mistral Large 3, Medium 3.5, and Voxtral retirement on ${when} | SunsetDiff`,
+    description: `mistral-large-2512, mistral-medium-3-5, voxtral-mini-2602, voxtral-mini-transcribe-realtime-2602, and voxtral-mini-tts-2603 retire on ${MISTRAL_APRIL30_SHUTDOWN_DATE}. Mistral names Mistral Large 4, Voxtral Mini Transcribe 3, Voxtral Mini Transcribe Realtime 3, and Voxtral TTS 3. The stored replacements field is empty.`,
+    h1: `Mistral Large 3, Medium 3.5, and Voxtral retirement on ${when}`,
+    summary: `${ordered.length} Mistral ids with shutdown date ${MISTRAL_APRIL30_SHUTDOWN_DATE}, the replacement name on the models page, and the API name on the current model list.`,
+    answer: `The dataset has ${ordered.length} Mistral ids with shutdown date ${MISTRAL_APRIL30_SHUTDOWN_DATE}: ${idList(ordered)}. Each row stores deprecation date ${MISTRAL_APRIL30_DEPRECATION_DATE}. The models page and the model cards print those same two dates. The Replacement column names Mistral Large 4 for ${idList(textIds)}, Voxtral Mini Transcribe 3 for voxtral-mini-2602, Voxtral Mini Transcribe Realtime 3 for voxtral-mini-transcribe-realtime-2602, and Voxtral TTS 3 for voxtral-mini-tts-2603. The current models table prints API names mistral-large-4, voxtral-mini-transcribe-3-0, voxtral-mini-transcribe-realtime-3-0, and voxtral-mini-tts-3-0. Those four ids are not stored on these rows. ${empty.length === ordered.length ? "The replacements field is empty, so each model page says Not published." : "The replacements field is empty on " + (empty.length ? idList(empty) : "none of these rows") + "."} The lifecycle page says that once a model is retired, requests to its identifiers fail with a 404 error. The retirement date on these rows is ${MISTRAL_APRIL30_SHUTDOWN_DATE}.`,
+    checked: MISTRAL_APRIL30_CHECKED,
+    steps: [
+      {
+        name: "Change the text model id",
+        text: `For mistral-large-2512 and mistral-medium-3-5, the models page names Mistral Large 4. The current models table and the October 6, 2026 changelog print the API name mistral-large-4. The Large 4 card also lists mistral-large-4-0. Change the model field on the chat call to mistral-large-4, or to mistral-large-4-0 if you want the other name the card prints. Do that before ${when}. Do not leave the call on mistral-large-latest, mistral-medium-3, or mistral-medium-latest. Those strings are API names on the deprecated cards.`,
+      },
+      {
+        name: "Test the new text id",
+        text: `Send one prompt you use now to mistral-large-4 before ${when}. Check the reply, the tools, and any field the new model rejects. The Large 4 card says the model is Public Preview. The lifecycle page says Public Preview models allow silent updates, and that an alias can move. Pin mistral-large-4 or mistral-large-4-0 rather than a latest alias.`,
+      },
+      {
+        name: "Move the audio models separately",
+        text: "voxtral-mini-2602, voxtral-mini-transcribe-realtime-2602, and voxtral-mini-tts-2603 are audio models. The migration page says to replace each Voxtral 2 model id with its Voxtral 3 id. Use voxtral-mini-transcribe-3-0 for a recorded file, voxtral-mini-transcribe-realtime-3-0 for a live transcription session, and voxtral-mini-tts-3-0 for speech from text. Do not send mistral-large-4 on those calls. A word-timestamp request returns 400 on the new transcription id. A realtime session locks its settings when the first audio chunk arrives.",
+      },
+    ],
+    sections: [
+      {
+        heading: "Models and dates",
+        paragraphs: [
+          `These ${ordered.length} ids are the Mistral rows whose shutdown date is ${MISTRAL_APRIL30_SHUTDOWN_DATE}. The model id links to its SunsetDiff model page. Deprecation date on every row is ${MISTRAL_APRIL30_DEPRECATION_DATE}. Retirement date is the shutdown date. Official replacement is the name in the Replacement column, plus the API name from the current models table on the same page. ${noteLines}`,
+          `The models page says: "${MISTRAL_STILL}" The HTML table on that page calls the last column Alternative. The Markdown copy of the same page calls it Replacement. Both copies list deprecation ${MISTRAL_APRIL30_DEPRECATION_DATE} and retirement ${MISTRAL_APRIL30_SHUTDOWN_DATE} for these five ids.`,
+          empty.length === ordered.length
+            ? `The replacements field is empty on ${idList(empty)}. The model page under Replacements then says Not published. That empty field is not the same thing as an empty Replacement cell. Mistral filled the cell. SunsetDiff did not store an id, because Mistral Large 4 and the three Voxtral 3 models are not rows in this dataset.`
+            : `The replacements field is empty on ${empty.length ? idList(empty) : "none of these rows"}.`,
+        ],
+        table: {
+          caption: `${ordered.length} Mistral model ids with retirement date ${MISTRAL_APRIL30_SHUTDOWN_DATE}.`,
+          headers: ["Model", "Retirement date", "Official replacement"],
+          rows: ordered.map((model) => [
+            modelLink(model),
+            shutdownCell(model),
+            mistralApril30Official(model.id),
+          ]),
+        },
+        sources,
+      },
+      {
+        heading: "Replacements Mistral names",
+        paragraphs: [
+          `The Large 3 card and the Medium 3.5 card both say: "${MISTRAL_USE_LARGE}" Deprecation date ${deprecatedOn}. Retirement date ${when}. Replacement: Mistral Large 4. The Large 4 card lists API names mistral-large-4 and mistral-large-4-0, status Public Preview, and a 1M context window. The current models table prints API name mistral-large-4.`,
+          `The Voxtral Mini Transcribe 2 card says: "${MISTRAL_USE_TRANSCRIBE}" The Voxtral Mini Transcribe Realtime card says: "${MISTRAL_USE_REALTIME}" The Voxtral TTS card says: "${MISTRAL_USE_TTS}" Each of those cards lists deprecation date ${MISTRAL_APRIL30_DEPRECATION_DATE} and retirement date ${MISTRAL_APRIL30_SHUTDOWN_DATE}.`,
+          "The current models table prints voxtral-mini-transcribe-3-0 for Voxtral Mini Transcribe 3, voxtral-mini-transcribe-realtime-3-0 for Voxtral Mini Transcribe Realtime 3, and voxtral-mini-tts-3-0 for Voxtral TTS 3. All three are Public Preview. The migration page uses those same three strings in its Model ID column.",
+          `The changelog on ${MISTRAL_APRIL30_CHECKED} does not print a deprecation line for these five ids. It does print the replacement releases. The 2026-10-06 entry says: "${MISTRAL_LARGE4_RELEASE}" The 2026-10-20 entry says: "${MISTRAL_VOX3_RELEASE}" Those lines are releases. They are not the retirement date.`,
+          `The lifecycle page says: "${MISTRAL_ANNOUNCED}" It also says Public Preview models "${MISTRAL_PREVIEW_UPDATES}" And: "${MISTRAL_PREVIEW_PATH}" The named replacements are Public Preview on their cards. Read the current model list again before you treat one of those ids as a long-term pin.`,
+        ],
+        sources: [
+          ...sources,
+          ...cardSources,
+          ...replacementSources,
+          { label: "Mistral changelog", url: MISTRAL_CHANGELOG_URL },
+        ],
+      },
+      {
+        heading: "What stops on April 30, 2027",
+        paragraphs: [
+          `Until ${when}, the models page says a deprecated model still answers. The lifecycle page says: "${MISTRAL_404}" After the retirement date, a request that still sends one of these identifiers fails with a 404 error.`,
+          "The lifecycle page does not say Mistral rewrites the old id to the new id for you. You change the model field. A call that still sends mistral-large-2512, mistral-medium-3-5, voxtral-mini-2602, voxtral-mini-transcribe-realtime-2602, or voxtral-mini-tts-2603 is a call to a retired identifier on that date.",
+          `The same page says: "${MISTRAL_ALIAS_WARN}" The Large 3 card lists mistral-large-latest next to mistral-large-2512. The Medium 3.5 card lists mistral-medium-3 and mistral-medium-latest next to mistral-medium-3-5. The Transcribe 2 card lists voxtral-mini-latest. The realtime card lists voxtral-mini-realtime-latest. The TTS card lists voxtral-mini-tts-latest. Those are names on the deprecated cards. This guide does not claim they already point at the replacement.`,
+        ],
+        sources,
+      },
+      {
+        heading: "Change the text model id",
+        paragraphs: [
+          "mistral-large-2512 and mistral-medium-3-5 are chat models. Their cards list Chat Completions at /v1/chat/completions. Keep the same endpoint. Change the model field.",
+          "Use mistral-large-4, the API name in the current models table and in the October 6, 2026 changelog. The Large 4 card also lists mistral-large-4-0. Both strings are names Mistral prints for Mistral Large 4. mistral-large-latest is a name on the deprecated Large 3 card, not a name on the Large 4 card.",
+          `The two text rows share one replacement. Medium 3.5 does not get a newer Medium id on this page. The Replacement cell says Mistral Large 4. If that model does not fit the job, the models page is the list to read. This guide does not add a second replacement Mistral did not name.`,
+          `Search the repository before ${when}. A hit is a candidate. A host dashboard can hold an id that git does not show. [How to find every model ID in your codebase](/guides/find-model-ids-in-your-codebase/) covers SDK argument names. The [scan page](/scan/) builds a search from dataset ids that have a shutdown date.`,
+        ],
+        codes: [{ caption: "ripgrep", code: mistralApril30Search() }],
+        sources: [
+          { label: "Mistral models", url: MISTRAL_MODELS_URL },
+          { label: "Mistral Large 3", url: MISTRAL_LARGE3_URL },
+          { label: "Mistral Medium 3.5", url: MISTRAL_MEDIUM_URL },
+          { label: "Mistral Large 4", url: MISTRAL_LARGE4_URL },
+          { label: "Mistral changelog", url: MISTRAL_CHANGELOG_URL },
+        ],
+      },
+      {
+        heading: "Audio models",
+        paragraphs: [
+          `The audio overview says: "${MISTRAL_AUDIO_COVER}" The migration page says: "${MISTRAL_MAP}" Its Model ID column is voxtral-mini-transcribe-3-0 for voxtral-mini-2602, voxtral-mini-transcribe-realtime-3-0 for voxtral-mini-transcribe-realtime-2602, and voxtral-mini-tts-3-0 for voxtral-mini-tts-2603.`,
+          `Recorded transcription stays on /v1/audio/transcriptions. The migration page says: "${MISTRAL_WORD}" Request segment timestamps. A request that still asks for word timestamps gets HTTP 400.`,
+          `Live transcription is a separate model. The migration page says: "${MISTRAL_LOCK}" Send every setting in the first session.update, before any audio. The audio overview says Voxtral Mini Transcribe Realtime 3 (voxtral-mini-transcribe-realtime-3-0) is for live audio. Do not point a file transcription at that id, and do not point a live session at voxtral-mini-transcribe-3-0.`,
+          `Speech from text stays on /v1/audio/speech. The audio overview says Voxtral TTS 3 (voxtral-mini-tts-3-0) generates speech from text. The same overview lists Voxtral TTS Realtime 3 as voxtral-mini-tts-realtime-3-0 for a live conversation. The retiring row names Voxtral TTS 3, not the realtime speech id. A file TTS call uses voxtral-mini-tts-3-0.`,
+          `The migration page says the Voxtral 2 preset voices are still accepted. Emotion can also be an inline tag. The aliases cell for voxtral-mini-tts-2603 says: "${MISTRAL_TTS_ALIAS}" The TTS 3 card says Public Preview, so that sentence is about a later General Availability. It does not say the alias has already moved. The TTS 3 card also lists voxtral-mini-tts-latest. The old TTS card lists that same string. Do not assume which model it points at today.`,
+          "The migration page also maps voxtral-small-2507 to Voxtral Small Transcribe 3. That id is not one of these five rows. Its Deprecation timeline heading has no dates under it. The dates in this guide are the dates on the models page and the model cards.",
+          `The migration checklist says to replace each model id, switch word timestamps to segment timestamps, send realtime settings before the first audio chunk, check overlapping speaker segments, review context_bias phrases, try your voices, and measure latency again. Do that before ${when}. ${idList(audioIds)} are the audio rows in this table.`,
+        ],
+        sources: [
+          { label: "Migrate from Voxtral 2", url: MISTRAL_VOX_MIGRATE_URL },
+          { label: "Mistral audio overview", url: MISTRAL_AUDIO_URL },
+          { label: "Voxtral Mini Transcribe 2", url: MISTRAL_VOX_TRANSCRIBE_URL },
+          { label: "Voxtral Mini Transcribe Realtime", url: MISTRAL_VOX_REALTIME_URL },
+          { label: "Voxtral TTS", url: MISTRAL_VOX_TTS_URL },
+          { label: "Voxtral Mini Transcribe 3", url: MISTRAL_VOX_TRANSCRIBE3_URL },
+          { label: "Voxtral Mini Transcribe Realtime 3", url: MISTRAL_VOX_REALTIME3_URL },
+          { label: "Voxtral TTS 3", url: MISTRAL_VOX_TTS3_URL },
+        ],
+      },
+      {
+        heading: "Test before the date",
+        paragraphs: [
+          `Send one real request to the id you will keep, using a prompt or an audio file you use now. Do that before ${when}. A successful call to the old id does not test the new id.`,
+          "For the two text models, compare the reply, tool calls, and any rejected field. The Large 4 card lists a 1M context window. The Large 3 and Medium 3.5 cards list 256k. A prompt that fit before can still change shape.",
+          "For transcription, confirm segment timestamps and speaker segments on a file you already transcribe. For realtime, open a session and send the settings before audio. For speech, generate a short clip with a voice you use now.",
+          `The batch of these rows is [Mistral shutdowns on ${when}](/shutdowns/mistral-${MISTRAL_APRIL30_SHUTDOWN_DATE}/). The [Mistral provider page](/providers/mistral/) lists the other stored rows. The [pre-migration test checklist](/guides/pre-migration-test-checklist/) is the longer list.`,
+        ],
+        sources: [
+          { label: "Mistral model lifecycle", url: MISTRAL_LIFECYCLE_URL },
+          { label: "Migrate from Voxtral 2", url: MISTRAL_VOX_MIGRATE_URL },
+          { label: "Mistral Large 4", url: MISTRAL_LARGE4_URL },
+        ],
+      },
+    ],
+    related: [
+      { href: `/shutdowns/mistral-${MISTRAL_APRIL30_SHUTDOWN_DATE}/`, label: `Mistral shutdowns on ${when}` },
+      { href: "/providers/mistral/", label: "Mistral provider page" },
+      { href: "/models/mistral/mistral-large-2512/", label: "mistral-large-2512" },
+      { href: "/models/mistral/mistral-medium-3-5/", label: "mistral-medium-3-5" },
+      { href: "/models/mistral/voxtral-mini-2602/", label: "voxtral-mini-2602" },
+      { href: "/models/mistral/voxtral-mini-transcribe-realtime-2602/", label: "voxtral-mini-transcribe-realtime-2602" },
+      { href: "/models/mistral/voxtral-mini-tts-2603/", label: "voxtral-mini-tts-2603" },
+      { href: "/guides/find-model-ids-in-your-codebase/", label: "Find model ids in your codebase" },
+      { href: "/guides/pre-migration-test-checklist/", label: "Pre-migration test checklist" },
+      { href: "/scan/", label: "Scan retiring ids" },
+    ],
+    faqs: [
+      {
+        question: `Which Mistral models retire on ${when}?`,
+        answer: `The dataset lists ${idList(ordered)}. Each row stores deprecation date ${MISTRAL_APRIL30_DEPRECATION_DATE} and shutdown date ${MISTRAL_APRIL30_SHUTDOWN_DATE}. The models page and the model cards print those same dates.`,
+      },
+      {
+        question: "What is the official replacement?",
+        answer: "Mistral names Mistral Large 4 (mistral-large-4) for mistral-large-2512 and mistral-medium-3-5. Mistral names Voxtral Mini Transcribe 3 (voxtral-mini-transcribe-3-0) for voxtral-mini-2602. Mistral names Voxtral Mini Transcribe Realtime 3 (voxtral-mini-transcribe-realtime-3-0) for voxtral-mini-transcribe-realtime-2602. Mistral names Voxtral TTS 3 (voxtral-mini-tts-3-0) for voxtral-mini-tts-2603. The Large 4 card also lists mistral-large-4-0. The stored replacements field on these rows is empty, so the model page says Not published.",
+      },
+      {
+        question: "What breaks after April 30, 2027?",
+        answer: `The lifecycle page says: "${MISTRAL_404}" A request that still sends one of these five ids fails with a 404 error. Until ${MISTRAL_APRIL30_SHUTDOWN_DATE}, the models page says the deprecated model still answers.`,
+      },
+      {
+        question: "Do I use the same new id for the audio models?",
+        answer: "No. The two text models use mistral-large-4. Recorded transcription uses voxtral-mini-transcribe-3-0. Live transcription uses voxtral-mini-transcribe-realtime-3-0. Speech from text uses voxtral-mini-tts-3-0. Those three audio ids are on the migration page and on the current models table.",
+      },
+      {
+        question: "Will mistral-large-latest or voxtral-mini-tts-latest move for me?",
+        answer: `The lifecycle page says: "${MISTRAL_ALIAS_WARN}" The deprecated cards list mistral-large-latest, mistral-medium-latest, voxtral-mini-latest, voxtral-mini-realtime-latest, and voxtral-mini-tts-latest. The migration page says: "${MISTRAL_TTS_ALIAS}" The TTS 3 card says Public Preview, so that alias move is tied to a later General Availability. Change the model field to the pinned id.`,
+      },
+      {
+        question: "Did the changelog announce this retirement?",
+        answer: `Checked on ${MISTRAL_APRIL30_CHECKED}, the changelog does not print a deprecation line for these five ids. It prints the Mistral Large 4 release on 2026-10-06 and the Voxtral 3 release on 2026-10-20. The retirement date is the date on the models page and the model cards: ${MISTRAL_APRIL30_SHUTDOWN_DATE}.`,
+      },
+    ],
+    citations: [
+      MISTRAL_MODELS_URL,
+      MISTRAL_LIFECYCLE_URL,
+      MISTRAL_CHANGELOG_URL,
+      MISTRAL_LARGE3_URL,
+      MISTRAL_MEDIUM_URL,
+      MISTRAL_VOX_TRANSCRIBE_URL,
+      MISTRAL_VOX_REALTIME_URL,
+      MISTRAL_VOX_TTS_URL,
+      MISTRAL_LARGE4_URL,
+      MISTRAL_VOX_TRANSCRIBE3_URL,
+      MISTRAL_VOX_REALTIME3_URL,
+      MISTRAL_VOX_TTS3_URL,
+      MISTRAL_AUDIO_URL,
+      MISTRAL_VOX_MIGRATE_URL,
+    ],
   };
 }
 
