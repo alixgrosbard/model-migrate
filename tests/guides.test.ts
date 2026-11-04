@@ -94,7 +94,8 @@ describe("guides", () => {
       expect(blob.includes("—")).toBe(false);
       expect(blob.includes("–")).toBe(false);
       expect(blob.toLowerCase().includes("alix")).toBe(false);
-      expect(blob.includes("sk-")).toBe(false);
+      // task-types is the official embeddings path. The letters sk- sit inside that word.
+      expect(blob.replaceAll("/embeddings/task-types", "").includes("sk-")).toBe(false);
       expect(blob.includes("api_key")).toBe(false);
       expect(blob.includes("Bearer")).toBe(false);
       for (const citation of guide.citations) {
@@ -1158,6 +1159,113 @@ describe("guides", () => {
     expect(text).toContain("/guides/mistral-large-3-medium-3-5-voxtral-retirement-april-30-2027/");
     expect(full).toContain("/guides/mistral-large-3-medium-3-5-voxtral-retirement-april-30-2027/");
     expect(lastmodForUrl("https://sunsetdiff.com/guides/mistral-large-3-medium-3-5-voxtral-retirement-april-30-2027/")).toBe("2026-11-04");
+  });
+
+  it("builds the Vertex AI April 1, 2027 text embedding guide from the dataset", async () => {
+    const models = await loadModels();
+    const ids = ["text-embedding-004", "text-embedding-005", "text-multilingual-embedding-002"];
+    const rows = models
+      .filter((model) => model.provider === "google-vertex" && model.shutdown_date === "2027-04-01")
+      .sort((a, b) => a.id.localeCompare(b.id));
+    expect(rows.map((model) => model.id)).toEqual(ids);
+    expect(rows.every((model) => model.shutdown_date_kind === "exact")).toBe(true);
+    expect(rows.every((model) => model.replacements.length === 0)).toBe(true);
+    const guide = guides.find((item) => item.slug === "vertex-ai-text-embedding-004-005-multilingual-002-shutdown-april-1-2027");
+    expect(guide).toBeTruthy();
+    if (!guide) return;
+    expect(guidePath(guide.slug)).toBe("/guides/vertex-ai-text-embedding-004-005-multilingual-002-shutdown-april-1-2027/");
+    expect(guideChecked(guide)).toBe("2026-11-04");
+    expect(guide.h1).toBe("Vertex AI text-embedding-004, text-embedding-005, and text-multilingual-embedding-002 shutdown on April 1, 2027");
+    const table = guide.sections.find((section) => section.heading === "Models and dates")?.table;
+    expect(table?.headers).toEqual(["Model id", "Release date", "Shutdown date", "Replacement model ID"]);
+    expect(table?.rows.map((row) => row[0])).toEqual(
+      rows.map((model) => `[${model.id}](/models/${model.provider}/${model.slug}/)`),
+    );
+    expect(table?.rows.map((row) => row[1])).toEqual(["2024-05-14", "2024-11-18", "2024-05-14"]);
+    expect(table?.rows.map((row) => row[2])).toEqual(ids.map(() => "2027-04-01"));
+    expect(table?.rows.map((row) => row[3])).toEqual(ids.map(() => "Not published"));
+    const blob = JSON.stringify(guide);
+    expect(blob).toContain("The replacements field is empty");
+    expect(blob).toContain("Not published");
+    expect(blob).toContain("multimodalembedding@001");
+    expect(blob).toContain("February 12, 2024");
+    expect(blob).toContain("No sooner than May 20, 2028");
+    expect(blob).toContain("It unifies the previously specialized models like text-embedding-005 and text-multilingual-embedding-002");
+    expect(blob).toContain("does not name text-embedding-004");
+    expect(blob).toContain("embedding vectors generated for the same piece of text might differ");
+    expect(blob).toContain("doesn't update the embeddings that are already generated");
+    expect(blob).toContain("remains fixed for the lifetime of your RAG corpus");
+    expect(blob).toContain("create a new RAG corpus and re-import the data");
+    expect(blob).toContain("It does not name text-embedding-004, text-embedding-005, or text-multilingual-embedding-002.");
+    expect(blob).toContain("3072 dimensions");
+    expect(blob).toContain("output embeddings will be truncated");
+    expect(blob).toContain("the default used is RETRIEVAL_QUERY");
+    expect(blob).toContain("CODE_RETRIEVAL_QUERY");
+    expect(blob).toContain("Support for multimodal embedding (multimodalembedding@001) is coming soon.");
+    expect(blob).toContain("TextEmbeddingModel.from_pretrained(MODEL_ID)");
+    expect(blob).toContain('model=\\"gemini-embedding-001\\"');
+    expect(blob).toContain("output_dimensionality=3072");
+    expect(blob).toContain('task_type=\\"RETRIEVAL_DOCUMENT\\"');
+    expect(blob).toContain("2026-01-14");
+    expect(blob).toContain("gemini-embedding-2");
+    expect(blob).toContain("does not print an HTTP status");
+    expect(blob).toContain("https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/model-versions");
+    expect(blob).toContain("https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/embeddings/get-text-embeddings");
+    expect(blob).toContain("https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/embeddings/task-types");
+    expect(blob).toContain("https://docs.cloud.google.com/gemini-enterprise-agent-platform/reference/models/text-embeddings-api");
+    expect(blob).toContain("https://docs.cloud.google.com/vertex-ai/docs/vector-search-2/embeddings/autogenerating-embeddings");
+    expect(blob).toContain("https://docs.cloud.google.com/gemini-enterprise-agent-platform/build/rag-engine/use-embedding-models");
+    expect(blob).toContain("https://docs.cloud.google.com/spanner/docs/backfill-embeddings");
+    expect(blob).toContain("https://ai.google.dev/gemini-api/docs/deprecations");
+    expect(blob).toContain("/providers/google-vertex/");
+    expect(blob).toContain("/shutdowns/google-vertex-2027-04-01/");
+    expect(blob).toContain("/models/google-vertex/gemini-embedding-001/");
+    expect(blob).toContain("/models/google-gemini-api/text-embedding-004/");
+    expect(blob).not.toMatch(/[—–]/);
+    expect(guide.steps.map((step) => step.name)).toEqual([
+      "Find the three ids",
+      "Read the empty replacement cell",
+      "Re-embed or build a second index",
+      "Test one query before the date",
+    ]);
+    const pageFacts = JSON.stringify({
+      answer: guide.answer,
+      steps: guide.steps,
+      sections: guide.sections,
+    });
+    for (const faq of guide.faqs) {
+      for (const date of faq.answer.match(/\d{4}-\d{2}-\d{2}/g) ?? []) {
+        expect(pageFacts).toContain(date);
+      }
+    }
+    expect(sitemapSection(guidePath(guide.slug))).toBe("sitemap-guides.xml");
+    for (const model of rows) {
+      expect(guidesForModel(model, models).map((link) => link.href)[0]).toBe(guidePath(guide.slug));
+    }
+    const newer = models.find((model) => model.provider === "google-vertex" && model.id === "gemini-embedding-001");
+    const apiRow = models.find((model) => model.provider === "google-gemini-api" && model.id === "text-embedding-004");
+    expect(guidesForModel(newer!, models).map((link) => link.href)).not.toContain(guidePath(guide.slug));
+    expect(guidesForModel(apiRow!, models).map((link) => link.href)).not.toContain(guidePath(guide.slug));
+    const graph = guideGraph("https://sunsetdiff.com/", guide);
+    expect(graph.some((node) => node["@type"] === "Article")).toBe(true);
+    expect(graph.some((node) => node["@type"] === "HowTo")).toBe(true);
+    expect(graph.some((node) => node["@type"] === "FAQPage")).toBe(true);
+    expect(graph.find((node) => node["@type"] === "Article")).toMatchObject({
+      datePublished: "2026-11-04",
+      dateModified: "2026-11-04",
+    });
+    const providerPage = readFileSync("src/pages/providers/[provider].astro", "utf8");
+    const shutdownPage = readFileSync("src/pages/shutdowns/[slug].astro", "utf8");
+    expect(providerPage).toContain("/guides/vertex-ai-text-embedding-004-005-multilingual-002-shutdown-april-1-2027/");
+    expect(providerPage).toContain('href="/shutdowns/google-vertex-2027-04-01/"');
+    expect(shutdownPage).toContain("vertex-ai-text-embedding-004-005-multilingual-002-shutdown-april-1-2027");
+    const text = llmsTxt("https://sunsetdiff.com", [], []);
+    const full = llmsFull("https://sunsetdiff.com", []);
+    expect(text).toContain("/guides/vertex-ai-text-embedding-004-005-multilingual-002-shutdown-april-1-2027/");
+    expect(full).toContain("/guides/vertex-ai-text-embedding-004-005-multilingual-002-shutdown-april-1-2027/");
+    expect(lastmodForUrl("https://sunsetdiff.com/guides/vertex-ai-text-embedding-004-005-multilingual-002-shutdown-april-1-2027/")).toBe("2026-11-04");
+    const earlier = guides.find((item) => item.slug === "vertex-ai-gemini-retirements-november-december-2026");
+    expect(earlier?.related.some((link) => link.href === guidePath(guide.slug))).toBe(true);
   });
 
   it("builds the GitHub Copilot November 16 guide from the dataset", async () => {

@@ -212,6 +212,13 @@ const openaiGuides = provider.id === "openai"
       That date is a floor, so there is no /shutdowns/google-vertex-2026-11-17/ page.
       <a href="/shutdowns/google-vertex-2026-10-20/">October 20, 2026 shutdowns</a>.
       <a href="/guides/vertex-ai-gemini-retirements-november-december-2026/">November and December 2026 Gemini guide</a>.
+      April 1, 2027 is the retirement date the model versions page lists for text-embedding-004, text-embedding-005, and text-multilingual-embedding-002.
+      The Replacement model ID cell is empty on each of those rows.
+      The stored replacements field is empty.
+      The same embeddings table lists multimodalembedding@001 with retirement date April 1, 2027 and an empty replacement cell.
+      That id is not a SunsetDiff row.
+      <a href="/shutdowns/google-vertex-2027-04-01/">April 1, 2027 shutdowns</a>.
+      <a href="/guides/vertex-ai-text-embedding-004-005-multilingual-002-shutdown-april-1-2027/">April 1, 2027 embeddings guide</a>.
       <a href="/#soonest">Soonest shutdowns on the homepage</a>.
     </p>
   ) : provider.id === "google-gemini-api" ? (
