@@ -1,0 +1,1 @@
+Deprecation date for the model endpoint (null if not deprecated)

@@ -108,7 +108,7 @@
 	
 		<meta name="toc_rel" content="../../toc.json" />
 	
-		<meta name="word_count" content="2438" />
+		<meta name="word_count" content="2546" />
 	
 		<meta name="asset_id" content="foundry/openai/concepts/model-retirements" />
 	
@@ -118,23 +118,23 @@
 	
 		<meta name="source_path" content="articles/foundry/openai/concepts/model-retirements.md" />
 	
-		<meta name="previous_tlsh_hash" content="A8616362B60CC610FFD45E7A2E26DF49ADF8A0CBD9B52DC81025B462F109DEE2578829DBAB4772A037B6165F1146FA0F12C3BFBEC5DD17222524F09D478C2981E6EE267590" />
+		<meta name="previous_tlsh_hash" content="930CB382B60CCA10FFE45E7A2E26DF4AADF8A0CADDB51DC81025B462F10ADEE157882ADBAB4772A43772166E114AFA0F52C37FBEC5DD17221514F09D478C2981F2EE267590" />
 	
 		<meta name="github_feedback_content_git_url" content="https://github.com/MicrosoftDocs/azure-ai-docs/blob/main/articles/foundry/openai/concepts/model-retirements.md" />
 	
 		<meta name="markdown_url" content="https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirements?accept=text/markdown" />
 	 
+		<meta name="cmProducts" content="https://authoring-docs-microsoft.poolparty.biz/devrel/68ec7f3a-2bc6-459f-b959-19beb729907d" data-source="generated" />
+	
 		<meta name="cmProducts" content="https://microsoft-devrel.poolparty.biz/DevRelOfferingOntology/cbd33d8f-e9af-440e-8f1e-fc69e07b902b" data-source="generated" />
 	
 		<meta name="cmProducts" content="https://microsoft-devrel.poolparty.biz/DevRelOfferingOntology/de19c5b8-e208-412e-9238-db3f631dea5b" data-source="generated" />
 	
-		<meta name="cmProducts" content="https://authoring-docs-microsoft.poolparty.biz/devrel/68ec7f3a-2bc6-459f-b959-19beb729907d" data-source="generated" />
+		<meta name="spProducts" content="https://authoring-docs-microsoft.poolparty.biz/devrel/90370425-aca4-4a39-9533-d52e5e002a5d" data-source="generated" />
 	
 		<meta name="spProducts" content="https://microsoft-devrel.poolparty.biz/DevRelOfferingOntology/3820371b-086e-47fb-9d1f-b215f569127a" data-source="generated" />
 	
 		<meta name="spProducts" content="https://microsoft-devrel.poolparty.biz/DevRelOfferingOntology/ea7bf5d6-7154-4ba9-8ebc-59117ccacd49" data-source="generated" />
-	
-		<meta name="spProducts" content="https://authoring-docs-microsoft.poolparty.biz/devrel/90370425-aca4-4a39-9533-d52e5e002a5d" data-source="generated" />
 	
 
 			<!-- Apply persisted/system theme before first paint to prevent wrong-theme flash when scripts are deferred. -->
@@ -178,7 +178,7 @@
 
 			<!-- assets and js globals -->
 			
-			<link rel="stylesheet" href="/static/assets/0.4.03585.8329-a252cb59/styles/site.css" />
+			<link rel="stylesheet" href="/static/assets/0.4.03589.8339-b0a05127/styles/site.css" />
 			
 			<script src="https://wcpstatic.microsoft.com/mscc/lib/v2/wcp-consent.js"></script>
 			<!-- Keep this URL in sync with oneDSScriptSelector in instrumentation/one-ds.ts. -->
@@ -226,7 +226,7 @@
 
 			<!-- base scripts, msdocs global should be before this -->
 			<script
-				src="/static/assets/0.4.03585.8329-a252cb59/scripts/en-us/index-docs.js"
+				src="/static/assets/0.4.03589.8339-b0a05127/scripts/en-us/index-docs.js"
 				async
 			></script>
 			
@@ -974,8 +974,12 @@ For a full comparison of deployment types, see <a href="../../foundry-models/con
 <p><strong>Provisioned deployments are NOT auto-upgraded.</strong> Provisioned customers must manually migrate to the replacement model.</p>
 <p>Use the <a href="/en-us/rest/api/aiservices/accountmanagement/models" data-linktype="absolute-path">Models API</a> to programmatically check <code>lifecycleStatus</code>, <code>deprecation</code>, and per-SKU <code>deprecationDate</code> for any model at any time.</p>
 </div>
-<h3 id="example-gpt-4o--gpt-56-sol-upgrade">Example: gpt-4o → gpt-5.6-sol upgrade</h3>
-<p>When gpt-4o version <code>2024-05-13</code> retires on <strong>2026-12-09</strong>, the service automatically upgrades it to gpt-5.6-sol on the Standard SKU in each region where that version is currently available. If gpt-5.6-sol doesn't yet have a Standard presence in one of those regions, the upgrade process adds it there. Check the <a href="model-retirement-schedule" data-linktype="relative-path">Model Retirement Schedule</a> for the current retirement date and replacement model before this upgrade occurs, since these details are subject to change.</p>
+<h3 id="example-gpt-4o--gpt-51-upgrade">Example: gpt-4o → gpt-5.1 upgrade</h3>
+<p>All active customer-facing base-model inference offers for gpt-4o version <code>2024-05-13</code> in Azure public cloud retire on <strong>January 14, 2027</strong>, in all applicable regions. These offers include Global Standard, Data Zone Standard, Regional Provisioned, Global Provisioned, Data Zone Provisioned, and Global Batch. The replacement model is gpt-5.1 version <code>2025-11-13</code>.</p>
+<p>At retirement, the service automatically upgrades Global Standard and Data Zone Standard deployments to the replacement model. Provisioned deployments aren't automatically upgraded; create replacement deployments of gpt-5.1 version <code>2025-11-13</code> and move your traffic before retirement. The shared retirement date doesn't imply automatic upgrades for Global Batch offers.</p>
+<p>Regional Standard deployments retired on <strong>March 31, 2026</strong>; that date is unchanged.</p>
+<p>For gpt-4o versions <code>2024-08-06</code> and <code>2024-11-20</code>, gpt-4o-mini version <code>2024-07-18</code>, and gpt-4.1-mini version <code>2025-04-14</code>, all active customer-facing base-model inference offers in Azure public cloud retire on <strong>April 14, 2027</strong>, in all applicable regions. Already-retired Regional Standard deployments remain retired. For fine-tuning training and deployment retirement dates, see the separate <a href="#fine-tuned-models" data-linktype="self-bookmark">fine-tuned model schedules</a>.</p>
+<p>Check the <a href="model-retirement-schedule" data-linktype="relative-path">Model retirement schedule</a> for the current retirement dates and replacement model, since these details are subject to change.</p>
 <h2 id="migration-to-a-replacement-model">Migration to a replacement model</h2>
 <p>Don't wait for Microsoft to name an official replacement before you begin evaluating newer models. New models and model versions become available regularly, and the best option for your application might change as models with better quality, lower latency, or lower cost become available.</p>
 <p>Microsoft selects the official replacement approximately 90–120 days before retirement. Waiting until closer to the retirement date allows the recommendation to reflect the strongest available option when customers need to migrate. The replacement listed in the <a href="model-retirement-schedule" data-linktype="relative-path">Model retirement schedule</a> is Microsoft's recommended migration target and, where supported, the model used for automatic upgrades at retirement. It doesn't limit your manual migration choices.</p>
@@ -1421,7 +1425,7 @@ if lifecycleStatus == "Preview"            → Preview
 				<li class="visibility-hidden-visual-diff">
 			<span class="badge badge-sm text-wrap-pretty">
 				<span>Last updated on <local-time format="twoDigitNumeric"
-		datetime="2026-07-24T08:00:00.000Z"
+		datetime="2026-07-24T23:55:00.000Z"
 		data-article-date-source="calculated"
 		class="is-invisible"
 	>

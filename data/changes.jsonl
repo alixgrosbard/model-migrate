@@ -1566,3 +1566,7 @@
 {"date":"2026-11-03","provider":"openrouter","model_id":"minimax/minimax-m2-her","field":"shutdown_date","old":null,"new":"2026-11-05","source_url":"https://openrouter.ai/api/v1/models?output_modalities=all"}
 {"date":"2026-11-03","provider":"openrouter","model_id":"minimax/minimax-m2.1","field":"shutdown_date","old":null,"new":"2026-11-05","source_url":"https://openrouter.ai/api/v1/models?output_modalities=all"}
 {"date":"2026-11-03","provider":"openrouter","model_id":"minimax/minimax-m2.7","field":"shutdown_date","old":null,"new":"2026-11-05","source_url":"https://openrouter.ai/api/v1/models?output_modalities=all"}
+{"date":"2026-11-04","provider":"openrouter","model_id":"inception/mercury-2","field":"shutdown_date","old":null,"new":"2026-11-08","source_url":"https://openrouter.ai/api/v1/models?output_modalities=all"}
+{"date":"2026-11-04","provider":"openrouter","model_id":"inception/mercury-2.5","field":"shutdown_date","old":null,"new":"2026-11-08","source_url":"https://openrouter.ai/api/v1/models?output_modalities=all"}
+{"date":"2026-11-04","provider":"openrouter","model_id":"inception/mercury-3","field":"shutdown_date","old":null,"new":"2026-11-08","source_url":"https://openrouter.ai/api/v1/models?output_modalities=all"}
+{"date":"2026-11-04","provider":"openrouter","model_id":"inception/mercury-decide","field":"shutdown_date","old":null,"new":"2026-11-08","source_url":"https://openrouter.ai/api/v1/models?output_modalities=all"}
