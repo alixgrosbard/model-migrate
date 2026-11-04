@@ -93,6 +93,16 @@ const AZURE_APRIL14_IDS = [
   "gpt-4o-mini-2024-07-18",
 ] as const;
 
+/** Checked against the Azure OpenAI retirement schedule and lifecycle page on 2026-11-04. */
+export const AZURE_JULY13_SHUTDOWN_DATE = "2027-07-13";
+export const AZURE_JULY13_GUIDE_SLUG = "azure-openai-gpt-5-1-gpt-5-mini-codex-retirement-july-13-2027";
+export const AZURE_JULY13_CHECKED = "2026-11-04";
+const AZURE_JULY13_IDS = [
+  "gpt-5-mini-2025-08-07",
+  "gpt-5.1-2025-11-13",
+  "gpt-5.2-codex-2026-01-14",
+] as const;
+
 /** Checked against the Mistral models page, model cards, lifecycle page, and changelog on 2026-11-04. */
 export const MISTRAL_APRIL30_SHUTDOWN_DATE = "2027-04-30";
 export const MISTRAL_APRIL30_DEPRECATION_DATE = "2026-10-31";
@@ -111,6 +121,7 @@ export const VERTEX_EMBED_APRIL1_SHUTDOWN_DATE = "2027-04-01";
 export const VERTEX_EMBED_APRIL1_GUIDE_SLUG = "vertex-ai-text-embedding-004-005-multilingual-002-shutdown-april-1-2027";
 export const VERTEX_EMBED_APRIL1_CHECKED = "2026-11-04";
 const VERTEX_EMBED_APRIL1_IDS = [
+  "multimodalembedding@001",
   "text-embedding-004",
   "text-embedding-005",
   "text-multilingual-embedding-002",
@@ -406,6 +417,13 @@ export function isAzureApril14Retirement(model: ModelRecord): boolean {
   return model.provider === "azure-openai"
     && (AZURE_APRIL14_IDS as readonly string[]).includes(model.id)
     && model.shutdown_date === AZURE_APRIL14_SHUTDOWN_DATE
+    && model.shutdown_date_kind === "exact";
+}
+
+export function isAzureJuly13Retirement(model: ModelRecord): boolean {
+  return model.provider === "azure-openai"
+    && (AZURE_JULY13_IDS as readonly string[]).includes(model.id)
+    && model.shutdown_date === AZURE_JULY13_SHUTDOWN_DATE
     && model.shutdown_date_kind === "exact";
 }
 
@@ -1147,6 +1165,8 @@ export function datasetShutdownGuides(catalog: ModelRecord[] = readCatalog()): G
   if (azureNovDec.length) pages.push(azureNovDecGuide(azureNovDec, catalog));
   const azureApril14 = rowsFor(isAzureApril14Retirement, catalog);
   if (azureApril14.length) pages.push(azureApril14Guide(azureApril14, catalog));
+  const azureJuly13 = rowsFor(isAzureJuly13Retirement, catalog);
+  if (azureJuly13.length) pages.push(azureJuly13Guide(azureJuly13, catalog));
   const mistralApril30 = rowsFor(isMistralApril30Retirement, catalog);
   if (mistralApril30.length) pages.push(mistralApril30Guide(mistralApril30));
   const vertexEmbedApril1 = rowsFor(isVertexApril1EmbeddingShutdown, catalog);
@@ -2166,6 +2186,7 @@ function aprilGpt51CodexNanoGuide(rows: ModelRecord[], catalog: ModelRecord[]): 
       { href: "/guides/move-function-calling-to-responses-api/", label: "Move function calling to the Responses API" },
       { href: `/guides/${JANUARY_2027_GPT4_GUIDE_SLUG}/`, label: "GPT-4.1 and GPT-4o shutdown in January 2027" },
       { href: `/guides/${AZURE_APRIL14_GUIDE_SLUG}/`, label: "Azure OpenAI GPT-4.1 and GPT-4o retirement on April 14, 2027" },
+      { href: `/guides/${AZURE_JULY13_GUIDE_SLUG}/`, label: "Azure OpenAI gpt-5.1, gpt-5-mini, and gpt-5.2-codex retirement on July 13, 2027" },
       { href: `/guides/${FEBRUARY_26_TRANSCRIBE_GUIDE_SLUG}/`, label: "whisper-1 and GPT-4o transcribe shutdown on February 26, 2027" },
       { href: "/guides/model-aliases-vs-pinned-snapshots/", label: "Model aliases vs pinned snapshots" },
       { href: "/guides/find-model-ids-in-your-codebase/", label: "Find model ids in your codebase" },
@@ -3653,7 +3674,7 @@ function azureApril14Guide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePa
         heading: "OpenAI's April 1 date and Azure gpt-5.1",
         paragraphs: [
           `OpenAI's API deprecations page says: "${APRIL_NOTICE}" That date is ${APRIL_1_2027_SHUTDOWN_DATE}. The OpenAI rows are on [GPT-5.1, gpt-5.3-codex, and gpt-5.4-nano shutdown on April 1, 2027](/guides/${APRIL_1_2027_GUIDE_SLUG}/).`,
-          `Microsoft's retirement schedule and lifecycle page do not print ${APRIL_1_2027_SHUTDOWN_DATE} as a shutdown date for gpt-5.1. The schedule has its own Azure row: gpt-5.1 version 2025-11-13, lifecycle GA, retirement date ${versionDate}, replacement cell empty. SunsetDiff stores that row as [gpt-5.1-2025-11-13](/models/azure-openai/gpt-5-1-2025-11-13/). That ${versionDate} date is the retirement date the schedule prints for Azure gpt-5.1 version 2025-11-13.`,
+          `Microsoft's retirement schedule and lifecycle page do not print ${APRIL_1_2027_SHUTDOWN_DATE} as a shutdown date for gpt-5.1. The schedule has its own Azure row: gpt-5.1 version 2025-11-13, lifecycle GA, retirement date ${versionDate}, replacement cell empty. SunsetDiff stores that row as [gpt-5.1-2025-11-13](/models/azure-openai/gpt-5-1-2025-11-13/). That ${versionDate} date is the retirement date the schedule prints for Azure gpt-5.1 version 2025-11-13. gpt-5-mini version 2025-08-07 and gpt-5.2-codex version 2026-01-14 use that same Azure date. See [Azure OpenAI gpt-5.1, gpt-5-mini, and gpt-5.2-codex retirement on ${longDate(AZURE_JULY13_SHUTDOWN_DATE)}](/guides/${AZURE_JULY13_GUIDE_SLUG}/).`,
           `The replacement stored on the two gpt-4o rows is the Azure id [gpt-5.1](/models/azure-openai/gpt-5-1/). The shutdown date stored on that id is ${aliasDate}. The schedule does not print an undated gpt-5.1 row. It prints version 2025-11-13.`,
           `The string 2027-04-01 does appear on the Azure fine-tune tables. It is "No earlier than 2027-04-01" for gpt-4o version 2024-08-06 and gpt-4o-mini version 2024-07-18. That is a training floor for those fine-tunes. It is not a gpt-5.1 shutdown, and it is not the OpenAI API date applied to Azure.`,
         ],
@@ -3730,6 +3751,7 @@ function azureApril14Guide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePa
       { href: "/providers/azure-openai/", label: "Azure OpenAI provider page" },
       { href: "/errors/azure-openai-retired-model-410-gone/", label: "Azure OpenAI retired models return 410 Gone" },
       { href: `/guides/${APRIL_1_2027_GUIDE_SLUG}/`, label: "GPT-5.1, gpt-5.3-codex, and gpt-5.4-nano shutdown on April 1, 2027" },
+      { href: `/guides/${AZURE_JULY13_GUIDE_SLUG}/`, label: "Azure OpenAI gpt-5.1, gpt-5-mini, and gpt-5.2-codex retirement on July 13, 2027" },
       { href: "/models/azure-openai/gpt-5-1-2025-11-13/", label: "Azure gpt-5.1-2025-11-13" },
       { href: "/models/azure-openai/gpt-5-1/", label: "Azure gpt-5.1" },
       { href: "/models/azure-openai/gpt-4o-2024-05-13/", label: "Azure gpt-4o-2024-05-13" },
@@ -3770,6 +3792,238 @@ function azureApril14Guide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePa
       },
     ],
     citations: [AZURE_SCHEDULE, AZURE_RETIREMENTS, AZURE_WORKING, AZURE_VERSIONS, AZURE_MIGRATION, OPENAI_DEPRECATIONS],
+  };
+}
+
+const AZURE_GOV_SCHEDULE = "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule-gov";
+const AZURE_GA = "Production-ready. Weights and APIs are fixed.";
+
+function openaiShutdownLine(model: ModelRecord | undefined): string {
+  if (!model) return "Not published";
+  const replacement = publishedReplacementIds(model).join(", ") || "Not published";
+  return `${model.id} stores shutdown date ${model.shutdown_date ?? "Not published"} and replacement ${replacement}`;
+}
+
+function azureJuly13Guide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePage {
+  const ordered = [...rows].sort((a, b) => a.id.localeCompare(b.id));
+  const when = longDate(AZURE_JULY13_SHUTDOWN_DATE);
+  const azureAlias = catalog.find((model) => model.provider === "azure-openai" && model.id === "gpt-5.1");
+  const aliasDate = azureAlias?.shutdown_date ? azureAlias.shutdown_date : "Not published";
+  const fineLines = ordered.map(azureFineTuneSentence).join(" ");
+  const byLifecycle = ordered.map((model) => `${model.id} (${azureScheduleLifecycle(model)})`).join(", ");
+  const named = ordered.filter((model) => publishedReplacementIds(model).length > 0);
+  const empty = ordered.filter((model) => publishedReplacementIds(model).length === 0);
+  const openai51 = catalog.find((model) => model.provider === "openai" && model.id === "gpt-5.1");
+  const openai51Snap = catalog.find((model) => model.provider === "openai" && model.id === "gpt-5.1-2025-11-13");
+  const openaiMini = catalog.find((model) => model.provider === "openai" && model.id === "gpt-5-mini");
+  const openaiMiniSnap = catalog.find((model) => model.provider === "openai" && model.id === "gpt-5-mini-2025-08-07");
+  const openaiCodex = catalog.find((model) => model.provider === "openai" && model.id === "gpt-5.2-codex");
+  const sources = [
+    { label: "Azure OpenAI retirement schedule", url: AZURE_SCHEDULE },
+    { label: "Foundry Models lifecycle", url: AZURE_RETIREMENTS },
+  ];
+  return {
+    slug: AZURE_JULY13_GUIDE_SLUG,
+    title: `Azure OpenAI gpt-5.1, gpt-5-mini, and gpt-5.2-codex retirement on ${when} | SunsetDiff`,
+    description: `Azure OpenAI gpt-5.1 version 2025-11-13, gpt-5-mini version 2025-08-07, and gpt-5.2-codex version 2026-01-14 retire on ${AZURE_JULY13_SHUTDOWN_DATE}. The replacement cell is empty on each row. OpenAI's API retires gpt-5.1 earlier, on ${APRIL_1_2027_SHUTDOWN_DATE}.`,
+    h1: `Azure OpenAI gpt-5.1, gpt-5-mini, and gpt-5.2-codex retirement on ${when}`,
+    summary: `${ordered.length} Azure OpenAI versions with shutdown date ${AZURE_JULY13_SHUTDOWN_DATE}. The replacement cell is empty. OpenAI's API date for gpt-5.1 is earlier.`,
+    answer: `The dataset has ${ordered.length} Azure OpenAI ids with shutdown date ${AZURE_JULY13_SHUTDOWN_DATE}: ${idList(ordered)}. The retirement schedule lists that date on each of those rows. Lifecycle is GA. The replacement cell is empty, so those cells say Not published. The lifecycle page says a Retired model is removed from service and all inference requests return 410 Gone. OpenAI's deprecations page says: "${APRIL_NOTICE}" That sentence is the OpenAI API. It names gpt-5.1 and gpt-5.1-2025-11-13. Microsoft's Azure schedule does not print ${APRIL_1_2027_SHUTDOWN_DATE} as an Azure shutdown. A team that calls both APIs should plan the OpenAI calls for the earlier date.`,
+    checked: AZURE_JULY13_CHECKED,
+    steps: [
+      {
+        name: "Find deployments",
+        text: "Call Deployments List, or Get-AzCognitiveServicesAccountDeployment, for each Azure OpenAI resource. Read properties.model.name and properties.model.version. A deployment name can differ from the model name. gpt-5.1 version 2025-11-13 is the dataset id gpt-5.1-2025-11-13. gpt-5-mini version 2025-08-07 is gpt-5-mini-2025-08-07. gpt-5.2-codex version 2026-01-14 is gpt-5.2-codex-2026-01-14.",
+      },
+      {
+        name: "Pick a replacement",
+        text: `The replacement cell is empty for gpt-5.1 2025-11-13, gpt-5-mini 2025-08-07, and gpt-5.2-codex 2026-01-14. Microsoft did not name a recommended replacement on these rows. Shortlist a model yourself and test it. The Azure id gpt-5.1 stores shutdown date ${aliasDate}. The schedule prints the dated version, not an undated gpt-5.1 row.`,
+      },
+      {
+        name: "Test",
+        text: `Send one real request to the model you picked, using a prompt you send now. Do that before ${when}. Check the reply, the tools, and the fields the new model rejects.`,
+      },
+      {
+        name: "Redeploy before the date",
+        text: `Create a deployment of the model you tested and move traffic before ${when}. These rows do not name an automatic-upgrade target. Provisioned deployments are not auto-upgraded. A deployment set to NoAutoUpgrade stops working on the retirement date.`,
+      },
+    ],
+    sections: [
+      {
+        heading: "Models and dates",
+        paragraphs: [
+          `These ${ordered.length} ids are the Azure OpenAI rows whose shutdown date is ${AZURE_JULY13_SHUTDOWN_DATE}. The model id links to its SunsetDiff model page. Lifecycle is the schedule's Lifecycle column, copied from the source excerpt stored on the row. Shutdown date and replacement are the fields stored on the row. Not published means the replacement field is empty. These rows do not store a deprecation_date. ${byLifecycle}.`,
+          `The schedule lists gpt-5.1 version 2025-11-13 as GA with retirement date ${AZURE_JULY13_SHUTDOWN_DATE} and an empty replacement cell. It lists gpt-5-mini version 2025-08-07 the same way. It lists gpt-5.2-codex version 2026-01-14 the same way. Those three rows do not carry footnote 2 or footnote 3.`,
+          `The lifecycle table says Generally Available means: "${AZURE_GA}" New deployments are allowed, and existing deployments work, until the retirement date. The lifecycle page also says: "${AZURE_CHECK_SCHEDULE}"`,
+          `The Azure Government schedule lists gpt-5.1 version 2025-11-13 as GA with retirement date ${AZURE_JULY13_SHUTDOWN_DATE} and an empty replacement cell. That government table does not list gpt-5-mini or gpt-5.2-codex. The dates in the first table are the public-cloud schedule.`,
+        ],
+        table: {
+          caption: `${ordered.length} Azure OpenAI model ids with shutdown date ${AZURE_JULY13_SHUTDOWN_DATE}.`,
+          headers: ["Model id", "Lifecycle on the schedule", "Shutdown date", "Recommended replacement"],
+          rows: ordered.map((model) => [
+            modelLink(model),
+            azureScheduleLifecycle(model),
+            shutdownCell(model),
+            replacementText(model, catalog),
+          ]),
+        },
+        sources: [
+          ...sources,
+          { label: "Azure Government retirement schedule", url: AZURE_GOV_SCHEDULE },
+        ],
+      },
+      {
+        heading: "Replacements Microsoft names",
+        paragraphs: [
+          `The schedule says: "${AZURE_REPLACEMENT_COL}" It also says: "${AZURE_DONT_WAIT}" The lifecycle page says: "${AZURE_REPLACEMENT_LISTED}"`,
+          named.length
+            ? `The replacement cell is filled on ${idList(named)}. ${replacementFaq(named, catalog)}`
+            : "No row in this table stores a replacement.",
+          empty.length
+            ? `The replacement cell is empty on ${idList(empty)}. Empty means Microsoft did not name a recommended replacement on that row. This guide does not add one.`
+            : "Every row in this table stores a replacement.",
+          `The undated Azure id is [gpt-5.1](/models/azure-openai/gpt-5-1/). The shutdown date stored on that id is ${aliasDate}. The schedule does not print an undated gpt-5.1 row. It prints version 2025-11-13. April 14, 2027 rows that name gpt-5.1 as a replacement are a different date. See [Azure OpenAI GPT-4.1 and GPT-4o retirement on April 14, 2027](/guides/${AZURE_APRIL14_GUIDE_SLUG}/).`,
+        ],
+        sources,
+      },
+      {
+        heading: "OpenAI's dates are earlier",
+        paragraphs: [
+          `OpenAI's API deprecations page says: "${APRIL_NOTICE}" That date is ${APRIL_1_2027_SHUTDOWN_DATE}. The OpenAI rows are on [GPT-5.1, gpt-5.3-codex, and gpt-5.4-nano shutdown on April 1, 2027](/guides/${APRIL_1_2027_GUIDE_SLUG}/). ${openaiShutdownLine(openai51)}. ${openaiShutdownLine(openai51Snap)}.`,
+          `Microsoft's retirement schedule and lifecycle page do not print ${APRIL_1_2027_SHUTDOWN_DATE} as a shutdown date for Azure gpt-5.1. The Azure row stays ${AZURE_JULY13_SHUTDOWN_DATE}. A team that calls the OpenAI API and Azure should plan the OpenAI gpt-5.1 calls for ${APRIL_1_2027_SHUTDOWN_DATE}. The Azure deployment keeps ${AZURE_JULY13_SHUTDOWN_DATE}.`,
+          `The same OpenAI page lists an earlier date for the other two names. ${openaiShutdownLine(openaiMini)}. ${openaiShutdownLine(openaiMiniSnap)}. ${openaiShutdownLine(openaiCodex)}. Those OpenAI dates are not Azure shutdown dates. Plan each API for the date on that API. The earlier date is the one to plan first.`,
+        ],
+        sources: [
+          ...sources,
+          { label: "OpenAI deprecations", url: OPENAI_DEPRECATIONS },
+        ],
+      },
+      {
+        heading: "Fine-tuned training and deployment",
+        paragraphs: [
+          `The schedule and the lifecycle page both say: "${AZURE_FINE_PHASES}" And: "${AZURE_FINE_UNLESS}" Both pages say: "${AZURE_FINE_FOOT}"`,
+          `The fine-tune tables on both pages do not list gpt-5.1 version 2025-11-13, gpt-5-mini version 2025-08-07, or gpt-5.2-codex version 2026-01-14. ${fineLines}`,
+          "A base deployment of these versions uses the retirement date in the first table. Do not borrow a fine-tune date from a different model.",
+        ],
+        sources,
+      },
+      {
+        heading: "What happens to a deployment on the date",
+        paragraphs: [
+          `The lifecycle table says Retired means: "${AZURE_RETIRED}" New deployments are not allowed, and existing deployments do not work. The same page says the API value lifecycleStatus Deprecated means the model is retired and inference returns 410 Gone. The docs stage Deprecated is lifecycleStatus Deprecating, and inference still works. The sentences and the status map are on [Azure OpenAI retired models return 410 Gone](/errors/azure-openai-retired-model-410-gone/). These three rows are GA now, so inference still works until ${when}.`,
+          `The lifecycle page says: "${AZURE_AUTO}" It also says: "${AZURE_PROVISIONED}" The migration page says: "${AZURE_PAYG}" And: "${AZURE_PTU}" And: "${AZURE_BATCH_PATH}"`,
+          `Working with models says: "${AZURE_STANDARD_ONLY}" OnceCurrentVersionExpired means: "${AZURE_EXPIRED}" NoAutoUpgrade means: "${AZURE_NO_AUTO}" And: "${AZURE_NULL}"`,
+          `The same page says: "${AZURE_SPECIFIC}" Then: "${AZURE_THEN_DEFAULT}" A deployment you pinned to one of these versions can still move on the retirement date unless versionUpgradeOption is NoAutoUpgrade. NoAutoUpgrade does not move, and the deployment stops. The replacement cell is the target where an automatic upgrade is supported. These three rows have an empty cell, so they do not name that target.`,
+        ],
+        sources: [
+          ...sources,
+          { label: "Working with Azure OpenAI models", url: AZURE_WORKING },
+          { label: "Model migration process", url: AZURE_MIGRATION },
+        ],
+      },
+      {
+        heading: "Find deployments that use these versions",
+        paragraphs: [
+          `The migration page says: "${AZURE_INVENTORY}" Working with models says: "${AZURE_LIST}" ${AZURE_NULL_FIELD} The model versions page says: "${AZURE_PORTAL}" And: "${AZURE_REST_VERSION}"`,
+          "The example response puts the model name and version on properties.model. The deployment's own name is the name field next to that object. Match properties.model.name and properties.model.version to the ids in the table. gpt-5.1 version 2025-11-13 is the dataset id gpt-5.1-2025-11-13.",
+          "Also search the repository. A hit is a candidate, not proof a deployment still uses that version. [How to find every model ID in your codebase](/guides/find-model-ids-in-your-codebase/) covers SDK argument names. The [scan page](/scan/) builds a search from dataset ids that have a shutdown date.",
+        ],
+        codes: [
+          {
+            caption: "Azure PowerShell, list deployments for one account",
+            code: `Get-AzCognitiveServicesAccountDeployment -ResourceGroupName {ResourceGroupName} -AccountName {AccountName}\n`,
+          },
+          {
+            caption: "Deployments List",
+            code: `GET https://management.azure.com/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.CognitiveServices/accounts/{accountName}/deployments?api-version=2023-05-01\n`,
+          },
+          { caption: "ripgrep", code: searchCode(ordered) },
+        ],
+        sources: [
+          { label: "Working with Azure OpenAI models", url: AZURE_WORKING },
+          { label: "Model versions", url: AZURE_VERSIONS },
+          { label: "Model migration process", url: AZURE_MIGRATION },
+        ],
+      },
+      {
+        heading: "Redeploy before July 13, 2027",
+        paragraphs: [
+          `Create a deployment of a model you have tested, point traffic at it, and confirm one real request before ${when}. Do that for each of the ${ordered.length} versions in the table.`,
+          "Working with models describes two ways to change a provisioned deployment once you have chosen a target. In-place migration keeps the deployment name and moves traffic. Multi-deployment migration creates a second deployment, shifts traffic, then deletes the old one. Neither section names a target for these rows.",
+          `The batch of these rows is [Azure OpenAI shutdowns on ${when}](/shutdowns/azure-openai-${AZURE_JULY13_SHUTDOWN_DATE}/). The [Azure OpenAI provider page](/providers/azure-openai/) lists the other stored rows. The April 14, 2027 batch is [Azure OpenAI GPT-4.1 and GPT-4o retirement on April 14, 2027](/guides/${AZURE_APRIL14_GUIDE_SLUG}/).`,
+          "The [pre-migration test checklist](/guides/pre-migration-test-checklist/) is the longer list: evals, rejected fields, token limits, tools, price, and latency. These Azure rows do not store a price.",
+        ],
+        sources: [
+          { label: "Model migration process", url: AZURE_MIGRATION },
+          { label: "Working with Azure OpenAI models", url: AZURE_WORKING },
+          { label: "Azure OpenAI retirement schedule", url: AZURE_SCHEDULE },
+        ],
+      },
+    ],
+    related: [
+      { href: `/shutdowns/azure-openai-${AZURE_JULY13_SHUTDOWN_DATE}/`, label: `Azure OpenAI shutdowns on ${when}` },
+      { href: "/providers/azure-openai/", label: "Azure OpenAI provider page" },
+      { href: "/errors/azure-openai-retired-model-410-gone/", label: "Azure OpenAI retired models return 410 Gone" },
+      { href: "/models/azure-openai/gpt-5-1-2025-11-13/", label: "Azure gpt-5.1-2025-11-13" },
+      { href: "/models/azure-openai/gpt-5-mini-2025-08-07/", label: "Azure gpt-5-mini-2025-08-07" },
+      { href: "/models/azure-openai/gpt-5-2-codex-2026-01-14/", label: "Azure gpt-5.2-codex-2026-01-14" },
+      { href: "/models/azure-openai/gpt-5-1/", label: "Azure gpt-5.1" },
+      { href: `/guides/${APRIL_1_2027_GUIDE_SLUG}/`, label: "GPT-5.1, gpt-5.3-codex, and gpt-5.4-nano shutdown on April 1, 2027" },
+      { href: `/guides/${AZURE_APRIL14_GUIDE_SLUG}/`, label: "Azure OpenAI GPT-4.1 and GPT-4o retirement on April 14, 2027" },
+      { href: "/models/openai/gpt-5-1/", label: "OpenAI gpt-5.1" },
+      { href: "/models/openai/gpt-5-mini/", label: "OpenAI gpt-5-mini" },
+      { href: "/models/openai/gpt-5-2-codex/", label: "OpenAI gpt-5.2-codex" },
+      { href: "/guides/find-model-ids-in-your-codebase/", label: "Find model ids in your codebase" },
+      { href: "/guides/pre-migration-test-checklist/", label: "Pre-migration test checklist" },
+      { href: "/scan/", label: "Scan retiring ids" },
+    ],
+    faqs: [
+      {
+        question: `Which Azure OpenAI versions retire on ${when}?`,
+        answer: `The dataset lists ${idList(ordered)}. The retirement schedule lists shutdown date ${AZURE_JULY13_SHUTDOWN_DATE} for each of them. ${byLifecycle}.`,
+      },
+      {
+        question: "What is the official replacement?",
+        answer: `${replacementFaq(ordered, catalog)} The schedule says: "${AZURE_REPLACEMENT_COL}" The cell is empty on ${idList(empty)}.`,
+      },
+      {
+        question: "Does OpenAI's April 1, 2027 shutdown of gpt-5.1 apply to Azure?",
+        answer: `No for the Azure deployment. Microsoft's retirement schedule and lifecycle page do not print ${APRIL_1_2027_SHUTDOWN_DATE} as an Azure gpt-5.1 shutdown. The schedule lists Azure gpt-5.1 version 2025-11-13 as GA with retirement date ${AZURE_JULY13_SHUTDOWN_DATE} and an empty replacement cell. OpenAI's deprecations page says: "${APRIL_NOTICE}" That sentence is the OpenAI API. See [GPT-5.1, gpt-5.3-codex, and gpt-5.4-nano shutdown on April 1, 2027](/guides/${APRIL_1_2027_GUIDE_SLUG}/). A team that calls both APIs should plan the OpenAI calls for ${APRIL_1_2027_SHUTDOWN_DATE}. The Azure id gpt-5.1 stores shutdown date ${aliasDate}.`,
+      },
+      {
+        question: "What about gpt-5-mini and gpt-5.2-codex on the OpenAI API?",
+        answer: `${openaiShutdownLine(openaiMini)}. ${openaiShutdownLine(openaiMiniSnap)}. ${openaiShutdownLine(openaiCodex)}. Those dates are the OpenAI API. The Azure rows for gpt-5-mini-2025-08-07 and gpt-5.2-codex-2026-01-14 store ${AZURE_JULY13_SHUTDOWN_DATE}. Plan the earlier date on the API that lists it.`,
+      },
+      {
+        question: "What does Azure return after retirement?",
+        answer: `The lifecycle page says a Retired model is removed from service and: "${AZURE_RETIRED}" See [Azure OpenAI retired models return 410 Gone](/errors/azure-openai-retired-model-410-gone/).`,
+      },
+      {
+        question: "Will every deployment upgrade itself?",
+        answer: `No. The lifecycle page says: "${AZURE_AUTO}" And: "${AZURE_PROVISIONED}" Working with models says: "${AZURE_STANDARD_ONLY}" NoAutoUpgrade means: "${AZURE_NO_AUTO}" ${AZURE_NULL} These three rows have an empty replacement cell, so they do not name an upgrade target.`,
+      },
+      {
+        question: "How do I find deployments that still use these versions?",
+        answer: `Working with models says: "${AZURE_LIST}" Read properties.model.name and properties.model.version. The model versions page says: "${AZURE_PORTAL}" The migration page says: "${AZURE_INVENTORY}"`,
+      },
+      {
+        question: "Do fine-tuned deployments of these versions retire on July 13, 2027?",
+        answer: `The base retirement date is ${AZURE_JULY13_SHUTDOWN_DATE}. The fine-tune tables do not list these three versions. ${fineLines} Both pages say: "${AZURE_FINE_FOOT}"`,
+      },
+      {
+        question: "Does Azure Government list the same date?",
+        answer: `The Azure Government schedule lists gpt-5.1 version 2025-11-13 as GA with retirement date ${AZURE_JULY13_SHUTDOWN_DATE} and an empty replacement cell. That table does not list gpt-5-mini or gpt-5.2-codex. The public-cloud schedule lists all three ids on ${AZURE_JULY13_SHUTDOWN_DATE}.`,
+      },
+    ],
+    citations: [
+      AZURE_SCHEDULE,
+      AZURE_RETIREMENTS,
+      AZURE_WORKING,
+      AZURE_VERSIONS,
+      AZURE_MIGRATION,
+      OPENAI_DEPRECATIONS,
+      AZURE_GOV_SCHEDULE,
+    ],
   };
 }
 
@@ -4054,6 +4308,7 @@ const VERTEX_EMBED_UPGRADE = "Update your application to point to the recommende
 const VERTEX_EMBED_TEST = "Test all mission critical features to make sure everything works as expected.";
 const VERTEX_EMBED_DEPLOY = "Deploy the updates like you normally would.";
 const VERTEX_EMBED_SOON = "Support for multimodal embedding (multimodalembedding@001) is coming soon.";
+const VERTEX_MULTI_API = "https://docs.cloud.google.com/gemini-enterprise-agent-platform/reference/models/multimodal-embeddings-api";
 
 function vertexEmbedRelease(model: ModelRecord): string {
   return model.region_or_platform_notes?.match(/\d{4}-\d{2}-\d{2}/)?.[0] ?? "Not published";
@@ -4076,15 +4331,15 @@ function vertexApril1EmbedGuide(rows: ModelRecord[], catalog: ModelRecord[]): Gu
   return {
     slug: VERTEX_EMBED_APRIL1_GUIDE_SLUG,
     title: `Vertex AI text-embedding-004, text-embedding-005, and text-multilingual-embedding-002 shutdown on ${when} | SunsetDiff`,
-    description: `Vertex AI retires text-embedding-004, text-embedding-005, and text-multilingual-embedding-002 on ${VERTEX_EMBED_APRIL1_SHUTDOWN_DATE}. The Replacement model ID cell is empty. Stored vectors from the old model do not match vectors from a new model, so the corpus has to be embedded again.`,
+    description: `Vertex AI retires text-embedding-004, text-embedding-005, text-multilingual-embedding-002, and multimodalembedding@001 on ${VERTEX_EMBED_APRIL1_SHUTDOWN_DATE}. The Replacement model ID cell is empty. Stored vectors from the old model do not match vectors from a new model, so the corpus has to be embedded again.`,
     h1: `Vertex AI text-embedding-004, text-embedding-005, and text-multilingual-embedding-002 shutdown on ${when}`,
     summary: `${ordered.length} Google Vertex embedding ids with shutdown date ${VERTEX_EMBED_APRIL1_SHUTDOWN_DATE}. The stored replacements field is empty, and the model versions page leaves the Replacement model ID cell empty.`,
-    answer: `The dataset has ${ordered.length} Google Vertex ids with shutdown date ${VERTEX_EMBED_APRIL1_SHUTDOWN_DATE}: ${idList(ordered)}. The embeddings table on the model versions page lists retirement date April 1, 2027 for each of them. The Replacement model ID cell on each of those rows is empty. ${empty.length === ordered.length ? "The replacements field is empty, so each model page says Not published." : "The replacements field is empty on " + idList(empty) + "."} The same table also lists multimodalembedding@001 with retirement date April 1, 2027 and an empty replacement cell. That id is not a row in this dataset. The page says: "${VERTEX_EXTEND}"`,
+    answer: `The dataset has ${ordered.length} Google Vertex ids with shutdown date ${VERTEX_EMBED_APRIL1_SHUTDOWN_DATE}: ${idList(ordered)}. The embeddings table on the model versions page lists retirement date April 1, 2027 for each of them. The Replacement model ID cell on each of those rows is empty. ${empty.length === ordered.length ? "The replacements field is empty, so each model page says Not published." : "The replacements field is empty on " + idList(empty) + "."} The page says: "${VERTEX_EXTEND}"`,
     checked: VERTEX_EMBED_APRIL1_CHECKED,
     steps: [
       {
-        name: "Find the three ids",
-        text: "Search code, config, and vector index settings for text-embedding-004, text-embedding-005, and text-multilingual-embedding-002. A hit is a candidate. Also search multimodalembedding@001. Google lists that id on the same embeddings table. SunsetDiff does not store a row for it.",
+        name: "Find the four ids",
+        text: "Search code, config, and vector index settings for multimodalembedding@001, text-embedding-004, text-embedding-005, and text-multilingual-embedding-002. A hit is a candidate. Each of those ids is a SunsetDiff row. The model versions page lists retirement date April 1, 2027 for each of them.",
       },
       {
         name: "Read the empty replacement cell",
@@ -4103,9 +4358,8 @@ function vertexApril1EmbedGuide(rows: ModelRecord[], catalog: ModelRecord[]): Gu
       {
         heading: "Models and dates",
         paragraphs: [
-          `These ${ordered.length} ids are the Google Vertex rows whose shutdown date is ${VERTEX_EMBED_APRIL1_SHUTDOWN_DATE}. The model id links to its SunsetDiff model page. Release date is the date stored from the model versions page. The page prints May 14, 2024 for text-embedding-004, November 18, 2024 for text-embedding-005, and May 14, 2024 for text-multilingual-embedding-002. Shutdown date is the retirement date. Replacement model ID is the cell on that page. Not published means the cell is empty and the stored replacements field is empty. These rows do not store a deprecation_date.`,
-          `The model versions page says: "${VERTEX_EXTEND}" Checked on ${VERTEX_EMBED_APRIL1_CHECKED}, the embeddings table lists those three retirement dates as April 1, 2027.`,
-          "The same embeddings table lists multimodalembedding@001 with release date February 12, 2024, retirement date April 1, 2027, and an empty Replacement model ID cell. SunsetDiff has no row for multimodalembedding@001, so it is not in the first table and it is not on the shutdown batch page.",
+          `These ${ordered.length} ids are the Google Vertex rows whose shutdown date is ${VERTEX_EMBED_APRIL1_SHUTDOWN_DATE}. The model id links to its SunsetDiff model page. Release date is the date stored from the model versions page. The page prints February 12, 2024 for multimodalembedding@001, May 14, 2024 for text-embedding-004, November 18, 2024 for text-embedding-005, and May 14, 2024 for text-multilingual-embedding-002. Shutdown date is the retirement date. Replacement model ID is the cell on that page. Not published means the cell is empty and the stored replacements field is empty. These rows do not store a deprecation_date.`,
+          `The model versions page says: "${VERTEX_EXTEND}" Checked on ${VERTEX_EMBED_APRIL1_CHECKED}, the embeddings table lists retirement date April 1, 2027 on each of these ${ordered.length} rows. multimodalembedding@001 is one of those rows. Its release date on the page is February 12, 2024. The Replacement model ID cell is empty.`,
         ],
         table: {
           caption: `${ordered.length} Vertex embedding ids with retirement date ${VERTEX_EMBED_APRIL1_SHUTDOWN_DATE}.`,
@@ -4133,6 +4387,7 @@ function vertexApril1EmbedGuide(rows: ModelRecord[], catalog: ModelRecord[]): Gu
             ? `gemini-embedding-001 is on that table with release date May 20, 2025 and retirement date No sooner than May 20, 2028. The stored shutdown date is ${embedding001.shutdown_date ?? "Not published"} and the stored kind is ${embedding001.shutdown_date_kind}. The replacement cell is empty. See [gemini-embedding-001](/models/google-vertex/gemini-embedding-001/).`
             : "The dataset has no gemini-embedding-001 row.",
           "On the retired models table, the recommended upgrade for textembedding-gecko@003, textembedding-gecko-multilingual@001, textembedding-gecko@002, and textembedding-gecko@001 is gemini-embedding-001. That column is Recommended upgrade, and those rows are already retired. It is a different table from the embeddings models table.",
+          "The multimodal embeddings API page lists gemini-embedding-2 in the supported models table, in the Code column, for Embeddings for Multimodal. The model versions page leaves the Replacement model ID cell empty for multimodalembedding@001. This guide does not copy gemini-embedding-2 into that cell. Code samples on the multimodal embeddings API page still send multimodalembedding@001.",
         ],
         table: {
           caption: "Other rows on the embeddings table of the model versions page.",
@@ -4150,15 +4405,12 @@ function vertexApril1EmbedGuide(rows: ModelRecord[], catalog: ModelRecord[]): Gu
               "No sooner than May 20, 2028",
               "Not published",
             ],
-            [
-              "multimodalembedding@001",
-              "February 12, 2024",
-              VERTEX_EMBED_APRIL1_SHUTDOWN_DATE,
-              "Not published",
-            ],
           ],
         },
-        sources,
+        sources: [
+          ...sources,
+          { label: "Multimodal embeddings API", url: VERTEX_MULTI_API },
+        ],
       },
       {
         heading: "A new model writes different vectors",
@@ -4182,7 +4434,7 @@ function vertexApril1EmbedGuide(rows: ModelRecord[], catalog: ModelRecord[]): Gu
           "The get text embeddings supported-models table says up to 768 for text-embedding-005 and text-multilingual-embedding-002, and up to 3072 for gemini-embedding-001 and gemini-embedding-2. Checked on the page that says Last updated 2026-11-03 UTC, that table does not list text-embedding-004. The model versions page and the Agent Retrieval table still list text-embedding-004.",
           `The text embeddings API says task_type: "${VERTEX_EMBED_DEFAULT_TASK}" It says title is: "${VERTEX_EMBED_TITLE}" The task types page says: "${VERTEX_EMBED_KEY_TASK}" And: "${VERTEX_EMBED_PAIR}" It also says: "${VERTEX_EMBED_CODE_TASK}" Code blocks on that page use RETRIEVAL_DOCUMENT. The query uses CODE_RETRIEVAL_QUERY.`,
           "The task types page says task types are supported by text-embedding-005, text-multilingual-embedding-002, and gemini-embedding-001. That list does not include text-embedding-004 or gemini-embedding-2. The Agent Retrieval sample still sets task_type to RETRIEVAL_DOCUMENT next to model_id text-embedding-004. Use the task type you used when you embedded the corpus. A query and a document need the pair the task types page names.",
-          `The Agent Retrieval page also says: "${VERTEX_EMBED_SOON}" The model versions page already lists multimodalembedding@001 with retirement date ${VERTEX_EMBED_APRIL1_SHUTDOWN_DATE}. Those two sentences are on different pages.`,
+          `The Agent Retrieval page also says: "${VERTEX_EMBED_SOON}" The model versions page already lists multimodalembedding@001 with retirement date ${VERTEX_EMBED_APRIL1_SHUTDOWN_DATE}. Those two sentences are on different pages. The Agent Retrieval dimensions table does not list multimodalembedding@001.`,
         ],
         sources: embedSources,
       },
@@ -4192,7 +4444,7 @@ function vertexApril1EmbedGuide(rows: ModelRecord[], catalog: ModelRecord[]): Gu
           "The text embeddings API syntax builds the client with TextEmbeddingModel.from_pretrained(MODEL_ID). MODEL_ID is the string you change. The page prints get_embeddings(...) with an ellipsis. This guide keeps that ellipsis.",
           "The get text embeddings page tells you to set GOOGLE_CLOUD_PROJECT, GOOGLE_CLOUD_LOCATION, and GOOGLE_GENAI_USE_ENTERPRISE=True, then call genai.Client() with no arguments. Its Python sample sets model to gemini-embedding-001 and passes task_type and output_dimensionality on EmbedContentConfig. The sample on the page sends three strings in contents. The copy below sends one string, in the same list. That sample is a call shape. The model versions page does not put gemini-embedding-001 in the Replacement model ID cell.",
           `The predict URL on that page is https://us-central1-aiplatform.googleapis.com/v1/projects/PROJECT_ID/locations/us-central1/publishers/google/models/MODEL_ID:predict. The sample sets the last path segment to gemini-embedding-001. The region in the sample is us-central1.`,
-          "Search the repository before the date. A host console or a vector index can hold an id that git does not show. [How to find every model ID in your codebase](/guides/find-model-ids-in-your-codebase/) covers SDK argument names. The [scan page](/scan/) builds a search from dataset ids that have a shutdown date. multimodalembedding@001 is in the search below because Google lists it. It is not one of the three stored rows.",
+          "Search the repository before the date. A host console or a vector index can hold an id that git does not show. [How to find every model ID in your codebase](/guides/find-model-ids-in-your-codebase/) covers SDK argument names. The [scan page](/scan/) builds a search from dataset ids that have a shutdown date. The search below is the four stored rows, including multimodalembedding@001.",
         ],
         codes: [
           {
@@ -4231,8 +4483,8 @@ print(response)
 `,
           },
           {
-            caption: "ripgrep. The last pattern is on Google's embeddings table and is not a SunsetDiff row.",
-            code: `rg -n -w -e 'text-embedding-004' -e 'text-embedding-005' -e 'text-multilingual-embedding-002' -e 'multimodalembedding@001'\n`,
+            caption: "ripgrep. These four ids are the stored rows.",
+            code: searchCode(ordered),
           },
         ],
         sources: [
@@ -4246,11 +4498,11 @@ print(response)
         paragraphs: [
           `Do this before ${when}. The model versions page says: "${VERTEX_EMBED_QUICK}" Then: "${VERTEX_EMBED_UPGRADE}" Then: "${VERTEX_EMBED_TEST}" Then: "${VERTEX_EMBED_DEPLOY}" The replacement cell is empty, so that page does not name the upgrade string. The same page does not print an HTTP status for these embedding rows.`,
           geminiApi
-            ? `The Gemini API row for text-embedding-004 stores shutdown date ${geminiApi.shutdown_date ?? "Not published"} and replacement ${publishedReplacementIds(geminiApi).join(", ") || "Not published"}. Its source was last checked ${geminiApi.sources[0]?.last_checked ?? "Not published"}. That row is the Gemini API. These three rows are Vertex AI. See [Gemini API text-embedding-004](/models/google-gemini-api/text-embedding-004/). OpenAI's April 1, 2027 list is a third date, on [GPT-5.1, gpt-5.3-codex, and gpt-5.4-nano shutdown on April 1, 2027](/guides/${APRIL_1_2027_GUIDE_SLUG}/).`
+            ? `The Gemini API row for text-embedding-004 stores shutdown date ${geminiApi.shutdown_date ?? "Not published"} and replacement ${publishedReplacementIds(geminiApi).join(", ") || "Not published"}. Its source was last checked ${geminiApi.sources[0]?.last_checked ?? "Not published"}. That row is the Gemini API. These ${ordered.length} rows are Vertex AI. See [Gemini API text-embedding-004](/models/google-gemini-api/text-embedding-004/). OpenAI's April 1, 2027 list is a third date, on [GPT-5.1, gpt-5.3-codex, and gpt-5.4-nano shutdown on April 1, 2027](/guides/${APRIL_1_2027_GUIDE_SLUG}/).`
             : "The dataset has no Gemini API row for text-embedding-004.",
         ],
         bullets: [
-          "Write down every place that sends text-embedding-004, text-embedding-005, or text-multilingual-embedding-002. Include vector indexes, RAG corpora, and Agent Retrieval collections. The Agent Retrieval sample sets model_id to text-embedding-004 inside vertex_embedding_config.",
+          "Write down every place that sends multimodalembedding@001, text-embedding-004, text-embedding-005, or text-multilingual-embedding-002. Include vector indexes, RAG corpora, and Agent Retrieval collections. The Agent Retrieval sample sets model_id to text-embedding-004 inside vertex_embedding_config.",
           "Choose one model id. The Replacement model ID cell is empty. gemini-embedding-001 and gemini-embedding-2 are other rows on the embeddings table. Read their retirement cells before you pin one.",
           "Write down the task_type for documents and the task_type for queries. The task types page pairs RETRIEVAL_DOCUMENT with RETRIEVAL_QUERY. title is only valid with RETRIEVAL_DOCUMENT. A blank task_type uses RETRIEVAL_QUERY on the text embeddings API page.",
           "Write down the vector length you store. The Agent Retrieval table lists 768 for these three ids and 3072 for gemini-embedding-001. output_dimensionality on the Python sample, and outputDimensionality on the API, truncates the vector to the size you set.",
@@ -4268,6 +4520,7 @@ print(response)
     related: [
       { href: `/shutdowns/google-vertex-${VERTEX_EMBED_APRIL1_SHUTDOWN_DATE}/`, label: `Vertex AI shutdowns on ${when}` },
       { href: "/providers/google-vertex/", label: "Google Vertex AI provider page" },
+      { href: "/models/google-vertex/multimodalembedding-001/", label: "multimodalembedding@001" },
       { href: "/models/google-vertex/text-embedding-004/", label: "text-embedding-004" },
       { href: "/models/google-vertex/text-embedding-005/", label: "text-embedding-005" },
       { href: "/models/google-vertex/text-multilingual-embedding-002/", label: "text-multilingual-embedding-002" },
@@ -4284,7 +4537,7 @@ print(response)
     faqs: [
       {
         question: `Which Vertex embedding models retire on ${when}?`,
-        answer: `The dataset lists ${idList(ordered)} with shutdown date ${VERTEX_EMBED_APRIL1_SHUTDOWN_DATE}. The model versions page lists retirement date April 1, 2027 for each of them. It also lists multimodalembedding@001 with retirement date April 1, 2027. That id is not a SunsetDiff row.`,
+        answer: `The dataset lists ${idList(ordered)} with shutdown date ${VERTEX_EMBED_APRIL1_SHUTDOWN_DATE}. The model versions page lists retirement date April 1, 2027 for each of them, including multimodalembedding@001.`,
       },
       {
         question: "What is the official replacement?",
@@ -4296,7 +4549,7 @@ print(response)
       },
       {
         question: "What output size and task type should I check?",
-        answer: "The Agent Retrieval table lists 768 dimensions for these three ids and 3072 for gemini-embedding-001. outputDimensionality truncates the vector to the size you set. The text embeddings API says a blank task_type uses RETRIEVAL_QUERY. Documents use RETRIEVAL_DOCUMENT. The task types page lists task type support for text-embedding-005, text-multilingual-embedding-002, and gemini-embedding-001. It does not list text-embedding-004.",
+        answer: "The Agent Retrieval table lists 768 dimensions for text-embedding-004, text-embedding-005, and text-multilingual-embedding-002, and 3072 for gemini-embedding-001. That table does not list multimodalembedding@001. outputDimensionality truncates the vector to the size you set. The text embeddings API says a blank task_type uses RETRIEVAL_QUERY. Documents use RETRIEVAL_DOCUMENT. The task types page lists task type support for text-embedding-005, text-multilingual-embedding-002, and gemini-embedding-001. It does not list text-embedding-004.",
       },
       {
         question: "What does Google say happens on April 1, 2027?",
@@ -4317,6 +4570,7 @@ print(response)
       VERTEX_EMBED_RETRIEVAL,
       VERTEX_EMBED_RAG,
       VERTEX_EMBED_SPANNER,
+      VERTEX_MULTI_API,
       "https://ai.google.dev/gemini-api/docs/deprecations",
     ],
   };

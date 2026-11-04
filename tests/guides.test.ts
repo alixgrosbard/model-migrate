@@ -1064,6 +1064,102 @@ describe("guides", () => {
     expect(lastmodForUrl("https://sunsetdiff.com/guides/azure-openai-gpt-4-1-gpt-4o-retirement-april-14-2027/")).toBe("2026-11-04");
     const april = guides.find((item) => item.slug === "openai-gpt-5-1-codex-nano-shutdown-april-1-2027");
     expect(april?.related.some((link) => link.href === guidePath(guide.slug))).toBe(true);
+    expect(guide.related.some((link) => link.href === "/guides/azure-openai-gpt-5-1-gpt-5-mini-codex-retirement-july-13-2027/")).toBe(true);
+  });
+
+  it("builds the Azure OpenAI July 13, 2027 gpt-5.1, gpt-5-mini, and gpt-5.2-codex guide from the dataset", async () => {
+    const models = await loadModels();
+    const ids = ["gpt-5-mini-2025-08-07", "gpt-5.1-2025-11-13", "gpt-5.2-codex-2026-01-14"];
+    const rows = models
+      .filter((model) => model.provider === "azure-openai" && ids.includes(model.id))
+      .sort((a, b) => a.id.localeCompare(b.id));
+    expect(rows.map((model) => model.id)).toEqual(ids);
+    expect(rows.map((model) => model.shutdown_date)).toEqual(ids.map(() => "2027-07-13"));
+    expect(rows.every((model) => model.shutdown_date_kind === "exact")).toBe(true);
+    expect(rows.every((model) => model.replacements.length === 0)).toBe(true);
+    const alias = models.find((model) => model.provider === "azure-openai" && model.id === "gpt-5.1");
+    expect(alias?.shutdown_date).toBeNull();
+    const guide = guides.find((item) => item.slug === "azure-openai-gpt-5-1-gpt-5-mini-codex-retirement-july-13-2027");
+    expect(guide).toBeTruthy();
+    if (!guide) return;
+    expect(guidePath(guide.slug)).toBe("/guides/azure-openai-gpt-5-1-gpt-5-mini-codex-retirement-july-13-2027/");
+    expect(guideChecked(guide)).toBe("2026-11-04");
+    expect(guide.h1).toBe("Azure OpenAI gpt-5.1, gpt-5-mini, and gpt-5.2-codex retirement on July 13, 2027");
+    const table = guide.sections.find((section) => section.heading === "Models and dates")?.table;
+    expect(table?.headers).toEqual(["Model id", "Lifecycle on the schedule", "Shutdown date", "Recommended replacement"]);
+    expect(table?.rows.map((row) => row[0])).toEqual(
+      rows.map((model) => `[${model.id}](/models/${model.provider}/${model.slug}/)`),
+    );
+    expect(table?.rows.map((row) => row[1])).toEqual(["GA", "GA", "GA"]);
+    expect(table?.rows.map((row) => row[2])).toEqual(ids.map(() => "2027-07-13"));
+    expect(table?.rows.map((row) => row[3])).toEqual(ids.map(() => "Not published"));
+    const blob = JSON.stringify(guide);
+    expect(blob).toContain("All inference requests return 410 Gone.");
+    expect(blob).toContain("Provisioned deployments are NOT auto-upgraded.");
+    expect(blob).toContain("The model deployment never automatically upgrades.");
+    expect(blob).toContain("Production-ready. Weights and APIs are fixed.");
+    expect(blob).toContain("will be removed from the API on April 1, 2027");
+    expect(blob).toContain("do not print 2027-04-01 as a shutdown date for Azure gpt-5.1");
+    expect(blob).toContain("plan the OpenAI gpt-5.1 calls for 2027-04-01");
+    expect(blob).toContain("2026-12-11");
+    expect(blob).toContain("2026-07-23");
+    expect(blob).toContain("gpt-5.6-terra");
+    expect(blob).toContain("gpt-5.6-sol");
+    expect(blob).toContain("does not list gpt-5-mini or gpt-5.2-codex");
+    expect(blob).toContain("https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule");
+    expect(blob).toContain("https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirements");
+    expect(blob).toContain("https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule-gov");
+    expect(blob).toContain("https://learn.microsoft.com/en-us/azure/foundry/openai/how-to/working-with-models");
+    expect(blob).toContain("https://developers.openai.com/api/docs/deprecations");
+    expect(blob).toContain("/providers/azure-openai/");
+    expect(blob).toContain("/shutdowns/azure-openai-2027-07-13/");
+    expect(blob).toContain("/models/azure-openai/gpt-5-1-2025-11-13/");
+    expect(blob).toContain("/models/azure-openai/gpt-5-mini-2025-08-07/");
+    expect(blob).toContain("/models/azure-openai/gpt-5-2-codex-2026-01-14/");
+    expect(blob).toContain("/guides/openai-gpt-5-1-codex-nano-shutdown-april-1-2027/");
+    expect(blob).toContain("/errors/azure-openai-retired-model-410-gone/");
+    expect(blob).not.toMatch(/[—–]/);
+    expect(guide.steps.map((step) => step.name)).toEqual([
+      "Find deployments",
+      "Pick a replacement",
+      "Test",
+      "Redeploy before the date",
+    ]);
+    const pageFacts = JSON.stringify({
+      answer: guide.answer,
+      steps: guide.steps,
+      sections: guide.sections,
+    });
+    for (const faq of guide.faqs) {
+      for (const date of faq.answer.match(/\d{4}-\d{2}-\d{2}/g) ?? []) {
+        expect(pageFacts).toContain(date);
+      }
+    }
+    expect(sitemapSection(guidePath(guide.slug))).toBe("sitemap-guides.xml");
+    for (const model of rows) {
+      expect(guidesForModel(model, models).map((link) => link.href)).toContain(guidePath(guide.slug));
+    }
+    expect(guidesForModel(alias!, models).map((link) => link.href)).not.toContain(guidePath(guide.slug));
+    const graph = guideGraph("https://sunsetdiff.com/", guide);
+    expect(graph.some((node) => node["@type"] === "Article")).toBe(true);
+    expect(graph.some((node) => node["@type"] === "HowTo")).toBe(true);
+    expect(graph.some((node) => node["@type"] === "FAQPage")).toBe(true);
+    expect(graph.find((node) => node["@type"] === "Article")).toMatchObject({
+      datePublished: "2026-11-04",
+      dateModified: "2026-11-04",
+    });
+    const providerPage = readFileSync("src/pages/providers/[provider].astro", "utf8");
+    const shutdownPage = readFileSync("src/pages/shutdowns/[slug].astro", "utf8");
+    expect(providerPage).toContain("/guides/azure-openai-gpt-5-1-gpt-5-mini-codex-retirement-july-13-2027/");
+    expect(providerPage).toContain('href="/shutdowns/azure-openai-2027-07-13/"');
+    expect(shutdownPage).toContain("azure-openai-gpt-5-1-gpt-5-mini-codex-retirement-july-13-2027");
+    const text = llmsTxt("https://sunsetdiff.com", [], []);
+    const full = llmsFull("https://sunsetdiff.com", []);
+    expect(text).toContain("/guides/azure-openai-gpt-5-1-gpt-5-mini-codex-retirement-july-13-2027/");
+    expect(full).toContain("/guides/azure-openai-gpt-5-1-gpt-5-mini-codex-retirement-july-13-2027/");
+    expect(lastmodForUrl("https://sunsetdiff.com/guides/azure-openai-gpt-5-1-gpt-5-mini-codex-retirement-july-13-2027/")).toBe("2026-11-04");
+    const april = guides.find((item) => item.slug === "openai-gpt-5-1-codex-nano-shutdown-april-1-2027");
+    expect(april?.related.some((link) => link.href === guidePath(guide.slug))).toBe(true);
   });
 
   it("builds the Mistral April 30, 2027 Large, Medium, and Voxtral guide from the dataset", async () => {
@@ -1163,7 +1259,7 @@ describe("guides", () => {
 
   it("builds the Vertex AI April 1, 2027 text embedding guide from the dataset", async () => {
     const models = await loadModels();
-    const ids = ["text-embedding-004", "text-embedding-005", "text-multilingual-embedding-002"];
+    const ids = ["multimodalembedding@001", "text-embedding-004", "text-embedding-005", "text-multilingual-embedding-002"];
     const rows = models
       .filter((model) => model.provider === "google-vertex" && model.shutdown_date === "2027-04-01")
       .sort((a, b) => a.id.localeCompare(b.id));
@@ -1181,7 +1277,7 @@ describe("guides", () => {
     expect(table?.rows.map((row) => row[0])).toEqual(
       rows.map((model) => `[${model.id}](/models/${model.provider}/${model.slug}/)`),
     );
-    expect(table?.rows.map((row) => row[1])).toEqual(["2024-05-14", "2024-11-18", "2024-05-14"]);
+    expect(table?.rows.map((row) => row[1])).toEqual(["2024-02-12", "2024-05-14", "2024-11-18", "2024-05-14"]);
     expect(table?.rows.map((row) => row[2])).toEqual(ids.map(() => "2027-04-01"));
     expect(table?.rows.map((row) => row[3])).toEqual(ids.map(() => "Not published"));
     const blob = JSON.stringify(guide);
@@ -1223,7 +1319,7 @@ describe("guides", () => {
     expect(blob).toContain("/models/google-gemini-api/text-embedding-004/");
     expect(blob).not.toMatch(/[—–]/);
     expect(guide.steps.map((step) => step.name)).toEqual([
-      "Find the three ids",
+      "Find the four ids",
       "Read the empty replacement cell",
       "Re-embed or build a second index",
       "Test one query before the date",
