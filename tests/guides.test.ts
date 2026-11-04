@@ -6,6 +6,9 @@ import {
   DECEMBER_11_SHUTDOWN_DATE,
   DECEMBER_1_IMAGE_GUIDE_SLUG,
   DECEMBER_1_IMAGE_SHUTDOWN_DATE,
+  APRIL_1_2027_CHECKED,
+  APRIL_1_2027_GUIDE_SLUG,
+  APRIL_1_2027_SHUTDOWN_DATE,
   FEBRUARY_26_TRANSCRIBE_CHECKED,
   FEBRUARY_26_TRANSCRIBE_GUIDE_SLUG,
   FEBRUARY_26_TRANSCRIBE_SHUTDOWN_DATE,
@@ -14,6 +17,7 @@ import {
   JANUARY_2027_SHUTDOWN_DATE,
   JANUARY_20_AUDIO_SHUTDOWN_DATE,
   JANUARY_6_TTS_SHUTDOWN_DATE,
+  isApril2027Gpt51CodexNanoShutdown,
   isDecember11OpenAiShutdown,
   isDecember1ImageShutdown,
   isFebruary2027TranscribeShutdown,
@@ -572,6 +576,119 @@ describe("guides", () => {
     const title = batchDocumentTitle(name, event, "2026-11-03");
     expect(event.models.some((model) => title.includes(model.id))).toBe(true);
     expect(title).toBe("gpt-4o-mini-transcribe and 4 more on OpenAI Feb 26, 2027");
+  });
+
+  it("builds the April 1, 2027 GPT-5.1, Codex, and nano guide from the dataset", async () => {
+    const models = await loadModels();
+    const rows = models.filter(isApril2027Gpt51CodexNanoShutdown).sort((a, b) => a.id.localeCompare(b.id));
+    expect(rows.map((model) => model.id)).toEqual([
+      "gpt-5.1",
+      "gpt-5.1-2025-11-13",
+      "gpt-5.3-codex",
+      "gpt-5.4-nano",
+      "gpt-5.4-nano-2026-03-17",
+    ]);
+    expect(rows.every((model) => model.shutdown_date === APRIL_1_2027_SHUTDOWN_DATE)).toBe(true);
+    expect(rows.every((model) => model.announced_date === "2026-10-01")).toBe(true);
+    expect(rows.every((model) => model.deprecation_date === null)).toBe(true);
+    for (const model of rows) {
+      const replacement = model.id.startsWith("gpt-5.4-nano") ? "gpt-6-luna" : "gpt-6-sol";
+      expect(publishedReplacementIds(model)).toEqual([replacement]);
+    }
+
+    const guide = guides.find((item) => item.slug === APRIL_1_2027_GUIDE_SLUG);
+    expect(guide).toBeTruthy();
+    if (!guide) return;
+    expect(guidePath(guide.slug)).toBe("/guides/openai-gpt-5-1-codex-nano-shutdown-april-1-2027/");
+    expect(guideChecked(guide)).toBe(APRIL_1_2027_CHECKED);
+    expect(guide.h1).toContain("April 1, 2027");
+    expect(sitemapSection(guidePath(guide.slug))).toBe("sitemap-guides.xml");
+
+    const table = guide.sections.find((section) => section.heading === "Models shutting down")?.table;
+    expect(table?.headers).toEqual(["Model id", "Deprecation date", "Shutdown date", "Recommended replacement"]);
+    expect(table?.rows.map((row) => row[0])).toEqual(
+      rows.map((model) => `[${model.id}](/models/${model.provider}/${model.slug}/)`),
+    );
+    for (const model of rows) {
+      const cell = table?.rows.find((row) => row[0].includes(model.id))?.[3] ?? "";
+      const replacement = model.id.startsWith("gpt-5.4-nano") ? "gpt-6-luna" : "gpt-6-sol";
+      expect(cell).toContain(replacement);
+    }
+
+    const blob = JSON.stringify(guide);
+    expect(blob).toContain("will be removed from the API on April 1, 2027, with six months' notice");
+    expect(blob).toContain("no longer be accessible");
+    expect(blob).toContain("Reasoning.effort supports: none (default), low, medium, and high.");
+    expect(blob).toContain("reasoning.effort supports none, low, medium (default), high, xhigh, and max.");
+    expect(blob).toContain("Chat Completions supports function calling only with reasoning_effort set to none.");
+    expect(blob).toContain("remove temperature, top_p, and top_logprobs");
+    expect(blob).toContain("v1/chat/completions");
+    expect(blob).toContain("$1.25");
+    expect(blob).toContain("$1.75");
+    expect(blob).toContain("$0.2");
+    expect(blob).toContain("$14");
+    expect(blob).toContain("$0.5");
+    expect(blob).toContain("https://developers.openai.com/api/docs/deprecations");
+    expect(blob).toContain("https://developers.openai.com/api/docs/models/gpt-5.1");
+    expect(blob).toContain("https://developers.openai.com/api/docs/models/gpt-5.3-codex");
+    expect(blob).toContain("https://developers.openai.com/api/docs/models/gpt-5.4-nano");
+    expect(blob).toContain("https://developers.openai.com/api/docs/models/gpt-6-sol");
+    expect(blob).toContain("https://developers.openai.com/api/docs/models/gpt-6-luna");
+    expect(blob).toContain("https://developers.openai.com/api/docs/guides/latest-model");
+    expect(blob).toContain("/api/v1/lookup/gpt-5.1.json");
+    expect(blob).toContain("/alerts/");
+    expect(blob).toContain("/shutdowns/openai-2027-04-01/");
+    expect(blob).toContain("/providers/openai/");
+    expect(blob).toContain("/errors/openai-temperature-is-not-supported-with-this-model/");
+    expect(blob).toContain("/errors/gpt-6-luna-function-tools-reasoning-effort/");
+    expect(blob).toContain("/models/openai/gpt-5-1/");
+    expect(blob).toContain("/models/openai/gpt-5-1-2025-11-13/");
+    expect(blob).toContain("/models/openai/gpt-5-3-codex/");
+    expect(blob).toContain("/models/openai/gpt-5-4-nano/");
+    expect(blob).toContain("/models/openai/gpt-5-4-nano-2026-03-17/");
+    expect(blob).toContain("2026-07-23");
+    expect(blob).toContain("2026-10-01");
+    expect(blob).not.toContain("HTTP 404");
+    expect(blob).not.toMatch(/[—–]/);
+    expect(guide.sections.some((section) => section.heading === "What breaks")).toBe(true);
+    expect(guide.sections.some((section) => section.heading === "Find the model ids in your code")).toBe(true);
+    expect(guide.sections.some((section) => section.heading === "Test checklist")).toBe(true);
+    expect(guide.faqs.length).toBeGreaterThanOrEqual(4);
+
+    const pageFacts = JSON.stringify({
+      answer: guide.answer,
+      steps: guide.steps,
+      sections: guide.sections,
+    });
+    for (const faq of guide.faqs) {
+      for (const date of faq.answer.match(/\d{4}-\d{2}-\d{2}/g) ?? []) {
+        expect(pageFacts).toContain(date);
+      }
+    }
+
+    const openai = (id: string) => models.find((model) => model.provider === "openai" && model.id === id)!;
+    const gpt51 = openai("gpt-5.1");
+    const snapshot = openai("gpt-5.1-2025-11-13");
+    const codex = openai("gpt-5.3-codex");
+    const nano = openai("gpt-5.4-nano");
+    const nanoSnapshot = openai("gpt-5.4-nano-2026-03-17");
+    const chat = openai("gpt-5.1-chat-latest");
+    for (const model of [gpt51, snapshot, codex, nano, nanoSnapshot]) {
+      expect(guidesForModel(model, models).map((link) => link.href)).toContain(`/guides/${APRIL_1_2027_GUIDE_SLUG}/`);
+    }
+    expect(guidesForModel(chat, models).map((link) => link.href)).not.toContain(`/guides/${APRIL_1_2027_GUIDE_SLUG}/`);
+
+    const providerPage = readFileSync("src/pages/providers/[provider].astro", "utf8");
+    const shutdownPage = readFileSync("src/pages/shutdowns/[slug].astro", "utf8");
+    expect(providerPage).toContain(APRIL_1_2027_GUIDE_SLUG);
+    expect(shutdownPage).toContain(APRIL_1_2027_GUIDE_SLUG);
+    expect(llmsTxt("https://sunsetdiff.com", [], [])).toContain(guidePath(guide.slug));
+    expect(llmsFull("https://sunsetdiff.com", [])).toContain(guidePath(guide.slug));
+
+    const event = shutdownEvents(models).find((item) => item.slug === "openai-2027-04-01");
+    expect(event).toBeTruthy();
+    if (!event) return;
+    expect(event.models.map((model) => model.id).sort()).toEqual(rows.map((model) => model.id));
   });
 
   it("builds the MiniMax November 18 guide from the dataset", async () => {

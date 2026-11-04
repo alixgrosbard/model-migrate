@@ -36,6 +36,18 @@ const FEBRUARY_26_TRANSCRIBE_IDS = [
   "gpt-4o-transcribe-diarize",
 ] as const;
 
+/** Checked against the OpenAI deprecations page and model pages on 2026-11-04. The slug uses this date. */
+export const APRIL_1_2027_SHUTDOWN_DATE = "2027-04-01";
+export const APRIL_1_2027_GUIDE_SLUG = "openai-gpt-5-1-codex-nano-shutdown-april-1-2027";
+export const APRIL_1_2027_CHECKED = "2026-11-04";
+const APRIL_1_2027_IDS = [
+  "gpt-5.1",
+  "gpt-5.1-2025-11-13",
+  "gpt-5.3-codex",
+  "gpt-5.4-nano",
+  "gpt-5.4-nano-2026-03-17",
+] as const;
+
 /** Checked against the MiniMax rows. The slug uses this date. */
 export const MINIMAX_NOV18_SHUTDOWN_DATE = "2026-11-18";
 export const MINIMAX_NOV18_GUIDE_SLUG = "minimax-m2-5-m2-7-shutdown-november-18-2026";
@@ -440,6 +452,13 @@ export function isFebruary2027TranscribeShutdown(model: ModelRecord): boolean {
   return model.provider === "openai"
     && (FEBRUARY_26_TRANSCRIBE_IDS as readonly string[]).includes(model.id)
     && model.shutdown_date === FEBRUARY_26_TRANSCRIBE_SHUTDOWN_DATE
+    && model.shutdown_date_kind === "exact";
+}
+
+export function isApril2027Gpt51CodexNanoShutdown(model: ModelRecord): boolean {
+  return model.provider === "openai"
+    && (APRIL_1_2027_IDS as readonly string[]).includes(model.id)
+    && model.shutdown_date === APRIL_1_2027_SHUTDOWN_DATE
     && model.shutdown_date_kind === "exact";
 }
 
@@ -1040,6 +1059,7 @@ const OPENAI_WAVE_GUIDE_SLUGS = new Set([
   JANUARY_2027_AUDIO_GUIDE_SLUG,
   JANUARY_2027_GPT4_GUIDE_SLUG,
   FEBRUARY_26_TRANSCRIBE_GUIDE_SLUG,
+  APRIL_1_2027_GUIDE_SLUG,
 ]);
 
 export function datasetShutdownGuides(catalog: ModelRecord[] = readCatalog()): GuidePage[] {
@@ -1054,6 +1074,8 @@ export function datasetShutdownGuides(catalog: ModelRecord[] = readCatalog()): G
   if (january.length) pages.push(januaryGuide(january, catalog));
   const transcribe = rowsFor(isFebruary2027TranscribeShutdown, catalog);
   if (transcribe.length) pages.push(februaryTranscribeGuide(transcribe, catalog));
+  const april = rowsFor(isApril2027Gpt51CodexNanoShutdown, catalog);
+  if (april.length) pages.push(aprilGpt51CodexNanoGuide(april, catalog));
   const minimax = rowsFor(isMinimaxNov18Shutdown, catalog);
   if (minimax.length) pages.push(minimaxGuide(minimax, catalog));
   const bedrock = rowsFor(isBedrockNov13Shutdown, catalog);
@@ -1171,6 +1193,7 @@ function decemberGuide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePage {
       { href: `/guides/${JANUARY_2027_AUDIO_GUIDE_SLUG}/`, label: "OpenAI speech, audio, and realtime shutdowns in January 2027" },
       { href: `/guides/${FEBRUARY_26_TRANSCRIBE_GUIDE_SLUG}/`, label: "whisper-1 and GPT-4o transcribe shutdown on February 26, 2027" },
       { href: `/guides/${JANUARY_2027_GPT4_GUIDE_SLUG}/`, label: "GPT-4.1 and GPT-4o shutdown in January 2027" },
+      { href: `/guides/${APRIL_1_2027_GUIDE_SLUG}/`, label: "GPT-5.1, gpt-5.3-codex, and gpt-5.4-nano shutdown on April 1, 2027" },
       { href: "/guides/find-model-ids-in-your-codebase/", label: "Find model ids in your codebase" },
       { href: "/guides/pre-migration-test-checklist/", label: "Pre-migration test checklist" },
       { href: "/guides/what-happens-on-model-shutdown-day/", label: "What happens on shutdown day" },
@@ -1284,6 +1307,7 @@ function januaryGuide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePage {
       { href: `/guides/${DECEMBER_11_GUIDE_SLUG}/`, label: "OpenAI shutdowns on December 11, 2026" },
       { href: `/guides/${JANUARY_2027_AUDIO_GUIDE_SLUG}/`, label: "OpenAI speech, audio, and realtime shutdowns in January 2027" },
       { href: `/guides/${FEBRUARY_26_TRANSCRIBE_GUIDE_SLUG}/`, label: "whisper-1 and GPT-4o transcribe shutdown on February 26, 2027" },
+      { href: `/guides/${APRIL_1_2027_GUIDE_SLUG}/`, label: "GPT-5.1, gpt-5.3-codex, and gpt-5.4-nano shutdown on April 1, 2027" },
       { href: "/guides/model-aliases-vs-pinned-snapshots/", label: "Model aliases vs pinned snapshots" },
       { href: "/guides/find-model-ids-in-your-codebase/", label: "Find model ids in your codebase" },
       { href: "/guides/pre-migration-test-checklist/", label: "Pre-migration test checklist" },
@@ -1415,6 +1439,7 @@ function december1ImageGuide(rows: ModelRecord[], catalog: ModelRecord[]): Guide
       { href: `/guides/${DECEMBER_11_GUIDE_SLUG}/`, label: "OpenAI shutdowns on December 11, 2026" },
       { href: `/guides/${JANUARY_2027_AUDIO_GUIDE_SLUG}/`, label: "OpenAI speech, audio, and realtime shutdowns in January 2027" },
       { href: `/guides/${FEBRUARY_26_TRANSCRIBE_GUIDE_SLUG}/`, label: "whisper-1 and GPT-4o transcribe shutdown on February 26, 2027" },
+      { href: `/guides/${APRIL_1_2027_GUIDE_SLUG}/`, label: "GPT-5.1, gpt-5.3-codex, and gpt-5.4-nano shutdown on April 1, 2027" },
       { href: "/models/openai/gpt-image-2-5-sunburst/", label: "gpt-image-2.5-sunburst" },
       { href: "/models/openai/gpt-image-2-5-flare/", label: "gpt-image-2.5-flare" },
       { href: "/api/", label: "Free lookup API" },
@@ -1574,6 +1599,7 @@ function januaryAudioGuide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePa
       { href: `/guides/${DECEMBER_11_GUIDE_SLUG}/`, label: "OpenAI shutdowns on December 11, 2026" },
       { href: `/guides/${JANUARY_2027_GPT4_GUIDE_SLUG}/`, label: "GPT-4.1 and GPT-4o shutdown in January 2027" },
       { href: `/guides/${FEBRUARY_26_TRANSCRIBE_GUIDE_SLUG}/`, label: "whisper-1 and GPT-4o transcribe shutdown on February 26, 2027" },
+      { href: `/guides/${APRIL_1_2027_GUIDE_SLUG}/`, label: "GPT-5.1, gpt-5.3-codex, and gpt-5.4-nano shutdown on April 1, 2027" },
       { href: "/models/openai/gpt-realtime-2-1-mini/", label: "gpt-realtime-2.1-mini" },
       { href: "/models/openai/gpt-realtime-2-1/", label: "gpt-realtime-2.1" },
       { href: "/models/openai/gpt-audio-1-5/", label: "gpt-audio-1.5" },
@@ -1787,6 +1813,7 @@ const transcription = await openai.audio.transcriptions.create({
       { href: "/shutdowns/openai-2027-01-20/", label: "OpenAI shutdowns on January 20, 2027" },
       { href: "/providers/openai/", label: "OpenAI provider page" },
       { href: `/guides/${JANUARY_2027_AUDIO_GUIDE_SLUG}/`, label: "OpenAI speech, audio, and realtime shutdowns in January 2027" },
+      { href: `/guides/${APRIL_1_2027_GUIDE_SLUG}/`, label: "GPT-5.1, gpt-5.3-codex, and gpt-5.4-nano shutdown on April 1, 2027" },
       { href: "/models/openai/whisper-1/", label: "whisper-1" },
       { href: "/models/openai/gpt-transcribe/", label: "gpt-transcribe" },
       { href: "/models/openai/gpt-live-transcribe/", label: "gpt-live-transcribe" },
@@ -1834,6 +1861,289 @@ const transcription = await openai.audio.transcriptions.create({
       OPENAI_GPT_TRANSCRIBE,
       OPENAI_GPT_LIVE_TRANSCRIBE,
       OPENAI_PRICING,
+    ],
+  };
+}
+
+const OPENAI_GPT51 = "https://developers.openai.com/api/docs/models/gpt-5.1";
+const OPENAI_CODEX53 = "https://developers.openai.com/api/docs/models/gpt-5.3-codex";
+const OPENAI_NANO54 = "https://developers.openai.com/api/docs/models/gpt-5.4-nano";
+const OPENAI_GPT6_SOL = "https://developers.openai.com/api/docs/models/gpt-6-sol";
+const OPENAI_GPT6_LUNA = "https://developers.openai.com/api/docs/models/gpt-6-luna";
+const OPENAI_USING_GPT6 = "https://developers.openai.com/api/docs/guides/latest-model";
+const APRIL_NOTICE =
+  "The following models are deprecated and will be removed from the API on April 1, 2027, with six months' notice. Migrate to the recommended replacements before the shutdown date.";
+const JULY_23_NOTICE =
+  "On April 22, 2026, we announced the deprecation of the following older OpenAI models. Access to these models was shut down on July 23, 2026.";
+const GPT51_EFFORT = "Reasoning.effort supports: none (default), low, medium, and high.";
+const CODEX_EFFORT = "GPT-5.3-Codex supports low, medium, high, and xhigh reasoning effort settings.";
+const NANO_EFFORT = "Reasoning.effort supports: none (default), low, medium, high and xhigh.";
+const SOL_EFFORT = "reasoning.effort supports none, low, medium (default), high, xhigh, and max.";
+const SOL_TOOLS =
+  "Use the Responses API for built-in tools and function calling. Chat Completions supports function calling only with reasoning_effort set to none.";
+const GPT6_NONE =
+  "GPT-6 Astra and GPT-6.1 Sol do not support the none reasoning effort; GPT-6.1 Terra, GPT-6 Sol, and GPT-6 Luna do.";
+const GPT6_EFFORT_FIELD = "Use reasoning.effort in Responses or reasoning_effort in Chat Completions.";
+const GPT6_TOOLS =
+  'GPT-6 Sol and GPT-6 Luna support function calling in Chat Completions only with reasoning_effort: "none". Use Responses for reasoning with tools.';
+const GPT6_PARAMS =
+  "When reasoning effort is not none, remove temperature, top_p, and top_logprobs. For Chat Completions, also remove logprobs. For Responses, remove message.output_text.logprobs from include.";
+const SOL_LONG_CONTEXT =
+  "Prompts with more than 272K input tokens are priced at 2x input and cache rates and 1.5x output for the full request.";
+const NANO_REGIONAL = "Regional processing (data residency) endpoints are charged a 10% uplift for GPT-5.4 nano.";
+const SOL_REGIONAL = "Regional processing adds a 10% premium where available.";
+
+function aprilGpt51CodexNanoGuide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePage {
+  const when = longDate(APRIL_1_2027_SHUTDOWN_DATE);
+  const sol = catalog.find((model) => model.provider === "openai" && model.id === "gpt-6-sol");
+  const luna = catalog.find((model) => model.provider === "openai" && model.id === "gpt-6-luna");
+  const solLink = sol ? modelLink(sol) : "gpt-6-sol";
+  const lunaLink = luna ? modelLink(luna) : "gpt-6-luna";
+  return {
+    slug: APRIL_1_2027_GUIDE_SLUG,
+    title: `GPT-5.1, gpt-5.3-codex, and gpt-5.4-nano shutdown on ${when} | SunsetDiff`,
+    description: `gpt-5.1, gpt-5.1-2025-11-13, and gpt-5.3-codex shut down on ${APRIL_1_2027_SHUTDOWN_DATE}. OpenAI names gpt-6-sol. gpt-5.4-nano and gpt-5.4-nano-2026-03-17 shut down the same day. OpenAI names gpt-6-luna.`,
+    h1: `GPT-5.1, gpt-5.3-codex, and gpt-5.4-nano shutdown on ${when}`,
+    summary: `The five OpenAI ids with shutdown date ${APRIL_1_2027_SHUTDOWN_DATE}, the stored replacement for each, and the request fields the model pages name.`,
+    answer: `The dataset has ${rows.length} OpenAI ids with shutdown date ${APRIL_1_2027_SHUTDOWN_DATE}: ${idList(rows)}. OpenAI's deprecations page says: "${APRIL_NOTICE}" The same page names gpt-6-sol for gpt-5.1, gpt-5.1-2025-11-13, and gpt-5.3-codex. It names gpt-6-luna for gpt-5.4-nano and gpt-5.4-nano-2026-03-17. The section heading is 2026-10-01. OpenAI's deprecations page also says: "${ACCESSIBLE}"`,
+    checked: APRIL_1_2027_CHECKED,
+    steps: [
+      {
+        name: "Read the five ids",
+        text: `The table lists gpt-5.1, gpt-5.1-2025-11-13, gpt-5.3-codex, gpt-5.4-nano, and gpt-5.4-nano-2026-03-17. gpt-5.1-chat-latest, gpt-5.1-codex, gpt-5.1-codex-max, and gpt-5.1-codex-mini are a different date.`,
+      },
+      {
+        name: "Swap the model string",
+        text: "Send gpt-6-sol in place of gpt-5.1, gpt-5.1-2025-11-13, and gpt-5.3-codex. Send gpt-6-luna in place of gpt-5.4-nano and gpt-5.4-nano-2026-03-17. Keep a gpt-5.3-codex call on the Responses API.",
+      },
+      {
+        name: "Check effort, tools, and sampling fields",
+        text: `gpt-5.1 and gpt-5.4-nano default reasoning effort to none. gpt-6-sol and gpt-6-luna default it to medium. On Chat Completions, function calling for those two replacements works with reasoning_effort set to none. When effort is not none, the Using GPT-6 page says to remove temperature, top_p, and top_logprobs. Test one real prompt before ${when}.`,
+      },
+    ],
+    sections: [
+      {
+        heading: "Models shutting down",
+        paragraphs: [
+          `These rows are the OpenAI ids in the dataset with shutdown date ${APRIL_1_2027_SHUTDOWN_DATE}. The model id links to its SunsetDiff model page. Deprecation date, shutdown date, and replacement are the fields stored on that row. Not published means the field is empty.`,
+          `OpenAI's deprecations page says: "${APRIL_NOTICE}" The section heading is 2026-10-01. These rows store announced_date 2026-10-01. deprecation_date is empty. The same page says: "${DEPRECATED_WHEN_ANNOUNCED}"`,
+          `The shutdown table lists gpt-5.3-codex with replacement gpt-6-sol. It lists gpt-5.4-nano and snapshot gpt-5.4-nano-2026-03-17 with replacement gpt-6-luna. It lists gpt-5.1 and snapshot gpt-5.1-2025-11-13 with replacement gpt-6-sol. The plain-text alias list at the bottom of that page pairs gpt-5.4-nano with gpt-5.4-nano-2026-03-17, and gpt-5.1 with gpt-5.1-2025-11-13. Both strings in each pair shut down on ${APRIL_1_2027_SHUTDOWN_DATE}.`,
+          `The gpt-5.1 model page says the default snapshot is gpt-5.1-2025-11-13. The gpt-5.4-nano model page says the default snapshot is gpt-5.4-nano-2026-03-17. The gpt-5.3-codex model page says the default snapshot is gpt-5.3-codex. That page does not list a second dated snapshot.`,
+        ],
+        table: {
+          caption: `${rows.length} OpenAI ids with shutdown date ${APRIL_1_2027_SHUTDOWN_DATE}.`,
+          headers: ["Model id", "Deprecation date", "Shutdown date", "Recommended replacement"],
+          rows: tableRows(rows, catalog),
+        },
+        sources: [{ label: "OpenAI deprecations", url: OPENAI_DEPRECATIONS }],
+      },
+      {
+        heading: "Ids that already shut down",
+        paragraphs: [
+          `gpt-5.1-chat-latest, gpt-5.1-codex, gpt-5.1-codex-max, and gpt-5.1-codex-mini are not in the table above. OpenAI's deprecations page says: "${JULY_23_NOTICE}" The July 23, 2026 table lists gpt-5.1-chat-latest, gpt-5.1-codex, and gpt-5.1-codex-max with substitute gpt-5.6-sol. It lists gpt-5.1-codex-mini with substitute gpt-5.6-terra. The stored shutdown date on those four rows is 2026-07-23.`,
+        ],
+        sources: [{ label: "OpenAI deprecations", url: OPENAI_DEPRECATIONS }],
+      },
+      {
+        heading: "What breaks",
+        paragraphs: [
+          `On ${when} these ids reach the shutdown date stored in the dataset. OpenAI's deprecations page says: "${ACCESSIBLE}" The same page uses sunset and shut down for that moment. It does not print an HTTP status for it.`,
+          "A 400 from a field the replacement rejects is a different failure. Those sentences are on the [request errors](/errors/) pages. This guide does not invent an error body for the shutdown itself.",
+        ],
+        sources: [{ label: "OpenAI deprecations", url: OPENAI_DEPRECATIONS }],
+      },
+      {
+        heading: "Find the model ids in your code",
+        paragraphs: [
+          "Search the repository for the alias and for the dated snapshot. gpt-5.1 and gpt-5.1-2025-11-13 can sit in different files. The same is true for gpt-5.4-nano and gpt-5.4-nano-2026-03-17. [How to find every model ID in your codebase](/guides/find-model-ids-in-your-codebase/) covers SDK argument names. The [scan page](/scan/) builds a search from dataset ids that have a shutdown date.",
+          "OpenAI's deprecations page says to call the List models endpoint, GET /v1/models, and read each model's optional shutdown_date field. When present, the field is a YYYY-MM-DD string, or null if no shutdown date has been announced. The same field is on the Retrieve a model endpoint.",
+          "You can also read one id from the free SunsetDiff lookup file. [gpt-5.1](/api/v1/lookup/gpt-5.1.json) is one of these rows. The [API page](/api/) lists the other files. No key and no signup. The [alerts page](/alerts/) is the free email form. That page says what the form stores and the one welcome email it can send.",
+        ],
+        codes: [{ caption: "ripgrep", code: searchCode(rows) }],
+        sources: [{ label: "OpenAI deprecations", url: OPENAI_DEPRECATIONS }],
+      },
+      {
+        heading: "Change the model id",
+        paragraphs: [
+          `Send ${solLink} where the code now sends gpt-5.1, gpt-5.1-2025-11-13, or gpt-5.3-codex. Send ${lunaLink} where the code now sends gpt-5.4-nano or gpt-5.4-nano-2026-03-17. The deprecations page names those replacements. It does not name gpt-6.1-sol for this shutdown.`,
+          "The gpt-5.1 model page lists Chat Completions (v1/chat/completions), Responses (v1/responses), and Batch (v1/batch) as supported. The gpt-5.4-nano model page lists the same three routes as supported. The gpt-5.3-codex model page lists Responses as supported. It lists Chat Completions and Batch as not supported. Keep a gpt-5.3-codex call on Responses.",
+          "The gpt-6-sol model page lists Chat Completions, Responses, and Batch as supported. The gpt-6-luna model page lists the same three routes as supported. Both pages list fine-tuning (v1/fine-tuning) as not supported. The gpt-5.1, gpt-5.3-codex, and gpt-5.4-nano pages also list fine-tuning as not supported.",
+        ],
+        codes: [
+          {
+            caption: "gpt-5.1 and gpt-5.1-2025-11-13 on Chat Completions",
+            code: `response = client.chat.completions.create(
+    model="gpt-6-sol",
+    messages=[{"role": "user", "content": "Hello"}],
+)
+`,
+          },
+          {
+            caption: "gpt-5.3-codex on the Responses API",
+            code: `response = client.responses.create(
+    model="gpt-6-sol",
+    input="Hello",
+)
+`,
+          },
+          {
+            caption: "gpt-5.4-nano and gpt-5.4-nano-2026-03-17 on Chat Completions",
+            code: `response = client.chat.completions.create(
+    model="gpt-6-luna",
+    messages=[{"role": "user", "content": "Hello"}],
+)
+`,
+          },
+        ],
+        sources: [
+          { label: "OpenAI deprecations", url: OPENAI_DEPRECATIONS },
+          { label: "gpt-5.1", url: OPENAI_GPT51 },
+          { label: "gpt-5.3-codex", url: OPENAI_CODEX53 },
+          { label: "gpt-5.4-nano", url: OPENAI_NANO54 },
+          { label: "gpt-6-sol", url: OPENAI_GPT6_SOL },
+          { label: "gpt-6-luna", url: OPENAI_GPT6_LUNA },
+        ],
+      },
+      {
+        heading: "Request fields that differ",
+        paragraphs: [
+          `The gpt-5.1 model page says: "${GPT51_EFFORT}" The gpt-5.4-nano model page says: "${NANO_EFFORT}" The gpt-5.3-codex model page says: "${CODEX_EFFORT}" That page does not name none, max, or a default.`,
+          `The gpt-6-sol model page and the gpt-6-luna model page both say: "${SOL_EFFORT}" A gpt-5.1 or gpt-5.4-nano request that leaves effort unset uses none. The same omitted field on gpt-6-sol or gpt-6-luna uses medium. Set the effort you want. The Using GPT-6 page says: "${GPT6_EFFORT_FIELD}" It also says: "${GPT6_NONE}"`,
+          `The gpt-6-sol model page and the gpt-6-luna model page both say: "${SOL_TOOLS}" The Using GPT-6 page says: "${GPT6_TOOLS}" A Chat Completions call that sends function tools sets reasoning_effort to none, or the call moves to the Responses API. The recorded error for gpt-6-luna is on [Function tools with reasoning_effort are not supported for gpt-6-luna](/errors/gpt-6-luna-function-tools-reasoning-effort/). The gpt-6-sol model page states the same rule. This guide does not invent an error sentence for gpt-6-sol.`,
+          `The Using GPT-6 page says: "${GPT6_PARAMS}" The page for that temperature sentence is [temperature is not supported with this model](/errors/openai-temperature-is-not-supported-with-this-model/). gpt-6-sol and gpt-6-luna can keep temperature when reasoning effort is none.`,
+          "The gpt-5.1 model page lists a 400,000 context window and 128,000 max output tokens. The gpt-5.3-codex and gpt-5.4-nano pages list a 400,000 context window, maximum input tokens 272,000, and 128,000 max output tokens. The gpt-6-sol and gpt-6-luna pages list a 1,050,000 context window, maximum input tokens 922,000, and 128,000 max output tokens.",
+        ],
+        codes: [
+          {
+            caption: "Chat Completions with reasoning_effort none",
+            code: `response = client.chat.completions.create(
+    model="gpt-6-luna",
+    messages=[{"role": "user", "content": "Hello"}],
+    reasoning_effort="none",
+)
+`,
+          },
+        ],
+        sources: [
+          { label: "gpt-5.1", url: OPENAI_GPT51 },
+          { label: "gpt-5.3-codex", url: OPENAI_CODEX53 },
+          { label: "gpt-5.4-nano", url: OPENAI_NANO54 },
+          { label: "gpt-6-sol", url: OPENAI_GPT6_SOL },
+          { label: "gpt-6-luna", url: OPENAI_GPT6_LUNA },
+          { label: "Using GPT-6", url: OPENAI_USING_GPT6 },
+        ],
+      },
+      {
+        heading: "Prices on the model pages",
+        paragraphs: [
+          "The numbers below are the text token prices on each model page, per 1M tokens. The gpt-5.1 page covers the alias and lists snapshot gpt-5.1-2025-11-13. The gpt-5.4-nano page covers the alias and lists snapshot gpt-5.4-nano-2026-03-17. Those snapshot ids do not have a second price table on those pages.",
+          `The gpt-6-sol page and the gpt-6-luna page both say: "${SOL_LONG_CONTEXT}" The gpt-5.4-nano page says: "${NANO_REGIONAL}" The gpt-6-sol page and the gpt-6-luna page both say: "${SOL_REGIONAL}"`,
+        ],
+        table: {
+          caption: "Text token prices per 1M tokens from the model pages. Not listed means that page has no cache writes row.",
+          headers: ["Model page", "Input", "Cached input", "Cache writes", "Output"],
+          rows: [
+            ["[gpt-5.1](/models/openai/gpt-5-1/)", "$1.25", "$0.125", "Not listed", "$10"],
+            ["[gpt-5.3-codex](/models/openai/gpt-5-3-codex/)", "$1.75", "$0.175", "Not listed", "$14"],
+            ["[gpt-5.4-nano](/models/openai/gpt-5-4-nano/)", "$0.2", "$0.02", "Not listed", "$1.25"],
+            [solLink, "$2", "$0.2", "$2.5", "$10"],
+            [lunaLink, "$0.1", "$0.01", "$0.125", "$0.5"],
+          ],
+        },
+        sources: [
+          { label: "gpt-5.1", url: OPENAI_GPT51 },
+          { label: "gpt-5.3-codex", url: OPENAI_CODEX53 },
+          { label: "gpt-5.4-nano", url: OPENAI_NANO54 },
+          { label: "gpt-6-sol", url: OPENAI_GPT6_SOL },
+          { label: "gpt-6-luna", url: OPENAI_GPT6_LUNA },
+        ],
+      },
+      {
+        heading: "Test checklist",
+        paragraphs: [
+          `OpenAI's deprecations page says the notice period is time to evaluate the recommended replacement, test application behavior, and finish the migration before the model is no longer available. Do this before ${when}.`,
+          "The [pre-migration test checklist](/guides/pre-migration-test-checklist/) is the longer list: evals, rejected fields, token limits, tools, price, and latency.",
+        ],
+        bullets: [
+          "Search the repository for gpt-5.1, gpt-5.1-2025-11-13, gpt-5.3-codex, gpt-5.4-nano, and gpt-5.4-nano-2026-03-17.",
+          "Replace gpt-5.1, gpt-5.1-2025-11-13, and gpt-5.3-codex with gpt-6-sol.",
+          "Replace gpt-5.4-nano and gpt-5.4-nano-2026-03-17 with gpt-6-luna.",
+          "Keep a gpt-5.3-codex call on the Responses API. That model page lists Chat Completions as not supported.",
+          "Set reasoning effort on the replacement. none on gpt-5.1 and gpt-5.4-nano becomes medium on gpt-6-sol and gpt-6-luna when the field is left unset.",
+          "On Chat Completions with function tools, set reasoning_effort to none, or move the call to the Responses API.",
+          "When reasoning effort is not none, remove temperature, top_p, and top_logprobs. On Chat Completions, also remove logprobs. On Responses, remove message.output_text.logprobs from include.",
+          `Send one prompt you use now to the replacement id before ${when}.`,
+          "Call GET /v1/models and read shutdown_date for each id you still send.",
+        ],
+        sources: [
+          { label: "OpenAI deprecations", url: OPENAI_DEPRECATIONS },
+          { label: "Using GPT-6", url: OPENAI_USING_GPT6 },
+          { label: "gpt-6-sol", url: OPENAI_GPT6_SOL },
+          { label: "gpt-6-luna", url: OPENAI_GPT6_LUNA },
+        ],
+      },
+    ],
+    related: [
+      { href: "/shutdowns/openai-2027-04-01/", label: `OpenAI shutdowns on ${when}` },
+      { href: "/providers/openai/", label: "OpenAI provider page" },
+      { href: "/models/openai/gpt-5-1/", label: "gpt-5.1" },
+      { href: "/models/openai/gpt-5-1-2025-11-13/", label: "gpt-5.1-2025-11-13" },
+      { href: "/models/openai/gpt-5-3-codex/", label: "gpt-5.3-codex" },
+      { href: "/models/openai/gpt-5-4-nano/", label: "gpt-5.4-nano" },
+      { href: "/models/openai/gpt-5-4-nano-2026-03-17/", label: "gpt-5.4-nano-2026-03-17" },
+      { href: sol ? `/models/${sol.provider}/${sol.slug}/` : "/models/openai/gpt-6-sol/", label: "gpt-6-sol" },
+      { href: luna ? `/models/${luna.provider}/${luna.slug}/` : "/models/openai/gpt-6-luna/", label: "gpt-6-luna" },
+      { href: "/migrate/openai__gpt-5-1__to__openai__gpt-6-sol/", label: "gpt-5.1 to gpt-6-sol" },
+      { href: "/migrate/openai__gpt-5-1-2025-11-13__to__openai__gpt-6-sol/", label: "gpt-5.1-2025-11-13 to gpt-6-sol" },
+      { href: "/migrate/openai__gpt-5-3-codex__to__openai__gpt-6-sol/", label: "gpt-5.3-codex to gpt-6-sol" },
+      { href: "/migrate/openai__gpt-5-4-nano__to__openai__gpt-6-luna/", label: "gpt-5.4-nano to gpt-6-luna" },
+      { href: "/migrate/openai__gpt-5-4-nano-2026-03-17__to__openai__gpt-6-luna/", label: "gpt-5.4-nano-2026-03-17 to gpt-6-luna" },
+      { href: "/errors/openai-temperature-is-not-supported-with-this-model/", label: "temperature is not supported with this model" },
+      { href: "/errors/gpt-6-luna-function-tools-reasoning-effort/", label: "Function tools on gpt-6-luna when reasoning_effort is not none" },
+      { href: "/guides/move-function-calling-to-responses-api/", label: "Move function calling to the Responses API" },
+      { href: `/guides/${JANUARY_2027_GPT4_GUIDE_SLUG}/`, label: "GPT-4.1 and GPT-4o shutdown in January 2027" },
+      { href: `/guides/${FEBRUARY_26_TRANSCRIBE_GUIDE_SLUG}/`, label: "whisper-1 and GPT-4o transcribe shutdown on February 26, 2027" },
+      { href: "/guides/model-aliases-vs-pinned-snapshots/", label: "Model aliases vs pinned snapshots" },
+      { href: "/guides/find-model-ids-in-your-codebase/", label: "Find model ids in your codebase" },
+      { href: "/guides/pre-migration-test-checklist/", label: "Pre-migration test checklist" },
+      { href: "/api/", label: "Free lookup API" },
+      { href: "/alerts/", label: "Shutdown alerts signup" },
+      { href: "/scan/", label: "Scan retiring ids" },
+    ],
+    faqs: [
+      {
+        question: `Which ids shut down on ${when}?`,
+        answer: `The dataset lists ${idList(rows)} with shutdown date ${APRIL_1_2027_SHUTDOWN_DATE}. The deprecations page says: "${APRIL_NOTICE}"`,
+      },
+      {
+        question: "What is the recommended replacement?",
+        answer: `gpt-5.1, gpt-5.1-2025-11-13, and gpt-5.3-codex use gpt-6-sol. gpt-5.4-nano and gpt-5.4-nano-2026-03-17 use gpt-6-luna. ${replacementFaq(rows, catalog)}`,
+      },
+      {
+        question: "Do gpt-5.1-chat-latest and the older Codex ids shut down on the same day?",
+        answer: `Those ids are gpt-5.1-chat-latest, gpt-5.1-codex, gpt-5.1-codex-max, and gpt-5.1-codex-mini. Their stored shutdown date is 2026-07-23. The deprecations page says: "${JULY_23_NOTICE}" The substitute for gpt-5.1-chat-latest, gpt-5.1-codex, and gpt-5.1-codex-max is gpt-5.6-sol. The substitute for gpt-5.1-codex-mini is gpt-5.6-terra.`,
+      },
+      {
+        question: "Is a model string swap enough?",
+        answer: `The string change is gpt-6-sol or gpt-6-luna, matching the row. The gpt-5.1 page says: "${GPT51_EFFORT}" The gpt-6-sol page says: "${SOL_EFFORT}" Leaving effort unset changes none to medium. The Using GPT-6 page says: "${GPT6_PARAMS}" A gpt-5.3-codex call stays on the Responses API. That model page lists Chat Completions as not supported.`,
+      },
+      {
+        question: "What does OpenAI say happens at shut down?",
+        answer: `OpenAI's deprecations page says: "${ACCESSIBLE}" That page does not print an HTTP status for that moment.`,
+      },
+      {
+        question: "Is a deprecation date stored?",
+        answer: `No deprecation_date is stored on these rows. The deprecations section is dated 2026-10-01, and the dataset stores 2026-10-01 as announced_date. The page says: "${DEPRECATED_WHEN_ANNOUNCED}"`,
+      },
+    ],
+    citations: [
+      OPENAI_DEPRECATIONS,
+      OPENAI_GPT51,
+      OPENAI_CODEX53,
+      OPENAI_NANO54,
+      OPENAI_GPT6_SOL,
+      OPENAI_GPT6_LUNA,
+      OPENAI_USING_GPT6,
     ],
   };
 }
