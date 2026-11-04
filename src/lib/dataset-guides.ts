@@ -106,6 +106,16 @@ const MISTRAL_APRIL30_IDS = [
   "voxtral-mini-tts-2603",
 ] as const;
 
+/** Checked against the Vertex model versions page on 2026-11-04. The slug uses this date. */
+export const VERTEX_EMBED_APRIL1_SHUTDOWN_DATE = "2027-04-01";
+export const VERTEX_EMBED_APRIL1_GUIDE_SLUG = "vertex-ai-text-embedding-004-005-multilingual-002-shutdown-april-1-2027";
+export const VERTEX_EMBED_APRIL1_CHECKED = "2026-11-04";
+const VERTEX_EMBED_APRIL1_IDS = [
+  "text-embedding-004",
+  "text-embedding-005",
+  "text-multilingual-embedding-002",
+] as const;
+
 const AZURE_NOV_DEC_IDS = new Set([
   "codex-mini-2025-05-16",
   "gpt-chat-latest-2026-05-05",
@@ -403,6 +413,13 @@ export function isMistralApril30Retirement(model: ModelRecord): boolean {
   return model.provider === "mistral"
     && (MISTRAL_APRIL30_IDS as readonly string[]).includes(model.id)
     && model.shutdown_date === MISTRAL_APRIL30_SHUTDOWN_DATE
+    && model.shutdown_date_kind === "exact";
+}
+
+export function isVertexApril1EmbeddingShutdown(model: ModelRecord): boolean {
+  return model.provider === "google-vertex"
+    && (VERTEX_EMBED_APRIL1_IDS as readonly string[]).includes(model.id)
+    && model.shutdown_date === VERTEX_EMBED_APRIL1_SHUTDOWN_DATE
     && model.shutdown_date_kind === "exact";
 }
 
@@ -1132,6 +1149,8 @@ export function datasetShutdownGuides(catalog: ModelRecord[] = readCatalog()): G
   if (azureApril14.length) pages.push(azureApril14Guide(azureApril14, catalog));
   const mistralApril30 = rowsFor(isMistralApril30Retirement, catalog);
   if (mistralApril30.length) pages.push(mistralApril30Guide(mistralApril30));
+  const vertexEmbedApril1 = rowsFor(isVertexApril1EmbeddingShutdown, catalog);
+  if (vertexEmbedApril1.length) pages.push(vertexApril1EmbedGuide(vertexEmbedApril1, catalog));
   const copilot = rowsFor(isCopilotNov16Shutdown, catalog);
   if (copilot.length) pages.push(copilotNov16Guide(copilot, catalog));
   const fireworks = rowsFor(isFireworksNov7Shutdown, catalog);
@@ -4011,6 +4030,298 @@ function mistralApril30Guide(rows: ModelRecord[]): GuidePage {
   };
 }
 
+const VERTEX_EMBED_GET = "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/embeddings/get-text-embeddings";
+const VERTEX_EMBED_TASKS = "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/embeddings/task-types";
+const VERTEX_EMBED_API = "https://docs.cloud.google.com/gemini-enterprise-agent-platform/reference/models/text-embeddings-api";
+const VERTEX_EMBED_RETRIEVAL = "https://docs.cloud.google.com/vertex-ai/docs/vector-search-2/embeddings/autogenerating-embeddings";
+const VERTEX_EMBED_RAG = "https://docs.cloud.google.com/gemini-enterprise-agent-platform/build/rag-engine/use-embedding-models";
+const VERTEX_EMBED_SPANNER = "https://docs.cloud.google.com/spanner/docs/backfill-embeddings";
+const VERTEX_EMBED_UNIFIES = "State-of-the-art performance across English, multilingual and code tasks. It unifies the previously specialized models like text-embedding-005 and text-multilingual-embedding-002 and achieves better performance in their respective domains.";
+const VERTEX_EMBED_FULL = "All models produce a full-length embedding vector by default. For gemini-embedding-001, this vector has 3072 dimensions, and other models produce 768-dimensional vectors.";
+const VERTEX_EMBED_SIZE = "However, by using the output_dimensionality parameter, users can control the size of the output embedding vector.";
+const VERTEX_EMBED_TRUNCATE = "Used to specify output embedding size. If set, output embeddings will be truncated to the size specified.";
+const VERTEX_EMBED_DEFAULT_TASK = "If left blank, the default used is RETRIEVAL_QUERY.";
+const VERTEX_EMBED_TITLE = "Only valid with task_type=RETRIEVAL_DOCUMENT.";
+const VERTEX_EMBED_KEY_TASK = "If your embeddings use case doesn't align with a documented use case, use the RETRIEVAL_QUERY task type by default.";
+const VERTEX_EMBED_PAIR = "To get embeddings that you can use for information retrieval, use the RETRIEVAL_DOCUMENT task type to embed your documents and the RETRIEVAL_QUERY task type to embed user queries.";
+const VERTEX_EMBED_CODE_TASK = "text-embedding-005 supports a new task type CODE_RETRIEVAL_QUERY, which can be used to retrieve relevant code blocks using plain text queries.";
+const VERTEX_EMBED_SPANNER_DIFF = "This is because the embedding vectors generated for the same piece of text might differ depending on the version of the model that you use; which is why you want to avoid using different model versions to generate embeddings in the same dataset.";
+const VERTEX_EMBED_SPANNER_STALE = "In addition, updating the model version in the model definition statement doesn't update the embeddings that are already generated with this model.";
+const VERTEX_EMBED_RAG_FIXED = "The association between your embedding model and the RAG corpus remains fixed for the lifetime of your RAG corpus.";
+const VERTEX_EMBED_GECKO = "When your Gecko model is discontinued, you must migrate the RAG corpus, which means that you create a new RAG corpus and re-import the data.";
+const VERTEX_EMBED_QUICK = "if you don't have time to follow the guide and just need to quickly resolve the errors caused by models reaching their retirement dates, do the following:";
+const VERTEX_EMBED_UPGRADE = "Update your application to point to the recommended upgrades.";
+const VERTEX_EMBED_TEST = "Test all mission critical features to make sure everything works as expected.";
+const VERTEX_EMBED_DEPLOY = "Deploy the updates like you normally would.";
+const VERTEX_EMBED_SOON = "Support for multimodal embedding (multimodalembedding@001) is coming soon.";
+
+function vertexEmbedRelease(model: ModelRecord): string {
+  return model.region_or_platform_notes?.match(/\d{4}-\d{2}-\d{2}/)?.[0] ?? "Not published";
+}
+
+function vertexApril1EmbedGuide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePage {
+  const ordered = [...rows].sort((a, b) => a.id.localeCompare(b.id));
+  const when = longDate(VERTEX_EMBED_APRIL1_SHUTDOWN_DATE);
+  const empty = ordered.filter((model) => publishedReplacementIds(model).length === 0);
+  const embedding001 = catalog.find((model) => model.provider === "google-vertex" && model.id === "gemini-embedding-001");
+  const embedding2 = catalog.find((model) => model.provider === "google-vertex" && model.id === "gemini-embedding-2");
+  const geminiApi = catalog.find((model) => model.provider === "google-gemini-api" && model.id === "text-embedding-004");
+  const sources = [{ label: "Vertex AI model versions", url: GEMINI_VERTEX }];
+  const embedSources = [
+    { label: "Get text embeddings", url: VERTEX_EMBED_GET },
+    { label: "Text embeddings API", url: VERTEX_EMBED_API },
+    { label: "Choose an embeddings task type", url: VERTEX_EMBED_TASKS },
+    { label: "Autogenerating embeddings for Agent Retrieval", url: VERTEX_EMBED_RETRIEVAL },
+  ];
+  return {
+    slug: VERTEX_EMBED_APRIL1_GUIDE_SLUG,
+    title: `Vertex AI text-embedding-004, text-embedding-005, and text-multilingual-embedding-002 shutdown on ${when} | SunsetDiff`,
+    description: `Vertex AI retires text-embedding-004, text-embedding-005, and text-multilingual-embedding-002 on ${VERTEX_EMBED_APRIL1_SHUTDOWN_DATE}. The Replacement model ID cell is empty. Stored vectors from the old model do not match vectors from a new model, so the corpus has to be embedded again.`,
+    h1: `Vertex AI text-embedding-004, text-embedding-005, and text-multilingual-embedding-002 shutdown on ${when}`,
+    summary: `${ordered.length} Google Vertex embedding ids with shutdown date ${VERTEX_EMBED_APRIL1_SHUTDOWN_DATE}. The stored replacements field is empty, and the model versions page leaves the Replacement model ID cell empty.`,
+    answer: `The dataset has ${ordered.length} Google Vertex ids with shutdown date ${VERTEX_EMBED_APRIL1_SHUTDOWN_DATE}: ${idList(ordered)}. The embeddings table on the model versions page lists retirement date April 1, 2027 for each of them. The Replacement model ID cell on each of those rows is empty. ${empty.length === ordered.length ? "The replacements field is empty, so each model page says Not published." : "The replacements field is empty on " + idList(empty) + "."} The same table also lists multimodalembedding@001 with retirement date April 1, 2027 and an empty replacement cell. That id is not a row in this dataset. The page says: "${VERTEX_EXTEND}"`,
+    checked: VERTEX_EMBED_APRIL1_CHECKED,
+    steps: [
+      {
+        name: "Find the three ids",
+        text: "Search code, config, and vector index settings for text-embedding-004, text-embedding-005, and text-multilingual-embedding-002. A hit is a candidate. Also search multimodalembedding@001. Google lists that id on the same embeddings table. SunsetDiff does not store a row for it.",
+      },
+      {
+        name: "Read the empty replacement cell",
+        text: `The Replacement model ID cell is empty for ${idList(ordered)}. The get text embeddings page describes gemini-embedding-001 as a model that unifies text-embedding-005 and text-multilingual-embedding-002. That sentence is a description. It is not a filled Replacement model ID cell, and it does not name text-embedding-004. Pick the model id you will call, and write it down. This guide does not fill the cell Google left empty.`,
+      },
+      {
+        name: "Re-embed or build a second index",
+        text: "A new embedding model writes a new list of numbers. Those numbers do not drop into an index built from the old model. Embed the corpus again with the model you picked, or keep the old index and search a second index until the new one is ready. Check the vector length and the task_type on both the documents and the queries.",
+      },
+      {
+        name: "Test one query before the date",
+        text: `Search the new index with one query you use now, embedded by the same model, before ${when}. A successful call to the old id does not test the new index.`,
+      },
+    ],
+    sections: [
+      {
+        heading: "Models and dates",
+        paragraphs: [
+          `These ${ordered.length} ids are the Google Vertex rows whose shutdown date is ${VERTEX_EMBED_APRIL1_SHUTDOWN_DATE}. The model id links to its SunsetDiff model page. Release date is the date stored from the model versions page. The page prints May 14, 2024 for text-embedding-004, November 18, 2024 for text-embedding-005, and May 14, 2024 for text-multilingual-embedding-002. Shutdown date is the retirement date. Replacement model ID is the cell on that page. Not published means the cell is empty and the stored replacements field is empty. These rows do not store a deprecation_date.`,
+          `The model versions page says: "${VERTEX_EXTEND}" Checked on ${VERTEX_EMBED_APRIL1_CHECKED}, the embeddings table lists those three retirement dates as April 1, 2027.`,
+          "The same embeddings table lists multimodalembedding@001 with release date February 12, 2024, retirement date April 1, 2027, and an empty Replacement model ID cell. SunsetDiff has no row for multimodalembedding@001, so it is not in the first table and it is not on the shutdown batch page.",
+        ],
+        table: {
+          caption: `${ordered.length} Vertex embedding ids with retirement date ${VERTEX_EMBED_APRIL1_SHUTDOWN_DATE}.`,
+          headers: ["Model id", "Release date", "Shutdown date", "Replacement model ID"],
+          rows: ordered.map((model) => [
+            modelLink(model),
+            vertexEmbedRelease(model),
+            shutdownCell(model),
+            "Not published",
+          ]),
+        },
+        sources,
+      },
+      {
+        heading: "The replacement cell is empty",
+        paragraphs: [
+          empty.length
+            ? `The replacements field is empty on ${idList(empty)}. The model page under Replacements then says Not published. The model versions page also leaves the Replacement model ID cell empty.`
+            : "Every row in this table stores a replacement.",
+          `The get text embeddings page says this about gemini-embedding-001: "${VERTEX_EMBED_UNIFIES}" That sentence names text-embedding-005 and text-multilingual-embedding-002. It does not name text-embedding-004. The same sentence is on the text embeddings API page and on the Agent Retrieval supported-models table. None of those pages put gemini-embedding-001 in the Replacement model ID cell for the April 1 rows.`,
+          embedding2
+            ? `gemini-embedding-2 is on the same embeddings table. Release date ${vertexEmbedRelease(embedding2)}. The retirement cell is empty. The stored shutdown kind is ${embedding2.shutdown_date_kind}. See [gemini-embedding-2](/models/google-vertex/gemini-embedding-2/).`
+            : "The dataset has no gemini-embedding-2 row.",
+          embedding001
+            ? `gemini-embedding-001 is on that table with release date May 20, 2025 and retirement date No sooner than May 20, 2028. The stored shutdown date is ${embedding001.shutdown_date ?? "Not published"} and the stored kind is ${embedding001.shutdown_date_kind}. The replacement cell is empty. See [gemini-embedding-001](/models/google-vertex/gemini-embedding-001/).`
+            : "The dataset has no gemini-embedding-001 row.",
+          "On the retired models table, the recommended upgrade for textembedding-gecko@003, textembedding-gecko-multilingual@001, textembedding-gecko@002, and textembedding-gecko@001 is gemini-embedding-001. That column is Recommended upgrade, and those rows are already retired. It is a different table from the embeddings models table.",
+        ],
+        table: {
+          caption: "Other rows on the embeddings table of the model versions page.",
+          headers: ["Model id", "Release date on the page", "Retirement date on the page", "Replacement model ID"],
+          rows: [
+            [
+              embedding2 ? modelLink(embedding2) : "gemini-embedding-2",
+              "April 22, 2026",
+              "Empty",
+              "Not published",
+            ],
+            [
+              embedding001 ? modelLink(embedding001) : "gemini-embedding-001",
+              "May 20, 2025",
+              "No sooner than May 20, 2028",
+              "Not published",
+            ],
+            [
+              "multimodalembedding@001",
+              "February 12, 2024",
+              VERTEX_EMBED_APRIL1_SHUTDOWN_DATE,
+              "Not published",
+            ],
+          ],
+        },
+        sources,
+      },
+      {
+        heading: "A new model writes different vectors",
+        paragraphs: [
+          "An embedding model turns text into a list of numbers. Search compares those lists. If you store lists from one model and then ask a second model to embed the query, the numbers are not a pair. You embed the stored text again, or you keep two indexes during the move: the old index for the old model, and a new index for the new model.",
+          `The Spanner backfill page says: "${VERTEX_EMBED_SPANNER_DIFF}" Then: "${VERTEX_EMBED_SPANNER_STALE}" Changing the model string on the next request leaves the stored lists as they are.`,
+          `The RAG Engine page says: "${VERTEX_EMBED_RAG_FIXED}" Under the heading When Gecko models are discontinued, it says: "${VERTEX_EMBED_GECKO}" That paragraph names Gecko models. It does not name text-embedding-004, text-embedding-005, or text-multilingual-embedding-002.`,
+          `The get text embeddings page says: "${VERTEX_EMBED_FULL}" Then: "${VERTEX_EMBED_SIZE}" The text embeddings API says outputDimensionality is: "${VERTEX_EMBED_TRUNCATE}" The Python sample on the get text embeddings page calls that field output_dimensionality. Set the length your index expects. The Spanner page says the same text can still produce different numbers when the model version changes, so embed the corpus with the one model you will keep.`,
+        ],
+        sources: [
+          { label: "Spanner backfill embeddings", url: VERTEX_EMBED_SPANNER },
+          { label: "Use embedding models with RAG Engine", url: VERTEX_EMBED_RAG },
+          { label: "Get text embeddings", url: VERTEX_EMBED_GET },
+          { label: "Text embeddings API", url: VERTEX_EMBED_API },
+        ],
+      },
+      {
+        heading: "Output size and task type",
+        paragraphs: [
+          "The Agent Retrieval page lists max output dimensions 768 for text-embedding-004, text-embedding-005, and text-multilingual-embedding-002. It lists 3072 for gemini-embedding-001 and for gemini-embedding-2. It lists max sequence length 2048 tokens for the three retiring text models and for gemini-embedding-001, and 8192 tokens for gemini-embedding-2. It says text-embedding-004 and text-embedding-005 are English, and text-multilingual-embedding-002 is for multilingual tasks.",
+          "The get text embeddings supported-models table says up to 768 for text-embedding-005 and text-multilingual-embedding-002, and up to 3072 for gemini-embedding-001 and gemini-embedding-2. Checked on the page that says Last updated 2026-11-03 UTC, that table does not list text-embedding-004. The model versions page and the Agent Retrieval table still list text-embedding-004.",
+          `The text embeddings API says task_type: "${VERTEX_EMBED_DEFAULT_TASK}" It says title is: "${VERTEX_EMBED_TITLE}" The task types page says: "${VERTEX_EMBED_KEY_TASK}" And: "${VERTEX_EMBED_PAIR}" It also says: "${VERTEX_EMBED_CODE_TASK}" Code blocks on that page use RETRIEVAL_DOCUMENT. The query uses CODE_RETRIEVAL_QUERY.`,
+          "The task types page says task types are supported by text-embedding-005, text-multilingual-embedding-002, and gemini-embedding-001. That list does not include text-embedding-004 or gemini-embedding-2. The Agent Retrieval sample still sets task_type to RETRIEVAL_DOCUMENT next to model_id text-embedding-004. Use the task type you used when you embedded the corpus. A query and a document need the pair the task types page names.",
+          `The Agent Retrieval page also says: "${VERTEX_EMBED_SOON}" The model versions page already lists multimodalembedding@001 with retirement date ${VERTEX_EMBED_APRIL1_SHUTDOWN_DATE}. Those two sentences are on different pages.`,
+        ],
+        sources: embedSources,
+      },
+      {
+        heading: "Change the model id",
+        paragraphs: [
+          "The text embeddings API syntax builds the client with TextEmbeddingModel.from_pretrained(MODEL_ID). MODEL_ID is the string you change. The page prints get_embeddings(...) with an ellipsis. This guide keeps that ellipsis.",
+          "The get text embeddings page tells you to set GOOGLE_CLOUD_PROJECT, GOOGLE_CLOUD_LOCATION, and GOOGLE_GENAI_USE_ENTERPRISE=True, then call genai.Client() with no arguments. Its Python sample sets model to gemini-embedding-001 and passes task_type and output_dimensionality on EmbedContentConfig. The sample on the page sends three strings in contents. The copy below sends one string, in the same list. That sample is a call shape. The model versions page does not put gemini-embedding-001 in the Replacement model ID cell.",
+          `The predict URL on that page is https://us-central1-aiplatform.googleapis.com/v1/projects/PROJECT_ID/locations/us-central1/publishers/google/models/MODEL_ID:predict. The sample sets the last path segment to gemini-embedding-001. The region in the sample is us-central1.`,
+          "Search the repository before the date. A host console or a vector index can hold an id that git does not show. [How to find every model ID in your codebase](/guides/find-model-ids-in-your-codebase/) covers SDK argument names. The [scan page](/scan/) builds a search from dataset ids that have a shutdown date. multimodalembedding@001 is in the search below because Google lists it. It is not one of the three stored rows.",
+        ],
+        codes: [
+          {
+            caption: "Text embeddings API syntax. Set MODEL_ID to the id in the call you have now.",
+            code: `PROJECT_ID = PROJECT_ID
+REGION = us-central1
+MODEL_ID = MODEL_ID
+
+import vertexai
+from vertexai.language_models import TextEmbeddingModel
+
+vertexai.init(project=PROJECT_ID, location=REGION)
+
+model = TextEmbeddingModel.from_pretrained(MODEL_ID)
+embeddings = model.get_embeddings(...)
+`,
+          },
+          {
+            caption: "Get text embeddings Python sample. The model string in the sample is gemini-embedding-001.",
+            code: `from google import genai
+from google.genai.types import EmbedContentConfig
+
+client = genai.Client()
+response = client.models.embed_content(
+    model="gemini-embedding-001",
+    contents=[
+        "How do I get a driver's license/learner's permit?",
+    ],
+    config=EmbedContentConfig(
+        task_type="RETRIEVAL_DOCUMENT",
+        output_dimensionality=3072,
+        title="Driver's License",
+    ),
+)
+print(response)
+`,
+          },
+          {
+            caption: "ripgrep. The last pattern is on Google's embeddings table and is not a SunsetDiff row.",
+            code: `rg -n -w -e 'text-embedding-004' -e 'text-embedding-005' -e 'text-multilingual-embedding-002' -e 'multimodalembedding@001'\n`,
+          },
+        ],
+        sources: [
+          { label: "Text embeddings API", url: VERTEX_EMBED_API },
+          { label: "Get text embeddings", url: VERTEX_EMBED_GET },
+          { label: "Autogenerating embeddings for Agent Retrieval", url: VERTEX_EMBED_RETRIEVAL },
+        ],
+      },
+      {
+        heading: "Checklist before April 1, 2027",
+        paragraphs: [
+          `Do this before ${when}. The model versions page says: "${VERTEX_EMBED_QUICK}" Then: "${VERTEX_EMBED_UPGRADE}" Then: "${VERTEX_EMBED_TEST}" Then: "${VERTEX_EMBED_DEPLOY}" The replacement cell is empty, so that page does not name the upgrade string. The same page does not print an HTTP status for these embedding rows.`,
+          geminiApi
+            ? `The Gemini API row for text-embedding-004 stores shutdown date ${geminiApi.shutdown_date ?? "Not published"} and replacement ${publishedReplacementIds(geminiApi).join(", ") || "Not published"}. Its source was last checked ${geminiApi.sources[0]?.last_checked ?? "Not published"}. That row is the Gemini API. These three rows are Vertex AI. See [Gemini API text-embedding-004](/models/google-gemini-api/text-embedding-004/). OpenAI's April 1, 2027 list is a third date, on [GPT-5.1, gpt-5.3-codex, and gpt-5.4-nano shutdown on April 1, 2027](/guides/${APRIL_1_2027_GUIDE_SLUG}/).`
+            : "The dataset has no Gemini API row for text-embedding-004.",
+        ],
+        bullets: [
+          "Write down every place that sends text-embedding-004, text-embedding-005, or text-multilingual-embedding-002. Include vector indexes, RAG corpora, and Agent Retrieval collections. The Agent Retrieval sample sets model_id to text-embedding-004 inside vertex_embedding_config.",
+          "Choose one model id. The Replacement model ID cell is empty. gemini-embedding-001 and gemini-embedding-2 are other rows on the embeddings table. Read their retirement cells before you pin one.",
+          "Write down the task_type for documents and the task_type for queries. The task types page pairs RETRIEVAL_DOCUMENT with RETRIEVAL_QUERY. title is only valid with RETRIEVAL_DOCUMENT. A blank task_type uses RETRIEVAL_QUERY on the text embeddings API page.",
+          "Write down the vector length you store. The Agent Retrieval table lists 768 for these three ids and 3072 for gemini-embedding-001. output_dimensionality on the Python sample, and outputDimensionality on the API, truncates the vector to the size you set.",
+          "Embed a small slice of the corpus with the new id. Then embed one real query with that same id and the query task type. Search the new index. Keep the old index until that search answers the queries you care about.",
+          `Move traffic before ${when}. The model versions page says retirement timelines may be extended, and they will not move earlier than the listed date.`,
+        ],
+        sources: [
+          ...sources,
+          { label: "Get text embeddings", url: VERTEX_EMBED_GET },
+          { label: "Choose an embeddings task type", url: VERTEX_EMBED_TASKS },
+          { label: "Gemini API deprecations", url: "https://ai.google.dev/gemini-api/docs/deprecations" },
+        ],
+      },
+    ],
+    related: [
+      { href: `/shutdowns/google-vertex-${VERTEX_EMBED_APRIL1_SHUTDOWN_DATE}/`, label: `Vertex AI shutdowns on ${when}` },
+      { href: "/providers/google-vertex/", label: "Google Vertex AI provider page" },
+      { href: "/models/google-vertex/text-embedding-004/", label: "text-embedding-004" },
+      { href: "/models/google-vertex/text-embedding-005/", label: "text-embedding-005" },
+      { href: "/models/google-vertex/text-multilingual-embedding-002/", label: "text-multilingual-embedding-002" },
+      { href: "/models/google-vertex/gemini-embedding-001/", label: "gemini-embedding-001" },
+      { href: "/models/google-vertex/gemini-embedding-2/", label: "gemini-embedding-2" },
+      { href: "/models/google-gemini-api/text-embedding-004/", label: "Gemini API text-embedding-004" },
+      { href: `/guides/${VERTEX_NOV_DEC_GUIDE_SLUG}/`, label: "Vertex AI Gemini retirements in November and December 2026" },
+      { href: `/guides/${APRIL_1_2027_GUIDE_SLUG}/`, label: "GPT-5.1, gpt-5.3-codex, and gpt-5.4-nano shutdown on April 1, 2027" },
+      { href: "/guides/why-shutdown-dates-differ-by-platform/", label: "Why shutdown dates differ by platform" },
+      { href: "/guides/find-model-ids-in-your-codebase/", label: "Find model ids in your codebase" },
+      { href: "/guides/pre-migration-test-checklist/", label: "Pre-migration test checklist" },
+      { href: "/scan/", label: "Scan retiring ids" },
+    ],
+    faqs: [
+      {
+        question: `Which Vertex embedding models retire on ${when}?`,
+        answer: `The dataset lists ${idList(ordered)} with shutdown date ${VERTEX_EMBED_APRIL1_SHUTDOWN_DATE}. The model versions page lists retirement date April 1, 2027 for each of them. It also lists multimodalembedding@001 with retirement date April 1, 2027. That id is not a SunsetDiff row.`,
+      },
+      {
+        question: "What is the official replacement?",
+        answer: `The Replacement model ID cell is empty for ${idList(ordered)}, and the stored replacements field is empty. The model page says Not published. The get text embeddings page says gemini-embedding-001 unifies text-embedding-005 and text-multilingual-embedding-002. That sentence does not fill the replacement cell, and it does not name text-embedding-004.`,
+      },
+      {
+        question: "Can I keep my stored vectors and only change the model id?",
+        answer: `The stored vectors stay as they are. Changing the model id writes new vectors for new requests. The Spanner backfill page says the vectors for the same text might differ by model version, and that updating the model version does not update embeddings already generated. Embed the corpus again, or search a second index while the old index still uses the old model. The RAG Engine page says: "${VERTEX_EMBED_RAG_FIXED}"`,
+      },
+      {
+        question: "What output size and task type should I check?",
+        answer: "The Agent Retrieval table lists 768 dimensions for these three ids and 3072 for gemini-embedding-001. outputDimensionality truncates the vector to the size you set. The text embeddings API says a blank task_type uses RETRIEVAL_QUERY. Documents use RETRIEVAL_DOCUMENT. The task types page lists task type support for text-embedding-005, text-multilingual-embedding-002, and gemini-embedding-001. It does not list text-embedding-004.",
+      },
+      {
+        question: "What does Google say happens on April 1, 2027?",
+        answer: `The model versions page says: "${VERTEX_EXTEND}" It also says to update the application to the recommended upgrades, test mission critical features, and deploy. It does not print an HTTP status for these embedding rows, and the Replacement model ID cell is empty.`,
+      },
+      {
+        question: "Is this the same date as the Gemini API text-embedding-004 row?",
+        answer: geminiApi
+          ? `No. The Gemini API row stores shutdown date ${geminiApi.shutdown_date ?? "Not published"} and replacement ${publishedReplacementIds(geminiApi).join(", ") || "Not published"}. These Vertex rows store ${VERTEX_EMBED_APRIL1_SHUTDOWN_DATE}. OpenAI's April 1, 2027 list is a third set of ids.`
+          : `The Vertex rows store ${VERTEX_EMBED_APRIL1_SHUTDOWN_DATE}. The dataset has no Gemini API text-embedding-004 row.`,
+      },
+    ],
+    citations: [
+      GEMINI_VERTEX,
+      VERTEX_EMBED_GET,
+      VERTEX_EMBED_TASKS,
+      VERTEX_EMBED_API,
+      VERTEX_EMBED_RETRIEVAL,
+      VERTEX_EMBED_RAG,
+      VERTEX_EMBED_SPANNER,
+      "https://ai.google.dev/gemini-api/docs/deprecations",
+    ],
+  };
+}
+
 function copilotNov16Guide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePage {
   const when = longDate(COPILOT_NOV16_SHUTDOWN_DATE);
   const checked = "2026-10-31";
@@ -5022,6 +5333,7 @@ async with client.aio.live.connect(
       { href: "/guides/why-shutdown-dates-differ-by-platform/", label: "Why shutdown dates differ by platform" },
       { href: "/guides/find-model-ids-in-your-codebase/", label: "Find model ids in your codebase" },
       { href: "/guides/pre-migration-test-checklist/", label: "Pre-migration test checklist" },
+      { href: `/guides/${VERTEX_EMBED_APRIL1_GUIDE_SLUG}/`, label: "Vertex AI text embedding shutdown on April 1, 2027" },
       { href: "/scan/", label: "Scan retiring ids" },
     ],
     faqs: [
