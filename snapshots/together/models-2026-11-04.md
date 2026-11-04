@@ -45,6 +45,7 @@ For rate limits and pricing, see the [Serverless overview](https://docs.together
 | Meta | Muse Spark Open 816B A42B | meta-models/Muse-Spark-Open-816B-A42B | 1048576 | \$1.25 | \$0.15 | \$4.25 | NVFP4 | Yes | Yes |
 | MiniMax | MiniMax M3.1 Flash | MiniMaxAI/MiniMax-M3.1-Flash | 1048576 | \$0.15 | \$0.015 | \$0.60 | NVFP4 | Yes | Yes |
 | Moonshot | Kimi K3 | moonshotai/Kimi-K3 | 1048576 | \$3.00 | \$0.30 | \$15.00 | - | Yes | Yes |
+| Moonshot | Kimi K3.1 Pro | moonshotai/Kimi-K3.1-Pro | 1048576 | \$2.00 | \$0.20 | \$10.00 | NVFP4 | Yes | Yes |
 | NVIDIA | NVIDIA Nemotron 3.5 Super VL | nvidia/NVIDIA-Nemotron-3.5-Super-VL | 262144 | \$0.15 | \$0.02 | \$0.50 | NVFP4 | Yes | Yes |
 | OpenAI | GPT-OSS 120B | openai/gpt-oss-120b | 131072 | \$0.15 | - | \$0.60 | MXFP4 | Yes | Yes |
 | Prism ML | Ternary Bonsai 27B | Prism-ML/Ternary-Bonsai-27B | 262144 | Free | - | Free | - | Yes | Yes |
@@ -161,6 +162,7 @@ If you're not sure which vision model to use, start with **Qwen3.5 9B** (`Qwen/Q
 | Organization | Model name | API model string | Context length | Input pricing (per 1M tokens) | Output pricing (per 1M tokens) |
 | :- | :- | :- | :- | :- | :- |
 | Moonshot | Kimi K3 | moonshotai/Kimi-K3 | 1048576 | \$3.00 | \$15.00 |
+| Moonshot | Kimi K3.1 Pro | moonshotai/Kimi-K3.1-Pro | 1048576 | \$2.00 | \$10.00 |
 | NVIDIA | NVIDIA Nemotron 3.5 Super VL | nvidia/NVIDIA-Nemotron-3.5-Super-VL | 262144 | \$0.15 | \$0.50 |
 | Qwen | Qwen3.5 9B | Qwen/Qwen3.5-9B | 262144 | \$0.17 | \$0.25 |
 

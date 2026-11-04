@@ -360,6 +360,9 @@ The table below lists all models removed from the fine-tuning service, most rece
 
 | Removal date | Model | Suggested replacement |
 | :- | :- | :- |
+| 2026-09-11 | `nvidia/Nemotron-3-Nano-Omni-30B-A3B-Reasoning-BF16` | |
+| 2026-09-11 | `nvidia/NVIDIA-Nemotron-3-Super-120B-A12B-BF16` | |
+| 2026-09-11 | `Qwen/Qwen3.5-35B-A3B-Base` | `Qwen/Qwen3.5-35B-A3B` |
 | 2026-07-29 | `nvidia/NVIDIA-Nemotron-Nano-9B-v2` | `Qwen/Qwen3.5-9B` |
 | 2026-07-29 | `Qwen/Qwen3-Next-80B-A3B-Instruct` | `Qwen/Qwen3.5-122B-A10B` |
 | 2026-07-29 | `Qwen/Qwen3-Next-80B-A3B-Thinking` | `Qwen/Qwen3.5-122B-A10B` |
