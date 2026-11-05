@@ -20,6 +20,8 @@ import {
   AZURE_JULY13_GUIDE_SLUG,
   isAzureJune15Retirement,
   AZURE_JUNE15_GUIDE_SLUG,
+  isAzureAug24Retirement,
+  AZURE_AUG24_GUIDE_SLUG,
   isMistralApril30Retirement,
   MISTRAL_APRIL30_GUIDE_SLUG,
   isVertexApril1EmbeddingShutdown,
@@ -2486,6 +2488,7 @@ export function guidesForModel(model: ModelRecord, catalog: ModelRecord[]): Mode
   if (isAzureApril14Retirement(model)) add(AZURE_APRIL14_GUIDE_SLUG);
   if (isAzureJuly13Retirement(model)) add(AZURE_JULY13_GUIDE_SLUG);
   if (isAzureJune15Retirement(model)) add(AZURE_JUNE15_GUIDE_SLUG);
+  if (isAzureAug24Retirement(model)) add(AZURE_AUG24_GUIDE_SLUG);
   if (isMistralApril30Retirement(model)) add(MISTRAL_APRIL30_GUIDE_SLUG);
   if (isVertexApril1EmbeddingShutdown(model)) add(VERTEX_EMBED_APRIL1_GUIDE_SLUG);
   if (isAzureNovDecRetirement(model)) add(AZURE_NOV_DEC_GUIDE_SLUG);
