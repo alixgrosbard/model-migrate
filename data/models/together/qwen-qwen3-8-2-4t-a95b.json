@@ -4,7 +4,7 @@
   "provider": "together",
   "display_name": "Qwen/Qwen3.8-2.4T-A95B",
   "family": null,
-  "status": "deprecated",
+  "status": "retired",
   "announced_date": null,
   "deprecation_date": null,
   "shutdown_date": "2026-11-04",
@@ -22,7 +22,7 @@
     {
       "url": "https://docs.together.ai/docs/deprecations",
       "label": "Together AI deprecations",
-      "last_checked": "2026-11-04",
+      "last_checked": "2026-11-05",
       "excerpt": "2026-11-04 | `Qwen/Qwen3.8-2.4T-A95B` | `Qwen/Qwen3.7-Max` | No"
     }
   ],
@@ -48,5 +48,5 @@
     "specs_sources": {}
   },
   "first_seen": "2026-10-31T05:44:31.186Z",
-  "updated_at": "2026-10-31T05:44:31.186Z"
+  "updated_at": "2026-11-05T09:11:11.558Z"
 }

@@ -15,7 +15,7 @@
     {
       "url": "https://developers.cloudflare.com/workers-ai/changelog/",
       "label": "Cloudflare Workers AI changelog",
-      "last_checked": "2026-11-04",
+      "last_checked": "2026-11-05",
       "excerpt": "- @cf/deepseek-ai/deepseek-math-7b-instruct"
     }
   ],

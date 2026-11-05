@@ -1,0 +1,54 @@
+{
+  "id": "gpt-image-2.6-flare",
+  "slug": "gpt-image-2-6-flare",
+  "provider": "openai",
+  "display_name": "gpt-image-2.6-flare",
+  "family": null,
+  "status": "active",
+  "announced_date": null,
+  "deprecation_date": null,
+  "shutdown_date": null,
+  "shutdown_date_kind": "none",
+  "region_or_platform_notes": null,
+  "replacements": [],
+  "sources": [
+    {
+      "url": "https://developers.openai.com/api/docs/models/gpt-image-2.6-flare.md",
+      "label": "OpenAI model docs",
+      "last_checked": "2026-11-05",
+      "excerpt": "Model ID: gpt-image-2.6-flare | Image generation and editing for fast iteration"
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": 5,
+    "output_price_per_mtok": null,
+    "cached_input_price_per_mtok": 1.25,
+    "batch_discount_pct": null,
+    "currency": "USD",
+    "context_window_tokens": null,
+    "max_output_tokens": null,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {
+      "cached_input_price_per_mtok": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-image-2.6-flare.md",
+        "last_checked": "2026-11-05"
+      },
+      "input_price_per_mtok": {
+        "url": "https://developers.openai.com/api/docs/models/gpt-image-2.6-flare.md",
+        "last_checked": "2026-11-05"
+      }
+    }
+  },
+  "first_seen": "2026-11-05T09:11:11.558Z",
+  "updated_at": "2026-11-05T09:11:11.558Z"
+}
