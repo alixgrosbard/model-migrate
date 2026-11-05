@@ -69,6 +69,7 @@ describe("shutdown batches", () => {
     expect(events.length).toBeGreaterThan(0);
     expect(events.some((event) => event.slug === "google-gemini-api-2026-12-01")).toBe(true);
     expect(events.some((event) => event.slug === "aws-bedrock-2026-11-27")).toBe(true);
+    expect(events.some((event) => event.slug === "together-2026-11-06")).toBe(true);
     for (const event of events) {
       const minimum = SMALL_SHUTDOWN_BATCHES.has(`${event.provider}|${event.date}`) ? 1 : 3;
       expect(event.models.length).toBeGreaterThanOrEqual(minimum);

@@ -11,6 +11,7 @@ import {
   DECEMBER_11_GUIDE_SLUG,
   DECEMBER_1_IMAGE_GUIDE_SLUG,
   FIREWORKS_NOV7_GUIDE_SLUG,
+  TOGETHER_NOV6_GUIDE_SLUG,
   GEMINI_DEC1_GUIDE_SLUG,
   GEMINI_NOV17_GUIDE_SLUG,
   NEBIUS_NOV9_GUIDE_SLUG,
@@ -38,6 +39,8 @@ import {
   isDecember1ImageShutdown,
   isOpenRouterDecemberImageModel,
   isFireworksNov7Shutdown,
+  isTogetherNov6Shutdown,
+  isTogetherNov6Replacement,
   isGeminiDec1AutoRoute,
   isGeminiNov17Shutdown,
   showsGeminiDec1Guide,
@@ -2497,6 +2500,7 @@ export function guidesForModel(model: ModelRecord, catalog: ModelRecord[]): Mode
   if (isAzureNov19OSeries(model) || isAzureCodexMini(model) || isAzureChatLatestNov17(model)) add(AZURE_NOV19_GUIDE_SLUG);
   if (isCopilotNov16Shutdown(model)) add(COPILOT_NOV16_GUIDE_SLUG);
   if (isFireworksNov7Shutdown(model)) add(FIREWORKS_NOV7_GUIDE_SLUG);
+  if (isTogetherNov6Shutdown(model) || isTogetherNov6Replacement(model, catalog)) add(TOGETHER_NOV6_GUIDE_SLUG);
   if (showsOpenRouterNovDecGuide(model)) add(OPENROUTER_NOV_DEC_GUIDE_SLUG);
   if (isOpenRouterDecemberImageModel(model)) add(DECEMBER_1_IMAGE_GUIDE_SLUG);
   if (isNebiusNov9Shutdown(model)) add(NEBIUS_NOV9_GUIDE_SLUG);

@@ -86,6 +86,7 @@ const ALLOWED_HOSTS = new Set([
   "docs.fireworks.ai",
   "docs.tokenfactory.nebius.com",
   "docs.mistral.ai",
+  "docs.together.ai",
 ]);
 
 describe("guides", () => {
@@ -1755,6 +1756,97 @@ describe("guides", () => {
     expect(text).toContain("/guides/fireworks-model-shutdowns-november-7-2026/");
     expect(text).toContain("/guides/nebius-model-shutdowns-november-9-2026/");
     expect(text).toContain("/guides/gemini-api-model-shutdowns-november-17-2026/");
+  });
+
+  it("builds the Together November 6, 2026 guide from the deprecations table", async () => {
+    const models = await loadModels();
+    const rows = models
+      .filter((model) => model.provider === "together" && model.shutdown_date === "2026-11-06" && model.shutdown_date_kind === "exact")
+      .sort((a, b) => a.id.localeCompare(b.id));
+    expect(rows.map((model) => model.id)).toEqual([
+      "MiniMaxAI/MiniMax-M3",
+      "thinkingmachines/Inkling",
+    ]);
+    expect(rows.map((model) => model.replacements.map((item) => item.model_id))).toEqual([
+      ["MiniMaxAI/MiniMax-M3.1-Flash"],
+      ["meta-models/Muse-Spark-Open-816B-A42B"],
+    ]);
+    expect(rows.every((model) => model.region_or_platform_notes?.includes("Supported by on-demand dedicated endpoints: Yes"))).toBe(true);
+    expect(rows[0]?.sources[0]?.excerpt).toContain("2026-11-06 | `MiniMaxAI/MiniMax-M3` | `MiniMaxAI/MiniMax-M3.1-Flash` | Yes");
+    expect(rows[1]?.sources[0]?.excerpt).toContain("2026-11-06 | `thinkingmachines/Inkling` | `meta-models/Muse-Spark-Open-816B-A42B` | Yes");
+    const official = readFileSync("snapshots/together/deprecations-2026-11-05.md", "utf8");
+    expect(official).toContain("| 2026-11-06 | `MiniMaxAI/MiniMax-M3` | `MiniMaxAI/MiniMax-M3.1-Flash` | Yes |");
+    expect(official).toContain("| 2026-11-06 | `thinkingmachines/Inkling` | `meta-models/Muse-Spark-Open-816B-A42B` | Yes |");
+    expect(official).toContain("| 2026-11-04 | `Qwen/Qwen3.8-2.4T-A95B` | `Qwen/Qwen3.7-Max` | No |");
+    const otherNovember = models
+      .filter((model) => model.provider === "together" && model.shutdown_date?.startsWith("2026-11-") && model.shutdown_date !== "2026-11-06")
+      .sort((a, b) => a.id.localeCompare(b.id));
+    expect(otherNovember.map((model) => `${model.id} ${model.shutdown_date} ${model.status}`)).toEqual([
+      "Qwen/Qwen3.8-2.4T-A95B 2026-11-04 retired",
+    ]);
+    const later = models.filter((model) => model.provider === "together" && model.shutdown_date && model.shutdown_date > "2026-11-06" && model.shutdown_date < "2026-12-01");
+    expect(later).toEqual([]);
+
+    const { shutdownEvents } = await import("../src/lib/shutdowns.ts");
+    expect(shutdownEvents(models).some((event) => event.slug === "together-2026-11-06")).toBe(true);
+    expect(sitemapSection("/shutdowns/together-2026-11-06/")).toBe("sitemap-dates.xml");
+
+    const guide = guides.find((item) => item.slug === "together-model-shutdowns-november-6-2026");
+    expect(guide).toBeTruthy();
+    if (!guide) return;
+    expect(guidePath(guide.slug)).toBe("/guides/together-model-shutdowns-november-6-2026/");
+    expect(guideChecked(guide)).toBe("2026-11-05");
+    expect(guide.h1).toBe("Together AI model shutdowns on November 6, 2026");
+    const table = guide.sections.find((section) => section.heading === "Models shutting down")?.table;
+    expect(table?.rows.map((row) => row[0])).toEqual(
+      rows.map((model) => `[${model.id}](/models/${model.provider}/${model.slug}/)`),
+    );
+    expect(table?.rows.map((row) => row[2])).toEqual(["2026-11-06", "2026-11-06"]);
+    expect(table?.rows[0]?.[3]).toContain("[MiniMaxAI/MiniMax-M3.1-Flash](/models/together/minimaxai-minimax-m3-1-flash/)");
+    expect(table?.rows[1]?.[3]).toContain("[meta-models/Muse-Spark-Open-816B-A42B](/models/together/meta-models-muse-spark-open-816b-a42b/)");
+    expect(table?.rows.some((row) => row[0].includes("Qwen3.8"))).toBe(false);
+    const blob = JSON.stringify(guide);
+    expect(blob).toContain("will be removed from serverless inference on the date listed");
+    expect(blob).toContain("no longer available via its serverless endpoint");
+    expect(blob).toContain("https://docs.together.ai/docs/deprecations");
+    expect(blob).toContain("https://docs.together.ai/docs/quickstart");
+    expect(blob).toContain("https://api.together.ai/v1/chat/completions");
+    expect(blob).toContain("/shutdowns/together-2026-11-06/");
+    expect(blob).toContain("/providers/together/");
+    expect(blob).toContain("/replace/together/minimaxai-minimax-m3/");
+    expect(blob).toContain("/replace/together/thinkingmachines-inkling/");
+    expect(blob).toContain("/migrate/together__minimaxai-minimax-m3__to__together__minimaxai-minimax-m3-1-flash/");
+    expect(blob).toContain("/migrate/together__thinkingmachines-inkling__to__together__meta-models-muse-spark-open-816b-a42b/");
+    expect(blob).toContain("/guides/minimax-m2-5-m2-7-shutdown-november-18-2026/");
+    expect(blob).toContain("/providers/minimax/");
+    expect(blob).toContain("Qwen/Qwen3.8-2.4T-A95B");
+    expect(blob).toContain("2026-11-04");
+    expect(blob).not.toMatch(/[—–]/);
+    const sample = guide.sections.flatMap((section) => section.codes ?? []).map((item) => item.code).join("\n");
+    expect(sample).toContain('model="MiniMaxAI/MiniMax-M3.1-Flash"');
+    expect(sample).toContain('model="meta-models/Muse-Spark-Open-816B-A42B"');
+    expect(sample).toContain('base_url="https://api.together.ai/v1"');
+    expect(guide.faqs.length).toBeGreaterThan(0);
+    const graph = guideGraph("https://sunsetdiff.com/", guide);
+    expect(graph.some((node) => node["@type"] === "FAQPage")).toBe(true);
+    expect(graph.some((node) => node["@type"] === "HowTo")).toBe(true);
+    expect(sitemapSection(guidePath(guide.slug))).toBe("sitemap-guides.xml");
+    expect(guidesForModel(rows[0], models).map((link) => link.href)).toContain(guidePath(guide.slug));
+    expect(guidesForModel(rows[1], models).map((link) => link.href)).toContain(guidePath(guide.slug));
+    const flash = models.find((model) => model.provider === "together" && model.id === "MiniMaxAI/MiniMax-M3.1-Flash");
+    const muse = models.find((model) => model.provider === "together" && model.id === "meta-models/Muse-Spark-Open-816B-A42B");
+    expect(guidesForModel(flash!, models).map((link) => link.href)).toContain(guidePath(guide.slug));
+    expect(guidesForModel(muse!, models).map((link) => link.href)).toContain(guidePath(guide.slug));
+    const providerPage = readFileSync("src/pages/providers/[provider].astro", "utf8");
+    const shutdownPage = readFileSync("src/pages/shutdowns/[slug].astro", "utf8");
+    expect(providerPage).toContain("/guides/together-model-shutdowns-november-6-2026/");
+    expect(providerPage).toContain("/shutdowns/together-2026-11-06/");
+    expect(shutdownPage).toContain("together-model-shutdowns-november-6-2026");
+    const text = llmsTxt("https://sunsetdiff.com", [], []);
+    const full = llmsFull("https://sunsetdiff.com", []);
+    expect(text).toContain("/guides/together-model-shutdowns-november-6-2026/");
+    expect(full).toContain("/guides/together-model-shutdowns-november-6-2026/");
+    expect(text).toContain("Together AI on 2026-11-06");
   });
 
   it("builds the Claude Sonnet 4.5 November 30 guide from the official pages", async () => {

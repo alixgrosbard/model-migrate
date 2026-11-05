@@ -28,14 +28,14 @@ const listed = events.map((event) => ({
 ---
 <Base
   title="AI model shutdown batches | SunsetDiff"
-  description="Models that shut down together. One page per provider and exact shutdown date, when at least three models share that date. Two named dates are published with two models."
+  description="Models that shut down together. One page per provider and exact shutdown date, when at least three models share that date. Three named dates are published with two models."
   crumbs={[{ name: "Home", path: "/" }, { name: "Shutdowns", path: "/shutdowns/" }]}
   extraGraph={shutdownIndexGraph(site, listed)}
 >
   <h1>Shutdown batches</h1>
   <p>
     Each page is one provider and one exact shutdown date with at least three models.
-    Two dates are published with two models: Google Gemini API on December 1, 2026, and AWS Bedrock on November 27, 2026.
+    Three dates are published with two models: Google Gemini API on December 1, 2026, AWS Bedrock on November 27, 2026, and Together AI on November 6, 2026.
     The date and the replacement come from the official page. A date that only says "not sooner than" is not a batch.
     Upcoming dates are listed first. <a href="/deadlines/">All deadlines</a> · <a href="/upcoming/">Every upcoming shutdown</a> · <a href="/feed.xml">RSS</a> · <a href="/scan/">Scan</a> · <a href="/errors/">Request errors</a>
   </p>

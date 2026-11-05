@@ -173,6 +173,11 @@ export const COPILOT_NOV16_GUIDE_SLUG = "github-copilot-model-retirements-novemb
 export const FIREWORKS_NOV7_SHUTDOWN_DATE = "2026-11-07";
 export const FIREWORKS_NOV7_GUIDE_SLUG = "fireworks-model-shutdowns-november-7-2026";
 
+/** Checked against Together's deprecations page on 2026-11-05. The slug uses this date. */
+export const TOGETHER_NOV6_SHUTDOWN_DATE = "2026-11-06";
+export const TOGETHER_NOV6_GUIDE_SLUG = "together-model-shutdowns-november-6-2026";
+export const TOGETHER_NOV6_CHECKED = "2026-11-05";
+
 /** Checked against the Nebius November 2026 notice. The slug uses this date. */
 export const NEBIUS_NOV9_SHUTDOWN_DATE = "2026-11-09";
 export const NEBIUS_NOV9_GUIDE_SLUG = "nebius-model-shutdowns-november-9-2026";
@@ -492,6 +497,17 @@ export function isFireworksNov7Shutdown(model: ModelRecord): boolean {
   return model.provider === "fireworks"
     && model.shutdown_date === FIREWORKS_NOV7_SHUTDOWN_DATE
     && model.shutdown_date_kind === "exact";
+}
+
+export function isTogetherNov6Shutdown(model: ModelRecord): boolean {
+  return model.provider === "together"
+    && model.shutdown_date === TOGETHER_NOV6_SHUTDOWN_DATE
+    && model.shutdown_date_kind === "exact";
+}
+
+export function isTogetherNov6Replacement(model: ModelRecord, catalog: ModelRecord[]): boolean {
+  if (model.provider !== "together") return false;
+  return catalog.some((row) => isTogetherNov6Shutdown(row) && publishedReplacementIds(row).includes(model.id));
 }
 
 export function isNebiusNov9Shutdown(model: ModelRecord): boolean {
@@ -1284,6 +1300,8 @@ export function datasetShutdownGuides(catalog: ModelRecord[] = readCatalog()): G
   if (copilot.length) pages.push(copilotNov16Guide(copilot, catalog));
   const fireworks = rowsFor(isFireworksNov7Shutdown, catalog);
   if (fireworks.length) pages.push(fireworksNov7Guide(fireworks, catalog));
+  const togetherNov6 = rowsFor(isTogetherNov6Shutdown, catalog);
+  if (togetherNov6.length) pages.push(togetherNov6Guide(togetherNov6, catalog));
   const nebius = rowsFor(isNebiusNov9Shutdown, catalog);
   if (nebius.length) pages.push(nebiusNov9Guide(nebius, catalog));
   const gemini = rowsFor(isGeminiNov17Shutdown, catalog);
@@ -5773,6 +5791,237 @@ response = client.chat.completions.create(
       },
     ],
     citations: [FIREWORKS_CHANGELOG, FIREWORKS_US, FIREWORKS_QUICKSTART, FIREWORKS_ONDEMAND],
+  };
+}
+
+const TOGETHER_DEPRECATIONS = "https://docs.together.ai/docs/deprecations";
+const TOGETHER_QUICKSTART = "https://docs.together.ai/docs/quickstart";
+const TOGETHER_DEDICATED = "https://docs.together.ai/docs/dedicated-endpoints";
+const TOGETHER_BASE = "https://api.together.ai/v1";
+const TOGETHER_CHAT = "https://api.together.ai/v1/chat/completions";
+const TOGETHER_SCHEDULED =
+  "The following models are deprecated and will be removed from serverless inference on the date listed. Migrate to the recommended replacement or a dedicated endpoint before that date.";
+const TOGETHER_AFTER =
+  "After the removal date, the model is no longer available via its serverless endpoint, but migration options are described below.";
+const TOGETHER_YES =
+  'Models marked "Yes" can be deployed as on-demand dedicated endpoints, either under the listed ID or as the underlying base model of a serving variant (for example, a deprecated -FP8 or -Turbo ID).';
+const TOGETHER_NO =
+  'Models marked "No" are not available as on-demand endpoints and require migration to a different model or a monthly reserved dedicated endpoint.';
+const TOGETHER_REDIRECT =
+  "Requests to the original model ID are automatically routed to the upgraded version.";
+const TOGETHER_OPENAI_SDK =
+  "If you're already using the OpenAI SDK, you can point it at Together's base URL (https://api.together.ai/v1) and keep the rest of your code the same.";
+const TOGETHER_REASONING =
+  "This is especially helpful with a reasoning model like MiniMax M3.1 Flash, which works through a problem before answering and can produce a lot of output.";
+const TOGETHER_THINKING =
+  "A reasoning model's response has two parts: the step-by-step thinking and the final answer. The thinking arrives in reasoning_content or reasoning, depending on the model, and the answer arrives in content.";
+
+function togetherOtherNovember(rows: ModelRecord[], catalog: ModelRecord[]): ModelRecord[] {
+  const listed = new Set(rows.map((model) => model.id));
+  return catalog
+    .filter((model) => model.provider === "together"
+      && model.shutdown_date_kind === "exact"
+      && Boolean(model.shutdown_date?.startsWith("2026-11-"))
+      && model.shutdown_date !== TOGETHER_NOV6_SHUTDOWN_DATE
+      && !listed.has(model.id))
+    .sort((a, b) => (a.shutdown_date ?? "").localeCompare(b.shutdown_date ?? "") || a.id.localeCompare(b.id));
+}
+
+function togetherTarget(model: ModelRecord, catalog: ModelRecord[]): ModelRecord | undefined {
+  const id = publishedReplacementIds(model)[0];
+  if (!id) return undefined;
+  return catalog.find((item) => item.provider === model.provider && item.id === id);
+}
+
+function togetherMigratePath(model: ModelRecord, catalog: ModelRecord[]): string | null {
+  const target = togetherTarget(model, catalog);
+  if (!target) return null;
+  return `/migrate/${model.provider}__${model.slug}__to__${target.provider}__${target.slug}/`;
+}
+
+function togetherPython(id: string): string {
+  return `from openai import OpenAI
+client = OpenAI(base_url="${TOGETHER_BASE}")
+response = client.chat.completions.create(
+    model="${id}",
+    messages=[{"role": "user", "content": "Hello"}],
+)
+`;
+}
+
+function togetherDedicatedMark(model: ModelRecord): "Yes" | "No" | null {
+  const notes = model.region_or_platform_notes ?? "";
+  if (notes.includes("Supported by on-demand dedicated endpoints: Yes")) return "Yes";
+  if (notes.includes("Supported by on-demand dedicated endpoints: No")) return "No";
+  return null;
+}
+
+function togetherNov6Guide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePage {
+  const when = longDate(TOGETHER_NOV6_SHUTDOWN_DATE);
+  const others = togetherOtherNovember(rows, catalog);
+  const minimax = rowsFor(isMinimaxNov18Shutdown, catalog);
+  const sample = rows.find((model) => publishedReplacementIds(model).length > 0) ?? rows[0];
+  const sampleReplacement = sample ? publishedReplacementIds(sample)[0] : undefined;
+  const sources = [
+    { label: "Together AI deprecations", url: TOGETHER_DEPRECATIONS },
+    { label: "Together AI quickstart", url: TOGETHER_QUICKSTART },
+  ];
+  const otherLine = others.length
+    ? others.map((model) => {
+        const replacement = replacementText(model, catalog);
+        const mark = togetherDedicatedMark(model);
+        const dedicated = mark ? `On-demand dedicated endpoints are marked ${mark} for that row.` : "The stored note does not say Yes or No for on-demand dedicated endpoints.";
+        return `${modelLink(model)} is on the same scheduled table with removal date ${model.shutdown_date}. The recommended replacement cell is ${replacement}. ${dedicated} The stored status is ${model.status}.`;
+      }).join(" ")
+    : "No other Together row stores a November 2026 shutdown date.";
+  const yesRows = rows.filter((model) => togetherDedicatedMark(model) === "Yes");
+  const dedicatedSentence = yesRows.length === rows.length
+    ? "The scheduled table marks these rows Yes for on-demand dedicated endpoints."
+    : rows.map((model) => `${model.id} is marked ${togetherDedicatedMark(model) ?? "unset"} for on-demand dedicated endpoints.`).join(" ");
+  return {
+    slug: TOGETHER_NOV6_GUIDE_SLUG,
+    title: `Together AI model shutdowns on ${when} | SunsetDiff`,
+    description: `Together AI serverless ids with shutdown date ${TOGETHER_NOV6_SHUTDOWN_DATE}: ${idList(rows)}. The deprecations page names a recommended replacement for each id.`,
+    h1: `Together AI model shutdowns on ${when}`,
+    summary: `The Together AI ids in the dataset with shutdown date ${TOGETHER_NOV6_SHUTDOWN_DATE}, and the recommended replacement on the deprecations page.`,
+    answer: `The dataset has ${rows.length} Together AI ids with shutdown date ${TOGETHER_NOV6_SHUTDOWN_DATE}: ${idList(rows)}. The deprecations page says these models will be removed from serverless inference on the date listed. Each row stores the recommended replacement from that table. ${dedicatedSentence}`,
+    checked: TOGETHER_NOV6_CHECKED,
+    steps: [
+      {
+        name: "Read the ids and the replacement",
+        text: `The table is every Together AI id in the dataset whose shutdown date is ${TOGETHER_NOV6_SHUTDOWN_DATE}. The replacement cell is the recommended replacement stored from the scheduled deprecations table. Open the model page before you change a call.`,
+      },
+      {
+        name: "Check on-demand dedicated endpoints",
+        text: `${dedicatedSentence} The deprecations page says: "${TOGETHER_YES}" A serverless call is the call the removal date ends. A dedicated endpoint is a separate deployment.`,
+      },
+      {
+        name: "Change the model field",
+        text: `The quickstart posts to ${TOGETHER_CHAT} and sets an OpenAI client base_url of ${TOGETHER_BASE}. Put the replacement id from the same row in the model field. The quickstart sample already uses MiniMaxAI/MiniMax-M3.1-Flash.`,
+      },
+      {
+        name: "Test before the date",
+        text: `Call the replacement with the prompts you send now. Do that before ${when}. The deprecations page says replacement models rarely behave identically, so validate quality, latency, and cost before committing.`,
+      },
+    ],
+    sections: [
+      {
+        heading: "Models shutting down",
+        paragraphs: [
+          `These rows are every Together AI model in the dataset with shutdown date ${TOGETHER_NOV6_SHUTDOWN_DATE}. The model id links to its SunsetDiff model page. Deprecation date, shutdown date, and replacement are the fields stored on that row. Not published means the field is empty. These rows do not store a deprecation_date.`,
+          `The deprecations page says: "${TOGETHER_SCHEDULED}"`,
+          `${replacementFaq(rows, catalog)} ${dedicatedSentence}`,
+          otherLine,
+        ],
+        table: {
+          caption: `${rows.length} Together AI model ids with shutdown date ${TOGETHER_NOV6_SHUTDOWN_DATE}.`,
+          headers: ["Model id", "Deprecation date", "Shutdown date", "Recommended replacement"],
+          rows: tableRows(rows, catalog),
+        },
+        sources: [{ label: "Together AI deprecations", url: TOGETHER_DEPRECATIONS }],
+      },
+      {
+        heading: "Serverless removal and dedicated endpoints",
+        paragraphs: [
+          `On ${when} these ids reach the shutdown date stored in the dataset. The deprecations page says: "${TOGETHER_AFTER}"`,
+          `The same page says: "${TOGETHER_YES}" ${dedicatedSentence} An on-demand dedicated endpoint is one of the migration options on that page.`,
+          `The active redirects table is a different list. That section says: "${TOGETHER_REDIRECT}" MiniMaxAI/MiniMax-M3 and thinkingmachines/Inkling are in the scheduled deprecations table. Update the model field to the recommended replacement, or deploy a dedicated endpoint, before ${when}.`,
+          others.some((model) => togetherDedicatedMark(model) === "No")
+            ? `A November row outside this table is marked No. The page says: "${TOGETHER_NO}"`
+            : "The November 6 rows are the Together ids in this table.",
+        ],
+        sources: [
+          { label: "Together AI deprecations", url: TOGETHER_DEPRECATIONS },
+          { label: "Together AI dedicated endpoints", url: TOGETHER_DEDICATED },
+        ],
+      },
+      {
+        heading: "MiniMax's own API is a different provider",
+        paragraphs: [
+          minimax.length
+            ? `SunsetDiff also stores MiniMax API rows. The guide is [MiniMax M2.5 and M2.7 shutdown on ${longDate(MINIMAX_NOV18_SHUTDOWN_DATE)}](/guides/${MINIMAX_NOV18_GUIDE_SLUG}/). Those ids are ${idList(minimax)}, provider minimax, shutdown date ${MINIMAX_NOV18_SHUTDOWN_DATE}. The provider page is [MiniMax](/providers/minimax/).`
+            : "The dataset has no MiniMax API rows for that shutdown.",
+          "Together's MiniMaxAI/MiniMax-M3 row is provider together. Its stored replacement is MiniMaxAI/MiniMax-M3.1-Flash. Calls to that id use the Together host on this page.",
+        ],
+        sources: [{ label: "Together AI deprecations", url: TOGETHER_DEPRECATIONS }],
+      },
+      {
+        heading: "Find the model ids in your code",
+        paragraphs: [
+          "Search the repository for the ids in the table, then for the replacement ids. A hit is a candidate, not proof the call still runs. [How to find every model ID in your codebase](/guides/find-model-ids-in-your-codebase/) covers SDK argument names. The [scan page](/scan/) builds a search from dataset ids that have a shutdown date.",
+          `The quickstart says: "${TOGETHER_OPENAI_SDK}" Its curl posts to ${TOGETHER_CHAT}.`,
+        ],
+        codes: [{ caption: "ripgrep", code: searchCode(rows) }],
+        sources,
+      },
+      {
+        heading: "Test the replacement before the cutoff",
+        paragraphs: [
+          `The deprecations page says to run a small A/B test comparing the replacement against your current model on representative traffic. It says replacement models rarely behave identically, so validate quality, latency, and cost before committing. Do that before ${when}.`,
+          `The quickstart's curl and OpenAI client set model to MiniMaxAI/MiniMax-M3.1-Flash. That is the stored replacement for MiniMaxAI/MiniMax-M3. The quickstart also says: "${TOGETHER_REASONING}" And: "${TOGETHER_THINKING}"`,
+          "thinkingmachines/Inkling stores meta-models/Muse-Spark-Open-816B-A42B. Put that id in the same model field. The quickstart sample does not print the Inkling id.",
+          "The [pre-migration test checklist](/guides/pre-migration-test-checklist/) is the longer list: evals, rejected fields, token limits, tools, price, and latency.",
+        ],
+        codes: sampleReplacement
+          ? rows.flatMap((model) => {
+              const id = publishedReplacementIds(model)[0];
+              if (!id) return [];
+              return [{ caption: `OpenAI-compatible client, model field set to ${id}`, code: togetherPython(id) }];
+            })
+          : undefined,
+        sources,
+      },
+    ],
+    related: [
+      { href: `/shutdowns/together-${TOGETHER_NOV6_SHUTDOWN_DATE}/`, label: `Together AI shutdowns on ${when}` },
+      { href: "/providers/together/", label: "Together AI provider page" },
+      ...rows.flatMap((model) => {
+        const target = togetherTarget(model, catalog);
+        const migrate = togetherMigratePath(model, catalog);
+        return [
+          { href: `/models/${model.provider}/${model.slug}/`, label: model.id },
+          { href: `/replace/${model.provider}/${model.slug}/`, label: `Replace ${model.id}` },
+          ...(target ? [{ href: `/models/${target.provider}/${target.slug}/`, label: target.id }] : []),
+          ...(migrate ? [{ href: migrate, label: `Migrate ${model.id}` }] : []),
+        ];
+      }),
+      { href: `/guides/${MINIMAX_NOV18_GUIDE_SLUG}/`, label: `MiniMax API M2.5 and M2.7 shutdown on ${longDate(MINIMAX_NOV18_SHUTDOWN_DATE)}` },
+      { href: "/providers/minimax/", label: "MiniMax provider page" },
+      { href: "/guides/find-model-ids-in-your-codebase/", label: "Find model ids in your codebase" },
+      { href: "/guides/pre-migration-test-checklist/", label: "Pre-migration test checklist" },
+      { href: "/scan/", label: "Scan retiring ids" },
+    ],
+    faqs: [
+      {
+        question: `Which Together AI ids shut down on ${when}?`,
+        answer: `The dataset lists ${idList(rows)} with shutdown date ${TOGETHER_NOV6_SHUTDOWN_DATE}. The deprecations page says: "${TOGETHER_SCHEDULED}"`,
+      },
+      {
+        question: "What is the official replacement?",
+        answer: replacementFaq(rows, catalog),
+      },
+      {
+        question: "Do on-demand dedicated endpoints stop on that date?",
+        answer: `The deprecations page says: "${TOGETHER_AFTER}" ${dedicatedSentence} The page says: "${TOGETHER_YES}" The scheduled table tells you to migrate to the recommended replacement or a dedicated endpoint before that date.`,
+      },
+      {
+        question: "Is this the MiniMax API retirement?",
+        answer: minimax.length
+          ? `This page is provider together. The MiniMax API guide covers ${idList(minimax)} on provider minimax, shutdown date ${MINIMAX_NOV18_SHUTDOWN_DATE}. Together's MiniMaxAI/MiniMax-M3 replacement is MiniMaxAI/MiniMax-M3.1-Flash.`
+          : "This page is provider together. The dataset has no MiniMax API rows on the November 18, 2026 shutdown.",
+      },
+      {
+        question: "Which host does the call use?",
+        answer: `The quickstart says: "${TOGETHER_OPENAI_SDK}" It posts to ${TOGETHER_CHAT}. The sample model on that page is MiniMaxAI/MiniMax-M3.1-Flash.`,
+      },
+      {
+        question: "Why is Qwen/Qwen3.8-2.4T-A95B missing from the table?",
+        answer: others.length
+          ? `${others.map((model) => `${model.id} stores shutdown date ${model.shutdown_date}`).join(". ")}. This table is shutdown date ${TOGETHER_NOV6_SHUTDOWN_DATE}. The scheduled table lists ${others.map((model) => `${model.id} with recommended replacement ${publishedReplacementIds(model)[0] ?? "none"}`).join(". ")}.`
+          : `This table is every Together id with shutdown date ${TOGETHER_NOV6_SHUTDOWN_DATE}. No other Together row stores a November 2026 shutdown date.`,
+      },
+    ],
+    citations: [TOGETHER_DEPRECATIONS, TOGETHER_QUICKSTART, TOGETHER_DEDICATED],
   };
 }
 

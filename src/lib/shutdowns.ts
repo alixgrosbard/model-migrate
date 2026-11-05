@@ -9,12 +9,13 @@ export const SHUTDOWN_BATCH_MIN = 3;
 /**
  * Exact dates that still get a /shutdowns/ page with fewer than SHUTDOWN_BATCH_MIN rows.
  * shutdownEvents reads the current dataset. A reroute note or a region limit does not
- * drop a row when shutdown_date_kind is exact. These two dates have two exact rows each,
+ * drop a row when shutdown_date_kind is exact. These dates have two exact rows each,
  * which is why the three-model rule hid them. Other two-row dates stay unpublished.
  */
 export const SMALL_SHUTDOWN_BATCHES = new Set([
   "google-gemini-api|2026-12-01",
   "aws-bedrock|2026-11-27",
+  "together|2026-11-06",
 ]);
 
 /** GitHub changelog post for the November 16, 2026 Copilot retirements. */
