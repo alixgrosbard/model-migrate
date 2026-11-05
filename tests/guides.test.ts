@@ -21,6 +21,14 @@ import {
   isDecember11OpenAiShutdown,
   isDecember1ImageShutdown,
   isFebruary2027TranscribeShutdown,
+  isOpenRouterDecemberImageModel,
+  isOpenRouterEarlierStored,
+  isOpenRouterNovDecExpiration,
+  OPENROUTER_NOV_DEC_GUIDE_SLUG,
+  OPENROUTER_NOV_DEC_WINDOW_END,
+  OPENROUTER_NOV_DEC_WINDOW_START,
+  datasetShutdownGuides,
+  openRouterCanonicalSlug,
   isJanuary2027AudioShutdown,
   isJanuary2027Gpt4Shutdown,
   vertexVeoFloorRows,
@@ -28,7 +36,9 @@ import {
 } from "../src/lib/dataset-guides.ts";
 import { GUIDES_CHECKED, GUIDES_INDEX, guideChecked, guidePath, guides, guidesForModel } from "../src/lib/guides.ts";
 import { loadModels, loadProviders } from "../src/lib/load.ts";
-import { batchDocumentTitle, providerDisplayName, publishedReplacementIds, shutdownEvents } from "../src/lib/shutdowns.ts";
+import { addDays, today } from "../src/lib/format.ts";
+import { batchDocumentTitle, longDate, providerDisplayName, publishedReplacementIds, shutdownEvents } from "../src/lib/shutdowns.ts";
+import type { ModelRecord } from "../src/schema.ts";
 import { lastmodForUrl } from "../src/lib/lastmod.ts";
 import { llmsFull, llmsTxt } from "../src/lib/llms.ts";
 import { contentAliasFiles } from "../src/lib/shortcuts.ts";
@@ -2092,64 +2102,50 @@ describe("guides", () => {
     expect(lastmodForUrl("https://sunsetdiff.com/guides/vertex-ai-gemini-retirements-november-december-2026/")).toBe("2026-11-02");
   });
 
-  it("builds the OpenRouter November and December 2026 expiration guide", async () => {
+  it("builds the OpenRouter November and December 2026 expiration guide from the dataset", async () => {
     const models = await loadModels();
-    const live = [
-      ["meta-llama/llama-3.1-70b-instruct", "2026-11-03"],
-      ["thinkingmachines/inkling-small:free", "2026-11-04"],
-      ["thinkingmachines/inkling:free", "2026-11-04"],
-      ["bytedance-seed/seed-1.6", "2026-11-11"],
-      ["bytedance-seed/seed-1.6-flash", "2026-11-11"],
-      ["bytedance-seed/seed-2.0-code", "2026-11-11"],
-      ["bytedance/seedance-1-5-pro", "2026-11-11"],
-      ["liquid/d1", "2026-11-20"],
-      ["heygen/heygen-voice-1-turbo:free", "2026-11-30"],
-      ["microsoft/mai-transcribe-1.5", "2026-12-22"],
-      ["dots-studio/dots-3-note-preview:free", "2026-12-31"],
-      ["microsoft/mai-voice-2", "2026-12-31"],
-      ["microsoft/mai-voice-2-flash", "2026-12-31"],
-      ["z-ai/glm-4.5", "2026-12-31"],
-      ["z-ai/glm-4.5v", "2026-12-31"],
-      ["z-ai/glm-4.7", "2026-12-31"],
-    ] as const;
-    const stored = live.flatMap(([id, date]) => {
-      const model = models.find((item) => item.provider === "openrouter" && item.id === id);
-      return model ? [{ model, date }] : [];
-    });
-    expect(stored.map(({ model }) => model.id)).toEqual(live.map(([id]) => id));
-    expect(stored.every(({ model, date }) => model.shutdown_date === date && model.shutdown_date_kind === "not_before")).toBe(true);
-    expect(stored.every(({ model }) => model.replacements.length === 0)).toBe(true);
-
-    const absent = ["nousresearch/hermes-3-llama-3.1-405b", "nousresearch/hermes-3-llama-3.1-70b", "x-ai/grok-imagine-image-quality"];
-    for (const id of absent) {
-      const model = models.find((item) => item.provider === "openrouter" && item.id === id);
-      expect(model?.shutdown_date).toBe("2026-11-02");
-      expect(model?.shutdown_date_kind).toBe("not_before");
-    }
+    const day = today();
+    const rows = models
+      .filter((model) => isOpenRouterNovDecExpiration(model, day))
+      .sort((a, b) => (a.shutdown_date ?? "").localeCompare(b.shutdown_date ?? "") || a.id.localeCompare(b.id));
+    expect(rows.length).toBeGreaterThan(0);
+    expect(rows.every((model) => model.status === "deprecated" && model.shutdown_date_kind === "not_before")).toBe(true);
+    expect(rows.every((model) => model.shutdown_date! > day && model.shutdown_date! <= OPENROUTER_NOV_DEC_WINDOW_END)).toBe(true);
+    const earlier = models.filter((model) => isOpenRouterEarlierStored(model, day));
+    expect(earlier.every((model) => !rows.some((row) => row.id === model.id))).toBe(true);
 
     const { shutdownEvents } = await import("../src/lib/shutdowns.ts");
     const slugs = shutdownEvents(models).map((event) => event.slug);
     expect(slugs.some((slug) => slug.startsWith("openrouter-"))).toBe(false);
 
-    const guide = guides.find((item) => item.slug === "openrouter-model-expirations-november-december-2026");
+    const guide = guides.find((item) => item.slug === OPENROUTER_NOV_DEC_GUIDE_SLUG);
     expect(guide).toBeTruthy();
     if (!guide) return;
-    expect(guidePath(guide.slug)).toBe("/guides/openrouter-model-expirations-november-december-2026/");
-    expect(guideChecked(guide)).toBe("2026-11-02");
+    expect(guidePath(guide.slug)).toBe(`/guides/${OPENROUTER_NOV_DEC_GUIDE_SLUG}/`);
+    const checked = rows.flatMap((model) => model.sources.map((source) => source.last_checked)).sort().at(-1);
+    expect(guideChecked(guide)).toBe(checked);
     expect(guide.h1).toBe("OpenRouter model expirations in November and December 2026");
+    expect(guide.summary).toContain(String(rows.length));
     const table = guide.sections.find((section) => section.heading === "What expires and when")?.table;
     expect(table?.headers).toEqual(["Model id", "expiration_date", "How to read it", "Recommended replacement"]);
-    expect(table?.rows.map((row) => row[1])).toEqual(live.map(([, date]) => date));
-    expect(table?.rows.every((row) => row[3] === "Not published")).toBe(true);
-    expect(table?.rows[0]?.[0]).toBe("[meta-llama/llama-3.1-70b-instruct](/models/openrouter/meta-llama-llama-3-1-70b-instruct/)");
-    expect(table?.rows[1]?.[0]).toBe(
-      "[thinkingmachines/inkling-small:free](/models/openrouter/thinkingmachines-inkling-small-free/)",
+    expect(table?.caption).toContain(String(rows.length));
+    expect(table?.rows.map((row) => row[0])).toEqual(rows.map((model) => `[${model.id}](/models/${model.provider}/${model.slug}/)`));
+    expect(table?.rows.map((row) => row[1])).toEqual(rows.map((model) => longDate(model.shutdown_date!)));
+    expect(table?.rows.map((row) => row[2])).toEqual(
+      rows.map((model) => `Not before ${model.shutdown_date}. The model may be removed after it.`),
     );
-    expect(table?.rows[2]?.[0]).toBe("[thinkingmachines/inkling:free](/models/openrouter/thinkingmachines-inkling-free/)");
-    expect(table?.rows[3]?.[2]).toBe("Not before 2026-11-11. The model may be removed after it.");
+    expect(table?.rows.map((row) => row[3])).toEqual(
+      rows.map((model) => (model.replacements.length === 0 ? "Not published" : expect.any(String))),
+    );
+    for (const model of rows) {
+      if (model.replacements.length === 0) {
+        const cell = table?.rows.find((row) => row[0].includes(model.id))?.[3];
+        expect(cell).toBe("Not published");
+      }
+    }
     const canonical = guide.sections.find((section) => section.heading === "canonical_slug is not a replacement")?.table;
-    expect(canonical?.rows.some((row) => row[1] === "z-ai/glm-4.7-20251222")).toBe(true);
-    expect(canonical?.rows.some((row) => row[1] === "thinkingmachines/inkling-20260715")).toBe(true);
+    const canonicalRows = rows.filter((model) => openRouterCanonicalSlug(model) !== model.id);
+    expect(canonical?.rows.map((row) => row[1])).toEqual(canonicalRows.map((model) => openRouterCanonicalSlug(model)));
     const blob = JSON.stringify(guide);
     expect(blob).toContain("Deprecation date for the model endpoint (null if not deprecated)");
     expect(blob).toContain("The date after which the model may be removed.");
@@ -2163,40 +2159,149 @@ describe("guides", () => {
     expect(blob).toContain("https://openrouter.ai/models");
     expect(blob).toContain("/providers/openrouter/");
     expect(blob).toContain("/frameworks/openrouter/");
-    expect(blob).toContain("there is no /shutdowns/openrouter-2026-11-11/ page");
-    expect(blob).toContain("there is no /shutdowns/openrouter-2026-12-31/ page");
-    expect(blob).not.toContain("](/shutdowns/openrouter-2026-11-11/)");
-    expect(blob).not.toContain("](/shutdowns/openrouter-2026-12-31/)");
-    expect(blob).toContain("nousresearch/hermes-3-llama-3.1-70b");
-    expect(blob).toContain("x-ai/grok-imagine-image-quality");
-    expect(blob).toContain("poolside/laguna-s-2.1:free");
+    expect(blob).toContain(`/guides/${DECEMBER_1_IMAGE_GUIDE_SLUG}/`);
+    expect(blob).toContain("A floor does not get a batch page");
+    expect(blob).not.toMatch(/\]\(\/shutdowns\/openrouter-/);
+    for (const model of earlier) expect(blob).toContain(model.id);
     expect(blob).not.toContain("glm-5");
     expect(blob).not.toMatch(/[—–]/);
     const sample = guide.sections.flatMap((section) => section.codes ?? []).map((item) => item.code).join("\n");
     expect(sample).toContain("rg -n -F");
-    expect(sample).toContain("bytedance-seed/seed-1.6");
-    expect(sample).toContain("z-ai/glm-4.7-20251222");
+    for (const model of rows) {
+      expect(sample).toContain(model.id);
+      const canonicalSlug = openRouterCanonicalSlug(model);
+      if (canonicalSlug !== model.id) expect(sample).toContain(canonicalSlug);
+    }
     expect(sample).toContain('model="author/model-you-pick"');
     expect(sample).not.toContain("Bearer");
     expect(sitemapSection(guidePath(guide.slug))).toBe("sitemap-guides.xml");
-    const llama = models.find((model) => model.provider === "openrouter" && model.id === "meta-llama/llama-3.1-70b-instruct");
-    const gone = models.find((model) => model.provider === "openrouter" && model.id === "x-ai/grok-imagine-image-quality");
-    expect(guidesForModel(llama!, models).map((link) => link.href)[0]).toBe(guidePath(guide.slug));
-    expect(guidesForModel(gone!, models).map((link) => link.href)[0]).toBe(guidePath(guide.slug));
-    expect(guidesForModel(stored.find(({ model }) => model.id === "z-ai/glm-4.7")!.model, models).map((link) => link.href)).toContain(guidePath(guide.slug));
+    for (const model of rows) {
+      const hrefs = guidesForModel(model, models).map((link) => link.href);
+      expect(hrefs[0]).toBe(guidePath(guide.slug));
+    }
+    for (const model of earlier) {
+      expect(guidesForModel(model, models).map((link) => link.href)[0]).toBe(guidePath(guide.slug));
+    }
+    const imageGuide = guides.find((item) => item.slug === DECEMBER_1_IMAGE_GUIDE_SLUG);
+    const imageBlob = JSON.stringify(imageGuide);
+    for (const id of ["openai/gpt-5-image-mini", "openai/gpt-image-1-mini"]) {
+      const model = models.find((item) => item.provider === "openrouter" && item.id === id);
+      expect(model?.status).toBe("deprecated");
+      expect(model?.shutdown_date_kind).toBe("not_before");
+      const source = model?.sources.find((item) => item.url.includes("openrouter.ai/api/v1/models"));
+      expect(source?.excerpt).toContain(model?.shutdown_date);
+      expect(model?.replacements).toEqual([]);
+      const listed = Boolean(model && isOpenRouterNovDecExpiration(model, day));
+      expect(listed).toBe(Boolean(
+        model?.shutdown_date
+        && model.shutdown_date > day
+        && model.shutdown_date >= OPENROUTER_NOV_DEC_WINDOW_START
+        && model.shutdown_date <= OPENROUTER_NOV_DEC_WINDOW_END,
+      ));
+      if (!model || !listed) continue;
+      expect(table?.rows.some((row) => row[0].includes(model.id) && row[1] === longDate(model.shutdown_date!))).toBe(true);
+      expect(blob).toContain(`/models/openrouter/${model.slug}/`);
+      expect(blob).toContain(longDate(model.shutdown_date!));
+      expect(imageBlob).toContain(`/models/openrouter/${model.slug}/`);
+      expect(imageBlob).toContain(longDate(model.shutdown_date!));
+      expect(imageBlob).toContain(`/guides/${OPENROUTER_NOV_DEC_GUIDE_SLUG}/`);
+      const hrefs = guidesForModel(model, models).map((link) => link.href);
+      expect(hrefs).toContain(guidePath(OPENROUTER_NOV_DEC_GUIDE_SLUG));
+      expect(hrefs).toContain(guidePath(DECEMBER_1_IMAGE_GUIDE_SLUG));
+      expect(isOpenRouterDecemberImageModel(model)).toBe(true);
+    }
     const graph = guideGraph("https://sunsetdiff.com/", guide);
     expect(graph.some((node) => node["@type"] === "HowTo")).toBe(true);
     expect(graph.some((node) => node["@type"] === "FAQPage")).toBe(true);
     const providerPage = readFileSync("src/pages/providers/[provider].astro", "utf8");
     const shutdownPage = readFileSync("src/pages/shutdowns/[slug].astro", "utf8");
-    expect(providerPage).toContain("/guides/openrouter-model-expirations-november-december-2026/");
+    expect(providerPage).toContain(`/guides/${OPENROUTER_NOV_DEC_GUIDE_SLUG}/`);
     expect(providerPage).toContain("/frameworks/openrouter/");
-    expect(shutdownPage).not.toContain("openrouter-model-expirations-november-december-2026");
+    expect(shutdownPage).not.toContain(OPENROUTER_NOV_DEC_GUIDE_SLUG);
     const text = llmsTxt("https://sunsetdiff.com", [], []);
     const full = llmsFull("https://sunsetdiff.com", []);
-    expect(text).toContain("/guides/openrouter-model-expirations-november-december-2026/");
-    expect(full).toContain("/guides/openrouter-model-expirations-november-december-2026/");
-    expect(lastmodForUrl("https://sunsetdiff.com/guides/openrouter-model-expirations-november-december-2026/")).toBe("2026-11-02");
+    expect(text).toContain(`/guides/${OPENROUTER_NOV_DEC_GUIDE_SLUG}/`);
+    expect(full).toContain(`/guides/${OPENROUTER_NOV_DEC_GUIDE_SLUG}/`);
+    expect(lastmodForUrl(`https://sunsetdiff.com/guides/${OPENROUTER_NOV_DEC_GUIDE_SLUG}/`)).toBe(checked);
+  });
+
+  it("adds a new OpenRouter expiring row from the dataset onto the guide", async () => {
+    const models = await loadModels();
+    const day = today();
+    const shutdown = day < OPENROUTER_NOV_DEC_WINDOW_START ? OPENROUTER_NOV_DEC_WINDOW_START : addDays(day, 1);
+    const inWindow = shutdown > day && shutdown <= OPENROUTER_NOV_DEC_WINDOW_END;
+    const sample = models.find((model) => model.provider === "openrouter" && model.sources.length > 0);
+    expect(sample).toBeTruthy();
+    if (!sample || !inWindow) return;
+    const extra: ModelRecord = {
+      ...structuredClone(sample),
+      id: "example/added-expiring-model",
+      slug: "example-added-expiring-model",
+      display_name: "Example added expiring model",
+      status: "deprecated",
+      shutdown_date: shutdown,
+      deprecation_date: shutdown,
+      shutdown_date_kind: "not_before",
+      replacements: [],
+      region_or_platform_notes: "canonical_slug is example/added-expiring-model-dated.",
+    };
+    const withReplacement: ModelRecord = {
+      ...structuredClone(extra),
+      id: "example/added-with-replacement",
+      slug: "example-added-with-replacement",
+      replacements: [{
+        model_id: "example/kept-replacement",
+        provider: "openrouter",
+        kind: "official",
+        source_url: "https://openrouter.ai/api/v1/models?output_modalities=all",
+      }],
+    };
+    const dueToday: ModelRecord = {
+      ...structuredClone(extra),
+      id: "example/already-due",
+      slug: "example-already-due",
+      shutdown_date: day,
+      deprecation_date: day,
+    };
+    const afterWindow: ModelRecord = {
+      ...structuredClone(extra),
+      id: "example/after-window",
+      slug: "example-after-window",
+      shutdown_date: addDays(OPENROUTER_NOV_DEC_WINDOW_END, 1),
+      deprecation_date: addDays(OPENROUTER_NOV_DEC_WINDOW_END, 1),
+    };
+    const stillActive: ModelRecord = {
+      ...structuredClone(extra),
+      id: "example/still-active",
+      slug: "example-still-active",
+      status: "active",
+    };
+    const before = models.filter((model) => isOpenRouterNovDecExpiration(model, day)).length;
+    const guide = datasetShutdownGuides([...models, extra, withReplacement, dueToday, afterWindow, stillActive])
+      .find((item) => item.slug === OPENROUTER_NOV_DEC_GUIDE_SLUG);
+    expect(guide).toBeTruthy();
+    if (!guide) return;
+    const table = guide.sections.find((section) => section.heading === "What expires and when")?.table;
+    expect(table?.rows).toHaveLength(before + 2);
+    const added = table?.rows.find((row) => row[0].includes(extra.id));
+    expect(added?.[1]).toBe(longDate(shutdown));
+    expect(added?.[2]).toBe(`Not before ${shutdown}. The model may be removed after it.`);
+    expect(added?.[3]).toBe("Not published");
+    const replaced = table?.rows.find((row) => row[0].includes(withReplacement.id));
+    expect(replaced?.[3]).toContain("example/kept-replacement");
+    expect(replaced?.[3]).not.toContain("gpt-image-2.5");
+    const canonical = guide.sections.find((section) => section.heading === "canonical_slug is not a replacement")?.table;
+    expect(canonical?.rows.some((row) => row[1] === "example/added-expiring-model-dated")).toBe(true);
+    const blob = JSON.stringify(guide);
+    expect(blob).toContain(extra.id);
+    expect(blob).toContain(withReplacement.id);
+    expect(table?.rows.some((row) => row[0].includes(dueToday.id))).toBe(false);
+    expect(table?.rows.some((row) => row[0].includes(afterWindow.id))).toBe(false);
+    expect(table?.rows.some((row) => row[0].includes(stillActive.id))).toBe(false);
+    expect(blob).not.toContain(afterWindow.id);
+    expect(blob).not.toContain(stillActive.id);
+    expect(guide.summary).toContain(String(before + 2));
+    expect(blob).not.toMatch(/[—–]/);
   });
 
   it("builds the Gemini 2.5 Pro and Flash December 1 auto-route guide", async () => {
