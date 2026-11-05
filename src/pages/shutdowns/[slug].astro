@@ -104,6 +104,8 @@ const shutdownGuide = guideBySlug(
                       ? "gemini-2-5-pro-flash-auto-route-december-1-2026"
                     : event.slug === "aws-bedrock-2027-03-30"
                       ? "amazon-bedrock-open-weight-models-shutdown-march-30-2027"
+                    : event.slug === "together-2026-11-06"
+                      ? "together-model-shutdowns-november-6-2026"
                     : undefined,
 );
 const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
