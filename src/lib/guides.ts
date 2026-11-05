@@ -36,6 +36,7 @@ import {
   isCopilotNov16Shutdown,
   isDecember11OpenAiShutdown,
   isDecember1ImageShutdown,
+  isOpenRouterDecemberImageModel,
   isFireworksNov7Shutdown,
   isGeminiDec1AutoRoute,
   isGeminiNov17Shutdown,
@@ -2497,6 +2498,7 @@ export function guidesForModel(model: ModelRecord, catalog: ModelRecord[]): Mode
   if (isCopilotNov16Shutdown(model)) add(COPILOT_NOV16_GUIDE_SLUG);
   if (isFireworksNov7Shutdown(model)) add(FIREWORKS_NOV7_GUIDE_SLUG);
   if (showsOpenRouterNovDecGuide(model)) add(OPENROUTER_NOV_DEC_GUIDE_SLUG);
+  if (isOpenRouterDecemberImageModel(model)) add(DECEMBER_1_IMAGE_GUIDE_SLUG);
   if (isNebiusNov9Shutdown(model)) add(NEBIUS_NOV9_GUIDE_SLUG);
   if (isGeminiNov17Shutdown(model)) add(GEMINI_NOV17_GUIDE_SLUG);
   if (showsGeminiDec1Guide(model) || isGeminiDec1AutoRoute(model)) add(GEMINI_DEC1_GUIDE_SLUG);
