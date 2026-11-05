@@ -785,6 +785,7 @@ describe("guides", () => {
     expect(blob).toContain("/errors/claude-temperature-is-deprecated-for-this-model/");
     expect(blob).toContain("/errors/claude-api-2026-10-21-sampling-params-400/");
     expect(blob).toContain("/shutdowns/aws-bedrock-2026-11-13/");
+    expect(blob).toContain("amazon-bedrock-claude-3-haiku-sonnet-ca-central-1-november-27-2026");
     expect(blob).not.toContain("global.anthropic.claude-haiku-4-5");
     expect(sitemapSection(guidePath(guide.slug))).toBe("sitemap-guides.xml");
     const earlier = models.find((model) => model.slug === "anthropic-claude-3-haiku-20240307-v1-0-2");
@@ -797,6 +798,55 @@ describe("guides", () => {
     const shutdownPage = readFileSync("src/pages/shutdowns/[slug].astro", "utf8");
     expect(providerPage).toContain("/guides/amazon-bedrock-claude-3-shutdown-november-13-2026/");
     expect(shutdownPage).toContain("amazon-bedrock-claude-3-shutdown-november-13-2026");
+  });
+
+  it("builds the Bedrock November 27 ca-central-1 guide from the dataset", async () => {
+    const models = await loadModels();
+    const rows = models
+      .filter((model) => model.provider === "aws-bedrock" && model.shutdown_date === "2026-11-27")
+      .sort((a, b) => a.id.localeCompare(b.id) || a.slug.localeCompare(b.slug));
+    expect(rows.map((model) => model.id)).toEqual([
+      "anthropic.claude-3-haiku-20240307-v1:0",
+      "anthropic.claude-3-sonnet-20240229-v1:0",
+    ]);
+    expect(rows.every((model) => model.region_or_platform_notes?.includes("ca-central-1"))).toBe(true);
+    const guide = guides.find((item) => item.slug === "amazon-bedrock-claude-3-haiku-sonnet-ca-central-1-november-27-2026");
+    expect(guide).toBeTruthy();
+    if (!guide) return;
+    expect(guidePath(guide.slug)).toBe("/guides/amazon-bedrock-claude-3-haiku-sonnet-ca-central-1-november-27-2026/");
+    expect(guideChecked(guide)).toBe("2026-11-05");
+    expect(guide.h1).toContain("November 27, 2026");
+    expect(guide.h1).toContain("ca-central-1");
+    const table = guide.sections.find((section) => section.heading === "Models shutting down on November 27")?.table;
+    expect(table?.headers).toEqual(["Model id", "Legacy date stored", "Shutdown date", "Regions", "Recommended replacement"]);
+    expect(table?.rows.map((row) => row[0])).toEqual(
+      rows.map((model) => `[${model.id}](/models/${model.provider}/${model.slug}/)`),
+    );
+    expect(table?.rows.every((row) => row[2] === "2026-11-27")).toBe(true);
+    expect(table?.rows.every((row) => row[3].includes("ca-central-1"))).toBe(true);
+    expect(table?.rows.every((row) => row[4] === "Not published")).toBe(true);
+    const blob = JSON.stringify(guide);
+    expect(blob).toContain("ca-central-1");
+    expect(blob).toContain("September 10, 2026");
+    expect(blob).toContain("November 13, 2026");
+    expect(blob).toContain("amazon-bedrock-claude-3-shutdown-november-13-2026");
+    expect(blob).toContain("ResourceNotFoundException: This model version has reached the end of its life.");
+    expect(blob).toContain("https://docs.aws.amazon.com/bedrock/latest/userguide/model-lifecycle-legacy.html");
+    expect(blob).toContain("https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-anthropic-claude-3-haiku.html");
+    expect(blob).toContain("/errors/bedrock-model-version-has-reached-the-end-of-its-life/");
+    expect(blob).toContain("/errors/claude-temperature-is-deprecated-for-this-model/");
+    expect(blob).toContain("/errors/claude-api-2026-10-21-sampling-params-400/");
+    expect(blob).toContain("/shutdowns/aws-bedrock-2026-11-27/");
+    expect(blob).toContain("three separate Region batches");
+    expect(sitemapSection(guidePath(guide.slug))).toBe("sitemap-guides.xml");
+    const sept10 = models.find((model) => model.slug === "anthropic-claude-3-haiku-20240307-v1-0-2");
+    expect(sept10?.shutdown_date).toBe("2026-09-10");
+    expect(guidesForModel(rows[0], models).map((link) => link.href)).toContain(guidePath(guide.slug));
+    expect(guidesForModel(rows[1], models).map((link) => link.href)).toContain(guidePath(guide.slug));
+    const graph = guideGraph("https://sunsetdiff.com/", guide);
+    expect(graph.some((node) => node["@type"] === "FAQPage")).toBe(true);
+    const shutdownPage = readFileSync("src/pages/shutdowns/[slug].astro", "utf8");
+    expect(shutdownPage).toContain("amazon-bedrock-claude-3-haiku-sonnet-ca-central-1-november-27-2026");
   });
 
   it("builds the Azure OpenAI November 19 guide from the dataset", async () => {

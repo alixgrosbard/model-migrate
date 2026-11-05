@@ -7,6 +7,7 @@ import {
   BEDROCK_JAMBA_NOV26_GUIDE_SLUG,
   BEDROCK_MAR30_GUIDE_SLUG,
   BEDROCK_NOV13_GUIDE_SLUG,
+  BEDROCK_NOV27_GUIDE_SLUG,
   COPILOT_NOV16_GUIDE_SLUG,
   DECEMBER_11_GUIDE_SLUG,
   DECEMBER_1_IMAGE_GUIDE_SLUG,
@@ -34,6 +35,7 @@ import {
   isBedrockJambaNov26Shutdown,
   isBedrockMar30OpenWeightShutdown,
   isBedrockNov13Shutdown,
+  isBedrockNov27Shutdown,
   isCopilotNov16Shutdown,
   isDecember11OpenAiShutdown,
   isDecember1ImageShutdown,
@@ -2487,6 +2489,9 @@ export function guidesForModel(model: ModelRecord, catalog: ModelRecord[]): Mode
   if (isMinimaxNov18Shutdown(model)) add(MINIMAX_NOV18_GUIDE_SLUG);
   if (isBedrockNov13Shutdown(model) || (model.provider === "aws-bedrock" && model.id === "anthropic.claude-3-haiku-20240307-v1:0")) {
     add(BEDROCK_NOV13_GUIDE_SLUG);
+  }
+  if (isBedrockNov27Shutdown(model) || (model.provider === "aws-bedrock" && (model.id === "anthropic.claude-3-haiku-20240307-v1:0" || model.id === "anthropic.claude-3-sonnet-20240229-v1:0"))) {
+    add(BEDROCK_NOV27_GUIDE_SLUG);
   }
   if (isBedrockJambaNov26Shutdown(model)) add(BEDROCK_JAMBA_NOV26_GUIDE_SLUG);
   if (isBedrockMar30OpenWeightShutdown(model)) add(BEDROCK_MAR30_GUIDE_SLUG);
