@@ -1162,6 +1162,115 @@ describe("guides", () => {
     expect(april?.related.some((link) => link.href === guidePath(guide.slug))).toBe(true);
   });
 
+  it("builds the Azure OpenAI June 15, 2027 audio retirement guide from the dataset", async () => {
+    const models = await loadModels();
+    const ids = [
+      "gpt-4o-mini-transcribe-2025-12-15",
+      "gpt-4o-mini-tts-2025-12-15",
+      "gpt-audio-mini-2025-12-15",
+      "gpt-realtime-mini-2025-12-15",
+    ];
+    const rows = models
+      .filter((model) => model.provider === "azure-openai" && ids.includes(model.id))
+      .sort((a, b) => a.id.localeCompare(b.id));
+    expect(rows.map((model) => model.id)).toEqual(ids);
+    expect(rows.map((model) => model.shutdown_date)).toEqual(ids.map(() => "2027-06-15"));
+    expect(rows.every((model) => model.shutdown_date_kind === "exact")).toBe(true);
+    expect(rows.every((model) => model.replacements.length === 0)).toBe(true);
+    const guide = guides.find((item) => item.slug === "azure-openai-gpt-4o-mini-tts-transcribe-realtime-audio-retirement-june-15-2027");
+    expect(guide).toBeTruthy();
+    if (!guide) return;
+    expect(guidePath(guide.slug)).toBe("/guides/azure-openai-gpt-4o-mini-tts-transcribe-realtime-audio-retirement-june-15-2027/");
+    expect(guideChecked(guide)).toBe("2026-11-05");
+    expect(guide.h1).toBe("Azure OpenAI gpt-4o-mini-tts, transcribe, and realtime audio retirement on June 15, 2027");
+    const table = guide.sections.find((section) => section.heading === "Models and dates")?.table;
+    expect(table?.headers).toEqual(["Model id", "Lifecycle on the schedule", "Shutdown date", "Recommended replacement"]);
+    expect(table?.rows.map((row) => row[0])).toEqual(
+      rows.map((model) => `[${model.id}](/models/${model.provider}/${model.slug}/)`),
+    );
+    expect(table?.rows.map((row) => row[1])).toEqual(["GA", "GA", "GA", "GA"]);
+    expect(table?.rows.map((row) => row[2])).toEqual(ids.map(() => "2027-06-15"));
+    expect(table?.rows.map((row) => row[3])).toEqual(ids.map(() => "Not published"));
+    const blob = JSON.stringify(guide);
+    expect(blob).toContain("All inference requests return 410 Gone.");
+    expect(blob).toContain("Provisioned deployments are NOT auto-upgraded.");
+    expect(blob).toContain("The model deployment never automatically upgrades.");
+    expect(blob).toContain("Production-ready. Weights and APIs are fixed.");
+    expect(blob).toContain("2026-12-15");
+    expect(blob).toContain("2027-08-24");
+    expect(blob).toContain("Alloy, Ash, Ballad, Coral, Echo, Sage, Shimmer, Verse, Marin, and Cedar.");
+    expect(blob).toContain("wav, mp3, flac, opus, pcm16, and aac.");
+    expect(blob).toContain("2025-01-01-preview");
+    expect(blob).toContain("pcm16");
+    expect(blob).toContain("24kHz");
+    expect(blob).toContain("~100ms");
+    expect(blob).toContain("flac, mp3, mp4, mpeg, mpga, m4a, ogg, wav, or webm.");
+    expect(blob).toContain("the only supported format is json");
+    expect(blob).toContain("/shutdowns/azure-openai-2027-06-15/");
+    expect(blob).toContain("/shutdowns/azure-openai-2027-08-24/");
+    expect(blob).toContain("/models/azure-openai/gpt-4o-mini-transcribe-2025-12-15/");
+    expect(blob).toContain("/models/azure-openai/gpt-4o-mini-tts-2025-12-15/");
+    expect(blob).toContain("/models/azure-openai/gpt-audio-mini-2025-12-15/");
+    expect(blob).toContain("/models/azure-openai/gpt-realtime-mini-2025-12-15/");
+    expect(blob).toContain("/models/azure-openai/gpt-audio-1-5-2026-02-23/");
+    expect(blob).toContain("/models/azure-openai/gpt-realtime-1-5-2026-02-23/");
+    expect(blob).toContain("/models/azure-openai/gpt-5-3-codex-2026-02-24/");
+    expect(blob).toContain("https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule");
+    expect(blob).toContain("https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirements");
+    expect(blob).toContain("https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule-gov");
+    expect(blob).toContain("https://learn.microsoft.com/en-us/azure/foundry/openai/how-to/working-with-models");
+    expect(blob).toContain("https://learn.microsoft.com/en-us/azure/architecture/data-guide/ai-services/speech-recognition-generation");
+    expect(blob).toContain("https://learn.microsoft.com/en-us/azure/foundry/openai/audio-completions-quickstart");
+    expect(blob).toContain("https://learn.microsoft.com/en-us/azure/foundry/openai/how-to/realtime-audio");
+    expect(blob).toContain("https://learn.microsoft.com/en-us/azure/foundry/reference/rest/audio-create-transcription");
+    expect(blob).toContain("/providers/azure-openai/");
+    expect(blob).toContain("/errors/azure-openai-retired-model-410-gone/");
+    expect(blob).not.toMatch(/[—–]/);
+    expect(guide.steps.map((step) => step.name)).toEqual([
+      "Find deployments",
+      "Pick a replacement",
+      "Test",
+      "Redeploy before the date",
+    ]);
+    const pageFacts = JSON.stringify({
+      answer: guide.answer,
+      steps: guide.steps,
+      sections: guide.sections,
+    });
+    for (const faq of guide.faqs) {
+      for (const date of faq.answer.match(/\d{4}-\d{2}-\d{2}/g) ?? []) {
+        expect(pageFacts).toContain(date);
+      }
+    }
+    expect(sitemapSection(guidePath(guide.slug))).toBe("sitemap-guides.xml");
+    for (const model of rows) {
+      expect(guidesForModel(model, models).map((link) => link.href)).toContain(guidePath(guide.slug));
+    }
+    const older = models.find((model) => model.provider === "azure-openai" && model.id === "gpt-realtime-mini-2025-10-06");
+    expect(guidesForModel(older!, models).map((link) => link.href)).not.toContain(guidePath(guide.slug));
+    const graph = guideGraph("https://sunsetdiff.com/", guide);
+    expect(graph.some((node) => node["@type"] === "Article")).toBe(true);
+    expect(graph.some((node) => node["@type"] === "HowTo")).toBe(true);
+    expect(graph.some((node) => node["@type"] === "FAQPage")).toBe(true);
+    expect(graph.find((node) => node["@type"] === "Article")).toMatchObject({
+      datePublished: "2026-11-05",
+      dateModified: "2026-11-05",
+    });
+    const providerPage = readFileSync("src/pages/providers/[provider].astro", "utf8");
+    const shutdownPage = readFileSync("src/pages/shutdowns/[slug].astro", "utf8");
+    expect(providerPage).toContain("/guides/azure-openai-gpt-4o-mini-tts-transcribe-realtime-audio-retirement-june-15-2027/");
+    expect(providerPage).toContain('href="/shutdowns/azure-openai-2027-06-15/"');
+    expect(shutdownPage).toContain("azure-openai-gpt-4o-mini-tts-transcribe-realtime-audio-retirement-june-15-2027");
+    const text = llmsTxt("https://sunsetdiff.com", [], []);
+    const full = llmsFull("https://sunsetdiff.com", []);
+    expect(text).toContain("/guides/azure-openai-gpt-4o-mini-tts-transcribe-realtime-audio-retirement-june-15-2027/");
+    expect(full).toContain("/guides/azure-openai-gpt-4o-mini-tts-transcribe-realtime-audio-retirement-june-15-2027/");
+    expect(lastmodForUrl("https://sunsetdiff.com/guides/azure-openai-gpt-4o-mini-tts-transcribe-realtime-audio-retirement-june-15-2027/")).toBe("2026-11-05");
+    const novDec = guides.find((item) => item.slug === "azure-openai-retirements-november-december-2026");
+    expect(novDec?.related.some((link) => link.href === guidePath(guide.slug))).toBe(true);
+    expect(JSON.stringify(novDec)).toContain(guidePath(guide.slug));
+  });
+
   it("builds the Mistral April 30, 2027 Large, Medium, and Voxtral guide from the dataset", async () => {
     const models = await loadModels();
     const ids = [

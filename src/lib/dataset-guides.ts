@@ -103,6 +103,18 @@ const AZURE_JULY13_IDS = [
   "gpt-5.2-codex-2026-01-14",
 ] as const;
 
+/** Checked against the Azure OpenAI retirement schedule and lifecycle page on 2026-11-05. */
+export const AZURE_JUNE15_SHUTDOWN_DATE = "2027-06-15";
+export const AZURE_JUNE15_GUIDE_SLUG = "azure-openai-gpt-4o-mini-tts-transcribe-realtime-audio-retirement-june-15-2027";
+export const AZURE_JUNE15_CHECKED = "2026-11-05";
+const AZURE_JUNE15_IDS = [
+  "gpt-4o-mini-transcribe-2025-12-15",
+  "gpt-4o-mini-tts-2025-12-15",
+  "gpt-audio-mini-2025-12-15",
+  "gpt-realtime-mini-2025-12-15",
+] as const;
+export const AZURE_AUG24_SHUTDOWN_DATE = "2027-08-24";
+
 /** Checked against the Mistral models page, model cards, lifecycle page, and changelog on 2026-11-04. */
 export const MISTRAL_APRIL30_SHUTDOWN_DATE = "2027-04-30";
 export const MISTRAL_APRIL30_DEPRECATION_DATE = "2026-10-31";
@@ -424,6 +436,13 @@ export function isAzureJuly13Retirement(model: ModelRecord): boolean {
   return model.provider === "azure-openai"
     && (AZURE_JULY13_IDS as readonly string[]).includes(model.id)
     && model.shutdown_date === AZURE_JULY13_SHUTDOWN_DATE
+    && model.shutdown_date_kind === "exact";
+}
+
+export function isAzureJune15Retirement(model: ModelRecord): boolean {
+  return model.provider === "azure-openai"
+    && (AZURE_JUNE15_IDS as readonly string[]).includes(model.id)
+    && model.shutdown_date === AZURE_JUNE15_SHUTDOWN_DATE
     && model.shutdown_date_kind === "exact";
 }
 
@@ -1167,6 +1186,8 @@ export function datasetShutdownGuides(catalog: ModelRecord[] = readCatalog()): G
   if (azureApril14.length) pages.push(azureApril14Guide(azureApril14, catalog));
   const azureJuly13 = rowsFor(isAzureJuly13Retirement, catalog);
   if (azureJuly13.length) pages.push(azureJuly13Guide(azureJuly13, catalog));
+  const azureJune15 = rowsFor(isAzureJune15Retirement, catalog);
+  if (azureJune15.length) pages.push(azureJune15Guide(azureJune15, catalog));
   const mistralApril30 = rowsFor(isMistralApril30Retirement, catalog);
   if (mistralApril30.length) pages.push(mistralApril30Guide(mistralApril30));
   const vertexEmbedApril1 = rowsFor(isVertexApril1EmbeddingShutdown, catalog);
@@ -3543,6 +3564,7 @@ function azureNovDecGuide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePag
       { href: "/providers/azure-openai/", label: "Azure OpenAI provider page" },
       { href: "/errors/azure-openai-retired-model-410-gone/", label: "Azure OpenAI retired models return 410 Gone" },
       { href: `/guides/${AZURE_NOV19_GUIDE_SLUG}/`, label: "Azure OpenAI o-series retirement on November 19, 2026" },
+      { href: `/guides/${AZURE_JUNE15_GUIDE_SLUG}/`, label: "Azure OpenAI gpt-4o-mini-tts, transcribe, and realtime audio retirement on June 15, 2027" },
       { href: "/guides/find-model-ids-in-your-codebase/", label: "Find model ids in your codebase" },
       { href: "/guides/pre-migration-test-checklist/", label: "Pre-migration test checklist" },
       { href: "/scan/", label: "Scan retiring ids" },
@@ -3574,7 +3596,7 @@ function azureNovDecGuide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePag
       },
       {
         question: "Why is gpt-realtime-mini 2025-12-15 not in this table?",
-        answer: `Checked on ${AZURE_NOV_DEC_CHECKED}, the retirement schedule prints gpt-realtime-mini version 2025-12-15 twice in the Azure OpenAI table. The first row says GA and retirement 2027-06-15. A later row says GA and retirement 2026-12-15. SunsetDiff keeps the first base-table row when the same model and version is repeated. The stored id is gpt-realtime-mini-2025-12-15 and its shutdown date is ${realtime?.shutdown_date ?? "Not published"}. This guide skips that id.`,
+        answer: `Checked on ${AZURE_NOV_DEC_CHECKED}, the retirement schedule prints gpt-realtime-mini version 2025-12-15 twice in the Azure OpenAI table. The first row says GA and retirement 2027-06-15. A later row says GA and retirement 2026-12-15. SunsetDiff keeps the first base-table row when the same model and version is repeated. The stored id is gpt-realtime-mini-2025-12-15 and its shutdown date is ${realtime?.shutdown_date ?? "Not published"}. This guide skips that id. The June 15, 2027 rows are on [Azure OpenAI gpt-4o-mini-tts, transcribe, and realtime audio retirement on June 15, 2027](/guides/${AZURE_JUNE15_GUIDE_SLUG}/).`,
       },
       {
         question: "Does this guide include the November 19 o-series models?",
@@ -3752,6 +3774,7 @@ function azureApril14Guide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePa
       { href: "/errors/azure-openai-retired-model-410-gone/", label: "Azure OpenAI retired models return 410 Gone" },
       { href: `/guides/${APRIL_1_2027_GUIDE_SLUG}/`, label: "GPT-5.1, gpt-5.3-codex, and gpt-5.4-nano shutdown on April 1, 2027" },
       { href: `/guides/${AZURE_JULY13_GUIDE_SLUG}/`, label: "Azure OpenAI gpt-5.1, gpt-5-mini, and gpt-5.2-codex retirement on July 13, 2027" },
+      { href: `/guides/${AZURE_JUNE15_GUIDE_SLUG}/`, label: "Azure OpenAI gpt-4o-mini-tts, transcribe, and realtime audio retirement on June 15, 2027" },
       { href: "/models/azure-openai/gpt-5-1-2025-11-13/", label: "Azure gpt-5.1-2025-11-13" },
       { href: "/models/azure-openai/gpt-5-1/", label: "Azure gpt-5.1" },
       { href: "/models/azure-openai/gpt-4o-2024-05-13/", label: "Azure gpt-4o-2024-05-13" },
@@ -3797,6 +3820,29 @@ function azureApril14Guide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePa
 
 const AZURE_GOV_SCHEDULE = "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule-gov";
 const AZURE_GA = "Production-ready. Weights and APIs are fixed.";
+const AZURE_AUDIO_ARCH = "https://learn.microsoft.com/en-us/azure/architecture/data-guide/ai-services/speech-recognition-generation";
+const AZURE_AUDIO_QUICKSTART = "https://learn.microsoft.com/en-us/azure/foundry/openai/audio-completions-quickstart";
+const AZURE_REALTIME_HOWTO = "https://learn.microsoft.com/en-us/azure/foundry/openai/how-to/realtime-audio";
+const AZURE_TRANSCRIBE_REST = "https://learn.microsoft.com/en-us/azure/foundry/reference/rest/audio-create-transcription";
+const AZURE_COMPARE = "When you choose a target, evaluate candidate models against your own application, prompts, and representative data. Compare quality, latency, and cost together rather than relying on public benchmarks alone.";
+const AZURE_CONFIRM = "Before you migrate, confirm API compatibility, feature support, deployment-type and regional availability, capacity, and quota.";
+const AZURE_AUDIO_MODALITIES = "Modalities supported in gpt-audio and gpt-audio-mini models include: text, audio, and text + audio.";
+const AZURE_AUDIO_VOICES = "The following voices are supported for audio out: Alloy, Ash, Ballad, Coral, Echo, Sage, Shimmer, Verse, Marin, and Cedar.";
+const AZURE_AUDIO_FORMATS = "The following audio output formats are supported: wav, mp3, flac, opus, pcm16, and aac.";
+const AZURE_AUDIO_SIZE = "The maximum audio file size is 20 MB.";
+const AZURE_AUDIO_API = "Support for audio completions was first added in API version 2025-01-01-preview.";
+const AZURE_TTS_TONE = "The tts-hd model is optimized for quality, and gpt-4o-mini-tts supports prompt-guided style and tone.";
+const AZURE_STT_FILE = "File-based transcription of prerecorded audio";
+const AZURE_CHAT_AUDIO = "Combines audio input and output with language reasoning, summarization, or generation in a single model call";
+const AZURE_REALTIME_ROW = "Low-latency, speech-in and speech-out conversations for live voice agents, interactive assistants, and streaming audio scenarios";
+const AZURE_REALTIME_GA_URL = "For the Realtime API, use the GA endpoint with /openai/v1 in the URL. Don't use date-based API versions or the api-version query parameter.";
+const AZURE_REALTIME_ALL = "For all Realtime API models, use the GA endpoint format with /openai/v1 in the URL.";
+const AZURE_REALTIME_WEBRTC = "In most cases, we recommend using the WebRTC API for low-latency real-time audio streaming.";
+const AZURE_REALTIME_PCM = "The Realtime API expects audio in a specific format:";
+const AZURE_TRANSCRIBE_FORMATS = "The audio file object (not file name) to transcribe, in one of these formats: flac, mp3, mp4, mpeg, mpga, m4a, ogg, wav, or webm.";
+const AZURE_TRANSCRIBE_JSON = "For gpt-4o-transcribe and gpt-4o-mini-transcribe, the only supported format is json.";
+const AZURE_TRANSCRIBE_LANG = "Supplying the input language in ISO-639-1 (e.g. en) format will improve accuracy and latency.";
+const AZURE_TRANSCRIBE_WORD = "There is no additional latency for segment timestamps, but generating word timestamps incurs additional latency.";
 
 function openaiShutdownLine(model: ModelRecord | undefined): string {
   if (!model) return "Not published";
@@ -3970,6 +4016,7 @@ function azureJuly13Guide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePag
       { href: "/models/azure-openai/gpt-5-1/", label: "Azure gpt-5.1" },
       { href: `/guides/${APRIL_1_2027_GUIDE_SLUG}/`, label: "GPT-5.1, gpt-5.3-codex, and gpt-5.4-nano shutdown on April 1, 2027" },
       { href: `/guides/${AZURE_APRIL14_GUIDE_SLUG}/`, label: "Azure OpenAI GPT-4.1 and GPT-4o retirement on April 14, 2027" },
+      { href: `/guides/${AZURE_JUNE15_GUIDE_SLUG}/`, label: "Azure OpenAI gpt-4o-mini-tts, transcribe, and realtime audio retirement on June 15, 2027" },
       { href: "/models/openai/gpt-5-1/", label: "OpenAI gpt-5.1" },
       { href: "/models/openai/gpt-5-mini/", label: "OpenAI gpt-5-mini" },
       { href: "/models/openai/gpt-5-2-codex/", label: "OpenAI gpt-5.2-codex" },
@@ -4023,6 +4070,287 @@ function azureJuly13Guide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePag
       AZURE_MIGRATION,
       OPENAI_DEPRECATIONS,
       AZURE_GOV_SCHEDULE,
+    ],
+  };
+}
+
+function azureJune15Guide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePage {
+  const ordered = [...rows].sort((a, b) => a.id.localeCompare(b.id));
+  const when = longDate(AZURE_JUNE15_SHUTDOWN_DATE);
+  const augWhen = longDate(AZURE_AUG24_SHUTDOWN_DATE);
+  const byLifecycle = ordered.map((model) => `${model.id} (${azureScheduleLifecycle(model)})`).join(", ");
+  const named = ordered.filter((model) => publishedReplacementIds(model).length > 0);
+  const empty = ordered.filter((model) => publishedReplacementIds(model).length === 0);
+  const fineLines = ordered.map(azureFineTuneSentence).join(" ");
+  const findAzure = (id: string) => catalog.find((model) => model.provider === "azure-openai" && model.id === id);
+  const older = [
+    "gpt-4o-mini-transcribe-2025-03-20",
+    "gpt-4o-mini-tts-2025-03-20",
+    "gpt-audio-mini-2025-10-06",
+    "gpt-realtime-mini-2025-10-06",
+  ].map(findAzure).filter((model): model is ModelRecord => Boolean(model));
+  const olderLine = older.map((model) => `${modelLink(model)} stores shutdown date ${model.shutdown_date ?? "Not published"}`).join(". ");
+  const augAudio = findAzure("gpt-audio-1.5-2026-02-23");
+  const augRealtime = findAzure("gpt-realtime-1.5-2026-02-23");
+  const augCodex = findAzure("gpt-5.3-codex-2026-02-24");
+  const augRows = [augAudio, augRealtime, augCodex].filter((model): model is ModelRecord => Boolean(model));
+  const augLine = augRows.map((model) => `${modelLink(model)} stores shutdown date ${model.shutdown_date ?? "Not published"}`).join(". ");
+  const sources = [
+    { label: "Azure OpenAI retirement schedule", url: AZURE_SCHEDULE },
+    { label: "Foundry Models lifecycle", url: AZURE_RETIREMENTS },
+  ];
+  const audioSources = [
+    { label: "Azure speech recognition and generation", url: AZURE_AUDIO_ARCH },
+    { label: "Azure OpenAI audio generation quickstart", url: AZURE_AUDIO_QUICKSTART },
+    { label: "GPT Realtime API", url: AZURE_REALTIME_HOWTO },
+    { label: "Create a transcription", url: AZURE_TRANSCRIBE_REST },
+  ];
+  return {
+    slug: AZURE_JUNE15_GUIDE_SLUG,
+    title: `Azure OpenAI gpt-4o-mini-tts, transcribe, and realtime audio retirement on ${when} | SunsetDiff`,
+    description: `Azure OpenAI gpt-4o-mini-transcribe 2025-12-15, gpt-4o-mini-tts 2025-12-15, gpt-audio-mini 2025-12-15, and gpt-realtime-mini 2025-12-15 retire on ${AZURE_JUNE15_SHUTDOWN_DATE}. The replacement cell is empty on each row. Speech-to-text, text-to-speech, chat audio, and realtime calls use different APIs.`,
+    h1: `Azure OpenAI gpt-4o-mini-tts, transcribe, and realtime audio retirement on ${when}`,
+    summary: `${ordered.length} Azure OpenAI audio versions with shutdown date ${AZURE_JUNE15_SHUTDOWN_DATE}. The replacement cell is empty. Test latency, voices, audio formats, and the API version before that day.`,
+    answer: `The dataset has ${ordered.length} Azure OpenAI ids with shutdown date ${AZURE_JUNE15_SHUTDOWN_DATE}: ${idList(ordered)}. The retirement schedule lists that date on each of those rows. Lifecycle is GA. The replacement cell is empty, so those cells say Not published. The lifecycle page says a Retired model is removed from service and all inference requests return 410 Gone. gpt-4o-mini-transcribe is file speech-to-text. gpt-4o-mini-tts is text-to-speech. gpt-audio-mini is chat audio. gpt-realtime-mini is the Realtime API. A voice app has to retest the call it already sends.`,
+    checked: AZURE_JUNE15_CHECKED,
+    steps: [
+      {
+        name: "Find deployments",
+        text: "Call Deployments List, or Get-AzCognitiveServicesAccountDeployment, for each Azure OpenAI resource. Read properties.model.name and properties.model.version. A deployment name can differ from the model name. gpt-4o-mini-transcribe version 2025-12-15 is the dataset id gpt-4o-mini-transcribe-2025-12-15. gpt-4o-mini-tts version 2025-12-15 is gpt-4o-mini-tts-2025-12-15. gpt-audio-mini version 2025-12-15 is gpt-audio-mini-2025-12-15. gpt-realtime-mini version 2025-12-15 is gpt-realtime-mini-2025-12-15.",
+      },
+      {
+        name: "Pick a replacement",
+        text: `The replacement cell is empty for all ${ordered.length} rows. Microsoft did not name a recommended replacement. Shortlist a model yourself. gpt-audio-1.5 version 2026-02-23, gpt-realtime-1.5 version 2026-02-23, and gpt-5.3-codex version 2026-02-24 retire on ${AZURE_AUG24_SHUTDOWN_DATE}. The June 15 replacement cells do not name those ids.`,
+      },
+      {
+        name: "Test",
+        text: `Send one real audio request to the model you picked, using a clip or prompt you send now. Do that before ${when}. Check latency, the voice, the audio format, and the API version on that call.`,
+      },
+      {
+        name: "Redeploy before the date",
+        text: `Create a deployment of the model you tested and move traffic before ${when}. These rows do not name an automatic-upgrade target. Provisioned deployments are not auto-upgraded. A deployment set to NoAutoUpgrade stops working on the retirement date.`,
+      },
+    ],
+    sections: [
+      {
+        heading: "Models and dates",
+        paragraphs: [
+          `These ${ordered.length} ids are the Azure OpenAI rows whose shutdown date is ${AZURE_JUNE15_SHUTDOWN_DATE}. The model id links to its SunsetDiff model page. Lifecycle is the schedule's Lifecycle column, copied from the source excerpt stored on the row. Shutdown date and replacement are the fields stored on the row. Not published means the replacement field is empty. These rows do not store a deprecation_date. ${byLifecycle}.`,
+          `Checked on ${AZURE_JUNE15_CHECKED}, the retirement schedule lists gpt-4o-mini-transcribe version 2025-12-15, gpt-4o-mini-tts version 2025-12-15, gpt-audio-mini version 2025-12-15, and gpt-realtime-mini version 2025-12-15 as GA with retirement date ${AZURE_JUNE15_SHUTDOWN_DATE} and an empty replacement cell. Those rows do not carry footnote 2 or footnote 3.`,
+          `The same schedule prints gpt-realtime-mini version 2025-12-15 a second time. That later row says GA and retirement 2026-12-15, and its replacement cell is empty. SunsetDiff keeps the first base-table row when the same model and version is repeated. The stored shutdown date stays ${AZURE_JUNE15_SHUTDOWN_DATE}. The November and December page records the same rule: [Azure OpenAI retirements from November 15 to December 16, 2026](/guides/${AZURE_NOV_DEC_GUIDE_SLUG}/).`,
+          `The lifecycle table says Generally Available means: "${AZURE_GA}" New deployments are allowed, and existing deployments work, until the retirement date. The lifecycle page also says: "${AZURE_CHECK_SCHEDULE}"`,
+          older.length
+            ? `Other versions of these names are a different shutdown date. ${olderLine}. They are not in the table on this page.`
+            : "The dataset has no older version of these four names.",
+          `The Azure Government schedule does not list gpt-4o-mini-transcribe, gpt-4o-mini-tts, gpt-audio-mini, or gpt-realtime-mini. The dates in the first table are the public-cloud schedule.`,
+        ],
+        table: {
+          caption: `${ordered.length} Azure OpenAI model ids with shutdown date ${AZURE_JUNE15_SHUTDOWN_DATE}.`,
+          headers: ["Model id", "Lifecycle on the schedule", "Shutdown date", "Recommended replacement"],
+          rows: ordered.map((model) => [
+            modelLink(model),
+            azureScheduleLifecycle(model),
+            shutdownCell(model),
+            replacementText(model, catalog),
+          ]),
+        },
+        sources: [
+          ...sources,
+          { label: "Azure Government retirement schedule", url: AZURE_GOV_SCHEDULE },
+        ],
+      },
+      {
+        heading: "Which call each model uses",
+        paragraphs: [
+          "The architecture page says Azure OpenAI provides audio models through three interfaces: the Realtime API for low-latency voice conversations, the Chat Completions API with audio for flexible audio generation and transcription in a single model call, and the Audio API via the /audio endpoint for file-based transcription, translation, and TTS.",
+          `gpt-4o-mini-transcribe is on Audio API /audio/transcriptions. The architecture table says: "${AZURE_STT_FILE}". The transcription reference is POST /openai/v1/audio/transcriptions. Its model options include gpt-4o-mini-transcribe-2025-12-15. That page does not print a date-based api-version.`,
+          `gpt-4o-mini-tts is on Audio API /audio/speech. The architecture table says: "${AZURE_TTS_TONE}" The audio generation quickstart lists gpt-4o-mini-tts as fast, scalable text-to-speech.`,
+          `gpt-audio-mini is on Chat Completions. The architecture table says: "${AZURE_CHAT_AUDIO}". The audio generation quickstart says: "${AZURE_AUDIO_MODALITIES}"`,
+          `gpt-realtime-mini is on the Realtime API. The architecture table says: "${AZURE_REALTIME_ROW}". The realtime how-to lists gpt-realtime-mini version 2025-12-15 among its supported models. It says: "${AZURE_REALTIME_ALL}" And: "${AZURE_REALTIME_GA_URL}"`,
+          "A speech-to-text app, a text-to-speech app, a chat audio app, and a realtime app are four calls. The schedule does not name a model that keeps the same call. When you shortlist a target, confirm that target still accepts the call you send now.",
+        ],
+        sources: audioSources,
+      },
+      {
+        heading: "Replacements Microsoft names",
+        paragraphs: [
+          `The schedule says: "${AZURE_REPLACEMENT_COL}" It also says: "${AZURE_DONT_WAIT}" The lifecycle page says: "${AZURE_REPLACEMENT_LISTED}"`,
+          named.length
+            ? `The replacement cell is filled on ${idList(named)}. ${replacementFaq(named, catalog)}`
+            : "No row in this table stores a replacement.",
+          empty.length
+            ? `The replacement cell is empty on ${idList(empty)}. Empty means Microsoft did not name a recommended replacement on that row. This guide does not add one.`
+            : "Every row in this table stores a replacement.",
+          `The lifecycle page says: "${AZURE_COMPARE}" Then: "${AZURE_CONFIRM}"`,
+        ],
+        sources,
+      },
+      {
+        heading: "What to test",
+        paragraphs: [
+          `Send one real request before ${when}, using audio you send now. The lifecycle page says: "${AZURE_COMPARE}" That sentence names latency. These pages do not print one latency number that covers all ${ordered.length} models.`,
+          `The realtime how-to says: "${AZURE_REALTIME_WEBRTC}" Its connection-methods table lists WebRTC at ~100ms, WebSocket at ~200ms, and SIP as Varies. The transcription reference says: "${AZURE_TRANSCRIBE_LANG}" It also says: "${AZURE_TRANSCRIBE_WORD}" The audio generation quickstart does not print a latency number for gpt-4o-mini-tts or gpt-audio-mini.`,
+          `Voices: the audio generation quickstart says: "${AZURE_AUDIO_VOICES}" The supported-models table on that page includes gpt-4o-mini-tts, gpt-audio-mini, and gpt-realtime-mini. It does not include gpt-4o-mini-transcribe. A transcription call returns text. The realtime how-to shows an example session with voice alloy and input_audio_format pcm16. Test the voice string your app sends.`,
+          `Audio formats: the same quickstart says: "${AZURE_AUDIO_FORMATS}" And: "${AZURE_AUDIO_SIZE}" The realtime how-to says: "${AZURE_REALTIME_PCM}" The list under that sentence is PCM 16-bit (pcm16), mono (single channel), and 24kHz. The transcription reference says: "${AZURE_TRANSCRIBE_FORMATS}" It also says: "${AZURE_TRANSCRIBE_JSON}"`,
+          `API version: the audio generation quickstart says: "${AZURE_AUDIO_API}" The sample on that page sets the model to gpt-audio-mini. The realtime how-to says: "${AZURE_REALTIME_GA_URL}" The transcription reference uses POST /openai/v1/audio/transcriptions and does not print a date-based api-version. The schedule does not print an api-version for gpt-4o-mini-tts version 2025-12-15. Keep the api-version the speech call already sends, and send that same version to the model you picked.`,
+        ],
+        sources: [
+          ...audioSources,
+          { label: "Foundry Models lifecycle", url: AZURE_RETIREMENTS },
+        ],
+      },
+      {
+        heading: "What happens to a deployment on the date",
+        paragraphs: [
+          `The lifecycle table says Retired means: "${AZURE_RETIRED}" New deployments are not allowed, and existing deployments do not work. The same page says the API value lifecycleStatus Deprecated means the model is retired and inference returns 410 Gone. The docs stage Deprecated is lifecycleStatus Deprecating, and inference still works. The sentences and the status map are on [Azure OpenAI retired models return 410 Gone](/errors/azure-openai-retired-model-410-gone/). These four rows are GA now, so inference still works until ${when}.`,
+          `The lifecycle page says: "${AZURE_AUTO}" It also says: "${AZURE_PROVISIONED}" The migration page says: "${AZURE_PAYG}" And: "${AZURE_PTU}" And: "${AZURE_BATCH_PATH}"`,
+          `Working with models says: "${AZURE_STANDARD_ONLY}" OnceCurrentVersionExpired means: "${AZURE_EXPIRED}" NoAutoUpgrade means: "${AZURE_NO_AUTO}" And: "${AZURE_NULL}"`,
+          `The same page says: "${AZURE_SPECIFIC}" Then: "${AZURE_THEN_DEFAULT}" A deployment you pinned to one of these versions can still move on the retirement date unless versionUpgradeOption is NoAutoUpgrade. NoAutoUpgrade does not move, and the deployment stops. The replacement cell is the target where an automatic upgrade is supported. These four rows have an empty cell, so they do not name that target.`,
+        ],
+        sources: [
+          ...sources,
+          { label: "Working with Azure OpenAI models", url: AZURE_WORKING },
+          { label: "Model migration process", url: AZURE_MIGRATION },
+        ],
+      },
+      {
+        heading: "Find deployments that use these versions",
+        paragraphs: [
+          `The migration page says: "${AZURE_INVENTORY}" Working with models says: "${AZURE_LIST}" ${AZURE_NULL_FIELD} The model versions page says: "${AZURE_PORTAL}" And: "${AZURE_REST_VERSION}"`,
+          "The example response puts the model name and version on properties.model. The deployment's own name is the name field next to that object. Match properties.model.name and properties.model.version to the ids in the table. gpt-4o-mini-tts version 2025-12-15 is the dataset id gpt-4o-mini-tts-2025-12-15.",
+          "Also search the repository. A hit is a candidate, not proof a deployment still uses that version. [How to find every model ID in your codebase](/guides/find-model-ids-in-your-codebase/) covers SDK argument names. The [scan page](/scan/) builds a search from dataset ids that have a shutdown date.",
+        ],
+        codes: [
+          {
+            caption: "Azure PowerShell, list deployments for one account",
+            code: `Get-AzCognitiveServicesAccountDeployment -ResourceGroupName {ResourceGroupName} -AccountName {AccountName}\n`,
+          },
+          {
+            caption: "Deployments List",
+            code: `GET https://management.azure.com/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.CognitiveServices/accounts/{accountName}/deployments?api-version=2023-05-01\n`,
+          },
+          { caption: "ripgrep", code: searchCode(ordered) },
+        ],
+        sources: [
+          { label: "Working with Azure OpenAI models", url: AZURE_WORKING },
+          { label: "Model versions", url: AZURE_VERSIONS },
+          { label: "Model migration process", url: AZURE_MIGRATION },
+        ],
+      },
+      {
+        heading: "Related deadlines on August 24, 2027",
+        paragraphs: [
+          `The retirement schedule lists three later Azure OpenAI rows on ${AZURE_AUG24_SHUTDOWN_DATE}. gpt-audio-1.5 version 2026-02-23 is GA, retirement ${AZURE_AUG24_SHUTDOWN_DATE}, replacement cell empty. gpt-realtime-1.5 version 2026-02-23 is the same. gpt-5.3-codex version 2026-02-24 is the same.`,
+          augRows.length
+            ? `${augLine}. The batch of those rows is [Azure OpenAI shutdowns on ${augWhen}](/shutdowns/azure-openai-${AZURE_AUG24_SHUTDOWN_DATE}/). The June 15 replacement cells do not name these ids. This page does not turn them into a recommended replacement.`
+            : `The batch page is [Azure OpenAI shutdowns on ${augWhen}](/shutdowns/azure-openai-${AZURE_AUG24_SHUTDOWN_DATE}/).`,
+        ],
+        sources,
+      },
+      {
+        heading: "Fine-tuned training and deployment",
+        paragraphs: [
+          `The schedule and the lifecycle page both say: "${AZURE_FINE_PHASES}" And: "${AZURE_FINE_UNLESS}" Both pages say: "${AZURE_FINE_FOOT}"`,
+          `The fine-tune tables on both pages do not list these four versions. ${fineLines}`,
+          "A base deployment of these versions uses the retirement date in the first table. Do not borrow a fine-tune date from a different model.",
+        ],
+        sources,
+      },
+      {
+        heading: "Redeploy before June 15, 2027",
+        paragraphs: [
+          `Create a deployment of a model you have tested, point traffic at it, and confirm one real audio request before ${when}. Do that for each of the ${ordered.length} versions in the table.`,
+          "Working with models describes two ways to change a provisioned deployment once you have chosen a target. In-place migration keeps the deployment name and moves traffic. Multi-deployment migration creates a second deployment, shifts traffic, then deletes the old one. Neither section names a target for these rows.",
+          `The batch of these rows is [Azure OpenAI shutdowns on ${when}](/shutdowns/azure-openai-${AZURE_JUNE15_SHUTDOWN_DATE}/). The [Azure OpenAI provider page](/providers/azure-openai/) lists the other stored rows. The April 14, 2027 batch is [Azure OpenAI GPT-4.1 and GPT-4o retirement on April 14, 2027](/guides/${AZURE_APRIL14_GUIDE_SLUG}/). The July 13, 2027 batch is [Azure OpenAI gpt-5.1, gpt-5-mini, and gpt-5.2-codex retirement on July 13, 2027](/guides/${AZURE_JULY13_GUIDE_SLUG}/).`,
+          "The [pre-migration test checklist](/guides/pre-migration-test-checklist/) is the longer list: evals, rejected fields, token limits, tools, price, and latency. These Azure rows do not store a price.",
+        ],
+        sources: [
+          { label: "Model migration process", url: AZURE_MIGRATION },
+          { label: "Working with Azure OpenAI models", url: AZURE_WORKING },
+          { label: "Azure OpenAI retirement schedule", url: AZURE_SCHEDULE },
+        ],
+      },
+    ],
+    related: [
+      { href: `/shutdowns/azure-openai-${AZURE_JUNE15_SHUTDOWN_DATE}/`, label: `Azure OpenAI shutdowns on ${when}` },
+      { href: `/shutdowns/azure-openai-${AZURE_AUG24_SHUTDOWN_DATE}/`, label: `Azure OpenAI shutdowns on ${augWhen}` },
+      { href: "/providers/azure-openai/", label: "Azure OpenAI provider page" },
+      { href: "/errors/azure-openai-retired-model-410-gone/", label: "Azure OpenAI retired models return 410 Gone" },
+      { href: "/models/azure-openai/gpt-4o-mini-transcribe-2025-12-15/", label: "Azure gpt-4o-mini-transcribe-2025-12-15" },
+      { href: "/models/azure-openai/gpt-4o-mini-tts-2025-12-15/", label: "Azure gpt-4o-mini-tts-2025-12-15" },
+      { href: "/models/azure-openai/gpt-audio-mini-2025-12-15/", label: "Azure gpt-audio-mini-2025-12-15" },
+      { href: "/models/azure-openai/gpt-realtime-mini-2025-12-15/", label: "Azure gpt-realtime-mini-2025-12-15" },
+      { href: "/models/azure-openai/gpt-audio-1-5-2026-02-23/", label: "Azure gpt-audio-1.5-2026-02-23" },
+      { href: "/models/azure-openai/gpt-realtime-1-5-2026-02-23/", label: "Azure gpt-realtime-1.5-2026-02-23" },
+      { href: "/models/azure-openai/gpt-5-3-codex-2026-02-24/", label: "Azure gpt-5.3-codex-2026-02-24" },
+      { href: `/guides/${AZURE_NOV_DEC_GUIDE_SLUG}/`, label: "Azure OpenAI retirements from November 15 to December 16, 2026" },
+      { href: `/guides/${AZURE_APRIL14_GUIDE_SLUG}/`, label: "Azure OpenAI GPT-4.1 and GPT-4o retirement on April 14, 2027" },
+      { href: `/guides/${AZURE_JULY13_GUIDE_SLUG}/`, label: "Azure OpenAI gpt-5.1, gpt-5-mini, and gpt-5.2-codex retirement on July 13, 2027" },
+      { href: "/guides/find-model-ids-in-your-codebase/", label: "Find model ids in your codebase" },
+      { href: "/guides/pre-migration-test-checklist/", label: "Pre-migration test checklist" },
+      { href: "/scan/", label: "Scan retiring ids" },
+    ],
+    faqs: [
+      {
+        question: `Which Azure OpenAI versions retire on ${when}?`,
+        answer: `The dataset lists ${idList(ordered)}. The retirement schedule lists shutdown date ${AZURE_JUNE15_SHUTDOWN_DATE} for each of them. ${byLifecycle}.`,
+      },
+      {
+        question: "What is the official replacement?",
+        answer: `${replacementFaq(ordered, catalog)} The schedule says: "${AZURE_REPLACEMENT_COL}" The cell is empty on ${idList(empty)}.`,
+      },
+      {
+        question: "What does a speech, TTS, chat audio, or realtime app need to change?",
+        answer: `gpt-4o-mini-transcribe-2025-12-15 is file transcription at POST /openai/v1/audio/transcriptions. gpt-4o-mini-tts-2025-12-15 is text-to-speech on /audio/speech, and the architecture page says gpt-4o-mini-tts supports prompt-guided style and tone. gpt-audio-mini-2025-12-15 is chat audio. The quickstart says: "${AZURE_AUDIO_MODALITIES}" gpt-realtime-mini-2025-12-15 is the Realtime API. The how-to says: "${AZURE_REALTIME_GA_URL}" The replacement cell is empty, so you shortlist the next model and confirm it accepts that same call.`,
+      },
+      {
+        question: "What should I test before June 15, 2027?",
+        answer: `Test latency, the voice, the audio format, and the API version on one real call before ${AZURE_JUNE15_SHUTDOWN_DATE}. The realtime connection table lists WebRTC at ~100ms, WebSocket at ~200ms, and SIP as Varies. Voices on the audio quickstart: "${AZURE_AUDIO_VOICES}" Output formats: "${AZURE_AUDIO_FORMATS}" Realtime input is PCM 16-bit (pcm16), mono, 24kHz. Transcription input formats: "${AZURE_TRANSCRIBE_FORMATS}" Transcription output for gpt-4o-mini-transcribe is json. Chat audio completions use API version 2025-01-01-preview in the gpt-audio-mini sample. Realtime uses /openai/v1 and does not use a date-based api-version.`,
+      },
+      {
+        question: "Why does the schedule also print 2026-12-15 for gpt-realtime-mini 2025-12-15?",
+        answer: `Checked on ${AZURE_JUNE15_CHECKED}, the first row says GA and retirement ${AZURE_JUNE15_SHUTDOWN_DATE}. A later row says GA and retirement 2026-12-15. Both replacement cells are empty. SunsetDiff keeps the first base-table row. The stored id gpt-realtime-mini-2025-12-15 uses ${AZURE_JUNE15_SHUTDOWN_DATE}.`,
+      },
+      {
+        question: "What about the older snapshots?",
+        answer: `${olderLine}. Those ids are not in the ${AZURE_JUNE15_SHUTDOWN_DATE} table.`,
+      },
+      {
+        question: "What does Azure return after retirement?",
+        answer: `The lifecycle page says a Retired model is removed from service and: "${AZURE_RETIRED}" See [Azure OpenAI retired models return 410 Gone](/errors/azure-openai-retired-model-410-gone/).`,
+      },
+      {
+        question: "Will every deployment upgrade itself?",
+        answer: `No. The lifecycle page says: "${AZURE_AUTO}" And: "${AZURE_PROVISIONED}" Working with models says: "${AZURE_STANDARD_ONLY}" NoAutoUpgrade means: "${AZURE_NO_AUTO}" ${AZURE_NULL} These four rows have an empty replacement cell, so they do not name an upgrade target.`,
+      },
+      {
+        question: "How do I find deployments that still use these versions?",
+        answer: `Working with models says: "${AZURE_LIST}" Read properties.model.name and properties.model.version. The model versions page says: "${AZURE_PORTAL}" The migration page says: "${AZURE_INVENTORY}"`,
+      },
+      {
+        question: "Do fine-tuned deployments of these versions retire on June 15, 2027?",
+        answer: `The base retirement date is ${AZURE_JUNE15_SHUTDOWN_DATE}. The fine-tune tables do not list these four versions. ${fineLines} Both pages say: "${AZURE_FINE_FOOT}"`,
+      },
+      {
+        question: "Does Azure Government list the same date?",
+        answer: `The Azure Government schedule does not list gpt-4o-mini-transcribe, gpt-4o-mini-tts, gpt-audio-mini, or gpt-realtime-mini. The public-cloud schedule lists all four ids on ${AZURE_JUNE15_SHUTDOWN_DATE}.`,
+      },
+      {
+        question: "What retires on August 24, 2027?",
+        answer: `The schedule lists gpt-audio-1.5 version 2026-02-23, gpt-realtime-1.5 version 2026-02-23, and gpt-5.3-codex version 2026-02-24 as GA with retirement date ${AZURE_AUG24_SHUTDOWN_DATE} and an empty replacement cell. ${augLine}. See [Azure OpenAI shutdowns on ${augWhen}](/shutdowns/azure-openai-${AZURE_AUG24_SHUTDOWN_DATE}/). Those ids are not the replacement cell for the ${AZURE_JUNE15_SHUTDOWN_DATE} rows.`,
+      },
+    ],
+    citations: [
+      AZURE_SCHEDULE,
+      AZURE_RETIREMENTS,
+      AZURE_WORKING,
+      AZURE_VERSIONS,
+      AZURE_MIGRATION,
+      AZURE_GOV_SCHEDULE,
+      AZURE_AUDIO_ARCH,
+      AZURE_AUDIO_QUICKSTART,
+      AZURE_REALTIME_HOWTO,
+      AZURE_TRANSCRIBE_REST,
     ],
   };
 }
