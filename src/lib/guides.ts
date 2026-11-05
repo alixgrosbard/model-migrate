@@ -49,6 +49,7 @@ import {
   isOpus45RetirementFloor,
   isSonnet45Nov30Shutdown,
   isVertexNovDecGemini,
+  isVertexVeoFloor,
   OPENROUTER_NOV_DEC_GUIDE_SLUG,
   showsOpenRouterNovDecGuide,
   APRIL_1_2027_GUIDE_SLUG,
@@ -2501,14 +2502,10 @@ export function guidesForModel(model: ModelRecord, catalog: ModelRecord[]): Mode
   if (showsGeminiDec1Guide(model) || isGeminiDec1AutoRoute(model)) add(GEMINI_DEC1_GUIDE_SLUG);
   if (
     isVertexNovDecGemini(model)
+    || isVertexVeoFloor(model)
     || (
       model.provider === "google-vertex"
-      && (
-        model.id === "gemini-3.8-flash"
-        || model.id === "gemini-3.8-live"
-        || model.id === "veo-3.1-generate-001"
-        || model.id === "veo-3.1-fast-generate-001"
-      )
+      && (model.id === "gemini-3.8-flash" || model.id === "gemini-3.8-live")
     )
   ) {
     add(VERTEX_NOV_DEC_GUIDE_SLUG);

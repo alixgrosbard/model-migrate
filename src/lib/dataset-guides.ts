@@ -522,6 +522,34 @@ export function isVertexNovDecGemini(model: ModelRecord): boolean {
     );
 }
 
+/** Vertex Veo rows whose retirement cell is a floor. The ids and the day come from the dataset. */
+export function isVertexVeoFloor(model: ModelRecord): boolean {
+  return model.provider === "google-vertex"
+    && model.id.startsWith("veo-")
+    && model.shutdown_date_kind === "not_before"
+    && Boolean(model.shutdown_date);
+}
+
+export function vertexVeoFloorRows(catalog: ModelRecord[]): ModelRecord[] {
+  return catalog.filter(isVertexVeoFloor).sort((a, b) => a.id.localeCompare(b.id));
+}
+
+export function vertexVeoProviderNote(catalog: ModelRecord[]): string {
+  const veo = vertexVeoFloorRows(catalog);
+  if (!veo.length) return "No Vertex Veo row stores a not_before retirement date.";
+  const dates = [...new Set(veo.map((model) => model.shutdown_date))].sort();
+  const empty = veo.every((model) => model.replacements.length === 0);
+  const replacement = empty ? "with no replacement model ID" : "with the replacement stored on each row";
+  if (dates.length === 1 && dates[0]) {
+    const ids = veo.length === 2 ? `${veo[0].id} and ${veo[1].id}` : idList(veo);
+    return `${ids} list ${longDate(dates[0])} or later, ${replacement}. That date is a floor, so there is no /shutdowns/google-vertex-${dates[0]}/ page.`;
+  }
+  return veo.map((model) => {
+    const cell = model.replacements.length === 0 ? ", with no replacement model ID" : "";
+    return `${model.id} lists ${longDate(model.shutdown_date!)} or later${cell}. That date is a floor, so there is no /shutdowns/google-vertex-${model.shutdown_date}/ page.`;
+  }).join(" ");
+}
+
 export function isSonnet45Nov30Shutdown(model: ModelRecord): boolean {
   return model.provider === "anthropic"
     && model.id === "claude-sonnet-4-5-20250929"
@@ -5467,15 +5495,13 @@ const GEMINI_LIVE_BLURB =
   "Gemini 3.8 Live is the default option for most low-latency voice agent experiences and real-time dialogue without reasoning-induced delays.";
 const GEMINI_CHECKED = "2026-11-01";
 
-/** Checked against the Vertex model versions page on 2026-11-02. */
+/** Checked against the Vertex model versions page on 2026-11-02. Veo floors are read from the dataset. */
 export const VERTEX_NOV19_SHUTDOWN_DATE = "2026-11-19";
 export const VERTEX_DEC13_SHUTDOWN_DATE = "2026-12-13";
-export const VERTEX_VEO_FLOOR_DATE = "2026-11-17";
 export const VERTEX_NOV_DEC_GUIDE_SLUG = "vertex-ai-gemini-retirements-november-december-2026";
 export const VERTEX_NOV_DEC_CHECKED = "2026-11-02";
 const VERTEX_FLASH_ID = "gemini-3.6-flash";
 const VERTEX_LIVE_ID = "gemini-live-2.5-flash-native-audio";
-const VERTEX_VEO_IDS = ["veo-3.1-fast-generate-001", "veo-3.1-generate-001"] as const;
 const VERTEX_FLASH_PAGE = "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/gemini/3-6-flash";
 const VERTEX_FLASH_GUIDE = "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/guides/gemini-3-8-flash";
 const VERTEX_LIVE_PAGE = "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/gemini/2-5-flash-live-api";
@@ -6031,14 +6057,79 @@ function vertexDateCell(model: ModelRecord): string {
   return shutdownCell(model);
 }
 
+function veoFloorDates(veo: ModelRecord[]): string[] {
+  return [...new Set(veo.map((model) => model.shutdown_date).filter((date): date is string => Boolean(date)))].sort();
+}
+
+function veoOneFloor(veo: ModelRecord[]): string | undefined {
+  const dates = veoFloorDates(veo);
+  return dates.length === 1 ? dates[0] : undefined;
+}
+
+function veoFloorWords(date: string): string {
+  return `${longDate(date)} or later`;
+}
+
+function veoReplacementClause(veo: ModelRecord[]): string {
+  return veo.every((model) => publishedReplacementIds(model).length === 0)
+    ? "The replacement cell is empty."
+    : "See each row for its stored replacement.";
+}
+
+function veoFloorSentence(veo: ModelRecord[]): string {
+  if (!veo.length) return "The dataset has no Vertex Veo row with a not_before retirement date.";
+  const date = veoOneFloor(veo);
+  const kinds = [...new Set(veo.map((model) => model.shutdown_date_kind))].join(", ");
+  if (date) {
+    return `The model versions page lists ${idList(veo)} with retirement date ${veoFloorWords(date)}. ${veoReplacementClause(veo)} The dataset stores shutdown date ${date} and kind ${kinds}.`;
+  }
+  const lines = veo.map((model) => `${model.id} stores ${model.shutdown_date} with kind ${model.shutdown_date_kind}`);
+  return `${lines.join(". ")}. ${veoReplacementClause(veo)}`;
+}
+
+function veoAnswerClause(veo: ModelRecord[]): string {
+  if (!veo.length) return "The dataset has no Vertex Veo row with a not_before retirement date.";
+  const date = veoOneFloor(veo);
+  if (date) {
+    const empty = veo.every((model) => publishedReplacementIds(model).length === 0);
+    return `The Veo ids ${idList(veo)} print ${veoFloorWords(date)}${empty ? ", with an empty replacement cell" : ""}. That is a floor, not a confirmed shutdown on ${longDate(date)}.`;
+  }
+  return `The Veo rows are floors: ${veo.map((model) => `${model.id} prints ${veoFloorWords(model.shutdown_date!)}`).join("; ")}.`;
+}
+
+function veoFloorPageSentence(veo: ModelRecord[]): string {
+  if (!veo.length) return "The dataset has no Vertex Veo floor, so this guide does not name a Veo shutdown page.";
+  return veoFloorDates(veo).map((date) => {
+    const rows = veo.filter((model) => model.shutdown_date === date);
+    const counted = rows.length === 1 ? "that row" : `those ${rows.length} rows`;
+    const under = rows.length < SHUTDOWN_BATCH_MIN
+      ? ` Counting ${counted} as exact would still be under ${SHUTDOWN_BATCH_MIN}.`
+      : "";
+    return `${idList(rows)} store ${date} with kind not_before. A floor is not an exact shutdown date, so there is no /shutdowns/google-vertex-${date}/ page.${under}`;
+  }).join(" ");
+}
+
+function veoShutdownAnswer(veo: ModelRecord[]): string {
+  if (!veo.length) {
+    return `The dataset has no Vertex Veo row with a not_before retirement date. The page says: "${VERTEX_EXTEND}"`;
+  }
+  const date = veoOneFloor(veo);
+  const when = date
+    ? veoFloorWords(date)
+    : veoFloorDates(veo).map((day) => veoFloorWords(day)).join(", ");
+  const empty = veo.every((model) => publishedReplacementIds(model).length === 0);
+  const kinds = [...new Set(veo.map((model) => model.shutdown_date_kind))].join(", ");
+  const moved = date === "2026-11-17" ? "" : " No Vertex Veo row stores shutdown date 2026-11-17.";
+  return `No confirmed day is printed. The model versions page says ${when}, and ${empty ? "the replacement cell is empty" : "the stored replacement is on each row"}. The page says: "${VERTEX_EXTEND}" The dataset kind is ${kinds}.${moved}`;
+}
+
 function vertexNovDecGuide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePage {
   const ordered = [...rows].sort((a, b) => (a.shutdown_date ?? "").localeCompare(b.shutdown_date ?? "") || a.id.localeCompare(b.id));
   const nov19 = vertexExact(catalog, VERTEX_NOV19_SHUTDOWN_DATE);
   const dec13 = vertexExact(catalog, VERTEX_DEC13_SHUTDOWN_DATE);
   const oct20 = vertexExact(catalog, "2026-10-20");
-  const veo = catalog
-    .filter((model) => model.provider === "google-vertex" && (VERTEX_VEO_IDS as readonly string[]).includes(model.id))
-    .sort((a, b) => a.id.localeCompare(b.id));
+  const veo = vertexVeoFloorRows(catalog);
+  const veoDate = veoOneFloor(veo);
   const flash37 = catalog.find((model) => model.provider === "google-vertex" && model.id === "gemini-3.7-flash");
   const apiFlash = catalog.find((model) => model.provider === "google-gemini-api" && model.id === VERTEX_FLASH_ID);
   const sources = [
@@ -6049,10 +6140,10 @@ function vertexNovDecGuide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePa
   return {
     slug: VERTEX_NOV_DEC_GUIDE_SLUG,
     title: "Vertex AI Gemini retirements in November and December 2026 | SunsetDiff",
-    description: `Vertex AI retires gemini-3.6-flash on ${VERTEX_NOV19_SHUTDOWN_DATE} and gemini-live-2.5-flash-native-audio on ${VERTEX_DEC13_SHUTDOWN_DATE}. Replacements are gemini-3.8-flash and gemini-3.8-live. Veo 3.1 says November 17, 2026 or later.`,
+    description: `Vertex AI retires gemini-3.6-flash on ${VERTEX_NOV19_SHUTDOWN_DATE} and gemini-live-2.5-flash-native-audio on ${VERTEX_DEC13_SHUTDOWN_DATE}. Replacements are gemini-3.8-flash and gemini-3.8-live. ${veoDate ? `Veo rows store ${veoDate} with kind not_before.` : "Veo floors follow the dates stored on each row."}`,
     h1: "Vertex AI Gemini retirements in November and December 2026",
     summary: `The Vertex Gemini ids with exact shutdown dates ${VERTEX_NOV19_SHUTDOWN_DATE} and ${VERTEX_DEC13_SHUTDOWN_DATE}, the replacement on the model versions page, and the Veo rows that only print a floor.`,
-    answer: `The dataset has ${ordered.length} Google Vertex Gemini ids with an exact shutdown date in this window: ${idList(ordered)}. The model versions page lists gemini-3.6-flash with retirement date November 19, 2026 and replacement model ID gemini-3.8-flash. It lists gemini-live-2.5-flash-native-audio with retirement date December 13, 2026 and replacement model ID gemini-3.8-live. The 3.6 Flash page says: "${VERTEX_FLASH_BANNER}" The Veo ids veo-3.1-generate-001 and veo-3.1-fast-generate-001 print November 17, 2026 or later, with an empty replacement cell. That is a floor, not a confirmed shutdown on November 17. A shutdown batch page needs at least ${SHUTDOWN_BATCH_MIN} records on one exact date, so there is no /shutdowns/google-vertex-${VERTEX_NOV19_SHUTDOWN_DATE}/ page and no /shutdowns/google-vertex-${VERTEX_DEC13_SHUTDOWN_DATE}/ page.`,
+    answer: `The dataset has ${ordered.length} Google Vertex Gemini ids with an exact shutdown date in this window: ${idList(ordered)}. The model versions page lists gemini-3.6-flash with retirement date November 19, 2026 and replacement model ID gemini-3.8-flash. It lists gemini-live-2.5-flash-native-audio with retirement date December 13, 2026 and replacement model ID gemini-3.8-live. The 3.6 Flash page says: "${VERTEX_FLASH_BANNER}" ${veoAnswerClause(veo)} A shutdown batch page needs at least ${SHUTDOWN_BATCH_MIN} records on one exact date, so there is no /shutdowns/google-vertex-${VERTEX_NOV19_SHUTDOWN_DATE}/ page and no /shutdowns/google-vertex-${VERTEX_DEC13_SHUTDOWN_DATE}/ page.`,
     checked: VERTEX_NOV_DEC_CHECKED,
     steps: [
       {
@@ -6069,7 +6160,7 @@ function vertexNovDecGuide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePa
       },
       {
         name: "Test before each date",
-        text: `Call gemini-3.8-flash before ${longDate(VERTEX_NOV19_SHUTDOWN_DATE)}. Call gemini-3.8-live before ${longDate(VERTEX_DEC13_SHUTDOWN_DATE)}. The model versions page says retirement timelines may be extended, and they will not move earlier. The Veo rows say November 17, 2026 or later. Do not treat that cell as a shutdown on November 17.`,
+        text: `Call gemini-3.8-flash before ${longDate(VERTEX_NOV19_SHUTDOWN_DATE)}. Call gemini-3.8-live before ${longDate(VERTEX_DEC13_SHUTDOWN_DATE)}. The model versions page says retirement timelines may be extended, and they will not move earlier. ${veoDate ? `The Veo rows say ${veoFloorWords(veoDate)}. Do not treat that cell as a shutdown on ${longDate(veoDate)}.` : veo.length ? "The Veo rows are floors. Do not treat a floor cell as a shutdown on that day." : "The dataset has no Vertex Veo floor in this guide."}`,
       },
     ],
     sections: [
@@ -6094,15 +6185,19 @@ function vertexNovDecGuide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePa
       {
         heading: "Veo dates that are floors",
         paragraphs: [
+          veoFloorSentence(veo),
+          veoDate
+            ? `The page says: "${VERTEX_EXTEND}" ${longDate(veoDate)} is the earliest day in that cell. It is not a confirmed shutdown on that day. This guide does not name a replacement the page does not print.`
+            : `The page says: "${VERTEX_EXTEND}" A floor is the earliest day in that cell. It is not a confirmed shutdown on that day. This guide does not name a replacement the page does not print.`,
           veo.length
-            ? `The model versions page lists ${idList(veo)} with retirement date November 17, 2026 or later. The replacement cell is empty. The dataset stores shutdown date ${VERTEX_VEO_FLOOR_DATE} and kind ${[...new Set(veo.map((model) => model.shutdown_date_kind))].join(", ")}.`
-            : "The dataset has no veo-3.1-generate-001 or veo-3.1-fast-generate-001 row.",
-          `The page says: "${VERTEX_EXTEND}" November 17, 2026 is the earliest day in that cell. It is not a confirmed shutdown on that day. This guide does not name a replacement the page does not print.`,
-          "These Veo ids are not Gemini text or Live ids. A generateContent swap to gemini-3.8-flash does not replace a Veo video model.",
+            ? "These Veo ids are not Gemini text or Live ids. A generateContent swap to gemini-3.8-flash does not replace a Veo video model."
+            : "A generateContent swap to gemini-3.8-flash does not replace a Veo video model.",
         ],
         table: veo.length
           ? {
-              caption: `${veo.length} Vertex Veo ids whose retirement cell says November 17, 2026 or later.`,
+              caption: veoDate
+                ? `${veo.length} Vertex Veo ids whose retirement cell says ${veoFloorWords(veoDate)}.`
+                : `${veo.length} Vertex Veo ids with a not_before retirement date.`,
               headers: ["Model id", "Deprecation date", "Retirement cell", "Recommended replacement"],
               rows: veo.map((model) => [
                 modelLink(model),
@@ -6209,7 +6304,7 @@ async with client.aio.live.connect(
       {
         heading: "Find the model ids in your code",
         paragraphs: [
-          "Search the repository for the two Gemini ids in the first table, and for the two Veo ids if you use video models. A hit is a candidate. [How to find every model ID in your codebase](/guides/find-model-ids-in-your-codebase/) covers SDK argument names. The [scan page](/scan/) builds a search from dataset ids that have a shutdown date.",
+          `Search the repository for the two Gemini ids in the first table${veo.length ? `, and for ${idList(veo)} if you use video models` : ""}. A hit is a candidate. [How to find every model ID in your codebase](/guides/find-model-ids-in-your-codebase/) covers SDK argument names. The [scan page](/scan/) builds a search from dataset ids that have a shutdown date.`,
           "gemini-3.6-flash on the Gemini API is a different provider row. The Vertex retirement date does not fill in a Gemini API shutdown date. Search configs that set a Vertex location as well as the model id. The Live pages do not share one location list.",
         ],
         codes: [{ caption: "ripgrep", code: searchCode([...ordered, ...veo]) }],
@@ -6233,7 +6328,7 @@ async with client.aio.live.connect(
           `SunsetDiff publishes a shutdown batch page when at least ${SHUTDOWN_BATCH_MIN} model records share one provider and one exact shutdown date.`,
           vertexBatchSentence(VERTEX_NOV19_SHUTDOWN_DATE, nov19.length),
           vertexBatchSentence(VERTEX_DEC13_SHUTDOWN_DATE, dec13.length),
-          `veo-3.1-generate-001 and veo-3.1-fast-generate-001 store ${VERTEX_VEO_FLOOR_DATE} with kind not_before. A floor is not an exact shutdown date, so there is no /shutdowns/google-vertex-${VERTEX_VEO_FLOOR_DATE}/ page. Counting those two rows as exact would still be under ${SHUTDOWN_BATCH_MIN}.`,
+          veoFloorPageSentence(veo),
           vertexBatchSentence("2026-10-20", oct20.length),
           "October 20, 2026 is the gemini-2.5-pro, gemini-2.5-flash, and gemini-2.5-flash-lite batch. It is not the November 19 or December 13 date.",
         ],
@@ -6275,7 +6370,7 @@ async with client.aio.live.connect(
       },
       {
         question: "Do the Veo 3.1 models shut down on November 17, 2026?",
-        answer: `No confirmed day is printed. The model versions page says November 17, 2026 or later, and the replacement cell is empty. The page says: "${VERTEX_EXTEND}" The dataset kind is not_before.`,
+        answer: veoShutdownAnswer(veo),
       },
       {
         question: "Does the Gemini API use these same dates?",
@@ -6283,7 +6378,7 @@ async with client.aio.live.connect(
       },
       {
         question: "Why is there no shutdown page for November 19 or December 13?",
-        answer: `A shutdown batch page is published when at least ${SHUTDOWN_BATCH_MIN} model records share one provider and one exact shutdown date. ${vertexBatchSentence(VERTEX_NOV19_SHUTDOWN_DATE, nov19.length)} ${vertexBatchSentence(VERTEX_DEC13_SHUTDOWN_DATE, dec13.length)} There is no /shutdowns/google-vertex-${VERTEX_VEO_FLOOR_DATE}/ page because the Veo date is a floor.`,
+        answer: `A shutdown batch page is published when at least ${SHUTDOWN_BATCH_MIN} model records share one provider and one exact shutdown date. ${vertexBatchSentence(VERTEX_NOV19_SHUTDOWN_DATE, nov19.length)} ${vertexBatchSentence(VERTEX_DEC13_SHUTDOWN_DATE, dec13.length)} ${veoFloorDates(veo).map((date) => `There is no /shutdowns/google-vertex-${date}/ page because the Veo date is a floor.`).join(" ") || "The dataset has no Vertex Veo floor to publish as a shutdown page."}`,
       },
       {
         question: "Is gemini-3.7-flash in this window?",
