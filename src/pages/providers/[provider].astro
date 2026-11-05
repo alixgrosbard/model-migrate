@@ -8,6 +8,7 @@ import { publicName } from "../../lib/growth.ts";
 import { providersHub } from "../../lib/hubs.ts";
 import { providerStatusPath, STATUS_HUBS } from "../../lib/status-hubs.ts";
 import { COPILOT_NOV16_PATH, COPILOT_NOV16_TITLE, copilotNov16Hit, shutdownEventPath, shutdownEvents } from "../../lib/shutdowns.ts";
+import { vertexVeoProviderNote } from "../../lib/dataset-guides.ts";
 import { guideBySlug, guidePath } from "../../lib/guides.ts";
 import type { ModelRecord } from "../../schema.ts";
 
@@ -220,8 +221,7 @@ const openaiGuides = provider.id === "openai"
       December 13, 2026 is the retirement date that page lists for gemini-live-2.5-flash-native-audio.
       The replacement model ID is gemini-3.8-live.
       Each of those dates has one exact model, short of the three-model batch, so there is no /shutdowns/google-vertex-2026-11-19/ page and there is no /shutdowns/google-vertex-2026-12-13/ page.
-      veo-3.1-generate-001 and veo-3.1-fast-generate-001 list November 17, 2026 or later, with no replacement model ID.
-      That date is a floor, so there is no /shutdowns/google-vertex-2026-11-17/ page.
+      {vertexVeoProviderNote(models)}{" "}
       <a href="/shutdowns/google-vertex-2026-10-20/">October 20, 2026 shutdowns</a>.
       <a href="/guides/vertex-ai-gemini-retirements-november-december-2026/">November and December 2026 Gemini guide</a>.
       April 1, 2027 is the retirement date the model versions page lists for text-embedding-004, text-embedding-005, text-multilingual-embedding-002, and multimodalembedding@001.

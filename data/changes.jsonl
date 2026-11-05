@@ -1573,3 +1573,5 @@
 {"date":"2026-11-04","provider":"together","model_id":"nvidia/Nemotron-3-Nano-Omni-30B-A3B-Reasoning-BF16","field":"shutdown_date","old":null,"new":"2026-09-11","source_url":"https://docs.together.ai/docs/deprecations"}
 {"date":"2026-11-04","provider":"together","model_id":"nvidia/NVIDIA-Nemotron-3-Super-120B-A12B-BF16","field":"shutdown_date","old":null,"new":"2026-09-11","source_url":"https://docs.together.ai/docs/deprecations"}
 {"date":"2026-11-04","provider":"together","model_id":"Qwen/Qwen3.5-35B-A3B-Base","field":"shutdown_date","old":null,"new":"2026-09-11","source_url":"https://docs.together.ai/docs/deprecations"}
+{"date":"2026-11-05","provider":"google-vertex","model_id":"veo-3.1-fast-generate-001","field":"shutdown_date","old":"2026-11-17","new":"2027-05-04","source_url":"https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/model-versions"}
+{"date":"2026-11-05","provider":"google-vertex","model_id":"veo-3.1-generate-001","field":"shutdown_date","old":"2026-11-17","new":"2027-05-04","source_url":"https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/model-versions"}
