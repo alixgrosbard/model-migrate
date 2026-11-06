@@ -28,7 +28,7 @@ const listed = events.map((event) => ({
 ---
 <Base
   title="AI model shutdown batches | SunsetDiff"
-  description="Models that shut down together. One page per provider and date. Most pages need three models, but single-model dates with a live guide also get a page. OpenRouter floors with four or more rows also get a page."
+  description="Models that shut down together. One page per provider and date. Most pages need three models. Named dates with fewer records, and named OpenRouter not-before floors, also get a page."
   crumbs={[{ name: "Home", path: "/" }, { name: "Shutdowns", path: "/shutdowns/" }]}
   extraGraph={shutdownIndexGraph(site, listed)}
 >
@@ -37,7 +37,7 @@ const listed = events.map((event) => ({
     Each page is one provider and one shutdown date.
     Most pages need at least three model records on one exact date.
     Some dates with fewer records are published when a guide already covers them.
-    OpenRouter dates are "not sooner than" floors; dates with four or more rows get a page and note the floor.
+    OpenRouter dates are "not sooner than" floors. Named floors get a page and note the floor.
     The date and the replacement come from the official page.
     Upcoming dates are listed first. <a href="/deadlines/">All deadlines</a> · <a href="/upcoming/">Every upcoming shutdown</a> · <a href="/feed.xml">RSS</a> · <a href="/scan/">Scan</a> · <a href="/errors/">Request errors</a>
   </p>

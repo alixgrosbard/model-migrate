@@ -9,8 +9,8 @@ export const SHUTDOWN_BATCH_MIN = 3;
 /**
  * Exact dates that still get a /shutdowns/ page with fewer than SHUTDOWN_BATCH_MIN rows.
  * shutdownEvents reads the current dataset. A reroute note or a region limit does not
- * drop a row when shutdown_date_kind is exact. These dates have two exact rows each,
- * which is why the three-model rule hid them. Other two-row dates stay unpublished.
+ * drop a row when shutdown_date_kind is exact. Named dates here have one or two exact
+ * rows, which is why the three-model rule hid them. Other small dates stay unpublished.
  */
 export const SMALL_SHUTDOWN_BATCHES = new Set([
   "google-gemini-api|2026-12-01",
@@ -22,16 +22,29 @@ export const SMALL_SHUTDOWN_BATCHES = new Set([
   "azure-openai|2026-11-15",   // codex-mini-2025-05-16 (1 exact row)
   "azure-openai|2026-11-17",   // gpt-chat-latest snapshots (2 exact rows)
   "google-vertex|2026-11-19",  // gemini-3.6-flash (1 exact row)
+  "azure-openai|2026-12-08",   // gpt-chat-latest-2026-05-28 (1 exact row)
+  "azure-openai|2026-12-16",   // gpt-image-1.5-2025-12-16 (1 exact row)
+  "google-vertex|2026-12-13",  // gemini-live-2.5-flash-native-audio (1 exact row)
+  "aws-bedrock|2027-01-08",    // Claude Opus 4.1 (1 exact row)
+  "azure-openai|2027-01-12",   // gpt-chat-latest-2026-08-06 (1 exact row)
+  "azure-openai|2027-01-14",   // gpt-4o-2024-05-13 (1 exact row)
+  "azure-openai|2027-01-20",   // gpt-realtime-2-2026-05-06 (1 exact row)
+  "google-vertex|2027-01-28",  // gemini-3.7-flash (1 exact row)
 ]);
 
 /**
  * not_before dates that get a /shutdowns/ page. These dates are floor dates (the provider
- * published "not sooner than"), so they are not exact shutdown dates, but the batch is
- * large enough to be useful and the guide already covers these waves.
+ * published "not sooner than"), so they are not exact shutdown dates. The OpenRouter
+ * November and December guide already covers these waves. Other floors stay unpublished.
  */
 export const NOT_BEFORE_SHUTDOWN_BATCHES = new Set([
   "openrouter|2026-11-08",   // Inception Mercury 2/2.5/3/Decide (4 not_before rows)
   "openrouter|2026-11-11",   // ByteDance Seed 1.6/2.0 and Seedance 1.5 (4 not_before rows)
+  "openrouter|2026-11-20",   // liquid/d1 (1 not_before row)
+  "openrouter|2026-11-30",   // heygen/heygen-voice-1-turbo:free (1 not_before row)
+  "openrouter|2026-12-01",   // openai/gpt-5-image-mini and openai/gpt-image-1-mini (2 not_before rows)
+  "openrouter|2026-12-22",   // microsoft/mai-transcribe-1.5 (1 not_before row)
+  "openrouter|2026-12-31",   // Dots, MAI Voice, and GLM rows (6 not_before rows)
 ]);
 
 /** GitHub changelog post for the November 16, 2026 Copilot retirements. */
@@ -801,16 +814,10 @@ export function batchExtras(event: ShutdownEvent): BatchExtras {
       checkedUrl: "https://aistudio.google.com/docs/deprecations",
     };
   }
-  if (event.slug === "openrouter-2026-11-08") {
+  if (NOT_BEFORE_SHUTDOWN_BATCHES.has(`${event.provider}|${event.date}`)) {
     return {
       ...EMPTY_EXTRAS,
-      note: "OpenRouter published November 8, 2026 as a not-before date: the actual removal happens on or after that day. The rows below use the published expiration_date. Guide: openrouter-model-expirations-november-december-2026.",
-    };
-  }
-  if (event.slug === "openrouter-2026-11-11") {
-    return {
-      ...EMPTY_EXTRAS,
-      note: "OpenRouter published November 11, 2026 as a not-before date: the actual removal happens on or after that day. The rows below use the published expiration_date. Guide: openrouter-model-expirations-november-december-2026.",
+      note: `OpenRouter published ${longDate(event.date)} as a not-before date: the actual removal happens on or after that day. The rows below use the published expiration_date. Guide: openrouter-model-expirations-november-december-2026.`,
     };
   }
   if (event.provider === "aws-bedrock") return { ...EMPTY_EXTRAS, showRegions: true };

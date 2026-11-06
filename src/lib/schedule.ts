@@ -1,7 +1,7 @@
 import type { MigrationRecord, ModelRecord, Provider } from "../schema.ts";
 import { formatWhen, isUpcomingShutdown, type FaqItem } from "./format.ts";
 import { monthLabel, publicName } from "./growth.ts";
-import { longDate, replacementLinks, type ReplacementLink } from "./shutdowns.ts";
+import { longDate, replacementLinks, shutdownEventPath, shutdownEvents, type ReplacementLink } from "./shutdowns.ts";
 
 export const UPCOMING_PATH = "/upcoming/";
 export const TIMELINE_PATH = "/timeline/";
@@ -102,12 +102,19 @@ export function toScheduleRows(
   migrations: MigrationRecord[],
   day: string,
 ): ScheduleRow[] {
+  const batchByModel = new Map<string, string>();
+  for (const event of shutdownEvents(all)) {
+    const href = shutdownEventPath(event);
+    for (const model of event.models) batchByModel.set(`${model.provider}|${model.slug}`, href);
+  }
   return selected.map((model) => {
     const links = replacementLinks(model, all, migrations);
     const migrationsForRow = links.filter((link) => link.migratePath);
     const switchLinks: SwitchLink[] = migrationsForRow.length
       ? migrationsForRow.map((link) => ({ href: link.migratePath!, label: `Switch guide: ${link.id}` }))
       : [{ href: `/replace/${model.provider}/${model.slug}/`, label: "Switch guide" }];
+    const batchPath = batchByModel.get(`${model.provider}|${model.slug}`);
+    if (batchPath) switchLinks.push({ href: batchPath, label: "Shutdown batch" });
     const source = model.sources[0];
     return {
       model,

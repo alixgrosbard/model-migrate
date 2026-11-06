@@ -974,10 +974,10 @@ describe("guides", () => {
     expect(blob).toContain("/errors/azure-openai-retired-model-410-gone/");
     expect(blob).toContain("](/shutdowns/azure-openai-2026-11-15/)");
     expect(blob).toContain("](/shutdowns/azure-openai-2026-11-17/)");
-    expect(blob).toContain("there is no /shutdowns/azure-openai-2026-12-08/ page");
-    expect(blob).toContain("there is no /shutdowns/azure-openai-2026-12-16/ page");
-    expect(blob).not.toContain("](/shutdowns/azure-openai-2026-12-08/)");
-    expect(blob).not.toContain("](/shutdowns/azure-openai-2026-12-16/)");
+    expect(blob).toContain("](/shutdowns/azure-openai-2026-12-08/)");
+    expect(blob).toContain("](/shutdowns/azure-openai-2026-12-16/)");
+    expect(blob).not.toContain("there is no /shutdowns/azure-openai-2026-12-08/ page");
+    expect(blob).not.toContain("there is no /shutdowns/azure-openai-2026-12-16/ page");
     expect(blob).toContain("gpt-realtime-mini-2025-12-15");
     expect(blob).toContain("2027-06-15");
     expect(blob).not.toMatch(/[—–]/);
@@ -997,8 +997,11 @@ describe("guides", () => {
     expect(providerPage).toContain("/guides/azure-openai-retirements-november-december-2026/");
     expect(providerPage).toContain('href="/shutdowns/azure-openai-2026-12-15/"');
     expect(providerPage).not.toContain("there is no /shutdowns/azure-openai-2026-11-15/ page");
-    expect(providerPage).not.toContain('href="/shutdowns/azure-openai-2026-12-08/"');
-    expect(providerPage).not.toContain('href="/shutdowns/azure-openai-2026-12-16/"');
+    expect(providerPage).toContain('href="/shutdowns/azure-openai-2026-12-08/"');
+    expect(providerPage).toContain('href="/shutdowns/azure-openai-2026-12-16/"');
+    expect(providerPage).toContain('href="/shutdowns/azure-openai-2027-01-12/"');
+    expect(providerPage).toContain('href="/shutdowns/azure-openai-2027-01-14/"');
+    expect(providerPage).toContain('href="/shutdowns/azure-openai-2027-01-20/"');
     expect(shutdownPage).toContain("azure-openai-retirements-november-december-2026");
     const text = llmsTxt("https://sunsetdiff.com", [], []);
     const full = llmsFull("https://sunsetdiff.com", []);
@@ -2205,7 +2208,7 @@ describe("guides", () => {
     expect(text).not.toContain("/guides/claude-opus-4-5-shutdown-november-24-2026/");
   });
 
-  it("builds the Vertex Gemini November and December guide and skips one-model shutdown pages", async () => {
+  it("builds the Vertex Gemini November and December guide and publishes the named one-model dates", async () => {
     const models = await loadModels();
     const rows = models
       .filter((model) => model.provider === "google-vertex" && (model.shutdown_date === "2026-11-19" || model.shutdown_date === "2026-12-13") && model.shutdown_date_kind === "exact")
@@ -2228,7 +2231,8 @@ describe("guides", () => {
     const { shutdownEvents } = await import("../src/lib/shutdowns.ts");
     const slugs = shutdownEvents(models).map((event) => event.slug);
     expect(slugs).toContain("google-vertex-2026-11-19");
-    expect(slugs).not.toContain("google-vertex-2026-12-13");
+    expect(slugs).toContain("google-vertex-2026-12-13");
+    expect(slugs).toContain("google-vertex-2027-01-28");
     for (const date of new Set(veo.map((model) => model.shutdown_date))) {
       expect(slugs).not.toContain(`google-vertex-${date}`);
     }
@@ -2265,7 +2269,9 @@ describe("guides", () => {
     expect(blob).toContain("send_context_update");
     expect(blob).toContain("initial_history_in_client_content=True");
     expect(blob).toContain("](/shutdowns/google-vertex-2026-11-19/)");
-    expect(blob).toContain("there is no /shutdowns/google-vertex-2026-12-13/ page");
+    expect(blob).toContain("](/shutdowns/google-vertex-2026-12-13/)");
+    expect(blob).toContain("](/shutdowns/google-vertex-2027-01-28/)");
+    expect(blob).not.toContain("there is no /shutdowns/google-vertex-2026-12-13/ page");
     for (const model of veo) {
       expect(blob).toContain(model.id);
       expect(blob).toContain(`there is no /shutdowns/google-vertex-${model.shutdown_date}/ page`);
@@ -2277,7 +2283,6 @@ describe("guides", () => {
       expect(blob).not.toContain("2026-11-17 or later");
     }
     expect(blob).toContain("/shutdowns/google-vertex-2026-10-20/");
-    expect(blob).not.toContain("](/shutdowns/google-vertex-2026-12-13/)");
     expect(blob).toContain("https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/model-versions");
     expect(blob).toContain("https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/gemini/3-6-flash");
     expect(blob).toContain("https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/gemini/2-5-flash-live-api");
@@ -2313,8 +2318,9 @@ describe("guides", () => {
     expect(vertexVeoProviderNote(models)).toContain(veo[0].id);
     expect(vertexVeoProviderNote(models)).toContain(`${veo[0].shutdown_date}`);
     expect(providerPage).not.toContain("there is no /shutdowns/google-vertex-2026-11-19/ page");
-    expect(providerPage).toContain("there is no /shutdowns/google-vertex-2026-12-13/ page");
-    expect(providerPage).not.toContain('href="/shutdowns/google-vertex-2026-12-13/"');
+    expect(providerPage).not.toContain("there is no /shutdowns/google-vertex-2026-12-13/ page");
+    expect(providerPage).toContain('href="/shutdowns/google-vertex-2026-12-13/"');
+    expect(providerPage).toContain('href="/shutdowns/google-vertex-2027-01-28/"');
     expect(shutdownPage).toContain("vertex-ai-gemini-retirements-november-december-2026");
     const text = llmsTxt("https://sunsetdiff.com", [], []);
     const full = llmsFull("https://sunsetdiff.com", []);
@@ -2339,6 +2345,12 @@ describe("guides", () => {
     const slugs = shutdownEvents(models).map((event) => event.slug);
     expect(slugs).toContain("openrouter-2026-11-08");
     expect(slugs).toContain("openrouter-2026-11-11");
+    expect(slugs).toContain("openrouter-2026-11-20");
+    expect(slugs).toContain("openrouter-2026-11-30");
+    expect(slugs).toContain("openrouter-2026-12-01");
+    expect(slugs).toContain("openrouter-2026-12-22");
+    expect(slugs).toContain("openrouter-2026-12-31");
+    expect(slugs).not.toContain("anthropic-2026-11-24");
 
     const guide = guides.find((item) => item.slug === OPENROUTER_NOV_DEC_GUIDE_SLUG);
     expect(guide).toBeTruthy();
@@ -2427,6 +2439,7 @@ describe("guides", () => {
       expect(imageBlob).toContain(`/models/openrouter/${model.slug}/`);
       expect(imageBlob).toContain(longDate(model.shutdown_date!));
       expect(imageBlob).toContain(`/guides/${OPENROUTER_NOV_DEC_GUIDE_SLUG}/`);
+      if (model.shutdown_date === "2026-12-01") expect(imageBlob).toContain("/shutdowns/openrouter-2026-12-01/");
       const hrefs = guidesForModel(model, models).map((link) => link.href);
       expect(hrefs).toContain(guidePath(OPENROUTER_NOV_DEC_GUIDE_SLUG));
       expect(hrefs).toContain(guidePath(DECEMBER_1_IMAGE_GUIDE_SLUG));
