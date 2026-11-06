@@ -1,19 +1,19 @@
 {
   "from": {
     "provider": "google-gemini-api",
-    "model_id": "veo-3.0-fast-generate-001",
-    "slug": "veo-3-0-fast-generate-001"
+    "model_id": "veo-3.0-generate-001",
+    "slug": "veo-3-0-generate-001"
   },
   "to": {
     "provider": "google-gemini-api",
-    "model_id": "gemini-omni-1.1-flash",
-    "slug": "gemini-omni-1-1-flash"
+    "model_id": "gemini-omni-1.2-flash",
+    "slug": "gemini-omni-1-2-flash"
   },
   "price_diff": {
     "input_pct_change": null,
     "output_pct_change": null,
     "example_monthly_cost_old": null,
-    "example_monthly_cost_new": 33,
+    "example_monthly_cost_new": null,
     "currency": "USD",
     "example_label": "Example monthly cost for 10M input tokens and 2M output tokens. Labeled example, not a bill."
   },
@@ -31,7 +31,7 @@
   "api_changes": [
     {
       "kind": "endpoint_change",
-      "detail": "The Veo guide's samples call client.models.generate_videos and POST https://generativelanguage.googleapis.com/v1beta/models/{id}:predictLongRunning with a Veo model id. The same page says to migrate to gemini-omni-1.1-flash and says this feature is currently only available with the generateContent API. No generate_videos sample for gemini-omni-1.1-flash was found on that page, so this page does not show a model-id swap.",
+      "detail": "The Veo guide's samples call client.models.generate_videos and POST https://generativelanguage.googleapis.com/v1beta/models/{id}:predictLongRunning with a Veo model id. The warning on that page says to migrate to gemini-omni-1.2-flash or the GA models on the Gemini Enterprise Agent Platform. No generate_videos sample for gemini-omni-1.2-flash was found on that page, so this page does not show a model-id swap.",
       "source_url": "https://ai.google.dev/gemini-api/docs/veo"
     }
   ],
@@ -55,25 +55,25 @@
     }
   },
   "migration_checklist": [
-    "Read the shutdown date for veo-3.0-fast-generate-001 on the linked official page.",
-    "Point your requests at gemini-omni-1.1-flash.",
+    "Read the shutdown date for veo-3.0-generate-001 on the linked official page.",
+    "Point your requests at gemini-omni-1.2-flash.",
     "Re-check price, context, and parameters on the provider pages linked here.",
     "Ship the change before the published shutdown date."
   ],
   "confidence": "partial",
-  "last_checked": "2026-11-05",
+  "last_checked": "2026-11-06",
   "sources": [
     {
       "url": "https://ai.google.dev/gemini-api/docs/deprecations",
       "label": "Gemini API deprecations",
-      "last_checked": "2026-11-05",
-      "excerpt": "veo-3.0-fast-generate-001 | September 9, 2025 | June 30, 2026 | gemini-omni-1.1-flash or the GA models on the Gemini Enterprise Agent Platform"
+      "last_checked": "2026-11-06",
+      "excerpt": "veo-3.0-generate-001 | September 9, 2025 | June 30, 2026 | gemini-omni-1.2-flash or the GA models on the Gemini Enterprise Agent Platform"
     },
     {
       "url": "https://ai.google.dev/gemini-api/docs/deprecations",
       "label": "Gemini API deprecations",
-      "last_checked": "2026-11-05",
-      "excerpt": "gemini-omni-1.1-flash | August 27, 2026 | No shutdown date announced"
+      "last_checked": "2026-11-06",
+      "excerpt": "gemini-omni-1.2-flash | November 5, 2026 | No shutdown date announced"
     }
   ]
 }

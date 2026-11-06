@@ -132,8 +132,8 @@ describe("request breaking changes", () => {
     expect(text).toContain(BREAKING_CHANGES_CSV);
     expect(full).toContain(BREAKING_CHANGES_JSON);
     expect(full).toContain(BREAKING_CHANGES_CSV);
-    expect(lastmodForUrl(`https://sunsetdiff.com${BREAKING_CHANGES_PATH}`)).toBe("2026-10-25");
-    expect(lastmodForUrl(`https://sunsetdiff.com${BREAKING_CHANGES_JSON}`)).toBe("2026-10-25");
+    expect(lastmodForUrl(`https://sunsetdiff.com${BREAKING_CHANGES_PATH}`)).toBe("2026-11-06");
+    expect(lastmodForUrl(`https://sunsetdiff.com${BREAKING_CHANGES_JSON}`)).toBe("2026-11-06");
     const graph = breakingChangesIndexGraph("https://sunsetdiff.com/", breakingChanges.map((rule) => ({
       name: rule.old_setting,
       path: `${BREAKING_CHANGES_PATH}#${rule.id}`,

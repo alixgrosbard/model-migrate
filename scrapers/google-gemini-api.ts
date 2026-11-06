@@ -133,10 +133,16 @@ function markdownTableRows(body: string): string[][] {
     const cells: string[] = [];
     for (const line of block.split("\n")) {
       const match = line.match(/^\s*\*\s?(.*)$/);
-      if (!match) continue;
-      cells.push(cleanMarkdown(match[1]));
+      if (match) {
+        cells.push(match[1]);
+        continue;
+      }
+      // A wrapped table cell continues on the next line without a new star.
+      const extra = line.trim();
+      if (!extra || !cells.length) continue;
+      cells[cells.length - 1] = `${cells[cells.length - 1]} ${extra}`;
     }
-    if (cells.length) rows.push(cells);
+    if (cells.length) rows.push(cells.map(cleanMarkdown));
   }
   return rows;
 }

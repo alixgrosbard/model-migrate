@@ -26,6 +26,7 @@ const GEMINI_THINKING = "https://ai.google.dev/gemini-api/docs/thinking";
 const GEMINI_IMAGEN = "https://ai.google.dev/gemini-api/docs/imagen";
 const GEMINI_IMAGE = "https://ai.google.dev/gemini-api/docs/image-generation";
 const GEMINI_VEO = "https://ai.google.dev/gemini-api/docs/veo";
+const GEMINI_DEPRECATIONS = "https://ai.google.dev/gemini-api/docs/deprecations";
 const CLAUDE_VERSIONING = "https://platform.claude.com/docs/en/api/versioning";
 const CLAUDE_MIGRATION_2026 = "https://platform.claude.com/docs/en/api/migration-2026-10-21";
 const ISSUE_MESSAGE_PARAM = "https://github.com/pydantic/pydantic-ai/issues/10923";
@@ -128,8 +129,8 @@ const VEO_MIGRATIONS: BreakingMigration[] = [
   ["veo-3-1-generate-preview", "veo-3.1-generate-preview"],
   ["veo-3-1-lite-generate-preview", "veo-3.1-lite-generate-preview"],
 ].map(([slug, id]) => ({
-  href: `/migrate/google-gemini-api__${slug}__to__google-gemini-api__gemini-omni-1-1-flash/`,
-  label: `${id} to gemini-omni-1.1-flash`,
+  href: `/migrate/google-gemini-api__${slug}__to__google-gemini-api__gemini-omni-1-2-flash/`,
+  label: `${id} to gemini-omni-1.2-flash`,
 }));
 
 export const BREAKING_CHANGE_PROVIDERS = [
@@ -576,9 +577,9 @@ export const breakingChanges: BreakingChange[] = [
     id: "google-gemini-veo-to-generate-content",
     provider: "google-gemini-api",
     provider_name: "Google Gemini API",
-    model_family: "Veo preview models whose replacement is gemini-omni-1.1-flash",
+    model_family: "Veo preview models whose replacement is gemini-omni-1.2-flash",
     models: [
-      gemini("gemini-omni-1.1-flash", "gemini-omni-1-1-flash", "rejects"),
+      gemini("gemini-omni-1.2-flash", "gemini-omni-1-2-flash", "rejects"),
       gemini("veo-3.0-fast-generate-preview", "veo-3-0-fast-generate-preview", "switch_from"),
       gemini("veo-3.0-generate-preview", "veo-3-0-generate-preview", "switch_from"),
       gemini("veo-3.1-fast-generate-preview", "veo-3-1-fast-generate-preview", "switch_from"),
@@ -587,17 +588,17 @@ export const breakingChanges: BreakingChange[] = [
     ],
     old_setting: "client.models.generate_videos or POST /v1beta/models/{model}:predictLongRunning",
     what_happens:
-      "The Veo guide's samples call client.models.generate_videos and POST https://generativelanguage.googleapis.com/v1beta/models/{id}:predictLongRunning with a Veo model id. The same page says to migrate to gemini-omni-1.1-flash and says this feature is currently only available with the generateContent API. No generate_videos sample for gemini-omni-1.1-flash was on that page. The page does not print an error sentence.",
+      "The Veo guide's samples call client.models.generate_videos and POST https://generativelanguage.googleapis.com/v1beta/models/{id}:predictLongRunning with a Veo model id. The warning on that page says Veo 3.1 Preview was shut down on October 22, 2026, and says to migrate to gemini-omni-1.2-flash or the GA models on the Gemini Enterprise Agent Platform. The deprecations page names gemini-omni-1.2-flash for veo-3.0-fast-generate-preview, veo-3.0-generate-preview, veo-3.1-fast-generate-preview, veo-3.1-generate-preview, and veo-3.1-lite-generate-preview. No generate_videos sample for gemini-omni-1.2-flash was on the Veo guide. The Veo guide does not print an error sentence.",
     error_text: null,
-    fix: "Do not put gemini-omni-1.1-flash into generate_videos. The Veo guide says the replacement uses the generateContent API.",
+    fix: "Do not put gemini-omni-1.2-flash into generate_videos. The Veo guide names that id in the shutdown warning, and that page has no generate_videos sample for it.",
     source_url: GEMINI_VEO,
     source_label: "Gemini API Veo guide",
     quote_source_url: null,
     quote_source_label: null,
-    checked: CHECKED_LATER,
+    checked: "2026-11-06",
     error_page: null,
     migrations: VEO_MIGRATIONS,
-    citations: cited([GEMINI_VEO]),
+    citations: cited([GEMINI_VEO, GEMINI_DEPRECATIONS]),
   },
   {
     id: "anthropic-api-2026-10-21-sampling-params",

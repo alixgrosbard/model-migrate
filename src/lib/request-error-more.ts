@@ -879,7 +879,7 @@ const { text } = await generateText({
     errorText: GEMINI_GONE,
     quoteSourceLabel: "GitHub issue google/adk-python#6010",
     quoteSourceUrl: ISSUE_GEMINI_GONE,
-    rule: `Google's deprecations page says that once a model is shutdown, it is completely turned off and the endpoint is no longer available. The October 22, 2026 rows are veo-3.1-lite-generate-preview, veo-3.1-generate-preview, veo-3.1-fast-generate-preview, and gemini-omni-flash-preview, with replacement gemini-omni-1.1-flash. SunsetDiff has not recorded this 404 sentence for those four ids. The Error text block is the message in ${ISSUE_GEMINI_GONE} for models/gemini-2.0-flash. A different sentence, from ${ISSUE_GEMINI_NEW_USERS}, was recorded while new API keys were blocked and the model was not yet shut down for everyone: ${GEMINI_NEW_USERS}`,
+    rule: `Google's deprecations page says that once a model is shutdown, it is completely turned off and the endpoint is no longer available. The October 22, 2026 rows are veo-3.1-lite-generate-preview, veo-3.1-generate-preview, veo-3.1-fast-generate-preview, and gemini-omni-flash-preview, with replacement gemini-omni-1.2-flash. Checked November 6, 2026, that page also lists gemini-omni-1.1-flash with shutdown date December 3, 2026 and replacement gemini-omni-1.2-flash. SunsetDiff has not recorded this 404 sentence for those four ids. The Error text block is the message in ${ISSUE_GEMINI_GONE} for models/gemini-2.0-flash. A different sentence, from ${ISSUE_GEMINI_NEW_USERS}, was recorded while new API keys were blocked and the model was not yet shut down for everyone: ${GEMINI_NEW_USERS}`,
     ruleSourceLabel: "Gemini API deprecations",
     ruleSourceUrl: GEMINI_DEPRECATIONS,
     modelsCaption: "The quoted 404 was recorded for gemini-2.0-flash. The October 22, 2026 ids are the upcoming Gemini API shutdown.",
@@ -894,25 +894,25 @@ const { text } = await generateText({
         id: "gemini-omni-flash-preview",
         provider: "google-gemini-api",
         slug: "gemini-omni-flash-preview",
-        note: "Shutdown date October 22, 2026. Replacement: gemini-omni-1.1-flash. The exact 404 sentence is not recorded here for this id.",
+        note: "Shutdown date October 22, 2026. Replacement: gemini-omni-1.2-flash. The exact 404 sentence is not recorded here for this id.",
       },
       {
         id: "veo-3.1-generate-preview",
         provider: "google-gemini-api",
         slug: "veo-3-1-generate-preview",
-        note: "Shutdown date October 22, 2026. Replacement: gemini-omni-1.1-flash.",
+        note: "Shutdown date October 22, 2026. Replacement: gemini-omni-1.2-flash.",
       },
       {
         id: "veo-3.1-fast-generate-preview",
         provider: "google-gemini-api",
         slug: "veo-3-1-fast-generate-preview",
-        note: "Shutdown date October 22, 2026. Replacement: gemini-omni-1.1-flash.",
+        note: "Shutdown date October 22, 2026. Replacement: gemini-omni-1.2-flash.",
       },
       {
         id: "veo-3.1-lite-generate-preview",
         provider: "google-gemini-api",
         slug: "veo-3-1-lite-generate-preview",
-        note: "Shutdown date October 22, 2026. Replacement: gemini-omni-1.1-flash.",
+        note: "Shutdown date October 22, 2026. Replacement: gemini-omni-1.2-flash.",
       },
       {
         id: "gemini-3.6-flash",
@@ -921,10 +921,10 @@ const { text } = await generateText({
         note: "Replacement named for gemini-2.0-flash on the deprecations page checked October 20, 2026.",
       },
       {
-        id: "gemini-omni-1.1-flash",
+        id: "gemini-omni-1.2-flash",
         provider: "google-gemini-api",
-        slug: "gemini-omni-1-1-flash",
-        note: "Replacement named for the October 22, 2026 Gemini API rows.",
+        slug: "gemini-omni-1-2-flash",
+        note: "Replacement named for the October 22, 2026 Gemini API rows on the deprecations page checked November 6, 2026.",
       },
     ],
     shutdowns: [{ provider: "google-gemini-api", date: "2026-10-22" }],
@@ -932,7 +932,7 @@ const { text } = await generateText({
       {
         heading: "Raw SDK",
         text: [
-          "Stop calling the retired model id. For gemini-2.0-flash, the deprecations page checked October 20, 2026 names gemini-3.6-flash. The October 22 rows name gemini-omni-1.1-flash. The sample is a generateContent call, which is the call in the GitHub issue. It is not a Veo video request.",
+          "Stop calling the retired model id. For gemini-2.0-flash, the deprecations page checked October 20, 2026 names gemini-3.6-flash. The October 22 rows name gemini-omni-1.2-flash. The sample is a generateContent call, which is the call in the GitHub issue. It is not a Veo video request.",
         ],
         samples: [
           {
@@ -1000,20 +1000,20 @@ const { text } = await generateText({
     ],
     guides: [
       {
-        href: "/migrate/google-gemini-api__gemini-omni-flash-preview__to__google-gemini-api__gemini-omni-1-1-flash/",
-        label: "gemini-omni-flash-preview to gemini-omni-1.1-flash",
+        href: "/migrate/google-gemini-api__gemini-omni-flash-preview__to__google-gemini-api__gemini-omni-1-2-flash/",
+        label: "gemini-omni-flash-preview to gemini-omni-1.2-flash",
       },
       {
-        href: "/migrate/google-gemini-api__veo-3-1-generate-preview__to__google-gemini-api__gemini-omni-1-1-flash/",
-        label: "veo-3.1-generate-preview to gemini-omni-1.1-flash",
+        href: "/migrate/google-gemini-api__veo-3-1-generate-preview__to__google-gemini-api__gemini-omni-1-2-flash/",
+        label: "veo-3.1-generate-preview to gemini-omni-1.2-flash",
       },
       {
-        href: "/migrate/google-gemini-api__veo-3-1-fast-generate-preview__to__google-gemini-api__gemini-omni-1-1-flash/",
-        label: "veo-3.1-fast-generate-preview to gemini-omni-1.1-flash",
+        href: "/migrate/google-gemini-api__veo-3-1-fast-generate-preview__to__google-gemini-api__gemini-omni-1-2-flash/",
+        label: "veo-3.1-fast-generate-preview to gemini-omni-1.2-flash",
       },
       {
-        href: "/migrate/google-gemini-api__veo-3-1-lite-generate-preview__to__google-gemini-api__gemini-omni-1-1-flash/",
-        label: "veo-3.1-lite-generate-preview to gemini-omni-1.1-flash",
+        href: "/migrate/google-gemini-api__veo-3-1-lite-generate-preview__to__google-gemini-api__gemini-omni-1-2-flash/",
+        label: "veo-3.1-lite-generate-preview to gemini-omni-1.2-flash",
       },
     ],
     seeAlso: [
@@ -1033,6 +1033,7 @@ const { text } = await generateText({
       },
     ],
     citations: [GEMINI_DEPRECATIONS, ISSUE_GEMINI_GONE, ISSUE_GEMINI_NEW_USERS, LITELLM_GEMINI, AI_SDK_GENERATE],
+    checked: "2026-11-06",
   },
   {
     slug: "openai-max-tokens-use-max-completion-tokens",

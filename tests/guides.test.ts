@@ -427,9 +427,9 @@ describe("guides", () => {
     );
 
     for (const model of imageRows) {
-      expect(publishedReplacementIds(model)).toEqual(["gpt-image-2.5-sunburst", "gpt-image-2.5-flare"]);
-      expect(imageTable?.rows.find((row) => row[0].includes(model.id))?.[3]).toContain("gpt-image-2.5-sunburst");
-      expect(imageTable?.rows.find((row) => row[0].includes(model.id))?.[3]).toContain("gpt-image-2.5-flare");
+      expect(publishedReplacementIds(model)).toEqual(["gpt-image-2.6-sunburst", "gpt-image-2.6-flare"]);
+      expect(imageTable?.rows.find((row) => row[0].includes(model.id))?.[3]).toContain("gpt-image-2.6-sunburst");
+      expect(imageTable?.rows.find((row) => row[0].includes(model.id))?.[3]).toContain("gpt-image-2.6-flare");
     }
     for (const model of speechRows) {
       expect(publishedReplacementIds(model)).toEqual(["gpt-realtime-2.1-mini"]);
@@ -437,6 +437,7 @@ describe("guides", () => {
 
     const imageBlob = JSON.stringify(image);
     const audioBlob = JSON.stringify(audio);
+    expect(imageBlob).toContain("gpt-image-2.6-sunburst or gpt-image-2.6-flare");
     expect(imageBlob).toContain("gpt-image-2.5-sunburst or gpt-image-2.5-flare");
     expect(imageBlob).toContain("Choose Sunburst for workflows where editing precision matters most, and Flare for fast, high-quality everyday image generation.");
     expect(imageBlob).toContain("Earlier GPT Image models support quality settings up to high.");

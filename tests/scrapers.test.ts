@@ -539,6 +539,30 @@ describe("AI Studio deprecations markdown", () => {
       "not deprecated",
     );
   });
+
+  it("joins a replacement cell that wraps onto the next lines", () => {
+    const markdown = `{% table %}
+  * Model
+  * Release date
+  * Shutdown date
+  * Recommended replacement
+
+  ---
+
+  * \`gemini-omni-1.1-flash\`
+  * August 27, 2026
+  * December 3, 2026
+  * \`gemini-omni-1.2-flash\` (Effective December 3, 2026, the endpoint is
+    automatically routing API requests to
+    \`gemini-omni-1.2-flash\`)
+{% /table %}
+`;
+    const models = parseGemini(markdown, "", "2026-11-06");
+    const omni = models.find((model) => model.id === "gemini-omni-1.1-flash");
+    expect(omni?.shutdown_date).toBe("2026-12-03");
+    expect(omni?.status).toBe("deprecated");
+    expect(omni?.replacements.map((item) => item.model_id)).toEqual(["gemini-omni-1.2-flash"]);
+  });
 });
 
 describe("sanity gate", () => {
