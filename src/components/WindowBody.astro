@@ -1,0 +1,77 @@
+---
+import FaqList from "./FaqList.astro";
+import type { WindowPageModel } from "../lib/window-pages.ts";
+
+interface Props {
+  page: WindowPageModel;
+}
+const { page } = Astro.props;
+---
+<h1>{page.h1}</h1>
+<p class="answer">{page.intro}</p>
+<p>
+  {page.related.map((link, index) => (
+    <>
+      {index ? " · " : null}
+      <a href={link.href}>{link.label}</a>
+    </>
+  ))}
+</p>
+{page.empty ? <h2>Nothing in this window</h2> : null}
+{page.groups.map((group) => (
+  <section>
+    <h2 id={group.date}>{group.label}</h2>
+    {group.providers.map((provider) => (
+      <section>
+        <h3>
+          <a href={`/providers/${provider.providerId}/`}>{provider.providerName}</a>
+          {provider.shutdownPath ? <> · <a href={provider.shutdownPath}>Date page</a></> : null}
+        </h3>
+        <table>
+          <caption>{provider.rows.length} {provider.providerName} {provider.rows.length === 1 ? "model" : "models"} on {group.label}.</caption>
+          <thead>
+            <tr>
+              <th>Model</th>
+              <th>Shutdown</th>
+              <th>Replacement</th>
+              <th>Date page</th>
+              <th>Guide</th>
+            </tr>
+          </thead>
+          <tbody>
+            {provider.rows.map((row) => (
+              <tr>
+                <td>
+                  <a href={row.modelPath}>{row.modelLabel}</a>
+                  {row.modelLabel !== row.model.id ? <><br /><code>{row.model.id}</code></> : null}
+                  {row.model.provider === "aws-bedrock" && row.notes ? <><br />{row.notes}</> : null}
+                </td>
+                <td>{row.when}</td>
+                <td>
+                  {row.replacements.length ? row.replacements.map((link, index) => (
+                    <>
+                      {index ? ", " : null}
+                      {link.modelPath ? <a href={link.modelPath}>{link.id}</a> : link.id}
+                    </>
+                  )) : "Not published"}
+                </td>
+                <td>
+                  {row.shutdownPath && row.shutdownLabel ? <a href={row.shutdownPath}>{row.shutdownLabel}</a> : "No batch page"}
+                </td>
+                <td>
+                  {row.guides.length ? row.guides.map((link, index) => (
+                    <>
+                      {index ? <br /> : null}
+                      <a href={link.href}>{link.label}</a>
+                    </>
+                  )) : "No guide"}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+    ))}
+  </section>
+))}
+<FaqList items={page.faqs} />

@@ -69,7 +69,7 @@ import {
   SONNET45_NOV30_GUIDE_SLUG,
   VERTEX_NOV_DEC_GUIDE_SLUG,
 } from "./dataset-guides.ts";
-import type { FaqItem } from "./format.ts";
+import { today, type FaqItem } from "./format.ts";
 
 /** Day the official pages linked from the guides were read. */
 export const GUIDES_CHECKED = "2026-10-20";
@@ -2471,8 +2471,8 @@ export interface ModelGuideLink {
   label: string;
 }
 
-/** A few guides that match this model. Not the whole guide index. */
-export function guidesForModel(model: ModelRecord, catalog: ModelRecord[]): ModelGuideLink[] {
+/** A few guides that match this model. Not the whole guide index. `day` is the build day for guides that drop past floors. */
+export function guidesForModel(model: ModelRecord, catalog: ModelRecord[], day = today()): ModelGuideLink[] {
   const links: ModelGuideLink[] = [];
   const seen = new Set<string>();
   const add = (slug: string) => {
@@ -2511,7 +2511,7 @@ export function guidesForModel(model: ModelRecord, catalog: ModelRecord[]): Mode
   if (isCopilotNov16Shutdown(model)) add(COPILOT_NOV16_GUIDE_SLUG);
   if (isFireworksNov7Shutdown(model)) add(FIREWORKS_NOV7_GUIDE_SLUG);
   if (isTogetherNov6Shutdown(model) || isTogetherNov6Replacement(model, catalog)) add(TOGETHER_NOV6_GUIDE_SLUG);
-  if (showsOpenRouterNovDecGuide(model)) add(OPENROUTER_NOV_DEC_GUIDE_SLUG);
+  if (showsOpenRouterNovDecGuide(model, day)) add(OPENROUTER_NOV_DEC_GUIDE_SLUG);
   if (isOpenRouterDecemberImageModel(model)) add(DECEMBER_1_IMAGE_GUIDE_SLUG);
   if (isNebiusNov9Shutdown(model)) add(NEBIUS_NOV9_GUIDE_SLUG);
   if (isGeminiNov17Shutdown(model)) add(GEMINI_NOV17_GUIDE_SLUG);

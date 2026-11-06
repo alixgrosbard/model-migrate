@@ -809,6 +809,37 @@ async function checkSchedule(sitemap: string, llms: string, llmsFull: string) {
   if (!upcoming.includes("/calendar.ics") || !upcoming.includes("/calendar/") || !upcoming.includes("/feed.xml")) {
     throw new Error("Upcoming page is missing the calendar or feed link");
   }
+  if (!upcoming.includes('href="/this-week/"') || !upcoming.includes('href="/next-30-days/"')) {
+    throw new Error("Upcoming page is missing the this-week or next-30-days link");
+  }
+  for (const page of ["/this-week/", "/next-30-days/"]) {
+    if (!sitemap.includes(`${origin}${page}`)) throw new Error(`Sitemap is missing ${page}`);
+    if (!llms.includes(page)) throw new Error(`llms.txt is missing ${page}`);
+    if (!llmsFull.includes(page)) throw new Error(`llms-full.txt is missing ${page}`);
+    const html = await readFile(path.join(dist, page.slice(1), "index.html"), "utf8");
+    for (const type of ["CollectionPage", "ItemList", "FAQPage", "Dataset", "BreadcrumbList"]) {
+      if (!html.includes(`"${type}"`)) throw new Error(`${page} is missing ${type} JSON-LD`);
+    }
+    if (html.includes("—") || html.includes("–")) throw new Error(`Em dash on ${page}`);
+  }
+  const thisWeek = await readFile(path.join(dist, "this-week/index.html"), "utf8");
+  if (!thisWeek.includes("<h1>AI models shutting down this week</h1>")) throw new Error("This week page H1 changed");
+  if (!thisWeek.includes("LLM deprecations this week")) throw new Error("This week page is missing the LLM deprecations phrase");
+  const coreSitemap = await readFile(path.join(dist, "sitemap-core.xml"), "utf8");
+  if (!coreSitemap.includes(`${origin}/this-week/`)) throw new Error("sitemap-core.xml is missing /this-week/");
+  if (!coreSitemap.includes(`${origin}/next-30-days/`)) throw new Error("sitemap-core.xml is missing /next-30-days/");
+  const dateSitemap = await readFile(path.join(dist, "sitemap-dates.xml"), "utf8");
+  if (dateSitemap.includes("/this-week/") || dateSitemap.includes("/next-30-days/")) {
+    throw new Error("Rolling window pages belong in sitemap-core.xml");
+  }
+  const alias = await readFile(path.join(dist, "next-7-days/index.html"), "utf8");
+  if (!alias.includes('rel="canonical"') || !alias.includes("/this-week/")) throw new Error("next-7-days should canonicalize to /this-week/");
+  if (!alias.includes('content="noindex"')) throw new Error("next-7-days should stay out of the index");
+  if (sitemap.includes(`${origin}/next-7-days/`)) throw new Error("Sitemap includes /next-7-days/");
+  const home = await readFile(path.join(dist, "index.html"), "utf8");
+  if (!home.includes('href="/this-week/"') || !home.includes("AI models shutting down this week")) {
+    throw new Error("Homepage Next deadlines is missing /this-week/");
+  }
   const changelog = await readFile(path.join(dist, "changelog/index.html"), "utf8");
   if (!changelog.includes("/feed.xml") || !changelog.includes("/data/changelog.json")) {
     throw new Error("Changelog page is missing the feed or changelog.json link");

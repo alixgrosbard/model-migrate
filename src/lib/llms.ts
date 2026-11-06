@@ -20,6 +20,7 @@ import { CONFLICTS_PATH } from "./conflicts.ts";
 import { ALERTS_PATH, GITHUB_ACTION_PATH, METHODOLOGY_PATH, SOURCES_PATH } from "./trust-pages.ts";
 import { REQUEST_ERRORS_CHECKED, REQUEST_ERRORS_INDEX, requestErrorPath, requestErrors } from "./request-errors.ts";
 import { featuredModelLinks } from "./featured.ts";
+import { windowIndexLinks } from "./window-pages.ts";
 
 export function llmsTxt(
   site: string,
@@ -129,6 +130,7 @@ export function llmsTxt(
 - [Deprecation changelog](${origin}/changelog/)
 - [Shutdown questions](${origin}/faq/)
 - [Deadlines](${origin}/deadlines/)
+${windowIndexLinks().map((page) => `- [${page.label}](${origin}${page.href})`).join("\n")}
 - [Shutdown batches](${origin}/shutdowns/)
 - [Request errors](${origin}${REQUEST_ERRORS_INDEX})
 - [Breaking changes](${origin}${BREAKING_CHANGES_PATH})
@@ -303,6 +305,7 @@ export function llmsFull(site: string, models: ModelRecord[], providers: Provide
     `Request errors: ${origin}${REQUEST_ERRORS_INDEX}`,
     ...requestErrors.map((page) => `Request error: ${origin}${requestErrorPath(page.slug)}`),
     `Deadlines: ${origin}/deadlines/`,
+    ...windowIndexLinks().map((page) => `${page.label}: ${origin}${page.href}`),
     `Shutdown batches: ${origin}/shutdowns/`,
     ...scheduleIndexLinks(models).map((page) => `${page.title}: ${origin}${page.path}`),
     `iCal: ${origin}/deadlines.ics`,
