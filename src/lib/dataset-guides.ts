@@ -203,6 +203,13 @@ export const SONNET45_NOV30_SHUTDOWN_DATE = "2026-11-30";
 export const SONNET45_NOV30_GUIDE_SLUG = "claude-sonnet-4-5-shutdown-november-30-2026";
 const SONNET45_CHECKED = "2026-11-01";
 
+/** Checked against the Bedrock legacy lifecycle page, the Marengo Embed v2.7 model card, and the Marengo Embed 3.0 parameters page on 2026-11-06. */
+export const BEDROCK_MARENGO_NOV30_SHUTDOWN_DATE = "2026-11-30";
+export const BEDROCK_MARENGO_NOV30_GUIDE_SLUG = "amazon-bedrock-marengo-embed-v2-7-shutdown-november-30-2026";
+const MARENGO_CHECKED = "2026-11-06";
+const MARENGO_V27_ID = "twelvelabs.marengo-embed-2-7-v1:0";
+const MARENGO_V30_ID = "twelvelabs.marengo-embed-3-0-v1:0";
+
 /**
  * Checked against Anthropic's deprecations page on 2026-11-02.
  * The slug uses the floor date. That date is not a fixed shutdown day.
@@ -426,6 +433,13 @@ export function isBedrockJambaNov26Shutdown(model: ModelRecord): boolean {
   return model.provider === "aws-bedrock"
     && (JAMBA_IDS as readonly string[]).includes(model.id)
     && model.shutdown_date === BEDROCK_JAMBA_NOV26_SHUTDOWN_DATE
+    && model.shutdown_date_kind === "exact";
+}
+
+export function isBedrockMarengoNov30Shutdown(model: ModelRecord): boolean {
+  return model.provider === "aws-bedrock"
+    && model.id === MARENGO_V27_ID
+    && model.shutdown_date === BEDROCK_MARENGO_NOV30_SHUTDOWN_DATE
     && model.shutdown_date_kind === "exact";
 }
 
@@ -946,9 +960,21 @@ rg -n -e 'claude-opus-4-8' -e 'speed: "fast"' -e "speed: 'fast'"
           { label: "GitHub Copilot supported models", url: COPILOT_MODELS },
         ],
       },
+      {
+        heading: "Marengo Embed v2.7 is a different November 30 shutdown",
+        paragraphs: [
+          `The same calendar day is the end of life on Amazon Bedrock for twelvelabs.marengo-embed-2-7-v1:0. That id is TwelveLabs Marengo Embed v2.7. It is not claude-sonnet-4-5-20250929, and it is not the Bedrock id anthropic.claude-sonnet-4-5-20250929-v1:0. The Bedrock walkthrough is [Amazon Bedrock Marengo Embed v2.7 shutdown on November 30, 2026](/guides/${BEDROCK_MARENGO_NOV30_GUIDE_SLUG}/).`,
+          "A Claude API caller follows this page. A Marengo caller follows that page. Do not copy the replacement claude-sonnet-5-5 onto the Marengo id, and do not copy the Marengo id onto a Claude request.",
+        ],
+        sources: [
+          { label: "Anthropic model deprecations", url: CLAUDE_DEPRECATIONS },
+          { label: "Bedrock legacy lifecycle", url: BEDROCK_LEGACY },
+        ],
+      },
     ],
     related: [
       { href: "/models/anthropic/claude-sonnet-4-5-20250929/", label: "claude-sonnet-4-5-20250929" },
+      { href: `/guides/${BEDROCK_MARENGO_NOV30_GUIDE_SLUG}/`, label: "Amazon Bedrock Marengo Embed v2.7 shutdown on November 30, 2026" },
       { href: replacementModel ? `/models/${replacementModel.provider}/${replacementModel.slug}/` : "/models/anthropic/claude-sonnet-5-5/", label: replacement ?? "claude-sonnet-5-5" },
       { href: "/migrate/anthropic__claude-sonnet-4-5-20250929__to__anthropic__claude-sonnet-5-5/", label: "Sonnet 4.5 to Sonnet 5.5 migration diff" },
       { href: "/providers/anthropic/", label: "Anthropic provider page" },
@@ -983,6 +1009,10 @@ rg -n -e 'claude-opus-4-8' -e 'speed: "fast"' -e "speed: 'fast'"
       {
         question: "Does Amazon Bedrock shut this model down on the same day?",
         answer: `No. Bedrock's model card says end of life is April 8, 2027 for anthropic.claude-sonnet-4-5-20250929-v1:0. The legacy table lists legacy date October 8, 2026 and EOL date April 8, 2027. The deprecations page says Bedrock sets its own schedule.`,
+      },
+      {
+        question: "Is Bedrock Marengo Embed v2.7 part of this Claude shutdown?",
+        answer: `No. The legacy lifecycle table lists twelvelabs.marengo-embed-2-7-v1:0 with EOL date November 30, 2026. That is a TwelveLabs embedding model on Amazon Bedrock. The separate page is [Amazon Bedrock Marengo Embed v2.7 shutdown on November 30, 2026](/guides/${BEDROCK_MARENGO_NOV30_GUIDE_SLUG}/).`,
       },
       {
         question: "Does GitHub Copilot use November 30, 2026?",
@@ -1291,6 +1321,8 @@ export function datasetShutdownGuides(catalog: ModelRecord[] = readCatalog()): G
   if (bedrockNov27.length) pages.push(bedrockNov27Guide(bedrockNov27, catalog));
   const jamba = rowsFor(isBedrockJambaNov26Shutdown, catalog);
   if (jamba.length) pages.push(jambaNov26Guide(jamba, catalog));
+  const marengo = rowsFor(isBedrockMarengoNov30Shutdown, catalog);
+  if (marengo.length) pages.push(marengoNov30Guide(marengo, catalog));
   const bedrockMar30 = rowsFor(isBedrockMar30OpenWeightShutdown, catalog);
   if (bedrockMar30.length) pages.push(bedrockMar30Guide(bedrockMar30, catalog));
   const azure = rowsFor(isAzureNov19OSeries, catalog);
@@ -3152,6 +3184,284 @@ function jambaNov26Guide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePage
       BEDROCK_POLICY,
       BEDROCK_JAMBA_LARGE,
       BEDROCK_JAMBA_MINI,
+      BEDROCK_REGIONS,
+      CLAUDE_DEPRECATIONS,
+    ],
+  };
+}
+
+const BEDROCK_MARENGO_CARD = "https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-twelvelabs-marengo-embed-v2-7.html";
+const BEDROCK_MARENGO_PARAMS = "https://docs.aws.amazon.com/bedrock/latest/userguide/model-parameters-marengo.html";
+const BEDROCK_MARENGO3_PARAMS = "https://docs.aws.amazon.com/bedrock/latest/userguide/model-parameters-marengo-3.html";
+const MARENGO_CARD_BLURB = "Marengo Embed v2.7 is TwelveLabs' video embedding model for multimodal video understanding, search, and classification.";
+const MARENGO_EOL_LABEL = "Model EOL date: November 30, 2026";
+const MARENGO_LEGACY_LABEL = "Model lifecycle: Legacy";
+const MARENGO_LAUNCH = "Model launch date: Dec 4, 2024";
+const MARENGO_FLOOR = "EOL no sooner than: Dec 4, 2025";
+const MARENGO_ID_NOTE =
+  "The model ID to use depends on the API. StartAsyncInvoke takes the base model ID, twelvelabs.marengo-embed-2-7-v1:0, as shown in the Sample Code section; passing a Geo inference ID to StartAsyncInvoke returns a validation error. The Geo inference IDs apply to synchronous InvokeModel requests, which don't accept the base model ID for this model.";
+const MARENGO_QUERY = "Use InvokeModel to generate embeddings for search query. Use StartAsyncInvoke to generate embeddings for assets at a large scale.";
+const MARENGO3_IMPORTANT =
+  "TwelveLabs Marengo Embed 2.7 will be deprecated. Embeddings that you created with TwelveLabs Marengo Embed 2.7 are NOT compatible with TwelveLabs Marengo Embed 3.0. You must regenerate all embeddings with TwelveLabs Marengo Embed 3.0.";
+const MARENGO3_MIGRATE = "To migrate from TwelveLabs Marengo Embed 2.7 to TwelveLabs Marengo Embed 3.0, complete the following steps.";
+const MARENGO_PRICE =
+  "This model is a third-party model offered and billed through AWS Marketplace. Charges appear on your AWS bill and in AWS Cost Explorer under the model provider (not under Amazon Bedrock).";
+const MARENGO_US_GEO = "us.twelvelabs.marengo-embed-2-7-v1:0";
+const MARENGO_EU_GEO = "eu.twelvelabs.marengo-embed-2-7-v1:0";
+
+function marengoNov30Guide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePage {
+  const when = longDate(BEDROCK_MARENGO_NOV30_SHUTDOWN_DATE);
+  const row = rows.find((model) => model.id === MARENGO_V27_ID);
+  const newer = catalog.find((model) => model.provider === "aws-bedrock" && model.id === MARENGO_V30_ID);
+  const sources = [
+    { label: "Amazon Bedrock model lifecycle (legacy)", url: BEDROCK_LEGACY },
+    { label: "Marengo Embed v2.7 model card", url: BEDROCK_MARENGO_CARD },
+    { label: "TwelveLabs Marengo Embed 2.7 parameters", url: BEDROCK_MARENGO_PARAMS },
+    { label: "TwelveLabs Marengo Embed 3.0 parameters", url: BEDROCK_MARENGO3_PARAMS },
+    { label: "Regional availability by models", url: BEDROCK_REGIONS },
+  ];
+  return {
+    slug: BEDROCK_MARENGO_NOV30_GUIDE_SLUG,
+    title: `Amazon Bedrock Marengo Embed v2.7 shutdown on ${when} | SunsetDiff`,
+    description: `${MARENGO_V27_ID} reaches end of life on ${BEDROCK_MARENGO_NOV30_SHUTDOWN_DATE} in ap-northeast-2, eu-west-1, and us-east-1. The legacy lifecycle table does not name a replacement model ID.`,
+    h1: `Amazon Bedrock Marengo Embed v2.7 shutdown on ${when}`,
+    summary: `The Bedrock id with shutdown date ${BEDROCK_MARENGO_NOV30_SHUTDOWN_DATE}, the Regions on that lifecycle row, and the Marengo Embed 3.0 parameters page that is not a replacement cell on the lifecycle table.`,
+    answer: `The dataset has ${rows.length} Amazon Bedrock id with shutdown date ${BEDROCK_MARENGO_NOV30_SHUTDOWN_DATE}: ${MARENGO_V27_ID}. The legacy lifecycle page lists TwelveLabs Marengo Embed v2.7 as Legacy in ap-northeast-2, eu-west-1, and us-east-1, with legacy date May 29, 2026, EOL date November 30, 2026, and public extended access start date August 29, 2026. The model card says "${MARENGO_LEGACY_LABEL}" and "${MARENGO_EOL_LABEL}". The lifecycle table does not name a replacement. The Marengo Embed 3.0 parameters page says: "${MARENGO3_MIGRATE}" It tells you to update the model ID to ${MARENGO_V30_ID}. That same lifecycle table lists Marengo Embed 3.0 as its own Legacy row, EOL date March 22, 2027, in ap-northeast-2. A shutdown batch page needs at least ${SHUTDOWN_BATCH_MIN} model records on one exact date, so there is no /shutdowns/aws-bedrock-2026-11-30/ page. Claude Sonnet 4.5 on the Claude API is a different provider and a different guide.`,
+    checked: MARENGO_CHECKED,
+    steps: [
+      {
+        name: "Read the id and the Regions",
+        text: `The table lists ${MARENGO_V27_ID}. The stored Regions note is ap-northeast-2, eu-west-1, and us-east-1. Open the model page before you change a call. A Region that is not on the lifecycle row is not covered by this date.`,
+      },
+      {
+        name: "Search for the base id and the geo ids",
+        text: `Search for ${MARENGO_V27_ID}, ${MARENGO_US_GEO}, and ${MARENGO_EU_GEO}. The model card says StartAsyncInvoke takes the base id, and a geo id on that call returns a validation error. InvokeModel uses a geo id.`,
+      },
+      {
+        name: "Read the Marengo Embed 3.0 page before you change the id",
+        text: `The lifecycle table does not name a replacement, so the stored replacement is Not published. The Marengo Embed 3.0 parameters page tells you to set the model ID to ${MARENGO_V30_ID} and to regenerate embeddings. That id is also Legacy, with EOL date March 22, 2027 in ap-northeast-2. This guide does not write it into the replacement field.`,
+      },
+      {
+        name: "Leave the Claude API id on its own guide",
+        text: `claude-sonnet-4-5-20250929 also uses November 30, 2026, on Anthropic's deprecations page. That is not this Bedrock id. Follow [Claude Sonnet 4.5 shutdown on November 30, 2026](/guides/${SONNET45_NOV30_GUIDE_SLUG}/) for the Claude API. Call GetFoundationModel or ListFoundationModels in the Region you use and read modelLifecycle before ${when}.`,
+      },
+    ],
+    sections: [
+      {
+        heading: "Models shutting down",
+        paragraphs: [
+          `These rows are the Amazon Bedrock models in the dataset with shutdown date ${BEDROCK_MARENGO_NOV30_SHUTDOWN_DATE}. The model id links to its SunsetDiff model page. The Legacy date column is the deprecation_date stored on the row. The Regions column is region_or_platform_notes. The replacement column is the official replacement stored on the row. Not published means the field is empty.`,
+          `The model card says: "${MARENGO_CARD_BLURB}" It also lists "${MARENGO_LAUNCH}", "${MARENGO_FLOOR}", "${MARENGO_LEGACY_LABEL}", and "${MARENGO_EOL_LABEL}". The older floor is not the announced EOL. The announced EOL on the card and on the legacy table is November 30, 2026.`,
+          `The current lifecycle policy page says: "${JAMBA_POLICY_SPLIT}" The model card points at the legacy policy. That page says: "${BEDROCK_ONLY_DATES}" The legacy table says: "${JAMBA_LEGACY_INTRO}" The stored replacements list is empty. This guide does not fill one in.`,
+        ],
+        table: {
+          caption: `${rows.length} Bedrock model id with shutdown date ${BEDROCK_MARENGO_NOV30_SHUTDOWN_DATE}.`,
+          headers: ["Model id", "Legacy date stored", "Shutdown date", "Regions", "Recommended replacement"],
+          rows: bedrockTable(rows, catalog),
+        },
+        sources: [
+          { label: "Amazon Bedrock model lifecycle (legacy)", url: BEDROCK_LEGACY },
+          { label: "Amazon Bedrock model lifecycle", url: BEDROCK_POLICY },
+          { label: "Marengo Embed v2.7 model card", url: BEDROCK_MARENGO_CARD },
+        ],
+      },
+      {
+        heading: "Dates on the legacy table and the model card",
+        paragraphs: [
+          "The legacy lifecycle table lists one row for this id. Public extended access start date is not a field on the dataset row. It is a column on that table.",
+          `The model card lists "${MARENGO_LEGACY_LABEL}" and "${MARENGO_EOL_LABEL}". It also lists "${MARENGO_FLOOR}". That older floor is not the announced EOL.`,
+        ],
+        table: {
+          caption: "Dates printed on the legacy lifecycle table for this id.",
+          headers: ["Model id", "Regions", "Legacy date", "EOL date", "Public extended access start"],
+          rows: [
+            [row ? modelLink(row) : MARENGO_V27_ID, "ap-northeast-2, eu-west-1, us-east-1", "May 29, 2026", BEDROCK_MARENGO_NOV30_SHUTDOWN_DATE, "August 29, 2026"],
+          ],
+        },
+        sources: [
+          { label: "Amazon Bedrock model lifecycle (legacy)", url: BEDROCK_LEGACY },
+          { label: "Marengo Embed v2.7 model card", url: BEDROCK_MARENGO_CARD },
+        ],
+      },
+      {
+        heading: "Regions, geo ids, and which API takes which id",
+        paragraphs: [
+          `The lifecycle page says: "${BEDROCK_REGION_SPLIT}" The Regions cell for this row is ap-northeast-2, eu-west-1, and us-east-1. To check the Region you call, use ListFoundationModels or GetFoundationModel and read modelLifecycle.`,
+          "The regional availability page lists Marengo Embed v2.7 in us-east-1 and eu-west-1. Both rows mark In-Region no, Geo yes, and Global no. That table does not list ap-northeast-2. The model card's regional table lists the same two Regions with the same marks.",
+          `The model card prints geo inference ID ${MARENGO_US_GEO} for source Region us-east-1, with destination Regions us-east-1, us-east-2, us-west-1, and us-west-2. It prints ${MARENGO_EU_GEO} for source Region eu-west-1, with destination Regions eu-central-1, eu-north-1, eu-south-1, eu-south-2, eu-west-1, and eu-west-3. Global inference ID is Not supported. Those destination Regions are what the card prints. They are not extra EOL Regions.`,
+          `The model card says: "${MARENGO_ID_NOTE}" The parameters page says: "${MARENGO_QUERY}"`,
+          "The model card's API column marks StartAsyncInvoke supported. It marks Responses, Chat Completions, Invoke, and Converse not supported. The endpoints column marks bedrock-runtime supported and bedrock-mantle not supported. The parameters page documents InvokeModel for inference profiles, with text and image input, and StartAsyncInvoke for the base model, with video, audio, image, and text input. This guide does not pick which page wins.",
+          "The model card marks these inputs supported: image, speech, text, and video. It marks audio input not supported. Output is embedding. The parameters page lists audio as an input for StartAsyncInvoke and does not say speech. Read both pages before you send a modality the other page omits.",
+        ],
+        table: {
+          caption: "Ids the Marengo Embed v2.7 model card and parameters page print.",
+          headers: ["Call", "Model id", "What the page says"],
+          rows: [
+            ["StartAsyncInvoke", MARENGO_V27_ID, "Base model id. A geo id returns a validation error. The card does not print the error sentence."],
+            ["InvokeModel", `${MARENGO_US_GEO} or ${MARENGO_EU_GEO}`, "Geo inference id. The card says these calls do not accept the base model id."],
+            ["Global", "Not supported", "The model card's global inference ID cell."],
+          ],
+        },
+        sources: sources.filter((source) => source.url !== BEDROCK_MARENGO3_PARAMS),
+      },
+      {
+        heading: "Input limits on the parameters page",
+        paragraphs: [
+          `The parameters page says: "${MARENGO_QUERY}" It prints these input maxima. It does not print a token price.`,
+          `The model card says: "${MARENGO_PRICE}" It points at Amazon Bedrock pricing and does not print a number. This guide does not invent one.`,
+        ],
+        table: {
+          caption: "Input maxima on the TwelveLabs Marengo Embed 2.7 parameters page.",
+          headers: ["Input", "Maximum"],
+          rows: [
+            ["Text", "77 tokens"],
+            ["Image", "5 MB"],
+            ["Video (S3)", "2 GB"],
+            ["Audio (S3)", "2 GB"],
+          ],
+        },
+        sources: [
+          { label: "TwelveLabs Marengo Embed 2.7 parameters", url: BEDROCK_MARENGO_PARAMS },
+          { label: "Marengo Embed v2.7 model card", url: BEDROCK_MARENGO_CARD },
+        ],
+      },
+      {
+        heading: "Marengo Embed 3.0 is not the lifecycle-table replacement",
+        paragraphs: [
+          `The legacy table has no replacement column. ${replacementFaq(rows, catalog)} The page says: "${BEDROCK_MIGRATE}" It does not name ${MARENGO_V30_ID} on the Marengo Embed v2.7 row.`,
+          `A different page, TwelveLabs Marengo Embed 3.0, has the heading "Migrate from TwelveLabs Marengo Embed 2.7 to TwelveLabs Marengo Embed 3.0". It says: "${MARENGO3_IMPORTANT}" It also says: "${MARENGO3_MIGRATE}" Step 2 on that page is: Update the model ID to ${MARENGO_V30_ID}.`,
+          "That page says the input is nested by inputType. embeddingOption values on the 2.7 examples are visual-text, visual-image, and audio. On the 3.0 examples they are visual, audio, and transcription. It says a text_image input type is new and is not supported on Marengo Embed 2.7. It says the embedding dimension is reduced from 1024 to 512. Text maximum on that page is 500 tokens. Video and audio maximums are 6 GB and 4 hours. The 2.7 page lists 77 text tokens, 2 GB video, and 2 GB audio.",
+          `The same legacy table lists Marengo Embed 3.0 as Legacy, model ID ${MARENGO_V30_ID}, Region ap-northeast-2, legacy date September 22, 2026, EOL date March 22, 2027. The public extended access start date cell on that row is a dash, not a date. The lifecycle page says to migrate to an Active model. Marengo Embed 3.0 is not Active on that table.${newer ? ` The stored row is ${modelLink(newer)}, shutdown date ${newer.shutdown_date ?? "Not published"}, replacements ${newer.replacements.length === 0 ? "empty" : "stored"}.` : ""} This guide links that model page as related. It does not store ${MARENGO_V30_ID} as the official replacement.`,
+          "The regional availability page lists Marengo Embed 3.0 in us-east-1 (In-Region yes, Geo yes, Global no), eu-west-1 (In-Region no, Geo yes, Global no), and ap-northeast-2 (In-Region yes, Geo no, Global no). The parameters page says InvokeModel is base models and inference profiles in US East (N. Virginia), inference profiles in Europe (Ireland), and base models in Asia Pacific (Seoul). It says StartAsyncInvoke is base models in those three places. The lifecycle EOL row for 3.0 names only ap-northeast-2. This guide does not copy March 22, 2027 onto us-east-1 or eu-west-1.",
+        ],
+        codes: [
+          {
+            caption: "Text input the Marengo Embed 3.0 page prints for 2.7, then for 3.0",
+            code: `{
+  "inputType": "text",
+  "inputText": "your-text",
+  "embeddingOption": "visual-text"
+}
+
+{
+  "inputType": "text",
+  "text": { "inputText": "your-text" },
+  "embeddingOption": "visual"
+}
+`,
+          },
+        ],
+        sources: [
+          { label: "Amazon Bedrock model lifecycle (legacy)", url: BEDROCK_LEGACY },
+          { label: "TwelveLabs Marengo Embed 3.0 parameters", url: BEDROCK_MARENGO3_PARAMS },
+          { label: "TwelveLabs Marengo Embed 2.7 parameters", url: BEDROCK_MARENGO_PARAMS },
+          { label: "Regional availability by models", url: BEDROCK_REGIONS },
+        ],
+      },
+      {
+        heading: "Public extended access",
+        paragraphs: [
+          `The legacy page says: "${JAMBA_EXTENDED}" The table lists August 29, 2026 as the public extended access start date for ${MARENGO_V27_ID}. The page says pricing in that period is set by the model provider. It does not print a price for this id.`,
+          `While a model is Legacy, the same page says: "${BEDROCK_LEGACY_ACCESS}" And: "${BEDROCK_NO_THROUGHPUT}"`,
+        ],
+        sources: [{ label: "Amazon Bedrock model lifecycle (legacy)", url: BEDROCK_LEGACY }],
+      },
+      {
+        heading: "What breaks",
+        paragraphs: [
+          `On ${when} the lifecycle row reaches its EOL date in the Regions on that row. The legacy page says: "${BEDROCK_FAIL}" It also says: "${BEDROCK_MIGRATE}" It does not print an exception name or an error sentence.`,
+          "The Marengo Embed v2.7 model card does not print an exception name for the EOL date. The only error words on that card are for a different mistake: a geo inference ID passed to StartAsyncInvoke returns a validation error. The card does not print that error sentence. This guide does not invent one, and it does not copy another model's end-of-life exception onto this id.",
+        ],
+        sources: [
+          { label: "Amazon Bedrock model lifecycle (legacy)", url: BEDROCK_LEGACY },
+          { label: "Marengo Embed v2.7 model card", url: BEDROCK_MARENGO_CARD },
+        ],
+      },
+      {
+        heading: "Same calendar day, different provider",
+        paragraphs: [
+          `November 30, 2026 is also the retirement date Anthropic lists for claude-sonnet-4-5-20250929 on the Claude API. That guide is [Claude Sonnet 4.5 shutdown on November 30, 2026](/guides/${SONNET45_NOV30_GUIDE_SLUG}/). The recommended replacement on Anthropic's page is claude-sonnet-5-5. That replacement is not a Bedrock Marengo id.`,
+          "Bedrock's own Claude Sonnet 4.5 id, anthropic.claude-sonnet-4-5-20250929-v1:0, is a third date. The legacy table lists EOL date April 8, 2027 for that id. Do not move a Marengo caller because of the Claude API date, and do not move a Claude caller because of the Marengo row.",
+        ],
+        sources: [
+          { label: "Anthropic model deprecations", url: CLAUDE_DEPRECATIONS },
+          { label: "Amazon Bedrock model lifecycle (legacy)", url: BEDROCK_LEGACY },
+        ],
+      },
+      {
+        heading: "No shutdown batch page",
+        paragraphs: [
+          `SunsetDiff publishes a shutdown batch page when at least ${SHUTDOWN_BATCH_MIN} model records share one provider and one exact shutdown date. This date has ${rows.length} Bedrock id, so there is no /shutdowns/aws-bedrock-2026-11-30/ page. The Claude API date is one Anthropic id, so there is no /shutdowns/anthropic-2026-11-30/ page either. [/shutdowns/aws-bedrock-2026-11-13/](/shutdowns/aws-bedrock-2026-11-13/) is the Claude 3 batch. It is not this Marengo date.`,
+        ],
+        sources: [
+          { label: "Amazon Bedrock model lifecycle (legacy)", url: BEDROCK_LEGACY },
+          { label: "Anthropic model deprecations", url: CLAUDE_DEPRECATIONS },
+        ],
+      },
+      {
+        heading: "Find the model ids in your code",
+        paragraphs: [
+          "Search the repository for the base id and both geo ids. A hit is a candidate, not proof the call still runs. [How to find every model ID in your codebase](/guides/find-model-ids-in-your-codebase/) covers SDK argument names. The [scan page](/scan/) builds a search from dataset ids that have a shutdown date. The geo ids are not their own dataset rows. Search for them separately.",
+          `If you follow the Marengo Embed 3.0 page, also search for ${MARENGO_V30_ID}. Regenerate stored embeddings. The 3.0 page says 2.7 embeddings are not compatible with 3.0. Then send one real call from the Region you use, before ${when}. The [pre-migration test checklist](/guides/pre-migration-test-checklist/) is the longer list. These rows do not store a price.`,
+        ],
+        codes: [{
+          caption: "ripgrep",
+          code: `rg -n -e '${MARENGO_V27_ID}' -e '${MARENGO_US_GEO}' -e '${MARENGO_EU_GEO}' -e '${MARENGO_V30_ID}'\n`,
+        }],
+        sources: [
+          { label: "Marengo Embed v2.7 model card", url: BEDROCK_MARENGO_CARD },
+          { label: "TwelveLabs Marengo Embed 3.0 parameters", url: BEDROCK_MARENGO3_PARAMS },
+        ],
+      },
+    ],
+    related: [
+      { href: row ? `/models/${row.provider}/${row.slug}/` : "/models/aws-bedrock/twelvelabs-marengo-embed-2-7-v1-0/", label: "Marengo Embed v2.7" },
+      { href: newer ? `/models/${newer.provider}/${newer.slug}/` : "/models/aws-bedrock/twelvelabs-marengo-embed-3-0-v1-0/", label: "Marengo Embed 3.0" },
+      { href: "/providers/aws-bedrock/", label: "Amazon Bedrock provider page" },
+      { href: `/guides/${SONNET45_NOV30_GUIDE_SLUG}/`, label: "Claude Sonnet 4.5 shutdown on November 30, 2026" },
+      { href: "/shutdowns/aws-bedrock-2026-11-13/", label: "Bedrock Claude shutdowns on November 13, 2026" },
+      { href: "/guides/find-model-ids-in-your-codebase/", label: "Find model ids in your codebase" },
+      { href: "/guides/pre-migration-test-checklist/", label: "Pre-migration test checklist" },
+      { href: "/guides/what-happens-on-model-shutdown-day/", label: "What happens on shutdown day" },
+      { href: "/guides/why-shutdown-dates-differ-by-platform/", label: "Why shutdown dates differ by platform" },
+      { href: "/scan/", label: "Scan retiring ids" },
+    ],
+    faqs: [
+      {
+        question: `Which Bedrock model id reaches end of life on ${when}?`,
+        answer: `The dataset lists ${MARENGO_V27_ID} with shutdown date ${BEDROCK_MARENGO_NOV30_SHUTDOWN_DATE}. The legacy lifecycle page lists that id in ap-northeast-2, eu-west-1, and us-east-1. The model card says "${MARENGO_EOL_LABEL}" and "${MARENGO_LEGACY_LABEL}".`,
+      },
+      {
+        question: "Does November 30, 2026 apply in every AWS Region?",
+        answer: `The legacy page says: "${BEDROCK_REGION_SPLIT}" The Regions cell is ap-northeast-2, eu-west-1, and us-east-1. The regional availability page lists this model in us-east-1 and eu-west-1 only, both as Geo yes and In-Region no. It does not list ap-northeast-2.`,
+      },
+      {
+        question: "What is the official recommended replacement?",
+        answer: `Not published. ${replacementFaq(rows, catalog)} The legacy page says: "${JAMBA_LEGACY_INTRO}" It also says: "${BEDROCK_MIGRATE}" Neither sentence names a model ID on this row.`,
+      },
+      {
+        question: "Does AWS tell you to move to Marengo Embed 3.0?",
+        answer: `The Marengo Embed 3.0 parameters page says: "${MARENGO3_MIGRATE}" It says to update the model ID to ${MARENGO_V30_ID}, and that 2.7 embeddings are not compatible with 3.0. The legacy lifecycle table does not name that id as the replacement. It lists ${MARENGO_V30_ID} as Legacy, with EOL date March 22, 2027, in ap-northeast-2. The stored replacement on the v2.7 row stays empty.`,
+      },
+      {
+        question: "What error does Bedrock return after this end of life?",
+        answer: "The legacy page says requests made to this version will fail. It does not print an exception name or an error sentence. The Marengo Embed v2.7 model card does not print one for the EOL date. This page does not invent one.",
+      },
+      {
+        question: "Why is there no /shutdowns/aws-bedrock-2026-11-30/ page?",
+        answer: `A shutdown batch page is published when at least ${SHUTDOWN_BATCH_MIN} model records share one provider and one exact shutdown date. ${MARENGO_V27_ID} is the only Bedrock row with shutdown date ${BEDROCK_MARENGO_NOV30_SHUTDOWN_DATE}.`,
+      },
+      {
+        question: "Is this the same shutdown as Claude Sonnet 4.5?",
+        answer: `No. claude-sonnet-4-5-20250929 retires on the Claude API on the same calendar day. That page is [Claude Sonnet 4.5 shutdown on November 30, 2026](/guides/${SONNET45_NOV30_GUIDE_SLUG}/). Bedrock's Claude Sonnet 4.5 id has EOL date April 8, 2027 on the legacy table. Marengo Embed v2.7 is a TwelveLabs embedding model.`,
+      },
+    ],
+    citations: [
+      BEDROCK_LEGACY,
+      BEDROCK_POLICY,
+      BEDROCK_MARENGO_CARD,
+      BEDROCK_MARENGO_PARAMS,
+      BEDROCK_MARENGO3_PARAMS,
       BEDROCK_REGIONS,
       CLAUDE_DEPRECATIONS,
     ],
