@@ -5,7 +5,7 @@ import ShutdownTable from "../../components/ShutdownTable.astro";
 import { scheduleGraph } from "../../jsonld.ts";
 import { clipMeta, today } from "../../lib/format.ts";
 import { loadMigrations, loadModels, loadProviders } from "../../lib/load.ts";
-import { COPILOT_NOV16_PATH, COPILOT_NOV16_TITLE, copilotNov16Hit } from "../../lib/shutdowns.ts";
+import { batchHeadline, COPILOT_NOV16_PATH, COPILOT_NOV16_TITLE, copilotNov16Hit, NOT_BEFORE_SHUTDOWN_BATCHES, orderShutdownEvents, providerDisplayName, shutdownEventPath, shutdownEvents } from "../../lib/shutdowns.ts";
 import { DEFAULT_SITE_URL } from "../../lib/site.ts";
 import {
   groupRowsByMonth,
@@ -26,6 +26,9 @@ const providers = await loadProviders();
 const migrations = await loadMigrations();
 const selected = upcomingShutdowns(models, day);
 const rows = toScheduleRows(selected, models, providers, migrations, day);
+const floorBatches = orderShutdownEvents(shutdownEvents(models), day).filter(
+  (event) => event.date >= day && NOT_BEFORE_SHUTDOWN_BATCHES.has(`${event.provider}|${event.date}`),
+);
 const groups = groupRowsByMonth(rows);
 const scope = upcomingScope(day);
 const intro = periodIntro(rows, providers, scope);
@@ -57,6 +60,17 @@ const name = "Upcoming AI model shutdowns";
   <h1>Upcoming AI model shutdowns</h1>
   {copilotNov16Hit(models) ? (
     <p><a href={COPILOT_NOV16_PATH}>{COPILOT_NOV16_TITLE}</a></p>
+  ) : null}
+  {floorBatches.length ? (
+    <p>
+      OpenRouter lists these dates as not-before floors, so they are not rows in the tables below.
+      {floorBatches.map((event, index) => (
+        <>
+          {index > 0 ? " · " : " "}
+          <a href={shutdownEventPath(event)}>{batchHeadline(providerDisplayName(providers, event.provider), event, day)}</a>
+        </>
+      ))}
+    </p>
   ) : null}
   <p class="answer">{intro}</p>
   <p>

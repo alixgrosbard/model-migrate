@@ -74,6 +74,24 @@ describe("shutdown batches", () => {
     expect(events.some((event) => event.slug === "google-gemini-api-2026-12-01")).toBe(true);
     expect(events.some((event) => event.slug === "aws-bedrock-2026-11-27")).toBe(true);
     expect(events.some((event) => event.slug === "together-2026-11-06")).toBe(true);
+    for (const slug of [
+      "openrouter-2026-11-20",
+      "openrouter-2026-11-30",
+      "openrouter-2026-12-01",
+      "openrouter-2026-12-22",
+      "openrouter-2026-12-31",
+      "azure-openai-2026-12-08",
+      "azure-openai-2026-12-16",
+      "google-vertex-2026-12-13",
+      "aws-bedrock-2027-01-08",
+      "azure-openai-2027-01-12",
+      "azure-openai-2027-01-14",
+      "azure-openai-2027-01-20",
+      "google-vertex-2027-01-28",
+    ]) {
+      expect(events.some((event) => event.slug === slug), slug).toBe(true);
+    }
+    expect(events.some((event) => event.slug === "anthropic-2026-11-24")).toBe(false);
     for (const event of events) {
       const isNotBeforeBatch = NOT_BEFORE_SHUTDOWN_BATCHES.has(`${event.provider}|${event.date}`);
       const minimum = SMALL_SHUTDOWN_BATCHES.has(`${event.provider}|${event.date}`) || isNotBeforeBatch ? 1 : 3;

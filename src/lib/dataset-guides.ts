@@ -737,6 +737,18 @@ function englishJoin(items: string[]): string {
   return `${items.slice(0, -1).join(", ")}, and ${items[items.length - 1]}`;
 }
 
+function openRouterShutdownDates(): string[] {
+  return [...NOT_BEFORE_SHUTDOWN_BATCHES]
+    .filter((key) => key.startsWith("openrouter|"))
+    .map((key) => key.slice("openrouter|".length))
+    .filter((date) => date >= OPENROUTER_NOV_DEC_WINDOW_START && date <= OPENROUTER_NOV_DEC_WINDOW_END)
+    .sort();
+}
+
+function openRouterShutdownLinks(): string[] {
+  return openRouterShutdownDates().map((date) => `[/shutdowns/openrouter-${date}/](/shutdowns/openrouter-${date}/)`);
+}
+
 function replacementFaq(rows: ModelRecord[], catalog: ModelRecord[]): string {
   const lines = rows.map((model) => `${model.id}: ${replacementText(model, catalog)}`);
   return `The recommended replacement is the official replacement stored on each row. ${lines.join(". ")}.`;
@@ -1610,7 +1622,11 @@ function openRouterImageShutdownNote(models: ModelRecord[], catalog: ModelRecord
   const replacement = models.every((model) => model.replacements.length === 0)
     ? "The stored replacement list on those rows is empty, so this page does not name one."
     : models.map((model) => `${model.id}: ${replacementText(model, catalog)}`).join(" ");
-  return `OpenRouter is also expiring image slugs. The OpenRouter models API sets expiration_date, and SunsetDiff stores that day as not_before. ${englishJoin(bits)}. ${replacement} Those slugs are OpenRouter ids, not the OpenAI ids in the table above. See the [OpenRouter model expirations in November and December 2026](/guides/${OPENROUTER_NOV_DEC_GUIDE_SLUG}/).`;
+  const dates = [...new Set(models.map((model) => model.shutdown_date).filter((date): date is string => Boolean(date)))];
+  const batch = dates.length === 1 && NOT_BEFORE_SHUTDOWN_BATCHES.has(`openrouter|${dates[0]}`)
+    ? ` See [/shutdowns/openrouter-${dates[0]}/](/shutdowns/openrouter-${dates[0]}/).`
+    : "";
+  return `OpenRouter is also expiring image slugs. The OpenRouter models API sets expiration_date, and SunsetDiff stores that day as not_before. ${englishJoin(bits)}. ${replacement} Those slugs are OpenRouter ids, not the OpenAI ids in the table above.${batch} See the [OpenRouter model expirations in November and December 2026](/guides/${OPENROUTER_NOV_DEC_GUIDE_SLUG}/).`;
 }
 
 function december1ImageGuide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePage {
@@ -1723,6 +1739,11 @@ function december1ImageGuide(rows: ModelRecord[], catalog: ModelRecord[]): Guide
       ...(openRouterImages.length
         ? [
             { href: `/guides/${OPENROUTER_NOV_DEC_GUIDE_SLUG}/`, label: "OpenRouter model expirations in November and December 2026" },
+            ...(() => {
+              const dates = [...new Set(openRouterImages.map((model) => model.shutdown_date).filter((date): date is string => Boolean(date)))];
+              if (dates.length !== 1 || !NOT_BEFORE_SHUTDOWN_BATCHES.has(`openrouter|${dates[0]}`)) return [];
+              return [{ href: `/shutdowns/openrouter-${dates[0]}/`, label: `OpenRouter shutdowns on ${longDate(dates[0])}` }];
+            })(),
             ...openRouterImages.map((model) => ({ href: `/models/openrouter/${model.slug}/`, label: model.id })),
           ]
         : []),
@@ -4078,7 +4099,12 @@ function azureNovDecGuide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePag
     .filter((model) => model.provider === "azure-openai" && model.id.startsWith("gpt-image-") && !AZURE_NOV_DEC_IDS.has(model.id))
     .sort((a, b) => a.id.localeCompare(b.id));
   const realtime = catalog.find((model) => model.provider === "azure-openai" && model.id === "gpt-realtime-mini-2025-12-15");
-  const peerLine = (models: ModelRecord[]) => models.map((model) => `${model.id}: ${model.shutdown_date ?? "Not published"}`).join(". ");
+  const peerLine = (models: ModelRecord[]) => models.map((model) => {
+    const date = model.shutdown_date;
+    const page = Boolean(date) && (azureExactCount(catalog, date!) >= 3 || SMALL_SHUTDOWN_BATCHES.has(`azure-openai|${date}`));
+    const link = page ? ` ([/shutdowns/azure-openai-${date}/](/shutdowns/azure-openai-${date}/))` : "";
+    return `${model.id}: ${date ?? "Not published"}${link}`;
+  }).join(". ");
   const byDate = dates
     .map((date) => {
       const group = ordered.filter((model) => model.shutdown_date === date);
@@ -4219,7 +4245,10 @@ function azureNovDecGuide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePag
       },
     ],
     related: [
+      { href: "/shutdowns/azure-openai-2026-12-08/", label: "Azure OpenAI shutdowns on December 8, 2026" },
       { href: "/shutdowns/azure-openai-2026-12-15/", label: "Azure OpenAI shutdowns on December 15, 2026" },
+      { href: "/shutdowns/azure-openai-2026-12-16/", label: "Azure OpenAI shutdowns on December 16, 2026" },
+      { href: "/shutdowns/azure-openai-2027-01-12/", label: "Azure OpenAI shutdowns on January 12, 2027" },
       { href: "/providers/azure-openai/", label: "Azure OpenAI provider page" },
       { href: "/errors/azure-openai-retired-model-410-gone/", label: "Azure OpenAI retired models return 410 Gone" },
       { href: `/guides/${AZURE_NOV19_GUIDE_SLUG}/`, label: "Azure OpenAI o-series retirement on November 19, 2026" },
@@ -4250,8 +4279,8 @@ function azureNovDecGuide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePag
         answer: `Working with models says: "${AZURE_LIST}" Read properties.model.name and properties.model.version. The model versions page says: "${AZURE_PORTAL}" The migration page says: "${AZURE_INVENTORY}"`,
       },
       {
-        question: "Why is there no shutdown page for November 15, November 17, December 8, and December 16?",
-        answer: `A shutdown batch page is published when at least three model records share one provider and one exact shutdown date. ${batchLines.filter((line) => line.includes("there is no")).join(" ")} December 15, 2026 has three ids, so [/shutdowns/azure-openai-${AZURE_SPEECH_DATE}/](/shutdowns/azure-openai-${AZURE_SPEECH_DATE}/) exists.`,
+        question: "Is there a shutdown page for each of these dates?",
+        answer: `A shutdown batch page is published when at least three model records share one provider and one exact shutdown date, or when the date is explicitly included. ${batchLines.join(" ")}`,
       },
       {
         question: "Why is gpt-realtime-mini 2025-12-15 not in this table?",
@@ -4347,7 +4376,7 @@ function azureApril14Guide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePa
           empty.length
             ? `The replacement cell is empty on ${idList(empty)}. Empty means Microsoft did not name a recommended replacement on that row. This guide does not add one.`
             : "Every row in this table stores a replacement.",
-          `gpt-4o version 2024-05-13 is a different row. It retires on 2027-01-14. The schedule cell on that row is gpt-5.1 (2025-11-13). The lifecycle page says: "${AZURE_JAN14_OFFERS}" Then: "${AZURE_JAN14_VERSION}" Those two sentences are about version 2024-05-13. They are not the April 14 rows. See [gpt-4o-2024-05-13](/models/azure-openai/gpt-4o-2024-05-13/).`,
+          `gpt-4o version 2024-05-13 is a different row. It retires on 2027-01-14. The schedule cell on that row is gpt-5.1 (2025-11-13). The lifecycle page says: "${AZURE_JAN14_OFFERS}" Then: "${AZURE_JAN14_VERSION}" Those two sentences are about version 2024-05-13. They are not the April 14 rows. See [gpt-4o-2024-05-13](/models/azure-openai/gpt-4o-2024-05-13/) and [Azure OpenAI shutdowns on January 14, 2027](/shutdowns/azure-openai-2027-01-14/).`,
         ],
         sources,
       },
@@ -5315,7 +5344,7 @@ function azureAug24Guide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePage
       },
       {
         question: "What about the June 15, 2027 audio models, gpt-realtime-2.1, and the Codex sample string?",
-        answer: `${juneLine}. See [Azure OpenAI gpt-4o-mini-tts, transcribe, and realtime audio retirement on ${juneWhen}](/guides/${AZURE_JUNE15_GUIDE_SLUG}/). ${peerLine}. gpt-realtime-2 version 2026-05-06 retires on 2027-01-20 and names gpt-realtime-2.1. gpt-realtime-2.1 version 2026-07-07 retires on 2027-06-25. gpt-5-codex version 2025-09-15 retires on 2027-03-17. None of those cells is the replacement for the ${AZURE_AUG24_SHUTDOWN_DATE} rows.`,
+        answer: `${juneLine}. See [Azure OpenAI gpt-4o-mini-tts, transcribe, and realtime audio retirement on ${juneWhen}](/guides/${AZURE_JUNE15_GUIDE_SLUG}/). ${peerLine}. gpt-realtime-2 version 2026-05-06 retires on 2027-01-20 and names gpt-realtime-2.1. See [Azure OpenAI shutdowns on January 20, 2027](/shutdowns/azure-openai-2027-01-20/). gpt-realtime-2.1 version 2026-07-07 retires on 2027-06-25. gpt-5-codex version 2025-09-15 retires on 2027-03-17. None of those cells is the replacement for the ${AZURE_AUG24_SHUTDOWN_DATE} rows.`,
       },
     ],
     citations: [
@@ -6989,7 +7018,7 @@ function vertexNovDecGuide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePa
     description: `Vertex AI retires gemini-3.6-flash on ${VERTEX_NOV19_SHUTDOWN_DATE} and gemini-live-2.5-flash-native-audio on ${VERTEX_DEC13_SHUTDOWN_DATE}. Replacements are gemini-3.8-flash and gemini-3.8-live. ${veoDate ? `Veo rows store ${veoDate} with kind not_before.` : "Veo floors follow the dates stored on each row."}`,
     h1: "Vertex AI Gemini retirements in November and December 2026",
     summary: `The Vertex Gemini ids with exact shutdown dates ${VERTEX_NOV19_SHUTDOWN_DATE} and ${VERTEX_DEC13_SHUTDOWN_DATE}, the replacement on the model versions page, and the Veo rows that only print a floor.`,
-    answer: `The dataset has ${ordered.length} Google Vertex Gemini ids with an exact shutdown date in this window: ${idList(ordered)}. The model versions page lists gemini-3.6-flash with retirement date November 19, 2026 and replacement model ID gemini-3.8-flash. It lists gemini-live-2.5-flash-native-audio with retirement date December 13, 2026 and replacement model ID gemini-3.8-live. The 3.6 Flash page says: "${VERTEX_FLASH_BANNER}" ${veoAnswerClause(veo)} [/shutdowns/google-vertex-${VERTEX_NOV19_SHUTDOWN_DATE}/](/shutdowns/google-vertex-${VERTEX_NOV19_SHUTDOWN_DATE}/) lists the gemini-3.6-flash record. A single-record date gets a page because the guide covers it. A shutdown batch page for December 13 needs at least ${SHUTDOWN_BATCH_MIN} records on one exact date, so there is no /shutdowns/google-vertex-${VERTEX_DEC13_SHUTDOWN_DATE}/ page.`,
+    answer: `The dataset has ${ordered.length} Google Vertex Gemini ids with an exact shutdown date in this window: ${idList(ordered)}. The model versions page lists gemini-3.6-flash with retirement date November 19, 2026 and replacement model ID gemini-3.8-flash. It lists gemini-live-2.5-flash-native-audio with retirement date December 13, 2026 and replacement model ID gemini-3.8-live. The 3.6 Flash page says: "${VERTEX_FLASH_BANNER}" ${veoAnswerClause(veo)} [/shutdowns/google-vertex-${VERTEX_NOV19_SHUTDOWN_DATE}/](/shutdowns/google-vertex-${VERTEX_NOV19_SHUTDOWN_DATE}/) lists the gemini-3.6-flash record. [/shutdowns/google-vertex-${VERTEX_DEC13_SHUTDOWN_DATE}/](/shutdowns/google-vertex-${VERTEX_DEC13_SHUTDOWN_DATE}/) lists the gemini-live-2.5-flash-native-audio record. A single-record date gets a page because the guide covers it.`,
     checked: VERTEX_NOV_DEC_CHECKED,
     steps: [
       {
@@ -7018,7 +7047,7 @@ function vertexNovDecGuide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePa
           `The same model versions page puts gemini-live-2.5-flash-native-audio in the 12-month table: release date December 12, 2025, retirement date December 13, 2026, replacement model ID gemini-3.8-live. The Live model page says retirement date December 13, 2026.`,
           `Both model pages say: "${VERTEX_FOOTNOTE}" The Gemini API deprecations page is a different list. Checked on ${VERTEX_NOV_DEC_CHECKED}, the shutdown cell for gemini-3.6-flash says "No shutdown date announced." It does not list November 19, 2026, December 13, 2026, or the id gemini-live-2.5-flash-native-audio. ${apiFlash ? `The stored Gemini API row for gemini-3.6-flash has shutdown kind ${apiFlash.shutdown_date_kind} and ${apiFlash.shutdown_date ? `shutdown date ${apiFlash.shutdown_date}` : "no shutdown_date"}.` : "The dataset has no Gemini API row for gemini-3.6-flash."} See [Gemini API model shutdowns on November 17, 2026](/guides/${GEMINI_NOV17_GUIDE_SLUG}/).`,
           flash37
-            ? `gemini-3.7-flash is on the shorter-availability table with retirement date January 28, 2027 and replacement model ID gemini-3.8-flash. The stored shutdown date is ${flash37.shutdown_date ?? "Not published"} (${flash37.shutdown_date_kind}). January 28, 2027 is after mid-December, so that id is not in the table below.`
+            ? `gemini-3.7-flash is on the shorter-availability table with retirement date January 28, 2027 and replacement model ID gemini-3.8-flash. The stored shutdown date is ${flash37.shutdown_date ?? "Not published"} (${flash37.shutdown_date_kind}). January 28, 2027 is after mid-December, so that id is not in the table below.${flash37.shutdown_date && SMALL_SHUTDOWN_BATCHES.has(`google-vertex|${flash37.shutdown_date}`) ? ` The page is [/shutdowns/google-vertex-${flash37.shutdown_date}/](/shutdowns/google-vertex-${flash37.shutdown_date}/).` : ""}`
             : "The dataset has no gemini-3.7-flash row. The model versions page lists that id with retirement date January 28, 2027, which is after mid-December.",
         ],
         table: {
@@ -7191,6 +7220,10 @@ async with client.aio.live.connect(
       { href: "/providers/google-vertex/", label: "Google Vertex AI provider page" },
       { href: "/shutdowns/google-vertex-2026-10-20/", label: "Vertex AI shutdowns on October 20, 2026" },
       { href: `/shutdowns/google-vertex-${VERTEX_NOV19_SHUTDOWN_DATE}/`, label: `Vertex AI shutdowns on ${longDate(VERTEX_NOV19_SHUTDOWN_DATE)}` },
+      { href: `/shutdowns/google-vertex-${VERTEX_DEC13_SHUTDOWN_DATE}/`, label: `Vertex AI shutdowns on ${longDate(VERTEX_DEC13_SHUTDOWN_DATE)}` },
+      ...(flash37?.shutdown_date && SMALL_SHUTDOWN_BATCHES.has(`google-vertex|${flash37.shutdown_date}`)
+        ? [{ href: `/shutdowns/google-vertex-${flash37.shutdown_date}/`, label: `Vertex AI shutdowns on ${longDate(flash37.shutdown_date)}` }]
+        : []),
       { href: `/guides/${GEMINI_NOV17_GUIDE_SLUG}/`, label: "Gemini API model shutdowns on November 17, 2026" },
       { href: "/guides/why-shutdown-dates-differ-by-platform/", label: "Why shutdown dates differ by platform" },
       { href: "/guides/find-model-ids-in-your-codebase/", label: "Find model ids in your codebase" },
@@ -7230,7 +7263,7 @@ async with client.aio.live.connect(
       {
         question: "Is gemini-3.7-flash in this window?",
         answer: flash37
-          ? `No. The model versions page lists gemini-3.7-flash with retirement date January 28, 2027 and replacement model ID gemini-3.8-flash. The stored shutdown date is ${flash37.shutdown_date ?? "Not published"}.`
+          ? `No. The model versions page lists gemini-3.7-flash with retirement date January 28, 2027 and replacement model ID gemini-3.8-flash. The stored shutdown date is ${flash37.shutdown_date ?? "Not published"}.${flash37.shutdown_date && SMALL_SHUTDOWN_BATCHES.has(`google-vertex|${flash37.shutdown_date}`) ? ` [/shutdowns/google-vertex-${flash37.shutdown_date}/](/shutdowns/google-vertex-${flash37.shutdown_date}/) lists that record.` : ""}`
           : "No. The model versions page lists gemini-3.7-flash with retirement date January 28, 2027.",
       },
     ],
@@ -7538,7 +7571,7 @@ function openRouterNovDecGuide(rows: ModelRecord[], catalog: ModelRecord[]): Gui
     description: `${count} stored OpenRouter ${slugWord} are deprecated with a shutdown date after ${day} and on or before ${OPENROUTER_NOV_DEC_WINDOW_END}. Each date is a not-before removal floor. Empty replacement lists stay empty.`,
     h1: "OpenRouter model expirations in November and December 2026",
     summary: `The ${count} stored OpenRouter ${slugWord} with a shutdown date after ${longDate(day)} and on or before ${longDate(OPENROUTER_NOV_DEC_WINDOW_END)}, how to read that field, and how to change the model string.`,
-    answer: `The dataset has ${count} OpenRouter ${count === 1 ? "model" : "models"} that ${count === 1 ? "is" : "are"} deprecated and whose shutdown date is after ${day} and on or before ${OPENROUTER_NOV_DEC_WINDOW_END}. The dates in the table run from ${first} through ${last}. The models guide calls expiration_date the deprecation date for the model endpoint. The model schema says it is the date after which the model may be removed, not a day the model is guaranteed to stop. SunsetDiff stores the same day as shutdown_date_kind not_before, which means not before that day. ${replacementSentence} Dates with four or more not_before rows get a batch page even though the kind is not exact: [/shutdowns/openrouter-2026-11-08/](/shutdowns/openrouter-2026-11-08/) and [/shutdowns/openrouter-2026-11-11/](/shutdowns/openrouter-2026-11-11/).`,
+    answer: `The dataset has ${count} OpenRouter ${count === 1 ? "model" : "models"} that ${count === 1 ? "is" : "are"} deprecated and whose shutdown date is after ${day} and on or before ${OPENROUTER_NOV_DEC_WINDOW_END}. The dates in the table run from ${first} through ${last}. The models guide calls expiration_date the deprecation date for the model endpoint. The model schema says it is the date after which the model may be removed, not a day the model is guaranteed to stop. SunsetDiff stores the same day as shutdown_date_kind not_before, which means not before that day. ${replacementSentence} Named not_before dates in this window get a batch page even though the kind is not exact: ${englishJoin(openRouterShutdownLinks())}.`,
     checked,
     steps: [
       {
@@ -7603,7 +7636,7 @@ function openRouterNovDecGuide(rows: ModelRecord[], catalog: ModelRecord[]): Gui
           earlier.length
             ? `${earlier.length} stored OpenRouter ${earlier.length === 1 ? "row has" : "rows have"} a shutdown date on or before ${day}, or before ${OPENROUTER_NOV_DEC_WINDOW_START}. ${datedModelList(earlier)}. They stay in the dataset. They are not in the table above, because that table keeps only dates that are still ahead inside ${windowLabel}.`
             : `No stored OpenRouter row has a shutdown date on or before ${day}.`,
-          `Most not_before dates do not get a batch page. Dates with ${SHUTDOWN_BATCH_MIN} or more rows in this guide get one: [/shutdowns/openrouter-2026-11-08/](/shutdowns/openrouter-2026-11-08/) and [/shutdowns/openrouter-2026-11-11/](/shutdowns/openrouter-2026-11-11/). Both are labeled as not-before dates on those pages.`,
+          `Most not_before dates do not get a batch page. Named dates in this guide do: ${englishJoin(openRouterShutdownLinks())}. They are labeled as not-before dates on those pages.`,
         ],
         sources,
       },
@@ -7656,6 +7689,7 @@ function openRouterNovDecGuide(rows: ModelRecord[], catalog: ModelRecord[]): Gui
     ],
     related: [
       { href: `/guides/${DECEMBER_1_IMAGE_GUIDE_SLUG}/`, label: `OpenAI image models shutting down on ${longDate(DECEMBER_1_IMAGE_SHUTDOWN_DATE)}` },
+      ...openRouterShutdownDates().map((date) => ({ href: `/shutdowns/openrouter-${date}/`, label: `OpenRouter shutdowns on ${longDate(date)}` })),
       ...imageModels.map((model) => ({ href: `/models/openrouter/${model.slug}/`, label: model.id })),
       { href: "/providers/openrouter/", label: "OpenRouter provider page" },
       { href: "/frameworks/openrouter/", label: "OpenRouter model slug" },
@@ -7684,7 +7718,7 @@ function openRouterNovDecGuide(rows: ModelRecord[], catalog: ModelRecord[]): Gui
       },
       {
         question: "Are there OpenRouter shutdown batch pages for these dates?",
-        answer: `Dates with ${SHUTDOWN_BATCH_MIN} or more not_before rows get a batch page. [/shutdowns/openrouter-2026-11-08/](/shutdowns/openrouter-2026-11-08/) lists the Inception Mercury models. [/shutdowns/openrouter-2026-11-11/](/shutdowns/openrouter-2026-11-11/) lists the ByteDance Seed and Seedance models. Both pages note that the dates are not-before floors.`,
+        answer: `Named not_before dates in this window get a batch page: ${englishJoin(openRouterShutdownLinks())}. Those pages note that the dates are not-before floors.`,
       },
       {
         question: "Why are some stored OpenRouter rows missing from the table?",
