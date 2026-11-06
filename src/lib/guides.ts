@@ -5,6 +5,7 @@ import {
   AZURE_NOV19_GUIDE_SLUG,
   AZURE_NOV_DEC_GUIDE_SLUG,
   BEDROCK_JAMBA_NOV26_GUIDE_SLUG,
+  BEDROCK_MARENGO_NOV30_GUIDE_SLUG,
   BEDROCK_MAR30_GUIDE_SLUG,
   BEDROCK_NOV13_GUIDE_SLUG,
   BEDROCK_NOV27_GUIDE_SLUG,
@@ -33,6 +34,7 @@ import {
   isAzureNov19OSeries,
   isAzureNovDecRetirement,
   isBedrockJambaNov26Shutdown,
+  isBedrockMarengoNov30Shutdown,
   isBedrockMar30OpenWeightShutdown,
   isBedrockNov13Shutdown,
   isBedrockNov27Shutdown,
@@ -2494,6 +2496,9 @@ export function guidesForModel(model: ModelRecord, catalog: ModelRecord[]): Mode
     add(BEDROCK_NOV27_GUIDE_SLUG);
   }
   if (isBedrockJambaNov26Shutdown(model)) add(BEDROCK_JAMBA_NOV26_GUIDE_SLUG);
+  if (isBedrockMarengoNov30Shutdown(model) || (model.provider === "aws-bedrock" && model.id === "twelvelabs.marengo-embed-3-0-v1:0")) {
+    add(BEDROCK_MARENGO_NOV30_GUIDE_SLUG);
+  }
   if (isBedrockMar30OpenWeightShutdown(model)) add(BEDROCK_MAR30_GUIDE_SLUG);
   if (isAzureApril14Retirement(model)) add(AZURE_APRIL14_GUIDE_SLUG);
   if (isAzureJuly13Retirement(model)) add(AZURE_JULY13_GUIDE_SLUG);
