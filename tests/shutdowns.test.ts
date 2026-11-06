@@ -28,6 +28,7 @@ import {
   shutdownEventTitle,
   shutdownEvents,
   SMALL_SHUTDOWN_BATCHES,
+  NOT_BEFORE_SHUTDOWN_BATCHES,
 } from "../src/lib/shutdowns.ts";
 
 const day = "2026-10-19";
@@ -52,17 +53,20 @@ describe("shutdown batches", () => {
     expect(publishedReplacementIds(events[0].models[0])).toEqual([]);
   });
 
-  it("matches every exact batch in the published dataset and ignores smaller groups", async () => {
+  it("matches every exact batch and named not-before batch in the published dataset and ignores smaller groups", async () => {
     const models = await loadModels();
     const events = shutdownEvents(models);
     const expected = new Map<string, number>();
     for (const model of models) {
-      if (model.shutdown_date_kind !== "exact" || !model.shutdown_date) continue;
+      if (!model.shutdown_date) continue;
       const key = `${model.provider}|${model.shutdown_date}`;
+      const isExact = model.shutdown_date_kind === "exact";
+      const isNotBeforeBatch = model.shutdown_date_kind === "not_before" && NOT_BEFORE_SHUTDOWN_BATCHES.has(key);
+      if (!isExact && !isNotBeforeBatch) continue;
       expected.set(key, (expected.get(key) ?? 0) + 1);
     }
     const keys = [...expected.entries()]
-      .filter(([key, count]) => count >= 3 || SMALL_SHUTDOWN_BATCHES.has(key))
+      .filter(([key, count]) => count >= 3 || SMALL_SHUTDOWN_BATCHES.has(key) || NOT_BEFORE_SHUTDOWN_BATCHES.has(key))
       .map(([key]) => key)
       .sort();
     expect(events.map((event) => `${event.provider}|${event.date}`).sort()).toEqual(keys);
@@ -71,9 +75,11 @@ describe("shutdown batches", () => {
     expect(events.some((event) => event.slug === "aws-bedrock-2026-11-27")).toBe(true);
     expect(events.some((event) => event.slug === "together-2026-11-06")).toBe(true);
     for (const event of events) {
-      const minimum = SMALL_SHUTDOWN_BATCHES.has(`${event.provider}|${event.date}`) ? 1 : 3;
+      const isNotBeforeBatch = NOT_BEFORE_SHUTDOWN_BATCHES.has(`${event.provider}|${event.date}`);
+      const minimum = SMALL_SHUTDOWN_BATCHES.has(`${event.provider}|${event.date}`) || isNotBeforeBatch ? 1 : 3;
       expect(event.models.length).toBeGreaterThanOrEqual(minimum);
-      expect(event.models.every((model) => model.shutdown_date === event.date && model.shutdown_date_kind === "exact")).toBe(true);
+      const expectedKind = isNotBeforeBatch ? "not_before" : "exact";
+      expect(event.models.every((model) => model.shutdown_date === event.date && model.shutdown_date_kind === expectedKind)).toBe(true);
       expect(new Set(event.models.map((model) => model.provider))).toEqual(new Set([event.provider]));
     }
   });

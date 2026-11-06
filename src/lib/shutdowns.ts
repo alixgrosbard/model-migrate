@@ -16,6 +16,22 @@ export const SMALL_SHUTDOWN_BATCHES = new Set([
   "google-gemini-api|2026-12-01",
   "aws-bedrock|2026-11-27",
   "together|2026-11-06",
+  "aws-bedrock|2026-11-26",    // AI21 Jamba 1.5 Large and Mini (2 exact rows)
+  "aws-bedrock|2026-11-30",    // TwelveLabs Marengo Embed v2.7 (1 exact row)
+  "anthropic|2026-11-30",      // claude-sonnet-4-5-20250929 (1 exact row)
+  "azure-openai|2026-11-15",   // codex-mini-2025-05-16 (1 exact row)
+  "azure-openai|2026-11-17",   // gpt-chat-latest snapshots (2 exact rows)
+  "google-vertex|2026-11-19",  // gemini-3.6-flash (1 exact row)
+]);
+
+/**
+ * not_before dates that get a /shutdowns/ page. These dates are floor dates (the provider
+ * published "not sooner than"), so they are not exact shutdown dates, but the batch is
+ * large enough to be useful and the guide already covers these waves.
+ */
+export const NOT_BEFORE_SHUTDOWN_BATCHES = new Set([
+  "openrouter|2026-11-08",   // Inception Mercury 2/2.5/3/Decide (4 not_before rows)
+  "openrouter|2026-11-11",   // ByteDance Seed 1.6/2.0 and Seedance 1.5 (4 not_before rows)
 ]);
 
 /** GitHub changelog post for the November 16, 2026 Copilot retirements. */
@@ -68,21 +84,25 @@ export function shutdownEventPath(event: Pick<ShutdownEvent, "slug">): string {
 
 /**
  * One event per provider and exact shutdown date with at least three model records.
- * SMALL_SHUTDOWN_BATCHES also publishes the named two-row dates.
- * "Not sooner than" dates are floors, so they are not events. Month-only dates are not a single day.
+ * SMALL_SHUTDOWN_BATCHES also publishes named dates with fewer rows.
+ * NOT_BEFORE_SHUTDOWN_BATCHES also publishes specific floor dates from OpenRouter.
+ * Month-only dates are not a single day and are never events.
  */
 export function shutdownEvents(models: ModelRecord[]): ShutdownEvent[] {
   const groups = new Map<string, ModelRecord[]>();
   for (const model of models) {
-    if (!model.shutdown_date || model.shutdown_date_kind !== "exact") continue;
+    if (!model.shutdown_date) continue;
     const key = `${model.provider}|${model.shutdown_date}`;
+    const isExact = model.shutdown_date_kind === "exact";
+    const isNotBeforeBatch = model.shutdown_date_kind === "not_before" && NOT_BEFORE_SHUTDOWN_BATCHES.has(key);
+    if (!isExact && !isNotBeforeBatch) continue;
     const list = groups.get(key) ?? [];
     list.push(model);
     groups.set(key, list);
   }
   const events: ShutdownEvent[] = [];
   for (const [key, list] of groups) {
-    if (list.length < SHUTDOWN_BATCH_MIN && !SMALL_SHUTDOWN_BATCHES.has(key)) continue;
+    if (list.length < SHUTDOWN_BATCH_MIN && !SMALL_SHUTDOWN_BATCHES.has(key) && !NOT_BEFORE_SHUTDOWN_BATCHES.has(key)) continue;
     const modelsInEvent = [...list].sort((a, b) => a.id.localeCompare(b.id) || a.slug.localeCompare(b.slug));
     const date = modelsInEvent[0].shutdown_date!;
     const provider = modelsInEvent[0].provider;
@@ -779,6 +799,18 @@ export function batchExtras(event: ShutdownEvent): BatchExtras {
       ...EMPTY_EXTRAS,
       note: "The deprecations page also says the shutdown dates in the table are the earliest possible dates, and that Google will communicate the exact shutdown date with advance notice. The caution for these two ids says the route is effective December 1, 2026. gemini-2.5-flash-lite is not in this batch.",
       checkedUrl: "https://aistudio.google.com/docs/deprecations",
+    };
+  }
+  if (event.slug === "openrouter-2026-11-08") {
+    return {
+      ...EMPTY_EXTRAS,
+      note: "OpenRouter published November 8, 2026 as a not-before date: the actual removal happens on or after that day. The rows below use the published expiration_date. Guide: openrouter-model-expirations-november-december-2026.",
+    };
+  }
+  if (event.slug === "openrouter-2026-11-11") {
+    return {
+      ...EMPTY_EXTRAS,
+      note: "OpenRouter published November 11, 2026 as a not-before date: the actual removal happens on or after that day. The rows below use the published expiration_date. Guide: openrouter-model-expirations-november-december-2026.",
     };
   }
   if (event.provider === "aws-bedrock") return { ...EMPTY_EXTRAS, showRegions: true };

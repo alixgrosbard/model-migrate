@@ -174,7 +174,7 @@ The dataset is CC BY 4.0. Publisher: SunsetDiff. Blank spec fields were not on t
 - [breaking-changes.csv](${origin}${BREAKING_CHANGES_CSV})
 
 ## Shutdown batches
-One page per provider and exact shutdown date when at least three models share that date. Three named dates are published with two models: Google Gemini API on 2026-12-01, AWS Bedrock on 2026-11-27, and Together AI on 2026-11-06.
+One page per provider and shutdown date. Most pages need at least three models on one exact date. Some dates with fewer records are published when a guide covers them (e.g. Together AI on 2026-11-06, AWS Bedrock on 2026-11-27, and others). OpenRouter dates are not-before floors; dates with four or more rows get a page and note the floor.
 ${shutdownLinks || "- None published."}
 
 ## Shutdown months

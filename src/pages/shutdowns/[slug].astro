@@ -28,6 +28,7 @@ import {
   batchLead,
   COPILOT_NOV16_CHANGELOG,
   COPILOT_NOV16_SLUG,
+  NOT_BEFORE_SHUTDOWN_BATCHES,
   shutdownEventPath,
   shutdownEvents,
 } from "../../lib/shutdowns.ts";
@@ -57,6 +58,7 @@ const sourceUrl = extras.checkedUrl ?? provider.deprecations_url;
 const lastChecked = eventLastChecked(event);
 const alertPitch = "Get an email before your models shut down. Free.";
 const suggestBedrock = event.provider === "aws-bedrock" && event.date === "2026-11-13";
+const isNotBefore = NOT_BEFORE_SHUTDOWN_BATCHES.has(`${event.provider}|${event.date}`);
 const path = shutdownEventPath(event);
 const relatedErrors = requestErrorsForShutdown(event.provider, event.date);
 const shutdownGuide = guideBySlug(
@@ -76,39 +78,51 @@ const shutdownGuide = guideBySlug(
         ? "minimax-m2-5-m2-7-shutdown-november-18-2026"
         : event.slug === "aws-bedrock-2026-11-13"
           ? "amazon-bedrock-claude-3-shutdown-november-13-2026"
-          : event.slug === "aws-bedrock-2026-11-27"
-            ? "amazon-bedrock-claude-3-haiku-sonnet-ca-central-1-november-27-2026"
-            : event.slug === "azure-openai-2026-11-19"
-            ? "azure-openai-o-series-retirement-november-19-2026"
-            : event.slug === "azure-openai-2026-12-15"
-              ? "azure-openai-retirements-november-december-2026"
-            : event.slug === "azure-openai-2027-04-14"
-              ? "azure-openai-gpt-4-1-gpt-4o-retirement-april-14-2027"
-            : event.slug === "azure-openai-2027-06-15"
-              ? "azure-openai-gpt-4o-mini-tts-transcribe-realtime-audio-retirement-june-15-2027"
-            : event.slug === "azure-openai-2027-07-13"
-              ? "azure-openai-gpt-5-1-gpt-5-mini-codex-retirement-july-13-2027"
-            : event.slug === "azure-openai-2027-08-24"
-              ? "azure-openai-gpt-5-3-codex-audio-realtime-retirement-august-24-2027"
-            : event.slug === "mistral-2027-04-30"
-              ? "mistral-large-3-medium-3-5-voxtral-retirement-april-30-2027"
-            : event.slug === "google-vertex-2027-04-01"
-              ? "vertex-ai-text-embedding-004-005-multilingual-002-shutdown-april-1-2027"
-            : event.slug === "github-copilot-2026-11-16"
-              ? "github-copilot-model-retirements-november-16-2026"
-              : event.slug === "fireworks-2026-11-07"
-                ? "fireworks-model-shutdowns-november-7-2026"
-                : event.slug === "nebius-2026-11-09"
-                  ? "nebius-model-shutdowns-november-9-2026"
-                  : event.slug === "google-gemini-api-2026-11-17"
-                    ? "gemini-api-model-shutdowns-november-17-2026"
-                    : event.slug === "google-gemini-api-2026-12-01"
-                      ? "gemini-2-5-pro-flash-auto-route-december-1-2026"
-                    : event.slug === "aws-bedrock-2027-03-30"
-                      ? "amazon-bedrock-open-weight-models-shutdown-march-30-2027"
-                    : event.slug === "together-2026-11-06"
-                      ? "together-model-shutdowns-november-6-2026"
-                    : undefined,
+          : event.slug === "aws-bedrock-2026-11-26"
+            ? "amazon-bedrock-ai21-jamba-shutdown-november-26-2026"
+            : event.slug === "aws-bedrock-2026-11-27"
+              ? "amazon-bedrock-claude-3-haiku-sonnet-ca-central-1-november-27-2026"
+              : event.slug === "aws-bedrock-2026-11-30"
+                ? "amazon-bedrock-marengo-embed-v2-7-shutdown-november-30-2026"
+                : event.slug === "anthropic-2026-11-30"
+                  ? "claude-sonnet-4-5-shutdown-november-30-2026"
+                  : event.slug === "azure-openai-2026-11-15" || event.slug === "azure-openai-2026-11-17"
+                    ? "azure-openai-retirements-november-december-2026"
+                    : event.slug === "azure-openai-2026-11-19"
+                      ? "azure-openai-o-series-retirement-november-19-2026"
+                      : event.slug === "azure-openai-2026-12-15"
+                        ? "azure-openai-retirements-november-december-2026"
+                        : event.slug === "azure-openai-2027-04-14"
+                          ? "azure-openai-gpt-4-1-gpt-4o-retirement-april-14-2027"
+                          : event.slug === "azure-openai-2027-06-15"
+                            ? "azure-openai-gpt-4o-mini-tts-transcribe-realtime-audio-retirement-june-15-2027"
+                            : event.slug === "azure-openai-2027-07-13"
+                              ? "azure-openai-gpt-5-1-gpt-5-mini-codex-retirement-july-13-2027"
+                              : event.slug === "azure-openai-2027-08-24"
+                                ? "azure-openai-gpt-5-3-codex-audio-realtime-retirement-august-24-2027"
+                                : event.slug === "mistral-2027-04-30"
+                                  ? "mistral-large-3-medium-3-5-voxtral-retirement-april-30-2027"
+                                  : event.slug === "google-vertex-2026-11-19"
+                                    ? "vertex-ai-gemini-retirements-november-december-2026"
+                                    : event.slug === "google-vertex-2027-04-01"
+                                      ? "vertex-ai-text-embedding-004-005-multilingual-002-shutdown-april-1-2027"
+                                      : event.slug === "github-copilot-2026-11-16"
+                                        ? "github-copilot-model-retirements-november-16-2026"
+                                        : event.slug === "fireworks-2026-11-07"
+                                          ? "fireworks-model-shutdowns-november-7-2026"
+                                          : event.slug === "nebius-2026-11-09"
+                                            ? "nebius-model-shutdowns-november-9-2026"
+                                            : event.slug === "google-gemini-api-2026-11-17"
+                                              ? "gemini-api-model-shutdowns-november-17-2026"
+                                              : event.slug === "google-gemini-api-2026-12-01"
+                                                ? "gemini-2-5-pro-flash-auto-route-december-1-2026"
+                                                : event.slug === "aws-bedrock-2027-03-30"
+                                                  ? "amazon-bedrock-open-weight-models-shutdown-march-30-2027"
+                                                  : event.slug === "together-2026-11-06"
+                                                    ? "together-model-shutdowns-november-6-2026"
+                                                    : event.slug === "openrouter-2026-11-08" || event.slug === "openrouter-2026-11-11"
+                                                      ? "openrouter-model-expirations-november-december-2026"
+                                                      : undefined,
 );
 const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
 const rows = event.models.map((model) => ({
@@ -214,9 +228,13 @@ function bedrockSuggestions(model: ModelRecord): { href: string; label: string }
   <p>
     {event.slug === "google-gemini-api-2026-12-01"
       ? "On this date Google routes gemini-2.5-pro and gemini-2.5-flash to other models and bills those rates. The rows below use the published shutdown date."
-      : past
-        ? "This date has passed. The rows below stay up because people still search after requests fail."
-        : "This date is still ahead. The rows below use the published shutdown date only."}
+      : isNotBefore
+        ? past
+          ? "This date has passed. OpenRouter published it as a not-before date (the actual removal happens on or after that day). The rows below stay up because people still search after requests fail."
+          : "OpenRouter published this as a not-before date: the actual removal happens on or after this day. The rows below use the published expiration_date."
+        : past
+          ? "This date has passed. The rows below stay up because people still search after requests fail."
+          : "This date is still ahead. The rows below use the published shutdown date only."}
     {" "}
     <a href={sourceUrl}>{name} deprecation page</a>
     {" · "}

@@ -4,7 +4,7 @@ import { modelSchema, type ModelRecord } from "../schema.ts";
 import { aliasIdOf, aliasSnapshotView, applyAliasSnapshotShutdowns, isDeprecationsSource } from "./aliases.ts";
 import type { GuidePage } from "./guides.ts";
 import { today } from "./format.ts";
-import { SHUTDOWN_BATCH_MIN, longDate, publishedReplacementIds, shutdownEventSlug } from "./shutdowns.ts";
+import { NOT_BEFORE_SHUTDOWN_BATCHES, SHUTDOWN_BATCH_MIN, SMALL_SHUTDOWN_BATCHES, longDate, publishedReplacementIds, shutdownEventSlug } from "./shutdowns.ts";
 
 const OPENAI_DEPRECATIONS = "https://developers.openai.com/api/docs/deprecations";
 
@@ -894,7 +894,7 @@ function sonnet45Nov30Guide(rows: ModelRecord[], catalog: ModelRecord[]): GuideP
         paragraphs: [
           `On ${when} claude-sonnet-4-5-20250929 reaches the retirement date on Anthropic-operated platforms. The deprecations page defines Retired as: "${SONNET_RETIRED}" It also says: "${SONNET_PAST}"`,
           "That page does not print an HTTP status or an error sentence for a retired model. This guide does not invent one. A 400 from a field Claude Sonnet 5.5 rejects is a different failure. It happens when the new id is already in the request and an old setting is still there. Those sentences are quoted in the next section.",
-          `SunsetDiff publishes a shutdown batch page when at least three model records share one provider and one exact shutdown date. This date has one Anthropic id, so there is no /shutdowns/anthropic-2026-11-30/ page. [/shutdowns/mistral-2025-11-30/](/shutdowns/mistral-2025-11-30/) is November 30, 2025, for Mistral. It is not this Claude date.`,
+          `[/shutdowns/anthropic-2026-11-30/](/shutdowns/anthropic-2026-11-30/) lists this id. [/shutdowns/mistral-2025-11-30/](/shutdowns/mistral-2025-11-30/) is November 30, 2025, for Mistral. It is not this Claude date.`,
         ],
         sources: [{ label: "Anthropic model deprecations", url: CLAUDE_DEPRECATIONS }],
       },
@@ -3037,7 +3037,7 @@ function jambaNov26Guide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePage
     description: `ai21.jamba-1-5-large-v1:0 and ai21.jamba-1-5-mini-v1:0 reach end of life on ${BEDROCK_JAMBA_NOV26_SHUTDOWN_DATE} in us-east-1. AWS does not name a replacement model ID.`,
     h1: `Amazon Bedrock AI21 Jamba shutdown on ${when}`,
     summary: `The two Bedrock Jamba 1.5 ids with shutdown date ${BEDROCK_JAMBA_NOV26_SHUTDOWN_DATE}, the us-east-1 row, and the fact that AWS does not name a replacement.`,
-    answer: `The dataset has ${rows.length} Amazon Bedrock ids with shutdown date ${BEDROCK_JAMBA_NOV26_SHUTDOWN_DATE}: ai21.jamba-1-5-large-v1:0 and ai21.jamba-1-5-mini-v1:0. The legacy lifecycle page lists both as Legacy in us-east-1, with legacy date May 26, 2026, EOL date November 26, 2026, and public extended access start date August 26, 2026. It says: "${JAMBA_LEGACY_INTRO}" It does not name a model ID. A shutdown batch page needs at least three model records on one exact date, so there is no /shutdowns/aws-bedrock-2026-11-26/ page.`,
+    answer: `The dataset has ${rows.length} Amazon Bedrock ids with shutdown date ${BEDROCK_JAMBA_NOV26_SHUTDOWN_DATE}: ai21.jamba-1-5-large-v1:0 and ai21.jamba-1-5-mini-v1:0. The legacy lifecycle page lists both as Legacy in us-east-1, with legacy date May 26, 2026, EOL date November 26, 2026, and public extended access start date August 26, 2026. It says: "${JAMBA_LEGACY_INTRO}" It does not name a model ID. See [/shutdowns/aws-bedrock-2026-11-26/](/shutdowns/aws-bedrock-2026-11-26/) for the batch page.`,
     checked: JAMBA_CHECKED,
     steps: [
       {
@@ -3122,10 +3122,10 @@ function jambaNov26Guide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePage
         ],
       },
       {
-        heading: "No shutdown batch page",
+        heading: "Shutdown batch page",
         paragraphs: [
-          `SunsetDiff publishes a shutdown batch page when at least three model records share one provider and one exact shutdown date. This date has ${rows.length} Bedrock ids, so there is no /shutdowns/aws-bedrock-2026-11-26/ page. [/shutdowns/aws-bedrock-2026-11-13/](/shutdowns/aws-bedrock-2026-11-13/) is the Claude 3 batch. It is not this Jamba date.`,
-          `A not-sooner-than date is a floor, so it does not get a batch page either. Anthropic's deprecations table lists claude-opus-4-5-20251101 as Active, with Deprecated N/A and tentative retirement not sooner than November 24, 2026. The deprecation history on that page does not name a replacement, so there is no /shutdowns/anthropic-2026-11-24/ page. The walkthrough is [Claude Opus 4.5 will not shut down before November 24, 2026](/guides/${OPUS45_GUIDE_SLUG}/).`,
+          `[/shutdowns/aws-bedrock-2026-11-26/](/shutdowns/aws-bedrock-2026-11-26/) lists both Jamba ids. [/shutdowns/aws-bedrock-2026-11-13/](/shutdowns/aws-bedrock-2026-11-13/) is the Claude 3 batch. It is not this Jamba date.`,
+          `A not-sooner-than date is a floor, so it does not get a batch page. Anthropic's deprecations table lists claude-opus-4-5-20251101 as Active, with Deprecated N/A and tentative retirement not sooner than November 24, 2026. The deprecation history on that page does not name a replacement, so there is no /shutdowns/anthropic-2026-11-24/ page. The walkthrough is [Claude Opus 4.5 will not shut down before November 24, 2026](/guides/${OPUS45_GUIDE_SLUG}/).`,
         ],
         sources: [
           { label: "Amazon Bedrock model lifecycle (legacy)", url: BEDROCK_LEGACY },
@@ -3171,8 +3171,8 @@ function jambaNov26Guide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePage
         answer: `The legacy page says requests made to this version will fail. It does not print an exception name or an error sentence. The Jamba 1.5 model cards do not print one either. This page does not invent one.`,
       },
       {
-        question: "Why is there no /shutdowns/aws-bedrock-2026-11-26/ page?",
-        answer: `A shutdown batch page is published when at least three model records share one provider and one exact shutdown date. These two ids are the only Bedrock rows with shutdown date ${BEDROCK_JAMBA_NOV26_SHUTDOWN_DATE}.`,
+        question: "Is there a /shutdowns/aws-bedrock-2026-11-26/ page?",
+        answer: `Yes. [/shutdowns/aws-bedrock-2026-11-26/](/shutdowns/aws-bedrock-2026-11-26/) lists both Jamba ids: ai21.jamba-1-5-large-v1:0 and ai21.jamba-1-5-mini-v1:0.`,
       },
       {
         question: "What does public extended access mean here?",
@@ -3226,7 +3226,7 @@ function marengoNov30Guide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePa
     description: `${MARENGO_V27_ID} reaches end of life on ${BEDROCK_MARENGO_NOV30_SHUTDOWN_DATE} in ap-northeast-2, eu-west-1, and us-east-1. The legacy lifecycle table does not name a replacement model ID.`,
     h1: `Amazon Bedrock Marengo Embed v2.7 shutdown on ${when}`,
     summary: `The Bedrock id with shutdown date ${BEDROCK_MARENGO_NOV30_SHUTDOWN_DATE}, the Regions on that lifecycle row, and the Marengo Embed 3.0 parameters page that is not a replacement cell on the lifecycle table.`,
-    answer: `The dataset has ${rows.length} Amazon Bedrock id with shutdown date ${BEDROCK_MARENGO_NOV30_SHUTDOWN_DATE}: ${MARENGO_V27_ID}. The legacy lifecycle page lists TwelveLabs Marengo Embed v2.7 as Legacy in ap-northeast-2, eu-west-1, and us-east-1, with legacy date May 29, 2026, EOL date November 30, 2026, and public extended access start date August 29, 2026. The model card says "${MARENGO_LEGACY_LABEL}" and "${MARENGO_EOL_LABEL}". The lifecycle table does not name a replacement. The Marengo Embed 3.0 parameters page says: "${MARENGO3_MIGRATE}" It tells you to update the model ID to ${MARENGO_V30_ID}. That same lifecycle table lists Marengo Embed 3.0 as its own Legacy row, EOL date March 22, 2027, in ap-northeast-2. A shutdown batch page needs at least ${SHUTDOWN_BATCH_MIN} model records on one exact date, so there is no /shutdowns/aws-bedrock-2026-11-30/ page. Claude Sonnet 4.5 on the Claude API is a different provider and a different guide.`,
+    answer: `The dataset has ${rows.length} Amazon Bedrock id with shutdown date ${BEDROCK_MARENGO_NOV30_SHUTDOWN_DATE}: ${MARENGO_V27_ID}. The legacy lifecycle page lists TwelveLabs Marengo Embed v2.7 as Legacy in ap-northeast-2, eu-west-1, and us-east-1, with legacy date May 29, 2026, EOL date November 30, 2026, and public extended access start date August 29, 2026. The model card says "${MARENGO_LEGACY_LABEL}" and "${MARENGO_EOL_LABEL}". The lifecycle table does not name a replacement. The Marengo Embed 3.0 parameters page says: "${MARENGO3_MIGRATE}" It tells you to update the model ID to ${MARENGO_V30_ID}. That same lifecycle table lists Marengo Embed 3.0 as its own Legacy row, EOL date March 22, 2027, in ap-northeast-2. See [/shutdowns/aws-bedrock-2026-11-30/](/shutdowns/aws-bedrock-2026-11-30/) for the Marengo batch page. Claude Sonnet 4.5 on the Claude API is a different provider and a different guide.`,
     checked: MARENGO_CHECKED,
     steps: [
       {
@@ -3389,9 +3389,9 @@ function marengoNov30Guide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePa
         ],
       },
       {
-        heading: "No shutdown batch page",
+        heading: "Shutdown batch pages",
         paragraphs: [
-          `SunsetDiff publishes a shutdown batch page when at least ${SHUTDOWN_BATCH_MIN} model records share one provider and one exact shutdown date. This date has ${rows.length} Bedrock id, so there is no /shutdowns/aws-bedrock-2026-11-30/ page. The Claude API date is one Anthropic id, so there is no /shutdowns/anthropic-2026-11-30/ page either. [/shutdowns/aws-bedrock-2026-11-13/](/shutdowns/aws-bedrock-2026-11-13/) is the Claude 3 batch. It is not this Marengo date.`,
+          `[/shutdowns/aws-bedrock-2026-11-30/](/shutdowns/aws-bedrock-2026-11-30/) lists the Marengo Embed v2.7 record. [/shutdowns/anthropic-2026-11-30/](/shutdowns/anthropic-2026-11-30/) lists the Claude Sonnet 4.5 record on the Anthropic API. These are different providers. [/shutdowns/aws-bedrock-2026-11-13/](/shutdowns/aws-bedrock-2026-11-13/) is the Claude 3 batch. It is not this Marengo date.`,
         ],
         sources: [
           { label: "Amazon Bedrock model lifecycle (legacy)", url: BEDROCK_LEGACY },
@@ -3448,8 +3448,8 @@ function marengoNov30Guide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePa
         answer: "The legacy page says requests made to this version will fail. It does not print an exception name or an error sentence. The Marengo Embed v2.7 model card does not print one for the EOL date. This page does not invent one.",
       },
       {
-        question: "Why is there no /shutdowns/aws-bedrock-2026-11-30/ page?",
-        answer: `A shutdown batch page is published when at least ${SHUTDOWN_BATCH_MIN} model records share one provider and one exact shutdown date. ${MARENGO_V27_ID} is the only Bedrock row with shutdown date ${BEDROCK_MARENGO_NOV30_SHUTDOWN_DATE}.`,
+        question: "Is there a /shutdowns/aws-bedrock-2026-11-30/ page?",
+        answer: `Yes. [/shutdowns/aws-bedrock-2026-11-30/](/shutdowns/aws-bedrock-2026-11-30/) lists the ${MARENGO_V27_ID} record.`,
       },
       {
         question: "Is this the same shutdown as Claude Sonnet 4.5?",
@@ -4059,8 +4059,9 @@ function azureExactCount(catalog: ModelRecord[], date: string): number {
 function azureBatchSentence(date: string, count: number): string {
   const path = `/shutdowns/azure-openai-${date}/`;
   const when = longDate(date);
-  if (count >= 3) {
-    return `${when} has ${count} Azure OpenAI ids with that exact shutdown date, so the batch page is [Azure OpenAI shutdowns on ${when}](${path}).`;
+  const hasPage = count >= 3 || SMALL_SHUTDOWN_BATCHES.has(`azure-openai|${date}`);
+  if (hasPage) {
+    return `${when} has ${count} Azure OpenAI ${count === 1 ? "id" : "ids"} with that exact shutdown date, so the batch page is [Azure OpenAI shutdowns on ${when}](${path}).`;
   }
   const noun = count === 1 ? "id" : "ids";
   return `${when} has ${count} Azure OpenAI ${noun} with that exact shutdown date, so there is no ${path} page.`;
@@ -6888,8 +6889,9 @@ function vertexExact(catalog: ModelRecord[], date: string): ModelRecord[] {
 
 function vertexBatchSentence(date: string, count: number): string {
   const path = `/shutdowns/${shutdownEventSlug("google-vertex", date)}/`;
-  if (count >= SHUTDOWN_BATCH_MIN) {
-    return `${date} has ${count} Google Vertex records with one exact shutdown date, so [${path}](${path}) exists.`;
+  const hasPage = count >= SHUTDOWN_BATCH_MIN || SMALL_SHUTDOWN_BATCHES.has(`google-vertex|${date}`);
+  if (hasPage) {
+    return `${date} has ${count} Google Vertex ${count === 1 ? "record" : "records"} with an exact shutdown date, so [${path}](${path}) exists.`;
   }
   const noun = count === 1 ? "record" : "records";
   return `${date} has ${count} Google Vertex ${noun} with an exact shutdown date, so there is no ${path} page.`;
@@ -6987,7 +6989,7 @@ function vertexNovDecGuide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePa
     description: `Vertex AI retires gemini-3.6-flash on ${VERTEX_NOV19_SHUTDOWN_DATE} and gemini-live-2.5-flash-native-audio on ${VERTEX_DEC13_SHUTDOWN_DATE}. Replacements are gemini-3.8-flash and gemini-3.8-live. ${veoDate ? `Veo rows store ${veoDate} with kind not_before.` : "Veo floors follow the dates stored on each row."}`,
     h1: "Vertex AI Gemini retirements in November and December 2026",
     summary: `The Vertex Gemini ids with exact shutdown dates ${VERTEX_NOV19_SHUTDOWN_DATE} and ${VERTEX_DEC13_SHUTDOWN_DATE}, the replacement on the model versions page, and the Veo rows that only print a floor.`,
-    answer: `The dataset has ${ordered.length} Google Vertex Gemini ids with an exact shutdown date in this window: ${idList(ordered)}. The model versions page lists gemini-3.6-flash with retirement date November 19, 2026 and replacement model ID gemini-3.8-flash. It lists gemini-live-2.5-flash-native-audio with retirement date December 13, 2026 and replacement model ID gemini-3.8-live. The 3.6 Flash page says: "${VERTEX_FLASH_BANNER}" ${veoAnswerClause(veo)} A shutdown batch page needs at least ${SHUTDOWN_BATCH_MIN} records on one exact date, so there is no /shutdowns/google-vertex-${VERTEX_NOV19_SHUTDOWN_DATE}/ page and no /shutdowns/google-vertex-${VERTEX_DEC13_SHUTDOWN_DATE}/ page.`,
+    answer: `The dataset has ${ordered.length} Google Vertex Gemini ids with an exact shutdown date in this window: ${idList(ordered)}. The model versions page lists gemini-3.6-flash with retirement date November 19, 2026 and replacement model ID gemini-3.8-flash. It lists gemini-live-2.5-flash-native-audio with retirement date December 13, 2026 and replacement model ID gemini-3.8-live. The 3.6 Flash page says: "${VERTEX_FLASH_BANNER}" ${veoAnswerClause(veo)} [/shutdowns/google-vertex-${VERTEX_NOV19_SHUTDOWN_DATE}/](/shutdowns/google-vertex-${VERTEX_NOV19_SHUTDOWN_DATE}/) lists the gemini-3.6-flash record. A single-record date gets a page because the guide covers it. A shutdown batch page for December 13 needs at least ${SHUTDOWN_BATCH_MIN} records on one exact date, so there is no /shutdowns/google-vertex-${VERTEX_DEC13_SHUTDOWN_DATE}/ page.`,
     checked: VERTEX_NOV_DEC_CHECKED,
     steps: [
       {
@@ -7188,6 +7190,7 @@ async with client.aio.live.connect(
       { href: "/migrate/google-vertex__gemini-live-2-5-flash-native-audio__to__google-vertex__gemini-3-8-live/", label: "Live id to gemini-3.8-live" },
       { href: "/providers/google-vertex/", label: "Google Vertex AI provider page" },
       { href: "/shutdowns/google-vertex-2026-10-20/", label: "Vertex AI shutdowns on October 20, 2026" },
+      { href: `/shutdowns/google-vertex-${VERTEX_NOV19_SHUTDOWN_DATE}/`, label: `Vertex AI shutdowns on ${longDate(VERTEX_NOV19_SHUTDOWN_DATE)}` },
       { href: `/guides/${GEMINI_NOV17_GUIDE_SLUG}/`, label: "Gemini API model shutdowns on November 17, 2026" },
       { href: "/guides/why-shutdown-dates-differ-by-platform/", label: "Why shutdown dates differ by platform" },
       { href: "/guides/find-model-ids-in-your-codebase/", label: "Find model ids in your codebase" },
@@ -7221,8 +7224,8 @@ async with client.aio.live.connect(
         answer: `No. The Vertex pages say: "${VERTEX_FOOTNOTE}" Checked on ${VERTEX_NOV_DEC_CHECKED}, the Gemini API deprecations page lists gemini-3.6-flash with shutdown cell "No shutdown date announced." It does not list gemini-live-2.5-flash-native-audio. The November 17, 2026 Gemini API ids are on [Gemini API model shutdowns on November 17, 2026](/guides/${GEMINI_NOV17_GUIDE_SLUG}/).`,
       },
       {
-        question: "Why is there no shutdown page for November 19 or December 13?",
-        answer: `A shutdown batch page is published when at least ${SHUTDOWN_BATCH_MIN} model records share one provider and one exact shutdown date. ${vertexBatchSentence(VERTEX_NOV19_SHUTDOWN_DATE, nov19.length)} ${vertexBatchSentence(VERTEX_DEC13_SHUTDOWN_DATE, dec13.length)} ${veoFloorDates(veo).map((date) => `There is no /shutdowns/google-vertex-${date}/ page because the Veo date is a floor.`).join(" ") || "The dataset has no Vertex Veo floor to publish as a shutdown page."}`,
+        question: "Is there a shutdown page for November 19 or December 13?",
+        answer: `A shutdown batch page is published when at least ${SHUTDOWN_BATCH_MIN} model records share one provider and one exact shutdown date, or when a date is explicitly included. ${vertexBatchSentence(VERTEX_NOV19_SHUTDOWN_DATE, nov19.length)} ${vertexBatchSentence(VERTEX_DEC13_SHUTDOWN_DATE, dec13.length)} ${veoFloorDates(veo).map((date) => `There is no /shutdowns/google-vertex-${date}/ page because the Veo date is a floor.`).join(" ") || "The dataset has no Vertex Veo floor to publish as a shutdown page."}`,
       },
       {
         question: "Is gemini-3.7-flash in this window?",
@@ -7535,7 +7538,7 @@ function openRouterNovDecGuide(rows: ModelRecord[], catalog: ModelRecord[]): Gui
     description: `${count} stored OpenRouter ${slugWord} are deprecated with a shutdown date after ${day} and on or before ${OPENROUTER_NOV_DEC_WINDOW_END}. Each date is a not-before removal floor. Empty replacement lists stay empty.`,
     h1: "OpenRouter model expirations in November and December 2026",
     summary: `The ${count} stored OpenRouter ${slugWord} with a shutdown date after ${longDate(day)} and on or before ${longDate(OPENROUTER_NOV_DEC_WINDOW_END)}, how to read that field, and how to change the model string.`,
-    answer: `The dataset has ${count} OpenRouter ${count === 1 ? "model" : "models"} that ${count === 1 ? "is" : "are"} deprecated and whose shutdown date is after ${day} and on or before ${OPENROUTER_NOV_DEC_WINDOW_END}. The dates in the table run from ${first} through ${last}. The models guide calls expiration_date the deprecation date for the model endpoint. The model schema says it is the date after which the model may be removed, not a day the model is guaranteed to stop. SunsetDiff stores the same day as shutdown_date_kind not_before, which means not before that day. ${replacementSentence} A shutdown batch page needs an exact date. These dates are kind not_before, so a floor does not get a batch page.`,
+    answer: `The dataset has ${count} OpenRouter ${count === 1 ? "model" : "models"} that ${count === 1 ? "is" : "are"} deprecated and whose shutdown date is after ${day} and on or before ${OPENROUTER_NOV_DEC_WINDOW_END}. The dates in the table run from ${first} through ${last}. The models guide calls expiration_date the deprecation date for the model endpoint. The model schema says it is the date after which the model may be removed, not a day the model is guaranteed to stop. SunsetDiff stores the same day as shutdown_date_kind not_before, which means not before that day. ${replacementSentence} Dates with four or more not_before rows get a batch page even though the kind is not exact: [/shutdowns/openrouter-2026-11-08/](/shutdowns/openrouter-2026-11-08/) and [/shutdowns/openrouter-2026-11-11/](/shutdowns/openrouter-2026-11-11/).`,
     checked,
     steps: [
       {
@@ -7600,7 +7603,7 @@ function openRouterNovDecGuide(rows: ModelRecord[], catalog: ModelRecord[]): Gui
           earlier.length
             ? `${earlier.length} stored OpenRouter ${earlier.length === 1 ? "row has" : "rows have"} a shutdown date on or before ${day}, or before ${OPENROUTER_NOV_DEC_WINDOW_START}. ${datedModelList(earlier)}. They stay in the dataset. They are not in the table above, because that table keeps only dates that are still ahead inside ${windowLabel}.`
             : `No stored OpenRouter row has a shutdown date on or before ${day}.`,
-          `A shutdown batch page needs at least ${SHUTDOWN_BATCH_MIN} model records that share one provider and one exact shutdown date. Every date in this guide is kind not_before. A floor does not get a batch page.`,
+          `Most not_before dates do not get a batch page. Dates with ${SHUTDOWN_BATCH_MIN} or more rows in this guide get one: [/shutdowns/openrouter-2026-11-08/](/shutdowns/openrouter-2026-11-08/) and [/shutdowns/openrouter-2026-11-11/](/shutdowns/openrouter-2026-11-11/). Both are labeled as not-before dates on those pages.`,
         ],
         sources,
       },
@@ -7680,8 +7683,8 @@ function openRouterNovDecGuide(rows: ModelRecord[], catalog: ModelRecord[]): Gui
         answer: `${replacementSentence} Pick a current slug from the same author prefix whose expiration_date is null. The OpenRouter provider page lists only slugs that have an expiration_date.`,
       },
       {
-        question: "Why is there no OpenRouter shutdown batch page for these dates?",
-        answer: `A shutdown batch page needs at least ${SHUTDOWN_BATCH_MIN} model records that share one provider and one exact shutdown date. These dates are kind not_before. A floor does not get a batch page.`,
+        question: "Are there OpenRouter shutdown batch pages for these dates?",
+        answer: `Dates with ${SHUTDOWN_BATCH_MIN} or more not_before rows get a batch page. [/shutdowns/openrouter-2026-11-08/](/shutdowns/openrouter-2026-11-08/) lists the Inception Mercury models. [/shutdowns/openrouter-2026-11-11/](/shutdowns/openrouter-2026-11-11/) lists the ByteDance Seed and Seedance models. Both pages note that the dates are not-before floors.`,
       },
       {
         question: "Why are some stored OpenRouter rows missing from the table?",
