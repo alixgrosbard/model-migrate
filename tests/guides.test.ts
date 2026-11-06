@@ -972,12 +972,10 @@ describe("guides", () => {
     expect(blob).toContain("/providers/azure-openai/");
     expect(blob).toContain("/shutdowns/azure-openai-2026-12-15/");
     expect(blob).toContain("/errors/azure-openai-retired-model-410-gone/");
-    expect(blob).toContain("there is no /shutdowns/azure-openai-2026-11-15/ page");
-    expect(blob).toContain("there is no /shutdowns/azure-openai-2026-11-17/ page");
+    expect(blob).toContain("](/shutdowns/azure-openai-2026-11-15/)");
+    expect(blob).toContain("](/shutdowns/azure-openai-2026-11-17/)");
     expect(blob).toContain("there is no /shutdowns/azure-openai-2026-12-08/ page");
     expect(blob).toContain("there is no /shutdowns/azure-openai-2026-12-16/ page");
-    expect(blob).not.toContain("](/shutdowns/azure-openai-2026-11-15/)");
-    expect(blob).not.toContain("](/shutdowns/azure-openai-2026-11-17/)");
     expect(blob).not.toContain("](/shutdowns/azure-openai-2026-12-08/)");
     expect(blob).not.toContain("](/shutdowns/azure-openai-2026-12-16/)");
     expect(blob).toContain("gpt-realtime-mini-2025-12-15");
@@ -998,9 +996,7 @@ describe("guides", () => {
     const shutdownPage = readFileSync("src/pages/shutdowns/[slug].astro", "utf8");
     expect(providerPage).toContain("/guides/azure-openai-retirements-november-december-2026/");
     expect(providerPage).toContain('href="/shutdowns/azure-openai-2026-12-15/"');
-    expect(providerPage).toContain("there is no /shutdowns/azure-openai-2026-11-15/ page");
-    expect(providerPage).not.toContain('href="/shutdowns/azure-openai-2026-11-15/"');
-    expect(providerPage).not.toContain('href="/shutdowns/azure-openai-2026-11-17/"');
+    expect(providerPage).not.toContain("there is no /shutdowns/azure-openai-2026-11-15/ page");
     expect(providerPage).not.toContain('href="/shutdowns/azure-openai-2026-12-08/"');
     expect(providerPage).not.toContain('href="/shutdowns/azure-openai-2026-12-16/"');
     expect(shutdownPage).toContain("azure-openai-retirements-november-december-2026");
@@ -1907,7 +1903,7 @@ describe("guides", () => {
     expect(rows[0]?.replacements[0]?.model_id).toBe("claude-sonnet-5-5");
     expectSourceChecked(rows[0]?.sources[0]?.last_checked, "2026-11-01");
     const { shutdownEvents } = await import("../src/lib/shutdowns.ts");
-    expect(shutdownEvents(models).some((event) => event.slug === "anthropic-2026-11-30")).toBe(false);
+    expect(shutdownEvents(models).some((event) => event.slug === "anthropic-2026-11-30")).toBe(true);
     const guide = guides.find((item) => item.slug === "claude-sonnet-4-5-shutdown-november-30-2026");
     expect(guide).toBeTruthy();
     if (!guide) return;
@@ -1934,8 +1930,7 @@ describe("guides", () => {
     expect(blob).toContain("/models/aws-bedrock/anthropic-claude-sonnet-4-5-20250929-v1-0/");
     expect(blob).toContain("/models/github-copilot/claude-sonnet-4-5/");
     expect(blob).toContain("not sooner than May 28, 2027");
-    expect(blob).toContain("there is no /shutdowns/anthropic-2026-11-30/ page");
-    expect(blob).not.toContain("](/shutdowns/anthropic-2026-11-30/)");
+    expect(blob).toContain("](/shutdowns/anthropic-2026-11-30/)");
     expect(blob).toContain("/guides/amazon-bedrock-marengo-embed-v2-7-shutdown-november-30-2026/");
     expect(blob).toContain("twelvelabs.marengo-embed-2-7-v1:0");
     expect(blob).not.toContain("not_found_error");
@@ -1983,7 +1978,7 @@ describe("guides", () => {
     expect(newer?.replacements).toEqual([]);
 
     const { shutdownEvents } = await import("../src/lib/shutdowns.ts");
-    expect(shutdownEvents(models).some((event) => event.slug === "aws-bedrock-2026-11-30")).toBe(false);
+    expect(shutdownEvents(models).some((event) => event.slug === "aws-bedrock-2026-11-30")).toBe(true);
 
     const guide = guides.find((item) => item.slug === "amazon-bedrock-marengo-embed-v2-7-shutdown-november-30-2026");
     expect(guide).toBeTruthy();
@@ -2012,10 +2007,8 @@ describe("guides", () => {
     expect(blob).toContain("us.twelvelabs.marengo-embed-2-7-v1:0");
     expect(blob).toContain("eu.twelvelabs.marengo-embed-2-7-v1:0");
     expect(blob).toContain("Not supported");
-    expect(blob).toContain("there is no /shutdowns/aws-bedrock-2026-11-30/ page");
-    expect(blob).toContain("there is no /shutdowns/anthropic-2026-11-30/ page");
-    expect(blob).not.toContain("](/shutdowns/aws-bedrock-2026-11-30/)");
-    expect(blob).not.toContain("](/shutdowns/anthropic-2026-11-30/)");
+    expect(blob).toContain("](/shutdowns/aws-bedrock-2026-11-30/)");
+    expect(blob).toContain("](/shutdowns/anthropic-2026-11-30/)");
     expect(blob).toContain("/guides/claude-sonnet-4-5-shutdown-november-30-2026/");
     expect(blob).toContain("/models/aws-bedrock/twelvelabs-marengo-embed-3-0-v1-0/");
     expect(blob).not.toContain("ResourceNotFoundException");
@@ -2044,9 +2037,8 @@ describe("guides", () => {
     const providerPage = readFileSync("src/pages/providers/[provider].astro", "utf8");
     const shutdownPage = readFileSync("src/pages/shutdowns/[slug].astro", "utf8");
     expect(providerPage).toContain("/guides/amazon-bedrock-marengo-embed-v2-7-shutdown-november-30-2026/");
-    expect(providerPage).toContain("there is no /shutdowns/aws-bedrock-2026-11-30/ page");
-    expect(providerPage).not.toContain('href="/shutdowns/aws-bedrock-2026-11-30/"');
-    expect(shutdownPage).not.toContain("amazon-bedrock-marengo-embed-v2-7-shutdown-november-30-2026");
+    expect(providerPage).not.toContain("there is no /shutdowns/aws-bedrock-2026-11-30/ page");
+    expect(shutdownPage).toContain("amazon-bedrock-marengo-embed-v2-7-shutdown-november-30-2026");
     const text = llmsTxt("https://sunsetdiff.com", [], []);
     const full = llmsFull("https://sunsetdiff.com", []);
     expect(text).toContain("/guides/amazon-bedrock-marengo-embed-v2-7-shutdown-november-30-2026/");
@@ -2158,7 +2150,7 @@ describe("guides", () => {
 
     const { shutdownEvents } = await import("../src/lib/shutdowns.ts");
     const slugs = shutdownEvents(models).map((event) => event.slug);
-    expect(slugs).not.toContain("aws-bedrock-2026-11-26");
+    expect(slugs).toContain("aws-bedrock-2026-11-26");
     expect(slugs).not.toContain("anthropic-2026-11-24");
     expect(guides.find((item) => item.slug === "claude-opus-4-5-shutdown-november-24-2026")).toBeUndefined();
 
@@ -2182,9 +2174,8 @@ describe("guides", () => {
     expect(blob).toContain("Legacy (EOL: 2026-11-26)");
     expect(blob).toContain("Not supported");
     expect(blob).toContain("August 26, 2026");
-    expect(blob).toContain("there is no /shutdowns/aws-bedrock-2026-11-26/ page");
+    expect(blob).toContain("](/shutdowns/aws-bedrock-2026-11-26/)");
     expect(blob).toContain("there is no /shutdowns/anthropic-2026-11-24/ page");
-    expect(blob).not.toContain("](/shutdowns/aws-bedrock-2026-11-26/)");
     expect(blob).not.toContain("](/shutdowns/anthropic-2026-11-24/)");
     expect(blob).not.toContain("ResourceNotFoundException");
     expect(blob).toContain("https://docs.aws.amazon.com/bedrock/latest/userguide/model-lifecycle-legacy.html");
@@ -2203,11 +2194,10 @@ describe("guides", () => {
     const providerPage = readFileSync("src/pages/providers/[provider].astro", "utf8");
     const shutdownPage = readFileSync("src/pages/shutdowns/[slug].astro", "utf8");
     expect(providerPage).toContain("/guides/amazon-bedrock-ai21-jamba-shutdown-november-26-2026/");
-    expect(providerPage).toContain("there is no /shutdowns/aws-bedrock-2026-11-26/ page");
+    expect(providerPage).not.toContain("there is no /shutdowns/aws-bedrock-2026-11-26/ page");
     expect(providerPage).toContain("there is no /shutdowns/anthropic-2026-11-24/ page");
-    expect(providerPage).not.toContain('href="/shutdowns/aws-bedrock-2026-11-26/"');
     expect(providerPage).not.toContain('href="/shutdowns/anthropic-2026-11-24/"');
-    expect(shutdownPage).not.toContain("amazon-bedrock-ai21-jamba-shutdown-november-26-2026");
+    expect(shutdownPage).toContain("amazon-bedrock-ai21-jamba-shutdown-november-26-2026");
     const text = llmsTxt("https://sunsetdiff.com", [], []);
     const full = llmsFull("https://sunsetdiff.com", []);
     expect(text).toContain("/guides/amazon-bedrock-ai21-jamba-shutdown-november-26-2026/");
@@ -2237,7 +2227,7 @@ describe("guides", () => {
 
     const { shutdownEvents } = await import("../src/lib/shutdowns.ts");
     const slugs = shutdownEvents(models).map((event) => event.slug);
-    expect(slugs).not.toContain("google-vertex-2026-11-19");
+    expect(slugs).toContain("google-vertex-2026-11-19");
     expect(slugs).not.toContain("google-vertex-2026-12-13");
     for (const date of new Set(veo.map((model) => model.shutdown_date))) {
       expect(slugs).not.toContain(`google-vertex-${date}`);
@@ -2274,7 +2264,7 @@ describe("guides", () => {
     expect(blob).toContain("will throw an active API error.");
     expect(blob).toContain("send_context_update");
     expect(blob).toContain("initial_history_in_client_content=True");
-    expect(blob).toContain("there is no /shutdowns/google-vertex-2026-11-19/ page");
+    expect(blob).toContain("](/shutdowns/google-vertex-2026-11-19/)");
     expect(blob).toContain("there is no /shutdowns/google-vertex-2026-12-13/ page");
     for (const model of veo) {
       expect(blob).toContain(model.id);
@@ -2287,7 +2277,6 @@ describe("guides", () => {
       expect(blob).not.toContain("2026-11-17 or later");
     }
     expect(blob).toContain("/shutdowns/google-vertex-2026-10-20/");
-    expect(blob).not.toContain("](/shutdowns/google-vertex-2026-11-19/)");
     expect(blob).not.toContain("](/shutdowns/google-vertex-2026-12-13/)");
     expect(blob).toContain("https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/model-versions");
     expect(blob).toContain("https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/gemini/3-6-flash");
@@ -2323,11 +2312,10 @@ describe("guides", () => {
     expect(providerPage).not.toContain("November 17, 2026 or later");
     expect(vertexVeoProviderNote(models)).toContain(veo[0].id);
     expect(vertexVeoProviderNote(models)).toContain(`${veo[0].shutdown_date}`);
-    expect(providerPage).toContain("there is no /shutdowns/google-vertex-2026-11-19/ page");
+    expect(providerPage).not.toContain("there is no /shutdowns/google-vertex-2026-11-19/ page");
     expect(providerPage).toContain("there is no /shutdowns/google-vertex-2026-12-13/ page");
-    expect(providerPage).not.toContain('href="/shutdowns/google-vertex-2026-11-19/"');
     expect(providerPage).not.toContain('href="/shutdowns/google-vertex-2026-12-13/"');
-    expect(shutdownPage).not.toContain("vertex-ai-gemini-retirements-november-december-2026");
+    expect(shutdownPage).toContain("vertex-ai-gemini-retirements-november-december-2026");
     const text = llmsTxt("https://sunsetdiff.com", [], []);
     const full = llmsFull("https://sunsetdiff.com", []);
     expect(text).toContain("/guides/vertex-ai-gemini-retirements-november-december-2026/");
@@ -2349,7 +2337,8 @@ describe("guides", () => {
 
     const { shutdownEvents } = await import("../src/lib/shutdowns.ts");
     const slugs = shutdownEvents(models).map((event) => event.slug);
-    expect(slugs.some((slug) => slug.startsWith("openrouter-"))).toBe(false);
+    expect(slugs).toContain("openrouter-2026-11-08");
+    expect(slugs).toContain("openrouter-2026-11-11");
 
     const guide = guides.find((item) => item.slug === OPENROUTER_NOV_DEC_GUIDE_SLUG);
     expect(guide).toBeTruthy();
@@ -2393,8 +2382,8 @@ describe("guides", () => {
     expect(blob).toContain("/providers/openrouter/");
     expect(blob).toContain("/frameworks/openrouter/");
     expect(blob).toContain(`/guides/${DECEMBER_1_IMAGE_GUIDE_SLUG}/`);
-    expect(blob).toContain("A floor does not get a batch page");
-    expect(blob).not.toMatch(/\]\(\/shutdowns\/openrouter-/);
+    expect(blob).toContain("not-before dates on those pages");
+    expect(blob).toMatch(/\]\(\/shutdowns\/openrouter-/);
     for (const model of earlier) expect(blob).toContain(model.id);
     expect(blob).not.toContain("glm-5");
     expect(blob).not.toMatch(/[—–]/);
@@ -2450,7 +2439,7 @@ describe("guides", () => {
     const shutdownPage = readFileSync("src/pages/shutdowns/[slug].astro", "utf8");
     expect(providerPage).toContain(`/guides/${OPENROUTER_NOV_DEC_GUIDE_SLUG}/`);
     expect(providerPage).toContain("/frameworks/openrouter/");
-    expect(shutdownPage).not.toContain(OPENROUTER_NOV_DEC_GUIDE_SLUG);
+    expect(shutdownPage).toContain(OPENROUTER_NOV_DEC_GUIDE_SLUG);
     const text = llmsTxt("https://sunsetdiff.com", [], []);
     const full = llmsFull("https://sunsetdiff.com", []);
     expect(text).toContain(`/guides/${OPENROUTER_NOV_DEC_GUIDE_SLUG}/`);
