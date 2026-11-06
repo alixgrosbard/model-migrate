@@ -32,6 +32,7 @@ import {
   upcomingShutdowns,
   yearPath,
 } from "./schedule.ts";
+import { NEXT_30_DAYS_COUNT, NEXT_30_DAYS_PATH, rollingShutdowns, THIS_WEEK_DAYS, THIS_WEEK_PATH } from "./window-pages.ts";
 
 let cache: Map<string, string> | null = null;
 
@@ -122,6 +123,13 @@ function build(): Map<string, string> {
     map.set(UPCOMING_PATH, upcomingModified);
     map.set("/calendar/", upcomingModified);
   }
+  const buildDay = today();
+  const weekModified = newestDate(rollingShutdowns(all, buildDay, THIS_WEEK_DAYS).map(contentDay));
+  if (weekModified) map.set(THIS_WEEK_PATH, weekModified);
+  else if (newestModel) map.set(THIS_WEEK_PATH, newestModel);
+  const monthModified = newestDate(rollingShutdowns(all, buildDay, NEXT_30_DAYS_COUNT).map(contentDay));
+  if (monthModified) map.set(NEXT_30_DAYS_PATH, monthModified);
+  else if (newestModel) map.set(NEXT_30_DAYS_PATH, newestModel);
   map.set(OPENAI_NOV30_PATH, OPENAI_NOV30_CHECKED);
   for (const year of shutdownYearList(all)) {
     const newest = newestDate(shutdownsInYear(all, year).map(contentDay));

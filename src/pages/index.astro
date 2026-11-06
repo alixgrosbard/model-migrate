@@ -48,6 +48,8 @@ function replacementModel(model: (typeof models)[number]) {
   <SearchBox />
   <h2>Next deadlines</h2>
   <ul>
+    <li><a href="/this-week/">AI models shutting down this week</a></li>
+    <li><a href="/next-30-days/">AI models shutting down in the next 30 days</a></li>
     {nextDeadlineAnchors(shutdownEvents(models), providers, day).map((item) => (
       <li><a href={item.href}>{item.label}</a></li>
     ))}

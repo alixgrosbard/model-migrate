@@ -77,7 +77,9 @@ const name = "Upcoming AI model shutdowns";
     {selected.length} rows, sorted by shutdown date and grouped by month.
     A month link opens the whole month, including any earlier date in that month.
     Download <a href="/calendar.ics">calendar.ics</a> or open the <a href="/calendar/">calendar</a>.
-    The next 30, 90, and 365 days are on <a href="/deadlines/">deadlines</a>.
+    The next 7 days, including not-sooner-than floors, are on <a href="/this-week/">this week</a>.
+    The next 30 days with the same rule are on <a href="/next-30-days/">next 30 days</a>.
+    The next 30, 90, and 365 days of exact dates are on <a href="/deadlines/">deadlines</a>.
     New deprecations are in the <a href="/feed.xml">RSS feed</a>.
     The same model id can have a different date on Vertex, the Gemini API, Azure, or Bedrock.
     <a href={PLATFORM_GUIDE_PATH}>Why shutdown dates differ by platform</a>.

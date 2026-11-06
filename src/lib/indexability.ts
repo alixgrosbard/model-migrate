@@ -37,6 +37,7 @@ export const CANONICAL_ALIAS_PATHS = new Set([
   "/google/",
   "/models/openai/gpt-4-1-2/",
   "/migrate/openai__gpt-4-5-preview__to__openai__gpt-4-1-2/",
+  "/next-7-days/",
 ]);
 
 /**

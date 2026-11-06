@@ -1,0 +1,40 @@
+---
+import Base from "../../layouts/Base.astro";
+import WindowBody from "../../components/WindowBody.astro";
+import { scheduleGraph } from "../../jsonld.ts";
+import { today } from "../../lib/format.ts";
+import { loadMigrations, loadModels, loadProviders } from "../../lib/load.ts";
+import { DEFAULT_SITE_URL } from "../../lib/site.ts";
+import { THIS_WEEK_DAYS, THIS_WEEK_PATH, windowPage } from "../../lib/window-pages.ts";
+
+const day = today();
+const models = await loadModels();
+const providers = await loadProviders();
+const migrations = await loadMigrations();
+const page = windowPage({ models, providers, migrations, day, days: THIS_WEEK_DAYS, path: THIS_WEEK_PATH });
+const site = Astro.site?.href ?? `${DEFAULT_SITE_URL}/`;
+---
+<Base
+  title={page.title}
+  description={page.description}
+  crumbs={[{ name: "Home", path: "/" }, { name: page.crumb, path: page.path }]}
+  extraGraph={scheduleGraph(
+    site,
+    {
+      path: page.path,
+      name: page.h1,
+      description: page.description,
+      modified: page.modified || undefined,
+      datasetName: page.datasetName,
+      temporalCoverage: `${page.day}/${page.end}`,
+      aboutUrl: "/data/models.json",
+    },
+    page.rows.map((row) => ({
+      name: `${row.providerName} ${row.model.id} (${row.when})`,
+      path: row.modelPath,
+    })),
+    page.faqs,
+  )}
+>
+  <WindowBody page={page} />
+</Base>

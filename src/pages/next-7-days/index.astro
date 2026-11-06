@@ -1,0 +1,15 @@
+---
+import Base from "../../layouts/Base.astro";
+import { THIS_WEEK_PATH } from "../../lib/window-pages.ts";
+---
+<Base
+  title="AI models shutting down this week | SunsetDiff"
+  description="This address is another name for the next 7 days of AI model shutdowns."
+  crumbs={[{ name: "Home", path: "/" }, { name: "This week", path: THIS_WEEK_PATH }]}
+  robots="noindex"
+  refresh={THIS_WEEK_PATH}
+  canonicalPath={THIS_WEEK_PATH}
+>
+  <h1>AI models shutting down this week</h1>
+  <p class="answer"><a href={THIS_WEEK_PATH}>AI models shutting down this week</a> lists the next 7 days.</p>
+</Base>
