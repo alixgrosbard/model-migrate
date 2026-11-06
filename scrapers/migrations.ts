@@ -932,7 +932,7 @@ function differentKind(
         {
           kind: "endpoint_change",
           detail:
-            "The Veo guide's samples call client.models.generate_videos and POST https://generativelanguage.googleapis.com/v1beta/models/{id}:predictLongRunning with a Veo model id. The same page says to migrate to gemini-omni-1.1-flash and says this feature is currently only available with the generateContent API. No generate_videos sample for gemini-omni-1.1-flash was found on that page, so this page does not show a model-id swap.",
+            "The Veo guide's samples call client.models.generate_videos and POST https://generativelanguage.googleapis.com/v1beta/models/{id}:predictLongRunning with a Veo model id. The warning on that page says to migrate to gemini-omni-1.2-flash or the GA models on the Gemini Enterprise Agent Platform. No generate_videos sample for gemini-omni-1.2-flash was found on that page, so this page does not show a model-id swap.",
           source_url: GEMINI_VEO,
         },
       ],

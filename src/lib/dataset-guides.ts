@@ -368,7 +368,8 @@ const LIVE_TRANSCRIBE_DELAY =
   "The exact delay in milliseconds can vary by model configuration, so benchmark with representative audio instead of assuming a fixed timing per level.";
 const TRANSCRIBE_PRICE_HEADER = "Prices per 1M tokens unless noted.";
 const OPENAI_IMAGE_GUIDE = "https://developers.openai.com/api/docs/guides/image-generation";
-const OPENAI_SUNBURST = "https://developers.openai.com/api/docs/models/gpt-image-2.5-sunburst";
+const OPENAI_SUNBURST = "https://developers.openai.com/api/docs/models/gpt-image-2.6-sunburst";
+const DECEMBER_1_IMAGE_REPLACEMENTS = "gpt-image-2.6-sunburst or gpt-image-2.6-flare";
 const OPENAI_TTS = "https://developers.openai.com/api/docs/guides/text-to-speech";
 const OPENAI_REALTIME = "https://developers.openai.com/api/docs/guides/realtime";
 const OPENAI_REALTIME_CONVERSATIONS = "https://developers.openai.com/api/docs/guides/realtime-conversations";
@@ -1637,10 +1638,10 @@ function december1ImageGuide(rows: ModelRecord[], catalog: ModelRecord[]): Guide
   return {
     slug: DECEMBER_1_IMAGE_GUIDE_SLUG,
     title: `OpenAI image models shutting down on ${when} | SunsetDiff`,
-    description: `chatgpt-image-latest, gpt-image-1-mini, gpt-image-1.5, and gpt-image-1.5-2025-12-16 shut down on ${DECEMBER_1_IMAGE_SHUTDOWN_DATE}. OpenAI names gpt-image-2.5-sunburst or gpt-image-2.5-flare.`,
+    description: `chatgpt-image-latest, gpt-image-1-mini, gpt-image-1.5, and gpt-image-1.5-2025-12-16 shut down on ${DECEMBER_1_IMAGE_SHUTDOWN_DATE}. OpenAI names ${DECEMBER_1_IMAGE_REPLACEMENTS}.`,
     h1: `OpenAI image models shutting down on ${when}`,
     summary: `The OpenAI image ids in the dataset with shutdown date ${DECEMBER_1_IMAGE_SHUTDOWN_DATE}, and the two replacements the deprecations page names.`,
-    answer: `The dataset has ${rows.length} OpenAI image ids with shutdown date ${DECEMBER_1_IMAGE_SHUTDOWN_DATE}: ${idList(rows)}. OpenAI's deprecations page lists those ids for removal on December 1, 2026, and names gpt-image-2.5-sunburst or gpt-image-2.5-flare. It does not prefer one. The same page says: "${ACCESSIBLE}" gpt-image-1 is not in this table. That id shut down on 2026-10-23.`,
+    answer: `The dataset has ${rows.length} OpenAI image ids with shutdown date ${DECEMBER_1_IMAGE_SHUTDOWN_DATE}: ${idList(rows)}. OpenAI's deprecations page lists those ids for removal on December 1, 2026, and names ${DECEMBER_1_IMAGE_REPLACEMENTS}. It does not prefer one. The same page says: "${ACCESSIBLE}" gpt-image-1 is not in this table. That id shut down on 2026-10-23.`,
     checked,
     steps: [
       {
@@ -1661,8 +1662,8 @@ function december1ImageGuide(rows: ModelRecord[], catalog: ModelRecord[]): Guide
         heading: "Models shutting down",
         paragraphs: [
           `These rows are every OpenAI model in the dataset with shutdown date ${DECEMBER_1_IMAGE_SHUTDOWN_DATE}. The model id links to its SunsetDiff model page. Deprecation date, shutdown date, and replacement are the fields stored on that row. Not published means the field is empty.`,
-          `OpenAI's deprecations page says: "${IMAGE_NOTICE}" The December 1 table on that page lists gpt-image-1-mini, then gpt-image-1.5 with snapshot gpt-image-1.5-2025-12-16, then chatgpt-image-latest. Each replacement cell says gpt-image-2.5-sunburst or gpt-image-2.5-flare. The word or means either id. The page does not prefer one.`,
-          "gpt-image-1 is on the October 23, 2026 row of the same page, with the same two replacement ids. Its stored shutdown date is 2026-10-23. It is not in the table below.",
+          `OpenAI's deprecations page says: "${IMAGE_NOTICE}" The December 1 table on that page lists gpt-image-1-mini, then gpt-image-1.5 with snapshot gpt-image-1.5-2025-12-16, then chatgpt-image-latest. Each replacement cell says ${DECEMBER_1_IMAGE_REPLACEMENTS}. The word or means either id. The page does not prefer one.`,
+          "gpt-image-1 is on the October 23, 2026 row of the same page. That row names gpt-image-2.5-sunburst or gpt-image-2.5-flare. Its stored shutdown date is 2026-10-23. It is not in the table below.",
           ...(openRouterNote ? [openRouterNote] : []),
         ],
         table: {
@@ -1697,11 +1698,11 @@ function december1ImageGuide(rows: ModelRecord[], catalog: ModelRecord[]): Guide
         heading: "Change the image model id",
         paragraphs: [
           `The image generation page says: "${IMAGE_CHOICE}" And: "${IMAGE_SET_MODEL}"`,
-          `The gpt-image-2.5-sunburst model page says to select it directly in the Image API or as the model of the Responses API image generation tool. That same page lists v1/images/generations and v1/images/edits as supported, and lists v1/responses as not supported. Put sunburst or flare in the image tool's model field. Do not set the top-level Responses model to either image id.`,
-          `The image generation page says: "${IMAGE_QUALITY}" The sunburst model page says it supports low, medium, high, xhigh, max, and auto. A request that already sends high can keep high. xhigh and max are the settings the earlier models do not have.`,
-          `The image generation page says: "${IMAGE_SIZES}" Those size rules are for gpt-image-2.5-sunburst and gpt-image-2.5-flare.`,
+          `The gpt-image-2.6-sunburst model page lists v1/images/generations and v1/images/edits as supported, and lists v1/responses as not supported. Put gpt-image-2.6-sunburst or gpt-image-2.6-flare in the image tool's model field. Do not set the top-level Responses model to either image id.`,
+          `The image generation page says: "${IMAGE_QUALITY}" The same page says: "For GPT Image 2.6 and 2.5 Sunburst and Flare, the quality options are low, medium, high, xhigh, and max." A request that already sends high can keep high. xhigh and max are the settings the earlier models do not have.`,
+          `The image generation page says: "${IMAGE_SIZES}" Those size rules are in the section for gpt-image-2.5-sunburst and gpt-image-2.5-flare.`,
           `The same page says: "${IMAGE_USER}"`,
-          "The image generation page's Python sample calls client.images.generate with model gpt-image-2.5-sunburst. The page also names gpt-image-2.5-flare for that same field. Send one prompt you use now, to the id you will keep, before the shutdown date.",
+          `The image generation page's Python sample calls client.images.generate with model gpt-image-2.5-sunburst. The page also names gpt-image-2.5-flare for that same field. The deprecations page names ${DECEMBER_1_IMAGE_REPLACEMENTS} for the ids in the table. Send one prompt you use now, to the id you will keep, before the shutdown date.`,
         ],
         codes: [
           {
@@ -1711,14 +1712,14 @@ function december1ImageGuide(rows: ModelRecord[], catalog: ModelRecord[]): Guide
         ],
         sources: [
           { label: "OpenAI image generation", url: OPENAI_IMAGE_GUIDE },
-          { label: "gpt-image-2.5-sunburst", url: OPENAI_SUNBURST },
+          { label: "gpt-image-2.6-sunburst", url: OPENAI_SUNBURST },
           { label: "OpenAI deprecations", url: OPENAI_DEPRECATIONS },
         ],
       },
       {
         heading: "Test the replacement before the cutoff",
         paragraphs: [
-          `OpenAI's deprecations page says the notice period is time to evaluate the recommended replacement, test application behavior, and finish the migration before the model is no longer available. Call gpt-image-2.5-sunburst or gpt-image-2.5-flare with a prompt you send today. Do that before ${when}.`,
+          `OpenAI's deprecations page says the notice period is time to evaluate the recommended replacement, test application behavior, and finish the migration before the model is no longer available. Call ${DECEMBER_1_IMAGE_REPLACEMENTS} with a prompt you send today. Do that before ${when}.`,
           "The [pre-migration test checklist](/guides/pre-migration-test-checklist/) is the longer list: evals, rejected fields, token limits, tools, price, and latency.",
         ],
         sources: [
@@ -1734,8 +1735,8 @@ function december1ImageGuide(rows: ModelRecord[], catalog: ModelRecord[]): Guide
       { href: `/guides/${JANUARY_2027_AUDIO_GUIDE_SLUG}/`, label: "OpenAI speech, audio, and realtime shutdowns in January 2027" },
       { href: `/guides/${FEBRUARY_26_TRANSCRIBE_GUIDE_SLUG}/`, label: "whisper-1 and GPT-4o transcribe shutdown on February 26, 2027" },
       { href: `/guides/${APRIL_1_2027_GUIDE_SLUG}/`, label: "GPT-5.1, gpt-5.3-codex, and gpt-5.4-nano shutdown on April 1, 2027" },
-      { href: "/models/openai/gpt-image-2-5-sunburst/", label: "gpt-image-2.5-sunburst" },
-      { href: "/models/openai/gpt-image-2-5-flare/", label: "gpt-image-2.5-flare" },
+      { href: "/models/openai/gpt-image-2-6-sunburst/", label: "gpt-image-2.6-sunburst" },
+      { href: "/models/openai/gpt-image-2-6-flare/", label: "gpt-image-2.6-flare" },
       ...(openRouterImages.length
         ? [
             { href: `/guides/${OPENROUTER_NOV_DEC_GUIDE_SLUG}/`, label: "OpenRouter model expirations in November and December 2026" },
@@ -1760,7 +1761,7 @@ function december1ImageGuide(rows: ModelRecord[], catalog: ModelRecord[]): Guide
       },
       {
         question: "What is the recommended replacement?",
-        answer: `OpenAI's deprecations page names gpt-image-2.5-sunburst or gpt-image-2.5-flare for each of these ids. It does not prefer one. The image generation page says: "${IMAGE_CHOICE}" ${replacementFaq(rows, catalog)}`,
+        answer: `OpenAI's deprecations page names ${DECEMBER_1_IMAGE_REPLACEMENTS} for each of these ids. It does not prefer one. The image generation page says: "${IMAGE_CHOICE}" ${replacementFaq(rows, catalog)}`,
       },
       {
         question: "What does OpenAI say happens at shut down?",
@@ -1768,7 +1769,7 @@ function december1ImageGuide(rows: ModelRecord[], catalog: ModelRecord[]): Guide
       },
       {
         question: "Do I have to change the endpoint?",
-        answer: `The image generation page says: "${IMAGE_SET_MODEL}" The sunburst model page lists v1/images/generations and v1/images/edits as supported, and v1/responses as not supported. Keep a mainline model at the top of a Responses request and put the image id in the tool.`,
+        answer: `The image generation page says: "${IMAGE_SET_MODEL}" The gpt-image-2.6-sunburst model page lists v1/images/generations and v1/images/edits as supported, and v1/responses as not supported. The deprecations page names ${DECEMBER_1_IMAGE_REPLACEMENTS} for these ids. Keep a mainline model at the top of a Responses request and put the image id in the tool.`,
       },
       {
         question: "Which quality values are new?",
