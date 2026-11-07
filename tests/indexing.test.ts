@@ -5,11 +5,15 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { migrateGraph } from "../src/jsonld.ts";
 import {
+  CANONICAL_ALIAS_PATHS,
   excludedPaths,
   excludeFromSitemap,
   includeInSitemap,
   isConsolidatedLeaf,
+  isLongRetiredModel,
+  LONG_RETIRED_BEFORE,
   modelPageIndexable,
+  modelRobots,
   NOINDEX_FOLLOW,
   PRIORITY_SITEMAP_PATHS,
   staleShutdownCutoff,
@@ -54,6 +58,7 @@ import {
   writeSectionSitemaps,
 } from "../src/lib/sitemaps.ts";
 import type { ModelRecord } from "../src/schema.ts";
+import type { IndexModel } from "../src/lib/indexability.ts";
 
 function contentDay(model: ModelRecord): string {
   const lines = readFileSync("data/changes.jsonl", "utf8").split("\n").filter(Boolean);
@@ -117,6 +122,113 @@ describe("sitemap sections", () => {
     expect(models.map((url) => url.loc)).toEqual(["https://sunsetdiff.com/models/openai/gpt-4o/"]);
     expect(models[0]?.lastmod).toBe("2026-10-17");
     await expect(readFile(path.join(dir, "sitemap-0.xml"), "utf8")).rejects.toThrow();
+  });
+});
+
+describe("long-retired model pages", () => {
+  const day = "2026-11-07";
+
+  function fixture(status: ModelRecord["status"], shutdown_date: string): IndexModel {
+    return {
+      status,
+      shutdown_date,
+      shutdown_date_kind: "exact",
+      region_or_platform_notes: "A note that would keep an undated page indexable.",
+    };
+  }
+
+  it("noindexes a retired model shut down before 2026-08-01 and keeps a near-term model in the sitemap", () => {
+    const longRetired = fixture("retired", "2026-06-15");
+    const nearTerm = fixture("retired", "2026-11-16");
+    const onCutoff = fixture("retired", LONG_RETIRED_BEFORE);
+    const deprecatedStillListed = fixture("deprecated", "2026-07-15");
+    const legacyStillListed = fixture("legacy", "2026-07-01");
+    const activeStillListed = fixture("active", "2026-07-20");
+
+    expect(LONG_RETIRED_BEFORE).toBe("2026-08-01");
+    expect(isLongRetiredModel(longRetired)).toBe(true);
+    expect(modelPageIndexable(longRetired, day)).toBe(false);
+    expect(modelRobots(longRetired, day)).toBe(NOINDEX_FOLLOW);
+    expect(`<meta name="robots" content="${modelRobots(longRetired, day)}" />`).toBe(
+      '<meta name="robots" content="noindex,follow" />',
+    );
+
+    for (const model of [nearTerm, onCutoff, deprecatedStillListed, legacyStillListed, activeStillListed]) {
+      expect(isLongRetiredModel(model)).toBe(false);
+      expect(modelPageIndexable(model, day)).toBe(true);
+      expect(modelRobots(model, day)).toBeUndefined();
+    }
+
+    const longPath = "/models/fixture/long-retired/";
+    const nearPath = "/models/fixture/near-term/";
+    const byPath = new Map<string, IndexModel>([
+      [longPath, longRetired],
+      [nearPath, nearTerm],
+    ]);
+    const include = (pathname: string) => {
+      const model = byPath.get(pathname);
+      return model ? modelPageIndexable(model, day) : true;
+    };
+    const urls = [
+      longPath,
+      nearPath,
+      "/models/",
+      "/providers/",
+      "/upcoming/",
+      "/this-week/",
+      "/deadlines/",
+      "/guides/what-happens-on-model-shutdown-day/",
+      "/shutdowns/github-copilot-2026-11-16/",
+    ].map((pathname) => ({ loc: `https://sunsetdiff.com${pathname}`, lastmod: day }));
+    const split = splitSitemaps(urls, "https://sunsetdiff.com", include);
+    const modelsXml = split.files.get("sitemap-models.xml") ?? "";
+    expect(split.dropped).toEqual([longPath]);
+    expect(modelsXml).not.toContain(longPath);
+    expect(modelsXml).toContain(nearPath);
+    expect(modelsXml).toContain("https://sunsetdiff.com/models/</loc>");
+    expect(split.files.get("sitemap-core.xml")).toContain("/upcoming/");
+    expect(split.files.get("sitemap-core.xml")).toContain("/this-week/");
+    expect(split.files.get("sitemap-core.xml")).toContain("/providers/");
+    expect(split.files.get("sitemap-core.xml")).toContain("/deadlines/</loc>");
+    expect(split.files.get("sitemap-guides.xml")).toContain("/guides/what-happens-on-model-shutdown-day/");
+    expect(split.files.get("sitemap-dates.xml")).toContain("/shutdowns/github-copilot-2026-11-16/");
+    for (const file of split.files.values()) expect(file).not.toContain(longPath);
+  });
+
+  it("drops real long-retired model URLs from the sitemap and keeps later shutdowns", async () => {
+    const models = await loadModels();
+    const buildDay = today();
+    let longRetired = 0;
+    let modelSitemap = 0;
+    for (const model of models) {
+      const pathname = `/models/${model.provider}/${model.slug}/`;
+      const inModelsSitemap = includeInSitemap(pathname) && sitemapSection(pathname) === "sitemap-models.xml";
+      if (inModelsSitemap) modelSitemap += 1;
+      if (!isLongRetiredModel(model)) {
+        if (model.shutdown_date && model.shutdown_date >= LONG_RETIRED_BEFORE && model.shutdown_date_kind !== "none") {
+          expect(modelPageIndexable(model, day)).toBe(true);
+          expect(modelRobots(model, day)).toBeUndefined();
+          if (modelPageIndexable(model, buildDay) && !CANONICAL_ALIAS_PATHS.has(pathname)) expect(inModelsSitemap).toBe(true);
+        }
+        continue;
+      }
+      longRetired += 1;
+      expect(model.shutdown_date! < LONG_RETIRED_BEFORE).toBe(true);
+      expect(modelRobots(model, buildDay)).toBe(NOINDEX_FOLLOW);
+      expect(includeInSitemap(pathname)).toBe(false);
+      expect(inModelsSitemap).toBe(false);
+    }
+    expect(longRetired).toBeGreaterThan(400);
+    expect(modelSitemap).toBeGreaterThan(400);
+    expect(includeInSitemap("/models/")).toBe(true);
+    expect(includeInSitemap("/upcoming/")).toBe(true);
+    expect(includeInSitemap("/providers/")).toBe(true);
+    expect(includeInSitemap("/this-week/")).toBe(true);
+    expect(includeInSitemap("/deadlines/")).toBe(true);
+    for (const pathname of PRIORITY_SITEMAP_PATHS) {
+      if (!pathname.startsWith("/models/") || pathname === "/models/") continue;
+      expect(includeInSitemap(pathname)).toBe(true);
+    }
   });
 });
 

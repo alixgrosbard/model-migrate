@@ -25,12 +25,26 @@ import { monthKeyPath, shutdownMonthList, shutdownsInMonth } from "./schedule.ts
  * A note does: it is a region exception, a source disagreement, an auto-route,
  * or another fact the template does not repeat.
  *
+ * Long-retired model pages are the exception to that recent window. Status
+ * retired (including an alias the loader marks retired from its latest
+ * snapshot date) and a shutdown_date strictly before LONG_RETIRED_BEFORE
+ * is noindex,follow even when the date is still inside six months.
+ * A shutdown on or after that day stays indexable. deprecated, legacy, and
+ * active rows stay on the six-month rule, so an upcoming deadline stays
+ * in the index. Hubs are not model pages and are not part of this rule.
+ *
  * The build day is today() in format.ts, the UTC day the site is generated.
  */
 export const NOINDEX_FOLLOW = "noindex,follow";
 
 /** Months before the build day. A shutdown on the cutoff day is still recent. */
 export const STALE_SHUTDOWN_MONTHS = 6;
+
+/**
+ * Fixed crawl cutoff for retired model pages. A shutdown on this day stays
+ * indexable. The day is fixed so the rule does not move with the build day.
+ */
+export const LONG_RETIRED_BEFORE = "2026-08-01";
 
 /** Alias pages that point canonical at another URL. They stay out of the sitemap. */
 export const CANONICAL_ALIAS_PATHS = new Set([
@@ -80,9 +94,17 @@ const NON_HTML_ASSET = /\.(csv|json|ics|xml)$/i;
 let cache: Set<string> | null = null;
 
 export interface IndexModel {
+  status?: ModelRecord["status"];
   shutdown_date: string | null;
   shutdown_date_kind: ModelRecord["shutdown_date_kind"];
   region_or_platform_notes: string | null;
+}
+
+/** Retired, with a real shutdown date strictly before LONG_RETIRED_BEFORE. */
+export function isLongRetiredModel(model: IndexModel): boolean {
+  if (model.status !== "retired") return false;
+  if (!model.shutdown_date || model.shutdown_date_kind === "none") return false;
+  return model.shutdown_date < LONG_RETIRED_BEFORE;
 }
 
 /** First day that still counts as a recent shutdown for this build day. */
@@ -93,6 +115,7 @@ export function staleShutdownCutoff(buildDay: string): string {
 }
 
 export function modelPageIndexable(model: IndexModel, buildDay: string): boolean {
+  if (isLongRetiredModel(model)) return false;
   const dated = Boolean(model.shutdown_date) && model.shutdown_date_kind !== "none";
   if (dated) return model.shutdown_date! >= staleShutdownCutoff(buildDay);
   return Boolean(model.region_or_platform_notes?.trim());
