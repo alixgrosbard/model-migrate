@@ -2225,8 +2225,8 @@ describe("guides", () => {
 
     const veo = vertexVeoFloorRows(models);
     expect(veo.length).toBeGreaterThan(0);
+    expect(veo.every((model) => model.id.startsWith("veo-"))).toBe(true);
     expect(veo.every((model) => model.shutdown_date_kind === "not_before")).toBe(true);
-    expect(veo.every((model) => model.replacements.length === 0)).toBe(true);
     expect(veo.every((model) => model.shutdown_date)).toBe(true);
 
     const { shutdownEvents } = await import("../src/lib/shutdowns.ts");
@@ -2260,7 +2260,18 @@ describe("guides", () => {
       veo.map((model) => `[${model.id}](/models/${model.provider}/${model.slug}/)`),
     );
     expect(veoTable?.rows.map((row) => row[2])).toEqual(veo.map((model) => `${model.shutdown_date} or later`));
-    expect(veoTable?.rows.every((row) => row[3] === "Not published")).toBe(true);
+    for (const model of veo) {
+      const cell = veoTable?.rows.find((row) => row[0].includes(model.id))?.[3] ?? "";
+      const ids = publishedReplacementIds(model);
+      if (ids.length === 0) {
+        expect(cell, model.id).toBe("Not published");
+      } else {
+        for (const id of ids) {
+          expect(cell, model.id).toContain(id);
+          expect(model.sources.some((source) => source.excerpt.includes(id)), `${model.id} ${id}`).toBe(true);
+        }
+      }
+    }
     const blob = JSON.stringify(guide);
     expect(blob).toContain("Gemini 3.6 Flash will be retired on November 19, 2026.");
     expect(blob).toContain("they won't be moved to an earlier date");
