@@ -94,10 +94,11 @@ describe("this week shutdown page", () => {
     expect(haiku?.modelPath.startsWith("/models/aws-bedrock/")).toBe(true);
 
     expect(week.groups[0]?.date).toBe("2026-11-06");
-    expect(week.groups[0]?.providers.map((provider) => provider.providerId)).toEqual(["together"]);
+    expect(week.groups[0]?.providers.map((provider) => provider.providerId)).toContain("together");
     for (const group of week.groups) {
       const names = group.providers.map((provider) => provider.providerName);
       expect(names).toEqual([...names].sort((a, b) => a.localeCompare(b)));
+      expect(group.providers.map((provider) => provider.providerId)).toEqual(providerIdsOnDate(week.rows, group.date));
     }
 
     const which = week.faqs[0];
@@ -218,6 +219,20 @@ describe("this week shutdown page", () => {
     expect(empty.h1).toBe("AI models shutting down this week");
   });
 });
+
+function providerIdsOnDate(
+  rows: { model: { provider: string; shutdown_date: string | null }; providerName: string }[],
+  date: string,
+): string[] {
+  const seen = new Map<string, string>();
+  for (const row of rows) {
+    if (row.model.shutdown_date !== date || seen.has(row.model.provider)) continue;
+    seen.set(row.model.provider, row.providerName);
+  }
+  return [...seen.entries()]
+    .sort((a, b) => a[1].localeCompare(b[1]) || a[0].localeCompare(b[0]))
+    .map(([id]) => id);
+}
 
 function rowFor(rows: { model: ModelRecord }[], provider: string, id: string) {
   const row = rows.find((item) => item.model.provider === provider && item.model.id === id);
