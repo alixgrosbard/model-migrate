@@ -1,0 +1,91 @@
+{
+  "from": {
+    "provider": "google-vertex",
+    "model_id": "veo-3.1-fast-generate-001",
+    "slug": "veo-3-1-fast-generate-001"
+  },
+  "to": {
+    "provider": "google-vertex",
+    "model_id": "gemini-omni-1.2-flash",
+    "slug": "gemini-omni-1-2-flash"
+  },
+  "price_diff": {
+    "input_pct_change": null,
+    "output_pct_change": null,
+    "example_monthly_cost_old": null,
+    "example_monthly_cost_new": 33,
+    "currency": "USD",
+    "example_label": "Example monthly cost for 10M input tokens and 2M output tokens. Labeled example, not a bill."
+  },
+  "context_diff": {
+    "old_tokens": null,
+    "new_tokens": null,
+    "change_pct": null
+  },
+  "max_output_diff": {
+    "old_tokens": null,
+    "new_tokens": 260640,
+    "change_pct": null
+  },
+  "capability_changes": [],
+  "api_changes": [
+    {
+      "kind": "endpoint_change",
+      "detail": "The Veo guide's samples call client.models.generate_videos and POST https://generativelanguage.googleapis.com/v1beta/models/{id}:predictLongRunning with a Veo model id. The warning on that page says to migrate to gemini-omni-1.2-flash or the GA models on the Gemini Enterprise Agent Platform. No generate_videos sample for gemini-omni-1.2-flash was found on that page, so this page does not show a model-id swap.",
+      "source_url": "https://ai.google.dev/gemini-api/docs/veo"
+    }
+  ],
+  "code_change": {
+    "language": "python",
+    "before": "",
+    "after": "",
+    "snippets": {
+      "python": {
+        "before": "",
+        "after": ""
+      },
+      "typescript": {
+        "before": "",
+        "after": ""
+      },
+      "curl": {
+        "before": "",
+        "after": ""
+      }
+    }
+  },
+  "migration_checklist": [
+    "Read the shutdown date for veo-3.1-fast-generate-001 on the linked official page.",
+    "Point your requests at gemini-omni-1.2-flash.",
+    "Re-check price, context, and parameters on the provider pages linked here.",
+    "Ship the change before the published shutdown date."
+  ],
+  "confidence": "partial",
+  "last_checked": "2026-11-07",
+  "sources": [
+    {
+      "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/model-versions",
+      "label": "Vertex AI model versions",
+      "last_checked": "2026-11-07",
+      "excerpt": "veo-3.1-fast-generate-001 | November 17, 2025 | May 4, 2027 or later | gemini-omni-1.2-flash"
+    },
+    {
+      "url": "https://cloud.google.com/gemini-enterprise-agent-platform/generative-ai/pricing",
+      "label": "Vertex pricing",
+      "last_checked": "2026-11-07",
+      "excerpt": "Gemini Omni 1.2 Flash Input (text, image, video, audio)* $1.5 per 1M tokens for the <= 200K column"
+    },
+    {
+      "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/gemini/omni-1-2-flash",
+      "label": "Vertex model docs",
+      "last_checked": "2026-11-07",
+      "excerpt": "Gemini Omni 1.2 Flash | gemini-omni-1.2-flash | maximum output tokens 260640"
+    },
+    {
+      "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/model-versions",
+      "label": "Vertex AI model versions",
+      "last_checked": "2026-11-07",
+      "excerpt": "gemini-omni-1.2-flash | November 5, 2026 | November 5, 2027 or later"
+    }
+  ]
+}

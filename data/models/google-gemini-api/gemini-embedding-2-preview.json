@@ -7,7 +7,7 @@
   "status": "retired",
   "announced_date": null,
   "deprecation_date": null,
-  "shutdown_date": "2026-08-10",
+  "shutdown_date": "2026-11-06",
   "shutdown_date_kind": "exact",
   "region_or_platform_notes": "Release date on the deprecations page: 2026-03-10.",
   "replacements": [
@@ -22,8 +22,8 @@
     {
       "url": "https://ai.google.dev/gemini-api/docs/deprecations",
       "label": "Gemini API deprecations",
-      "last_checked": "2026-11-05",
-      "excerpt": "gemini-embedding-2-preview | March 10, 2026 | August 10, 2026 | gemini-embedding-2"
+      "last_checked": "2026-11-07",
+      "excerpt": "gemini-embedding-2-preview | March 10, 2026 | November 6, 2026 | gemini-embedding-2 (effective November 6, 2026, API requests to gemini-embedding-2-preview route to gemini-embedding-2)"
     }
   ],
   "specs": {
@@ -48,5 +48,5 @@
     "specs_sources": {}
   },
   "first_seen": "2026-11-03T21:18:02.977Z",
-  "updated_at": "2026-11-03T21:18:02.977Z"
+  "updated_at": "2026-11-07T18:51:13.097Z"
 }

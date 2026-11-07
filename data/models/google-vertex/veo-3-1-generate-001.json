@@ -10,13 +10,20 @@
   "shutdown_date": "2027-05-04",
   "shutdown_date_kind": "not_before",
   "region_or_platform_notes": "Release date on the Vertex model versions page: 2025-11-17.",
-  "replacements": [],
+  "replacements": [
+    {
+      "model_id": "gemini-omni-1.2-flash",
+      "provider": "google-vertex",
+      "kind": "official",
+      "source_url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/model-versions"
+    }
+  ],
   "sources": [
     {
       "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/model-versions",
       "label": "Vertex AI model versions",
-      "last_checked": "2026-11-05",
-      "excerpt": "veo-3.1-generate-001 | November 17, 2025 | May 4, 2027 or later"
+      "last_checked": "2026-11-07",
+      "excerpt": "veo-3.1-generate-001 | November 17, 2025 | May 4, 2027 or later | gemini-omni-1.2-flash"
     }
   ],
   "specs": {
@@ -41,5 +48,5 @@
     "specs_sources": {}
   },
   "first_seen": "2026-10-17T15:59:19.574Z",
-  "updated_at": "2026-11-05T06:20:00.000Z"
+  "updated_at": "2026-11-07T18:51:13.097Z"
 }

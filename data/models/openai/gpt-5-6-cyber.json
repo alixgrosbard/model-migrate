@@ -15,8 +15,8 @@
     {
       "url": "https://developers.openai.com/api/docs/models/gpt-5.6-cyber.md",
       "label": "OpenAI model docs",
-      "last_checked": "2026-11-05",
-      "excerpt": "Model ID: gpt-5.6-cyber | Our most advanced cybersecurity model for authorized vulnerability research and security testing."
+      "last_checked": "2026-11-07",
+      "excerpt": "Model ID: gpt-5.6-cyber | Cybersecurity model for authorized vulnerability research and security testing."
     },
     {
       "url": "https://developers.openai.com/api/docs/models/gpt-daybreak-red-latest.md",
@@ -47,26 +47,26 @@
     "specs_sources": {
       "cached_input_price_per_mtok": {
         "url": "https://developers.openai.com/api/docs/models/gpt-5.6-cyber.md",
-        "last_checked": "2026-11-05"
+        "last_checked": "2026-11-07"
       },
       "context_window_tokens": {
         "url": "https://developers.openai.com/api/docs/models/gpt-5.6-cyber.md",
-        "last_checked": "2026-11-05"
+        "last_checked": "2026-11-07"
       },
       "input_price_per_mtok": {
         "url": "https://developers.openai.com/api/docs/models/gpt-5.6-cyber.md",
-        "last_checked": "2026-11-05"
+        "last_checked": "2026-11-07"
       },
       "max_output_tokens": {
         "url": "https://developers.openai.com/api/docs/models/gpt-5.6-cyber.md",
-        "last_checked": "2026-11-05"
+        "last_checked": "2026-11-07"
       },
       "output_price_per_mtok": {
         "url": "https://developers.openai.com/api/docs/models/gpt-5.6-cyber.md",
-        "last_checked": "2026-11-05"
+        "last_checked": "2026-11-07"
       }
     }
   },
   "first_seen": "2026-10-26T05:20:22.098Z",
-  "updated_at": "2026-10-26T13:07:04.899Z"
+  "updated_at": "2026-11-07T18:51:13.097Z"
 }
