@@ -1592,3 +1592,7 @@
 {"date":"2026-11-07","provider":"nebius","model_id":"zai-org/GLM-5.1","field":"replacements","old":"zai-org/GLM-5.2","new":"zai-org/GLM-5.3","source_url":"https://docs.tokenfactory.nebius.com/model-deprecations-november-2026"}
 {"date":"2026-11-07","provider":"together","model_id":"MiniMaxAI/MiniMax-M3","field":"status","old":"deprecated","new":"retired","source_url":"https://docs.together.ai/docs/deprecations"}
 {"date":"2026-11-07","provider":"together","model_id":"thinkingmachines/Inkling","field":"status","old":"deprecated","new":"retired","source_url":"https://docs.together.ai/docs/deprecations"}
+{"date":"2026-11-08","provider":"fireworks","model_id":"accounts/fireworks/models/gpt-oss-120b","field":"status","old":"deprecated","new":"retired","source_url":"https://docs.fireworks.ai/updates/changelog"}
+{"date":"2026-11-08","provider":"fireworks","model_id":"accounts/fireworks/models/nemotron-3-ultra-nvfp4","field":"status","old":"deprecated","new":"retired","source_url":"https://docs.fireworks.ai/updates/changelog"}
+{"date":"2026-11-08","provider":"fireworks","model_id":"accounts/fireworks/models/nemotron-lightning-3p5-30b-a3b","field":"status","old":"deprecated","new":"retired","source_url":"https://docs.fireworks.ai/updates/changelog"}
+{"date":"2026-11-08","provider":"fireworks","model_id":"accounts/fireworks/routers/glm-5p3-flash-us","field":"status","old":"deprecated","new":"retired","source_url":"https://docs.fireworks.ai/updates/changelog"}

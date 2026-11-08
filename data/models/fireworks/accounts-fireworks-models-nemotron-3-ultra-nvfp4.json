@@ -4,7 +4,7 @@
   "provider": "fireworks",
   "display_name": "NVIDIA Nemotron 3 Ultra",
   "family": null,
-  "status": "deprecated",
+  "status": "retired",
   "announced_date": null,
   "deprecation_date": null,
   "shutdown_date": "2026-11-07",
@@ -15,7 +15,7 @@
     {
       "url": "https://docs.fireworks.ai/updates/changelog",
       "label": "Fireworks AI changelog",
-      "last_checked": "2026-11-07",
+      "last_checked": "2026-11-08",
       "excerpt": "NVIDIA Nemotron 3 Ultra - move to a dedicated deployment of Nemotron Super VL"
     }
   ],
@@ -41,5 +41,5 @@
     "specs_sources": {}
   },
   "first_seen": "2026-10-28T12:33:26.950Z",
-  "updated_at": "2026-10-28T12:33:26.950Z"
+  "updated_at": "2026-11-08T13:27:22.483Z"
 }

@@ -4,7 +4,7 @@
   "provider": "fireworks",
   "display_name": "GLM 5.3 Flash",
   "family": null,
-  "status": "deprecated",
+  "status": "retired",
   "announced_date": null,
   "deprecation_date": null,
   "shutdown_date": "2026-11-07",
@@ -22,13 +22,13 @@
     {
       "url": "https://docs.fireworks.ai/serverless/us-only-serverless",
       "label": "Fireworks US-only serverless",
-      "last_checked": "2026-11-07",
+      "last_checked": "2026-11-08",
       "excerpt": "accounts/fireworks/routers/glm-5p3-flash-us"
     },
     {
       "url": "https://docs.fireworks.ai/updates/changelog",
       "label": "Fireworks AI changelog",
-      "last_checked": "2026-11-07",
+      "last_checked": "2026-11-08",
       "excerpt": "GLM 5.3 Flash (US endpoint only) - migrate to DeepSeek V4.1 Flash 1017 (US endpoint). The global GLM 5.3 Flash endpoint remains available."
     }
   ],
@@ -54,5 +54,5 @@
     "specs_sources": {}
   },
   "first_seen": "2026-10-28T12:33:26.950Z",
-  "updated_at": "2026-10-28T12:33:26.950Z"
+  "updated_at": "2026-11-08T13:27:22.483Z"
 }

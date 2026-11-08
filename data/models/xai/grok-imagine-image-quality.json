@@ -22,7 +22,7 @@
     {
       "url": "https://docs.x.ai/developers/migration/imagine-image-quality-nov-2",
       "label": "xAI model deprecations",
-      "last_checked": "2026-11-07",
+      "last_checked": "2026-11-08",
       "excerpt": "Migration Guides # grok-imagine-image-quality Retirement on November 2, 2026 `grok-imagine-image-2.0` now covers everything `grok-imagine-image-quality` was used for, at a lower price. **Effective November 2, 2026**, the `gro"
     },
     {
@@ -54,11 +54,11 @@
     "specs_sources": {
       "batch_discount_pct": {
         "url": "https://docs.x.ai/developers/pricing",
-        "last_checked": "2026-11-07"
+        "last_checked": "2026-11-08"
       },
       "supports_batch": {
         "url": "https://docs.x.ai/developers/pricing",
-        "last_checked": "2026-11-07"
+        "last_checked": "2026-11-08"
       }
     }
   },

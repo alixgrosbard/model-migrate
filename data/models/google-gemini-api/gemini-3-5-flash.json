@@ -22,7 +22,7 @@
     {
       "url": "https://ai.google.dev/gemini-api/docs/deprecations",
       "label": "Gemini API deprecations",
-      "last_checked": "2026-11-07",
+      "last_checked": "2026-11-08",
       "excerpt": "gemini-3.5-flash | May 19, 2026 | N/A | gemini-3.6-flash (gemini-3.5-flash is no longer available in Google AI Studio; the endpoint is not shutting down and automatically routes API requests to gemini-3.6-flash)"
     },
     {
