@@ -290,8 +290,10 @@ describe("official snapshots", () => {
   });
 
   it("keeps the Gemini 2.5 new-user limit on the old HTML snapshot", () => {
-    const deprecations = read("snapshots/google-gemini-api/2026-11-02.html");
-    const pricing = read("snapshots/google-gemini-api/2026-11-02-pricing.html");
+    // A refresh keeps ten dated Gemini pages and deletes the older ones.
+    // The Nov 2 HTML aside is a fixture, so this check still runs after that delete.
+    const deprecations = read(fixture("google-gemini-api", "2026-11-02.html"));
+    const pricing = read(fixture("google-gemini-api", "pricing-2026-11-02.html"));
     const models = parseGemini(deprecations, pricing, "2026-11-01");
     for (const id of ["gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-2.5-pro"]) {
       const parsed = models.find((model) => model.id === id);
