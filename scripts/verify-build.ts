@@ -503,6 +503,23 @@ async function main() {
       if (html.includes("start failing") || html.includes("started failing")) {
         throw new Error(`Gemini December 1 page says the request fails: ${rel}`);
       }
+    } else if (event.slug === "google-gemini-api-2026-12-03") {
+      if (!html.includes("gemini-omni-1.1-flash")) throw new Error(`Gemini December 3 page is missing the model id: ${rel}`);
+      if (!html.includes("automatically routing API requests to gemini-omni-1.2-flash")) {
+        throw new Error(`Gemini December 3 page is missing the route to gemini-omni-1.2-flash: ${rel}`);
+      }
+      if (html.includes("start failing") || html.includes("started failing")) {
+        throw new Error(`Gemini December 3 page says the request fails: ${rel}`);
+      }
+    } else if (event.slug === "anthropic-2026-11-24") {
+      if (!html.includes("claude-opus-4-5-20251101")) throw new Error(`Opus 4.5 page is missing the model id: ${rel}`);
+      if (!html.includes("not sooner than November 24, 2026")) throw new Error(`Opus 4.5 page is missing the floor wording: ${rel}`);
+      if (!html.includes("/guides/claude-opus-4-5-retirement-november-24-2026/")) {
+        throw new Error(`Opus 4.5 page is missing the retirement guide: ${rel}`);
+      }
+      if (html.includes("Requests to these models start failing") || html.includes("shuts down 1 models")) {
+        throw new Error(`Opus 4.5 page treats the floor as an exact shutdown: ${rel}`);
+      }
     } else {
       if (!html.includes("shutting down") || !html.includes("start failing")) {
         throw new Error(`Upcoming shutdown page is missing future wording: ${rel}`);

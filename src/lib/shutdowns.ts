@@ -30,21 +30,26 @@ export const SMALL_SHUTDOWN_BATCHES = new Set([
   "azure-openai|2027-01-14",   // gpt-4o-2024-05-13 (1 exact row)
   "azure-openai|2027-01-20",   // gpt-realtime-2-2026-05-06 (1 exact row)
   "google-vertex|2027-01-28",  // gemini-3.7-flash (1 exact row)
+  "google-gemini-api|2026-12-03", // gemini-omni-1.1-flash (1 exact row)
 ]);
 
 /**
  * not_before dates that get a /shutdowns/ page. These dates are floor dates (the provider
  * published "not sooner than"), so they are not exact shutdown dates. The OpenRouter
- * November and December guide already covers these waves. Other floors stay unpublished.
+ * November and December guide already covers the OpenRouter waves. The Anthropic date
+ * is the Opus 4.5 floor. Other floors stay unpublished.
  */
 export const NOT_BEFORE_SHUTDOWN_BATCHES = new Set([
   "openrouter|2026-11-08",   // Inception Mercury 2/2.5/3/Decide (4 not_before rows)
   "openrouter|2026-11-11",   // ByteDance Seed 1.6/2.0 and Seedance 1.5 (4 not_before rows)
+  "openrouter|2026-11-13",   // Liquid LFM 2.5 2.6B and embedding (3 not_before rows)
+  "openrouter|2026-11-16",   // nvidia/llama-nemotron-embed-vl-1b-v2:free (1 not_before row)
   "openrouter|2026-11-20",   // liquid/d1 (1 not_before row)
   "openrouter|2026-11-30",   // heygen/heygen-voice-1-turbo:free (1 not_before row)
   "openrouter|2026-12-01",   // openai/gpt-5-image-mini and openai/gpt-image-1-mini (2 not_before rows)
   "openrouter|2026-12-22",   // microsoft/mai-transcribe-1.5 (1 not_before row)
   "openrouter|2026-12-31",   // Dots, MAI Voice, and GLM rows (6 not_before rows)
+  "anthropic|2026-11-24",    // claude-opus-4-5-20251101 (1 not_before row)
 ]);
 
 /** GitHub changelog post for the November 16, 2026 Copilot retirements. */
@@ -98,7 +103,7 @@ export function shutdownEventPath(event: Pick<ShutdownEvent, "slug">): string {
 /**
  * One event per provider and exact shutdown date with at least three model records.
  * SMALL_SHUTDOWN_BATCHES also publishes named dates with fewer rows.
- * NOT_BEFORE_SHUTDOWN_BATCHES also publishes specific floor dates from OpenRouter.
+ * NOT_BEFORE_SHUTDOWN_BATCHES also publishes specific floor dates.
  * Month-only dates are not a single day and are never events.
  */
 export function shutdownEvents(models: ModelRecord[]): ShutdownEvent[] {
@@ -322,6 +327,11 @@ export function batchDateModified(event: ShutdownEvent): string {
 
 export function batchDescription(providerName: string, event: ShutdownEvent, day: string): string {
   if (event.slug === COPILOT_NOV16_SLUG) return COPILOT_NOV16_DESCRIPTION;
+  if (event.slug === "anthropic-2026-11-24") {
+    return clipMeta(
+      "claude-opus-4-5-20251101 is Active. Anthropic's tentative retirement is not sooner than November 24, 2026. The deprecation history names no replacement.",
+    );
+  }
   if (event.provider === "aws-bedrock" && event.date === "2026-11-13") {
     const past = isPastShutdown(event.date, day);
     return clipMeta(
@@ -510,6 +520,8 @@ export function batchLead(providerName: string, event: ShutdownEvent, day: strin
   if (isModelIdBatch(event)) return openAiShortAnswer(event, day);
   if (event.provider === "aws-bedrock" && event.date === "2026-11-13") return bedrockShortAnswer(day);
   if (event.provider === "google-gemini-api" && event.date === "2026-12-01") return geminiDec1Lead(day);
+  if (event.slug === "google-gemini-api-2026-12-03") return geminiDec3Lead(day);
+  if (event.slug === "anthropic-2026-11-24") return anthropicNov24Lead();
   if (event.provider === "aws-bedrock" && event.date === "2026-11-27") return bedrockNov27Lead(day);
   return batchExtras(event).lead ?? shutdownEventLead(providerName, event, day);
 }
@@ -517,6 +529,7 @@ export function batchLead(providerName: string, event: ShutdownEvent, day: strin
 export function batchChecklist(event: ShutdownEvent, day: string): string[] {
   if (event.slug === COPILOT_NOV16_SLUG) return copilotNov16Checklist();
   if (event.provider === "google-gemini-api" && event.date === "2026-12-01") return geminiDec1Checklist();
+  if (event.slug === "anthropic-2026-11-24") return anthropicNov24Checklist();
   const steps = shutdownEventChecklist(event, day);
   if (event.provider === "aws-bedrock" && event.date === "2026-11-13" && !isPastShutdown(event.date, day)) {
     steps[0] = "Find every request that still uses these model ids before November 13, 2026 in some Regions.";
@@ -530,6 +543,8 @@ export function batchFaqs(providerName: string, event: ShutdownEvent, day: strin
   if (isModelIdBatch(event)) return openAiOct23Faqs(event, day);
   if (event.provider === "aws-bedrock" && event.date === "2026-11-13") return bedrockNov13Faqs(day);
   if (event.provider === "google-gemini-api" && event.date === "2026-12-01") return geminiDec1Faqs(day);
+  if (event.slug === "google-gemini-api-2026-12-03") return geminiDec3Faqs();
+  if (event.slug === "anthropic-2026-11-24") return anthropicNov24Faqs();
   const generic = shutdownEventFaqs(providerName, event, day);
   const items = [...generic, ...extras.faqs];
   return items.map((item) => ({ ...item, answer: limitBedrockAnswer(event, item.answer) }));
@@ -814,14 +829,85 @@ export function batchExtras(event: ShutdownEvent): BatchExtras {
       checkedUrl: "https://aistudio.google.com/docs/deprecations",
     };
   }
-  if (NOT_BEFORE_SHUTDOWN_BATCHES.has(`${event.provider}|${event.date}`)) {
+  if (event.provider === "openrouter" && NOT_BEFORE_SHUTDOWN_BATCHES.has(`${event.provider}|${event.date}`)) {
     return {
       ...EMPTY_EXTRAS,
       note: `OpenRouter published ${longDate(event.date)} as a not-before date: the actual removal happens on or after that day. The rows below use the published expiration_date. Guide: openrouter-model-expirations-november-december-2026.`,
     };
   }
+  if (event.slug === "anthropic-2026-11-24") {
+    return {
+      ...EMPTY_EXTRAS,
+      note: "Anthropic lists claude-opus-4-5-20251101 as Active. November 24, 2026 is a not-sooner-than date, not the day the model stops. Guide: claude-opus-4-5-retirement-november-24-2026.",
+    };
+  }
+  if (event.slug === "google-gemini-api-2026-12-03") {
+    return {
+      ...EMPTY_EXTRAS,
+      note: "The deprecations page says shutdown dates in the table are the earliest possible dates, and that Google will communicate the exact shutdown date with advance notice. The replacement cell says that on December 3, 2026 the endpoint automatically routes API requests to gemini-omni-1.2-flash.",
+    };
+  }
   if (event.provider === "aws-bedrock") return { ...EMPTY_EXTRAS, showRegions: true };
   return EMPTY_EXTRAS;
+}
+
+function geminiDec3Lead(day: string): string {
+  const when = longDate("2026-12-03");
+  const past = isPastShutdown("2026-12-03", day);
+  const says = past ? "said" : "says";
+  return `The Gemini API deprecations page lists gemini-omni-1.1-flash with shutdown date ${when} and recommended replacement gemini-omni-1.2-flash. It ${says} that on ${when} the endpoint is automatically routing API requests to gemini-omni-1.2-flash. The same page says shutdown dates in the table are the earliest possible dates.`;
+}
+
+function geminiDec3Faqs(): FaqItem[] {
+  const when = longDate("2026-12-03");
+  return [
+    {
+      question: `Which Gemini API model has shutdown date ${when}?`,
+      answer:
+        "gemini-omni-1.1-flash. The deprecations page lists December 3, 2026 as its shutdown date and names gemini-omni-1.2-flash as the recommended replacement.",
+    },
+    {
+      question: `What does Google say happens on ${when}?`,
+      answer:
+        "The replacement cell says that on December 3, 2026 the endpoint is automatically routing API requests to gemini-omni-1.2-flash. The page also says shutdown dates in the table are the earliest possible dates, and that Google will communicate the exact shutdown date with advance notice.",
+    },
+    {
+      question: "What is the recommended replacement for gemini-omni-1.1-flash?",
+      answer: "gemini-omni-1.2-flash. That is the replacement stored on the row.",
+    },
+  ];
+}
+
+function anthropicNov24Lead(): string {
+  return "Anthropic lists claude-opus-4-5-20251101 as Active. The tentative retirement is not sooner than November 24, 2026. That is the earliest possible shutdown, not the day the model stops. The deprecation history does not name a replacement.";
+}
+
+function anthropicNov24Checklist(): string[] {
+  return [
+    "Do not remove claude-opus-4-5-20251101 on November 24, 2026. Anthropic lists that day as not sooner than, and the model is Active.",
+    "Search your code for claude-opus-4-5-20251101 if you want to see where it is used.",
+    "The deprecation history does not name a replacement. Do not invent one.",
+    "Read the Claude Opus 4.5 retirement guide and the deprecations page before you change a call.",
+  ];
+}
+
+function anthropicNov24Faqs(): FaqItem[] {
+  return [
+    {
+      question: "Does claude-opus-4-5-20251101 shut down on November 24, 2026?",
+      answer:
+        "No. Anthropic lists it as Active, with Deprecated N/A and tentative retirement not sooner than November 24, 2026. That date is the earliest possible shutdown.",
+    },
+    {
+      question: "What is the recommended replacement for claude-opus-4-5-20251101?",
+      answer: "Not published. The deprecation history does not name one.",
+    },
+    {
+      question: "Do requests to claude-opus-4-5-20251101 fail on November 24, 2026?",
+      answer:
+        "No. Anthropic says requests to models past a retirement date fail, and this id does not have a fixed retirement date.",
+    },
+  ];
 }
 
 function geminiDec1Lead(day: string): string {

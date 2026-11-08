@@ -1106,7 +1106,7 @@ function opus45RetirementGuide(rows: ModelRecord[], catalog: ModelRecord[]): Gui
           `The dataset has ${rows.length} Anthropic id with shutdown date ${OPUS45_FLOOR_DATE} and kind not_before: claude-opus-4-5-20251101. The deprecations status table says Active, Deprecated N/A, tentative retirement not sooner than ${when}. The page defines Active as: "${OPUS_ACTIVE}"`,
           `Not sooner than ${when} is the earliest possible shutdown. It is not a promise that the model stops that day, and it is not a deprecation date. SunsetDiff stores shutdown_date_kind not_before for that cell. The deprecations page says: "${OPUS_NOTICE}"`,
           `The Opus 4.5 page labels the model Legacy and says it was released November 24, 2025. Its availability table lists status Active (legacy) and retirement Not sooner than ${when}. The stored status stays active because the scraper reads the deprecations status table, which says Active. A refresh does not copy the Legacy banner onto the row.`,
-          `SunsetDiff publishes a shutdown batch page when at least ${SHUTDOWN_BATCH_MIN} model records share one provider and one exact shutdown date. A not_before date is not an exact shutdown date, so there is no /shutdowns/anthropic-${OPUS45_FLOOR_DATE}/ page. One exact id would still be short of ${SHUTDOWN_BATCH_MIN}.`,
+          `[/shutdowns/anthropic-${OPUS45_FLOOR_DATE}/](/shutdowns/anthropic-${OPUS45_FLOOR_DATE}/) lists this id. The date on that page is the not_before floor from the deprecations table, not an exact shutdown day. A shutdown batch usually needs at least ${SHUTDOWN_BATCH_MIN} model records that share one provider and one exact shutdown date. This page is published for the one stored floor.`,
         ],
         table: {
           caption: `Anthropic model id in the dataset with shutdown date ${OPUS45_FLOOR_DATE} and kind not_before.`,
@@ -1250,6 +1250,7 @@ message = client.messages.create(
     ],
     related: [
       { href: "/models/anthropic/claude-opus-4-5-20251101/", label: "claude-opus-4-5-20251101" },
+      { href: `/shutdowns/anthropic-${OPUS45_FLOOR_DATE}/`, label: "Anthropic shutdowns on November 24, 2026" },
       { href: "/providers/anthropic/", label: "Anthropic provider page" },
       { href: opus55 ? `/models/${opus55.provider}/${opus55.slug}/` : "/models/anthropic/claude-opus-5-5/", label: "claude-opus-5-5" },
       { href: copilot ? `/models/${copilot.provider}/${copilot.slug}/` : "/models/github-copilot/claude-opus-4-5/", label: "Copilot Claude Opus 4.5" },
@@ -1281,8 +1282,8 @@ message = client.messages.create(
         answer: "No date is stored for Bedrock id anthropic.claude-opus-4-5-20251101-v1:0. The deprecations page says Bedrock sets its own schedule. Copilot lists Claude Opus 4.5 with retirement date 2026-09-01 and suggested alternative Latest Claude Opus model.",
       },
       {
-        question: "Why is there no /shutdowns/anthropic-2026-11-24/ page?",
-        answer: `A shutdown batch page needs at least ${SHUTDOWN_BATCH_MIN} model records that share one provider and one exact shutdown date. This date is kind not_before, and it is one Anthropic id. A floor does not get a batch page.`,
+        question: "Is there a /shutdowns/anthropic-2026-11-24/ page?",
+        answer: `Yes. [/shutdowns/anthropic-${OPUS45_FLOOR_DATE}/](/shutdowns/anthropic-${OPUS45_FLOOR_DATE}/) lists claude-opus-4-5-20251101. The date is kind not_before. It is the earliest possible shutdown, not the day the model stops.`,
       },
     ],
     citations: [
@@ -3147,7 +3148,7 @@ function jambaNov26Guide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePage
         heading: "Shutdown batch page",
         paragraphs: [
           `[/shutdowns/aws-bedrock-2026-11-26/](/shutdowns/aws-bedrock-2026-11-26/) lists both Jamba ids. [/shutdowns/aws-bedrock-2026-11-13/](/shutdowns/aws-bedrock-2026-11-13/) is the Claude 3 batch. It is not this Jamba date.`,
-          `A not-sooner-than date is a floor, so it does not get a batch page. Anthropic's deprecations table lists claude-opus-4-5-20251101 as Active, with Deprecated N/A and tentative retirement not sooner than November 24, 2026. The deprecation history on that page does not name a replacement, so there is no /shutdowns/anthropic-2026-11-24/ page. The walkthrough is [Claude Opus 4.5 will not shut down before November 24, 2026](/guides/${OPUS45_GUIDE_SLUG}/).`,
+          `A not-sooner-than date is a floor, not an exact shutdown day. Anthropic's deprecations table lists claude-opus-4-5-20251101 as Active, with Deprecated N/A and tentative retirement not sooner than November 24, 2026. The deprecation history on that page does not name a replacement. The date page is [/shutdowns/anthropic-2026-11-24/](/shutdowns/anthropic-2026-11-24/). The walkthrough is [Claude Opus 4.5 will not shut down before November 24, 2026](/guides/${OPUS45_GUIDE_SLUG}/).`,
         ],
         sources: [
           { label: "Amazon Bedrock model lifecycle (legacy)", url: BEDROCK_LEGACY },
