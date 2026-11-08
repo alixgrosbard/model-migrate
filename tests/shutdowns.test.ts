@@ -1,5 +1,7 @@
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { datasetGraph, shutdownEventGraph, websiteGraph } from "../src/jsonld.ts";
+import { sitemapSection } from "../src/lib/sitemaps.ts";
 import { deprecationsFeed } from "../src/lib/growth.ts";
 import { lastmodForUrl } from "../src/lib/lastmod.ts";
 import { llmsFull, llmsTxt } from "../src/lib/llms.ts";
@@ -75,6 +77,8 @@ describe("shutdown batches", () => {
     expect(events.some((event) => event.slug === "aws-bedrock-2026-11-27")).toBe(true);
     expect(events.some((event) => event.slug === "together-2026-11-06")).toBe(true);
     for (const slug of [
+      "openrouter-2026-11-13",
+      "openrouter-2026-11-16",
       "openrouter-2026-11-20",
       "openrouter-2026-11-30",
       "openrouter-2026-12-01",
@@ -88,10 +92,11 @@ describe("shutdown batches", () => {
       "azure-openai-2027-01-14",
       "azure-openai-2027-01-20",
       "google-vertex-2027-01-28",
+      "anthropic-2026-11-24",
+      "google-gemini-api-2026-12-03",
     ]) {
       expect(events.some((event) => event.slug === slug), slug).toBe(true);
     }
-    expect(events.some((event) => event.slug === "anthropic-2026-11-24")).toBe(false);
     for (const event of events) {
       const isNotBeforeBatch = NOT_BEFORE_SHUTDOWN_BATCHES.has(`${event.provider}|${event.date}`);
       const minimum = SMALL_SHUTDOWN_BATCHES.has(`${event.provider}|${event.date}`) || isNotBeforeBatch ? 1 : 3;
@@ -292,6 +297,93 @@ describe("shutdown batches", () => {
         migratePath: "/migrate/openai__gpt-4__to__openai__gpt-5-6-sol/",
       },
     ]);
+  });
+
+  it("publishes the four near-term date pages from stored rows", async () => {
+    const models = await loadModels();
+    const providers = await loadProviders();
+    const events = shutdownEvents(models);
+    const day = "2026-11-08";
+    const cases = [
+      {
+        slug: "openrouter-2026-11-13",
+        date: "2026-11-13",
+        kind: "not_before" as const,
+        ids: ["liquid/lfm-2.5-2.6b", "liquid/lfm-2.5-2.6b:free", "liquid/lfm-2.5-embedding-350m:free"],
+        titleIncludes: "LiquidAI: LFM2.5-2.6B",
+      },
+      {
+        slug: "openrouter-2026-11-16",
+        date: "2026-11-16",
+        kind: "not_before" as const,
+        ids: ["nvidia/llama-nemotron-embed-vl-1b-v2:free"],
+        titleIncludes: "NVIDIA: Llama Nemotron Embed VL 1B V2 (free)",
+      },
+      {
+        slug: "anthropic-2026-11-24",
+        date: "2026-11-24",
+        kind: "not_before" as const,
+        ids: ["claude-opus-4-5-20251101"],
+        titleIncludes: "claude-opus-4-5-20251101",
+      },
+      {
+        slug: "google-gemini-api-2026-12-03",
+        date: "2026-12-03",
+        kind: "exact" as const,
+        ids: ["gemini-omni-1.1-flash"],
+        titleIncludes: "gemini-omni-1.1-flash",
+      },
+    ];
+    const shutdownPage = readFileSync("src/pages/shutdowns/[slug].astro", "utf8");
+    const providerPage = readFileSync("src/pages/providers/[provider].astro", "utf8");
+    const links = events.map((event) => ({
+      title: shutdownEventTitle(providers.find((provider) => provider.id === event.provider)!.name, event, day),
+      path: shutdownEventPath(event),
+    }));
+    const text = llmsTxt("https://sunsetdiff.com", providers, [], { shutdowns: links });
+    for (const item of cases) {
+      const event = events.find((candidate) => candidate.slug === item.slug);
+      expect(event, item.slug).toBeTruthy();
+      if (!event) continue;
+      expect(event.date).toBe(item.date);
+      expect(event.models.map((model) => model.id).sort()).toEqual([...item.ids].sort());
+      expect(event.models.every((model) => model.shutdown_date === item.date && model.shutdown_date_kind === item.kind)).toBe(true);
+      const providerName = providers.find((provider) => provider.id === event.provider)!.name;
+      const title = batchDocumentTitle(providerName, event, day);
+      expect(title).toContain(item.titleIncludes);
+      expect(title).not.toBe(shutdownEventTitle(providerName, event, day));
+      expect(title.toLowerCase()).not.toContain("models shutting down");
+      const path = shutdownEventPath(event);
+      expect(sitemapSection(path)).toBe("sitemap-dates.xml");
+      expect(lastmodForUrl(`https://sunsetdiff.com${path}`)).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+      expect(text).toContain(path);
+      expect(providerPage).toContain(`href="${path}"`);
+      expect(shutdownPage).toContain('path: "/shutdowns/"');
+    }
+    expect(shutdownPage).toContain("claude-opus-4-5-retirement-november-24-2026");
+    expect(shutdownPage).toContain("openrouter-2026-11-13");
+    expect(shutdownPage).toContain("openrouter-2026-11-16");
+    expect(shutdownPage).toContain("openrouter-model-expirations-november-december-2026");
+    const anthropic = events.find((event) => event.slug === "anthropic-2026-11-24")!;
+    const gemini = events.find((event) => event.slug === "google-gemini-api-2026-12-03")!;
+    const anthropicLead = batchLead("Anthropic", anthropic, day);
+    expect(anthropicLead).toContain("not sooner than November 24, 2026");
+    expect(anthropicLead).not.toContain("Requests to these models start failing");
+    const geminiLead = batchLead("Google Gemini API", gemini, day);
+    expect(geminiLead).toContain("gemini-omni-1.1-flash");
+    expect(geminiLead).toContain("gemini-omni-1.2-flash");
+    expect(geminiLead).toContain("automatically routing");
+    expect(geminiLead).not.toContain("start failing");
+    for (const slug of [
+      "openrouter-2026-11-08",
+      "openrouter-2026-11-11",
+      "openrouter-2026-11-20",
+      "anthropic-2026-11-30",
+      "aws-bedrock-2026-11-13",
+      "github-copilot-2026-11-16",
+    ]) {
+      expect(events.some((event) => event.slug === slug), slug).toBe(true);
+    }
   });
 
   it("puts the pages in llms.txt, the feed, sitemap lastmod, and dataset JSON-LD", async () => {

@@ -26,9 +26,11 @@ const providers = await loadProviders();
 const migrations = await loadMigrations();
 const selected = upcomingShutdowns(models, day);
 const rows = toScheduleRows(selected, models, providers, migrations, day);
-const floorBatches = orderShutdownEvents(shutdownEvents(models), day).filter(
-  (event) => event.date >= day && NOT_BEFORE_SHUTDOWN_BATCHES.has(`${event.provider}|${event.date}`),
+const upcomingEvents = orderShutdownEvents(shutdownEvents(models), day).filter((event) => event.date >= day);
+const floorBatches = upcomingEvents.filter(
+  (event) => event.provider === "openrouter" && NOT_BEFORE_SHUTDOWN_BATCHES.has(`${event.provider}|${event.date}`),
 );
+const anthropicNov24 = upcomingEvents.find((event) => event.slug === "anthropic-2026-11-24");
 const groups = groupRowsByMonth(rows);
 const scope = upcomingScope(day);
 const intro = periodIntro(rows, providers, scope);
@@ -70,6 +72,12 @@ const name = "Upcoming AI model shutdowns";
           <a href={shutdownEventPath(event)}>{batchHeadline(providerDisplayName(providers, event.provider), event, day)}</a>
         </>
       ))}
+    </p>
+  ) : null}
+  {anthropicNov24 ? (
+    <p>
+      Anthropic lists November 24, 2026 as a not-sooner-than date.{" "}
+      <a href={shutdownEventPath(anthropicNov24)}>{batchHeadline(providerDisplayName(providers, anthropicNov24.provider), anthropicNov24, day)}</a>
     </p>
   ) : null}
   <p class="answer">{intro}</p>

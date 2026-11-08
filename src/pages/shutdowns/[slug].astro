@@ -58,11 +58,13 @@ const sourceUrl = extras.checkedUrl ?? provider.deprecations_url;
 const lastChecked = eventLastChecked(event);
 const alertPitch = "Get an email before your models shut down. Free.";
 const suggestBedrock = event.provider === "aws-bedrock" && event.date === "2026-11-13";
-const isNotBefore = NOT_BEFORE_SHUTDOWN_BATCHES.has(`${event.provider}|${event.date}`);
+const isOpenRouterFloor = event.provider === "openrouter" && NOT_BEFORE_SHUTDOWN_BATCHES.has(`${event.provider}|${event.date}`);
 const path = shutdownEventPath(event);
 const relatedErrors = requestErrorsForShutdown(event.provider, event.date);
 const shutdownGuide = guideBySlug(
-  event.slug === "openai-2026-12-01"
+  event.slug === "anthropic-2026-11-24"
+    ? "claude-opus-4-5-retirement-november-24-2026"
+    : event.slug === "openai-2026-12-01"
     ? "openai-image-model-shutdown-december-1-2026"
     : event.slug === "openai-2027-01-06" || event.slug === "openai-2027-01-20"
       ? "openai-audio-realtime-tts-shutdowns-january-2027"
@@ -128,6 +130,7 @@ const shutdownGuide = guideBySlug(
                                                   : event.slug === "together-2026-11-06"
                                                     ? "together-model-shutdowns-november-6-2026"
                                                     : event.slug === "openrouter-2026-11-08" || event.slug === "openrouter-2026-11-11"
+                                                      || event.slug === "openrouter-2026-11-13" || event.slug === "openrouter-2026-11-16"
                                                       || event.slug === "openrouter-2026-11-20" || event.slug === "openrouter-2026-11-30"
                                                       || event.slug === "openrouter-2026-12-01" || event.slug === "openrouter-2026-12-22"
                                                       || event.slug === "openrouter-2026-12-31"
@@ -238,7 +241,9 @@ function bedrockSuggestions(model: ModelRecord): { href: string; label: string }
   <p>
     {event.slug === "google-gemini-api-2026-12-01"
       ? "On this date Google routes gemini-2.5-pro and gemini-2.5-flash to other models and bills those rates. The rows below use the published shutdown date."
-      : isNotBefore
+      : event.slug === "anthropic-2026-11-24"
+        ? "Anthropic published this as a not-sooner-than date. It is the earliest day, not the day the model stops. The row below uses that published date."
+        : isOpenRouterFloor
         ? past
           ? "This date has passed. OpenRouter published it as a not-before date (the actual removal happens on or after that day). The rows below stay up because people still search after requests fail."
           : "OpenRouter published this as a not-before date: the actual removal happens on or after this day. The rows below use the published expiration_date."

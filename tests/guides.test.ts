@@ -2061,7 +2061,7 @@ describe("guides", () => {
     expectSourceChecked(opus?.sources[0]?.last_checked, "2026-11-02");
 
     const { shutdownEvents } = await import("../src/lib/shutdowns.ts");
-    expect(shutdownEvents(models).some((event) => event.slug === "anthropic-2026-11-24")).toBe(false);
+    expect(shutdownEvents(models).some((event) => event.slug === "anthropic-2026-11-24")).toBe(true);
     expect(guides.find((item) => item.slug === "claude-opus-4-5-shutdown-november-24-2026")).toBeUndefined();
 
     const guide = guides.find((item) => item.slug === "claude-opus-4-5-retirement-november-24-2026");
@@ -2104,8 +2104,8 @@ describe("guides", () => {
     expect(blob).toContain("Requests to retired models fail.");
     expect(blob).toContain("not_found_error");
     expect(blob).toContain("does not name not_found_error");
-    expect(blob).toContain("there is no /shutdowns/anthropic-2026-11-24/ page");
-    expect(blob).not.toContain("](/shutdowns/anthropic-2026-11-24/)");
+    expect(blob).toContain("](/shutdowns/anthropic-2026-11-24/)");
+    expect(blob).not.toContain("there is no /shutdowns/anthropic-2026-11-24/ page");
     expect(blob).not.toMatch(/[—–]/);
     const sample = guide.sections.flatMap((section) => section.codes ?? []).map((item) => item.code).join("\n");
     expect(sample).toContain('model="claude-opus-5-5"');
@@ -2121,8 +2121,8 @@ describe("guides", () => {
     expect(graph.some((node) => node["@type"] === "FAQPage")).toBe(true);
     const providerPage = readFileSync("src/pages/providers/[provider].astro", "utf8");
     expect(providerPage).toContain("/guides/claude-opus-4-5-retirement-november-24-2026/");
-    expect(providerPage).toContain("there is no /shutdowns/anthropic-2026-11-24/ page");
-    expect(providerPage).not.toContain('href="/shutdowns/anthropic-2026-11-24/"');
+    expect(providerPage).toContain('href="/shutdowns/anthropic-2026-11-24/"');
+    expect(providerPage).not.toContain("there is no /shutdowns/anthropic-2026-11-24/ page");
     const text = llmsTxt("https://sunsetdiff.com", [], []);
     const full = llmsFull("https://sunsetdiff.com", []);
     expect(text).toContain("/guides/claude-opus-4-5-retirement-november-24-2026/");
@@ -2155,7 +2155,7 @@ describe("guides", () => {
     const { shutdownEvents } = await import("../src/lib/shutdowns.ts");
     const slugs = shutdownEvents(models).map((event) => event.slug);
     expect(slugs).toContain("aws-bedrock-2026-11-26");
-    expect(slugs).not.toContain("anthropic-2026-11-24");
+    expect(slugs).toContain("anthropic-2026-11-24");
     expect(guides.find((item) => item.slug === "claude-opus-4-5-shutdown-november-24-2026")).toBeUndefined();
 
     const guide = guides.find((item) => item.slug === "amazon-bedrock-ai21-jamba-shutdown-november-26-2026");
@@ -2179,8 +2179,8 @@ describe("guides", () => {
     expect(blob).toContain("Not supported");
     expect(blob).toContain("August 26, 2026");
     expect(blob).toContain("](/shutdowns/aws-bedrock-2026-11-26/)");
-    expect(blob).toContain("there is no /shutdowns/anthropic-2026-11-24/ page");
-    expect(blob).not.toContain("](/shutdowns/anthropic-2026-11-24/)");
+    expect(blob).toContain("](/shutdowns/anthropic-2026-11-24/)");
+    expect(blob).not.toContain("there is no /shutdowns/anthropic-2026-11-24/ page");
     expect(blob).not.toContain("ResourceNotFoundException");
     expect(blob).toContain("https://docs.aws.amazon.com/bedrock/latest/userguide/model-lifecycle-legacy.html");
     expect(blob).toContain("https://docs.aws.amazon.com/bedrock/latest/userguide/model-lifecycle.html");
@@ -2199,8 +2199,8 @@ describe("guides", () => {
     const shutdownPage = readFileSync("src/pages/shutdowns/[slug].astro", "utf8");
     expect(providerPage).toContain("/guides/amazon-bedrock-ai21-jamba-shutdown-november-26-2026/");
     expect(providerPage).not.toContain("there is no /shutdowns/aws-bedrock-2026-11-26/ page");
-    expect(providerPage).toContain("there is no /shutdowns/anthropic-2026-11-24/ page");
-    expect(providerPage).not.toContain('href="/shutdowns/anthropic-2026-11-24/"');
+    expect(providerPage).toContain('href="/shutdowns/anthropic-2026-11-24/"');
+    expect(providerPage).not.toContain("there is no /shutdowns/anthropic-2026-11-24/ page");
     expect(shutdownPage).toContain("amazon-bedrock-ai21-jamba-shutdown-november-26-2026");
     const text = llmsTxt("https://sunsetdiff.com", [], []);
     const full = llmsFull("https://sunsetdiff.com", []);
@@ -2357,12 +2357,14 @@ describe("guides", () => {
     const slugs = shutdownEvents(models).map((event) => event.slug);
     expect(slugs).toContain("openrouter-2026-11-08");
     expect(slugs).toContain("openrouter-2026-11-11");
+    expect(slugs).toContain("openrouter-2026-11-13");
+    expect(slugs).toContain("openrouter-2026-11-16");
     expect(slugs).toContain("openrouter-2026-11-20");
     expect(slugs).toContain("openrouter-2026-11-30");
     expect(slugs).toContain("openrouter-2026-12-01");
     expect(slugs).toContain("openrouter-2026-12-22");
     expect(slugs).toContain("openrouter-2026-12-31");
-    expect(slugs).not.toContain("anthropic-2026-11-24");
+    expect(slugs).toContain("anthropic-2026-11-24");
 
     const guide = guides.find((item) => item.slug === OPENROUTER_NOV_DEC_GUIDE_SLUG);
     expect(guide).toBeTruthy();
