@@ -82,8 +82,10 @@ const shutdownGuide = guideBySlug(
           ? "amazon-bedrock-claude-3-shutdown-november-13-2026"
           : event.slug === "aws-bedrock-2026-11-26"
             ? "amazon-bedrock-ai21-jamba-shutdown-november-26-2026"
-            : event.slug === "aws-bedrock-2026-11-27"
+              : event.slug === "aws-bedrock-2026-11-27"
               ? "amazon-bedrock-claude-3-haiku-sonnet-ca-central-1-november-27-2026"
+              : event.slug === "aws-bedrock-2027-01-08"
+                ? "amazon-bedrock-claude-opus-4-1-shutdown-january-8-2027"
               : event.slug === "aws-bedrock-2026-11-30"
                 ? "amazon-bedrock-marengo-embed-v2-7-shutdown-november-30-2026"
                 : event.slug === "anthropic-2026-11-30"
@@ -91,21 +93,23 @@ const shutdownGuide = guideBySlug(
                   : event.slug === "azure-openai-2026-11-15" || event.slug === "azure-openai-2026-11-17"
                     || event.slug === "azure-openai-2026-12-08"
                     || event.slug === "azure-openai-2026-12-16"
-                    || event.slug === "azure-openai-2027-01-12"
                     ? "azure-openai-retirements-november-december-2026"
                     : event.slug === "azure-openai-2026-11-19"
                       ? "azure-openai-o-series-retirement-november-19-2026"
                       : event.slug === "azure-openai-2026-12-15"
                         ? "azure-openai-retirements-november-december-2026"
-                        : event.slug === "azure-openai-2027-01-14"
-                          ? "azure-openai-gpt-4-1-gpt-4o-retirement-april-14-2027"
+                        : event.slug === "azure-openai-2027-01-12"
+                          || event.slug === "azure-openai-2027-01-14"
+                          || event.slug === "azure-openai-2027-01-20"
+                          || event.slug === "azure-openai-2027-02-09"
+                          ? "azure-openai-retirements-january-february-2027"
                         : event.slug === "azure-openai-2027-04-14"
                           ? "azure-openai-gpt-4-1-gpt-4o-retirement-april-14-2027"
                           : event.slug === "azure-openai-2027-06-15"
                             ? "azure-openai-gpt-4o-mini-tts-transcribe-realtime-audio-retirement-june-15-2027"
                             : event.slug === "azure-openai-2027-07-13"
                               ? "azure-openai-gpt-5-1-gpt-5-mini-codex-retirement-july-13-2027"
-                              : event.slug === "azure-openai-2027-08-24" || event.slug === "azure-openai-2027-01-20"
+                              : event.slug === "azure-openai-2027-08-24"
                                 ? "azure-openai-gpt-5-3-codex-audio-realtime-retirement-august-24-2027"
                                 : event.slug === "mistral-2027-04-30"
                                   ? "mistral-large-3-medium-3-5-voxtral-retirement-april-30-2027"
@@ -396,6 +400,7 @@ function bedrockSuggestions(model: ModelRecord): { href: string; label: string }
       <p>
         Claude Opus 4.1 reaches end of life on January 8, 2027 in the Regions on its <a href="/models/aws-bedrock/anthropic-claude-opus-4-1-20250805-v1-0/">model page</a>.
         <a href="/shutdowns/aws-bedrock-2027-01-08/">January 8, 2027 shutdowns</a>.
+        <a href="/guides/amazon-bedrock-claude-opus-4-1-shutdown-january-8-2027/">Claude Opus 4.1 shutdown guide</a>.
         Claude Sonnet 4.5 reaches end of life on April 8, 2027 in the Regions on its <a href="/models/aws-bedrock/anthropic-claude-sonnet-4-5-20250929-v1-0/">model page</a>.
       </p>
     </>

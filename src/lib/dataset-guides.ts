@@ -69,6 +69,11 @@ export const BEDROCK_NOV27_SHUTDOWN_DATE = "2026-11-27";
 export const BEDROCK_NOV27_GUIDE_SLUG = "amazon-bedrock-claude-3-haiku-sonnet-ca-central-1-november-27-2026";
 const BEDROCK_NOV27_CHECKED = "2026-11-05";
 
+/** Checked against the Bedrock legacy lifecycle page. The slug uses this date. */
+export const BEDROCK_OPUS41_SHUTDOWN_DATE = "2027-01-08";
+export const BEDROCK_OPUS41_GUIDE_SLUG = "amazon-bedrock-claude-opus-4-1-shutdown-january-8-2027";
+const BEDROCK_OPUS41_ID = "anthropic.claude-opus-4-1-20250805-v1:0";
+
 /** Checked against the Bedrock legacy lifecycle page on 2026-11-02. The slug uses this date. */
 export const BEDROCK_JAMBA_NOV26_SHUTDOWN_DATE = "2026-11-26";
 export const BEDROCK_JAMBA_NOV26_GUIDE_SLUG = "amazon-bedrock-ai21-jamba-shutdown-november-26-2026";
@@ -92,6 +97,26 @@ export const AZURE_NOV_DEC_CHECKED = "2026-11-02";
 export const AZURE_CHAT_DEC8_DATE = "2026-12-08";
 export const AZURE_SPEECH_DATE = "2026-12-15";
 export const AZURE_IMAGE_15_DATE = "2026-12-16";
+
+/** Checked against the Azure OpenAI retirement schedule. The slug names the window. */
+export const AZURE_JAN12_SHUTDOWN_DATE = "2027-01-12";
+export const AZURE_JAN14_SHUTDOWN_DATE = "2027-01-14";
+export const AZURE_JAN20_SHUTDOWN_DATE = "2027-01-20";
+export const AZURE_FEB9_SHUTDOWN_DATE = "2027-02-09";
+export const AZURE_JAN_FEB_GUIDE_SLUG = "azure-openai-retirements-january-february-2027";
+const AZURE_JAN_FEB_IDS = [
+  "gpt-chat-latest-2026-08-06",
+  "gpt-4o-2024-05-13",
+  "gpt-realtime-2-2026-05-06",
+  "gpt-5-2025-08-07",
+  "gpt-5-nano-2025-08-07",
+] as const;
+const AZURE_JAN_FEB_DATES = new Set([
+  AZURE_JAN12_SHUTDOWN_DATE,
+  AZURE_JAN14_SHUTDOWN_DATE,
+  AZURE_JAN20_SHUTDOWN_DATE,
+  AZURE_FEB9_SHUTDOWN_DATE,
+]);
 
 /** Checked against the Azure OpenAI retirement schedule and lifecycle page on 2026-11-04. */
 export const AZURE_APRIL14_SHUTDOWN_DATE = "2027-04-14";
@@ -430,6 +455,13 @@ export function isBedrockNov27Shutdown(model: ModelRecord): boolean {
     && model.shutdown_date_kind === "exact";
 }
 
+export function isBedrockOpus41Jan8Shutdown(model: ModelRecord): boolean {
+  return model.provider === "aws-bedrock"
+    && model.id === BEDROCK_OPUS41_ID
+    && model.shutdown_date === BEDROCK_OPUS41_SHUTDOWN_DATE
+    && model.shutdown_date_kind === "exact";
+}
+
 export function isBedrockJambaNov26Shutdown(model: ModelRecord): boolean {
   return model.provider === "aws-bedrock"
     && (JAMBA_IDS as readonly string[]).includes(model.id)
@@ -469,6 +501,13 @@ export function isAzureChatLatestNov17(model: ModelRecord): boolean {
 
 export function isAzureNovDecRetirement(model: ModelRecord): boolean {
   return model.provider === "azure-openai" && AZURE_NOV_DEC_IDS.has(model.id);
+}
+
+export function isAzureJanFebRetirement(model: ModelRecord): boolean {
+  return model.provider === "azure-openai"
+    && (AZURE_JAN_FEB_IDS as readonly string[]).includes(model.id)
+    && model.shutdown_date_kind === "exact"
+    && AZURE_JAN_FEB_DATES.has(model.shutdown_date ?? "");
 }
 
 export function isAzureApril14Retirement(model: ModelRecord): boolean {
@@ -1333,6 +1372,8 @@ export function datasetShutdownGuides(catalog: ModelRecord[] = readCatalog()): G
   if (bedrock.length) pages.push(bedrockGuide(bedrock, catalog));
   const bedrockNov27 = rowsFor(isBedrockNov27Shutdown, catalog);
   if (bedrockNov27.length) pages.push(bedrockNov27Guide(bedrockNov27, catalog));
+  const bedrockOpus41 = rowsFor(isBedrockOpus41Jan8Shutdown, catalog);
+  if (bedrockOpus41.length) pages.push(bedrockOpus41Guide(bedrockOpus41, catalog));
   const jamba = rowsFor(isBedrockJambaNov26Shutdown, catalog);
   if (jamba.length) pages.push(jambaNov26Guide(jamba, catalog));
   const marengo = rowsFor(isBedrockMarengoNov30Shutdown, catalog);
@@ -1343,6 +1384,8 @@ export function datasetShutdownGuides(catalog: ModelRecord[] = readCatalog()): G
   if (azure.length) pages.push(azureOSeriesGuide(azure, catalog));
   const azureNovDec = rowsFor(isAzureNovDecRetirement, catalog);
   if (azureNovDec.length) pages.push(azureNovDecGuide(azureNovDec, catalog));
+  const azureJanFeb = rowsFor(isAzureJanFebRetirement, catalog);
+  if (azureJanFeb.length) pages.push(azureJanFebGuide(azureJanFeb, catalog));
   const azureApril14 = rowsFor(isAzureApril14Retirement, catalog);
   if (azureApril14.length) pages.push(azureApril14Guide(azureApril14, catalog));
   const azureJuly13 = rowsFor(isAzureJuly13Retirement, catalog);
@@ -1575,6 +1618,7 @@ function januaryGuide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePage {
       { href: `/guides/${DECEMBER_1_IMAGE_GUIDE_SLUG}/`, label: "OpenAI image models shutting down on December 1, 2026" },
       { href: `/guides/${DECEMBER_11_GUIDE_SLUG}/`, label: "OpenAI shutdowns on December 11, 2026" },
       { href: `/guides/${JANUARY_2027_AUDIO_GUIDE_SLUG}/`, label: "OpenAI speech, audio, and realtime shutdowns in January 2027" },
+      { href: `/guides/${AZURE_JAN_FEB_GUIDE_SLUG}/`, label: "Azure OpenAI retirements from January 12 to February 9, 2027" },
       { href: `/guides/${FEBRUARY_26_TRANSCRIBE_GUIDE_SLUG}/`, label: "whisper-1 and GPT-4o transcribe shutdown on February 26, 2027" },
       { href: `/guides/${APRIL_1_2027_GUIDE_SLUG}/`, label: "GPT-5.1, gpt-5.3-codex, and gpt-5.4-nano shutdown on April 1, 2027" },
       { href: "/guides/model-aliases-vs-pinned-snapshots/", label: "Model aliases vs pinned snapshots" },
@@ -1916,6 +1960,7 @@ function januaryAudioGuide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePa
       { href: `/guides/${DECEMBER_1_IMAGE_GUIDE_SLUG}/`, label: "OpenAI image models shutting down on December 1, 2026" },
       { href: `/guides/${DECEMBER_11_GUIDE_SLUG}/`, label: "OpenAI shutdowns on December 11, 2026" },
       { href: `/guides/${JANUARY_2027_GPT4_GUIDE_SLUG}/`, label: "GPT-4.1 and GPT-4o shutdown in January 2027" },
+      { href: `/guides/${AZURE_JAN_FEB_GUIDE_SLUG}/`, label: "Azure OpenAI retirements from January 12 to February 9, 2027" },
       { href: `/guides/${FEBRUARY_26_TRANSCRIBE_GUIDE_SLUG}/`, label: "whisper-1 and GPT-4o transcribe shutdown on February 26, 2027" },
       { href: `/guides/${APRIL_1_2027_GUIDE_SLUG}/`, label: "GPT-5.1, gpt-5.3-codex, and gpt-5.4-nano shutdown on April 1, 2027" },
       { href: "/models/openai/gpt-realtime-2-1-mini/", label: "gpt-realtime-2.1-mini" },
@@ -2988,6 +3033,7 @@ function bedrockNov27Guide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePa
     ],
     related: [
       { href: "/shutdowns/aws-bedrock-2026-11-27/", label: `Bedrock shutdowns on ${when}` },
+      { href: `/guides/${BEDROCK_OPUS41_GUIDE_SLUG}/`, label: `Amazon Bedrock Claude Opus 4.1 shutdown on ${longDate(BEDROCK_OPUS41_SHUTDOWN_DATE)}` },
       { href: `/guides/${BEDROCK_NOV13_GUIDE_SLUG}/`, label: "Amazon Bedrock Claude 3 shutdown on November 13, 2026" },
       { href: "/providers/aws-bedrock/", label: "Amazon Bedrock provider page" },
       { href: "/errors/bedrock-model-version-has-reached-the-end-of-its-life/", label: "This model version has reached the end of its life" },
@@ -3028,6 +3074,202 @@ function bedrockNov27Guide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePa
       BEDROCK_HAIKU_CARD,
       "https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-anthropic-claude-3-sonnet.html",
       BEDROCK_REGIONS,
+      SONNET_MIGRATION,
+      CLAUDE_VERSIONING,
+    ],
+  };
+}
+
+function excerptMonthDates(model: ModelRecord): string[] {
+  const excerpt = model.sources.map((source) => source.excerpt).join(" ");
+  return excerpt.match(/[A-Z][a-z]+ \d{1,2}, \d{4}/g) ?? [];
+}
+
+function newestRowCheck(rows: ModelRecord[]): string {
+  return rows.flatMap((model) => model.sources.map((source) => source.last_checked)).sort().at(-1) ?? BEDROCK_OPUS41_SHUTDOWN_DATE;
+}
+
+function bedrockOpus41Guide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePage {
+  const ordered = [...rows].sort((a, b) => a.id.localeCompare(b.id) || a.slug.localeCompare(b.slug));
+  const row = ordered[0];
+  const when = longDate(row?.shutdown_date ?? BEDROCK_OPUS41_SHUTDOWN_DATE);
+  const checked = newestRowCheck(ordered);
+  const datesInExcerpt = row ? excerptMonthDates(row) : [];
+  const anthropic = catalog.find((model) => model.provider === "anthropic" && model.id === "claude-opus-4-1-20250805");
+  const copilot = catalog.find((model) => model.provider === "github-copilot" && model.id === "Claude Opus 4.1");
+  const nov13 = rowsFor(isBedrockNov13Shutdown, catalog);
+  const nov27 = rowsFor(isBedrockNov27Shutdown, catalog);
+  const regions = row?.region_or_platform_notes?.replace(/\.$/, "") ?? "Not published";
+  const otherProviderLines = [anthropic, copilot].filter((model): model is ModelRecord => Boolean(model)).map((model) => {
+    const date = model.shutdown_date ?? "Not published";
+    const who = model.provider === "anthropic" ? "The Claude API row" : model.provider === "github-copilot" ? "The GitHub Copilot row" : `The ${model.provider} row`;
+    return `${who} ${modelLink(model)} stores status ${model.status}, shutdown date ${date}, and replacement ${replacementText(model, catalog)}`;
+  });
+  const sources = [
+    { label: "Amazon Bedrock model lifecycle (legacy)", url: BEDROCK_LEGACY },
+    { label: "Amazon Bedrock model lifecycle", url: "https://docs.aws.amazon.com/bedrock/latest/userguide/model-lifecycle.html" },
+  ];
+  const storedDates = row
+    ? `deprecation_date ${row.deprecation_date ?? "Not published"} and shutdown_date ${row.shutdown_date ?? "Not published"}`
+    : "no row";
+  return {
+    slug: BEDROCK_OPUS41_GUIDE_SLUG,
+    title: `Amazon Bedrock Claude Opus 4.1 shutdown on ${when} | SunsetDiff`,
+    description: `Bedrock ${BEDROCK_OPUS41_ID} reaches end of life on ${row?.shutdown_date ?? BEDROCK_OPUS41_SHUTDOWN_DATE}. The stored status is ${row?.status ?? "Not published"}. The replacement list on the row is empty.`,
+    h1: `Amazon Bedrock Claude Opus 4.1 shutdown on ${when}`,
+    summary: `The Bedrock id in the dataset with shutdown date ${row?.shutdown_date ?? BEDROCK_OPUS41_SHUTDOWN_DATE}, the Regions stored on the row, and the empty replacement list.`,
+    answer: `The dataset has ${ordered.length} Amazon Bedrock ${ordered.length === 1 ? "id" : "ids"} with shutdown date ${row?.shutdown_date ?? BEDROCK_OPUS41_SHUTDOWN_DATE}: ${idList(ordered)}. The stored status is ${row?.status ?? "Not published"}. The Regions note is ${regions}. The replacement list is empty. The lifecycle page says: "${BEDROCK_MIGRATE}" It does not name a model ID.`,
+    checked,
+    steps: [
+      {
+        name: "Read the id and the Regions",
+        text: `The table is every Bedrock id in the dataset whose shutdown date is ${row?.shutdown_date ?? BEDROCK_OPUS41_SHUTDOWN_DATE} and whose id is ${BEDROCK_OPUS41_ID}. The Regions column is region_or_platform_notes. A Region that is not on that note keeps its own date. Use ListFoundationModels or GetFoundationModel in the Region you call and read modelLifecycle.`,
+      },
+      {
+        name: "Find the id in your code",
+        text: "Search the repository for the model id. Also check SDK defaults, framework configs, and agent configs. A library can send an id you never wrote down.",
+      },
+      {
+        name: "Do not invent a replacement",
+        text: "The replacements list on this row is empty. The lifecycle page tells you to move to an Active model before the EOL date. It does not name the model ID. Pick the id you will call. Do not copy a replacement from the Claude API or from GitHub Copilot. Those are different providers.",
+      },
+      {
+        name: "Test before the date",
+        text: `Call the id you picked from the Regions on this row, with the prompts you send now. Do that before ${when}.`,
+      },
+    ],
+    sections: [
+      {
+        heading: "The model shutting down",
+        paragraphs: [
+          `This row is every Amazon Bedrock model in the dataset with id ${BEDROCK_OPUS41_ID} and shutdown date ${row?.shutdown_date ?? BEDROCK_OPUS41_SHUTDOWN_DATE}. The model id links to its SunsetDiff model page. The Legacy date column is the deprecation_date stored on the row. The Regions column is region_or_platform_notes. The replacement column is the official replacement stored on the row. Not published means the field is empty.`,
+          `The stored status is ${row?.status ?? "Not published"}. The lifecycle page says: "${BEDROCK_ONLY_DATES}" It also says: "${BEDROCK_REGION_SPLIT}"`,
+          datesInExcerpt.length
+            ? `The source excerpt stored on the row lists ${englishJoin(datesInExcerpt)}. SunsetDiff stores ${storedDates}. A date in that excerpt that is not one of those two fields is not stored as its own field. This guide does not assign it a role.`
+            : "The source excerpt on this row does not list a month-name date.",
+        ],
+        table: {
+          caption: `${ordered.length} Bedrock model ${ordered.length === 1 ? "id" : "ids"} with shutdown date ${row?.shutdown_date ?? BEDROCK_OPUS41_SHUTDOWN_DATE}.`,
+          headers: ["Model id", "Legacy date stored", "Shutdown date", "Regions", "Recommended replacement"],
+          rows: bedrockTable(ordered, catalog),
+        },
+        sources,
+      },
+      {
+        heading: "No replacement is stored",
+        paragraphs: [
+          `The lifecycle page says: "${BEDROCK_MIGRATE}" ${replacementFaq(ordered, catalog)} This guide does not fill a replacement in.`,
+          "The legacy page also says to migrate to an Active model before the EOL date. It does not print the model ID to send.",
+        ],
+        sources,
+      },
+      {
+        heading: "Other providers use other dates",
+        paragraphs: [
+          otherProviderLines.length
+            ? `${otherProviderLines.join(". ")}. Those rows are not Amazon Bedrock. Their replacement is not the replacement for ${BEDROCK_OPUS41_ID}.`
+            : "The dataset has no Claude API or GitHub Copilot row for Claude Opus 4.1.",
+          "Only the dates on the Bedrock lifecycle page apply to Bedrock usage. A date on the Claude API, or on GitHub Copilot, is a different provider.",
+        ],
+        sources: [
+          ...sources,
+          ...(anthropic?.sources[0] ? [{ label: anthropic.sources[0].label, url: anthropic.sources[0].url }] : []),
+          ...(copilot?.sources[0] ? [{ label: copilot.sources[0].label, url: copilot.sources[0].url }] : []),
+        ],
+      },
+      {
+        heading: "What the lifecycle page says happens",
+        paragraphs: [
+          `The lifecycle page says: "${BEDROCK_FAIL}" It does not print an exception name for this row.`,
+          `While a model is Legacy, the lifecycle page says: "${BEDROCK_LEGACY_ACCESS}" And: "${BEDROCK_NO_THROUGHPUT}"`,
+          `The same page says: "${JAMBA_EXTENDED}" It does not print a price for this id. This guide does not invent one.`,
+          nov13.length || nov27.length
+            ? `Other Bedrock Claude dates in the dataset are separate rows. ${nov13.length ? `November 13, 2026 has ${nov13.length} ids on [Amazon Bedrock Claude 3 shutdown on November 13, 2026](/guides/${BEDROCK_NOV13_GUIDE_SLUG}/).` : ""} ${nov27.length ? `November 27, 2026 has ${nov27.length} ids on [Amazon Bedrock Claude 3 Haiku and Sonnet ca-central-1 shutdown on November 27, 2026](/guides/${BEDROCK_NOV27_GUIDE_SLUG}/).` : ""} Those ids are not ${BEDROCK_OPUS41_ID}.`
+            : "The dataset has no other Bedrock Claude rows on November 13 or November 27, 2026.",
+        ],
+        sources,
+      },
+      {
+        heading: "Find the model id in your code",
+        paragraphs: [
+          "Search the repository for the id in the table. A hit is a candidate, not proof the call still runs in the Regions on the row. [How to find every model ID in your codebase](/guides/find-model-ids-in-your-codebase/) covers SDK argument names. The [scan page](/scan/) builds a search from dataset ids that have a shutdown date.",
+          "The batch of this row is [Amazon Bedrock shutdowns on " + when + "](/shutdowns/aws-bedrock-" + (row?.shutdown_date ?? BEDROCK_OPUS41_SHUTDOWN_DATE) + "/). The [Amazon Bedrock provider page](/providers/aws-bedrock/) lists the other stored rows.",
+        ],
+        codes: [{
+          caption: "ripgrep",
+          code: bedrockSearch(ordered.map((model) => model.id)),
+        }],
+        sources,
+      },
+      {
+        heading: "Request fields on a newer Claude model",
+        paragraphs: [
+          "Changing the model id is not the whole request. Two SunsetDiff pages record Anthropic's rules for newer Claude models. They are not an exception name for this Bedrock row. AWS did not name the id to send.",
+          "A non-default temperature, top_p, or top_k on claude-sonnet-5-5 returns HTTP 400. The sentence and the fix are on [temperature is deprecated for this model](/errors/claude-temperature-is-deprecated-for-this-model/). Source: Anthropic's Sonnet 5.5 migration guide.",
+          `API version 2026-10-21 returns a 400 for temperature, top_p, and top_k on every model, even at the default value. That page is [API version 2026-10-21 sampling parameters](/errors/claude-api-2026-10-21-sampling-params-400/). The versioning page says: "${BEDROCK_VERSIONING}"`,
+        ],
+        sources: [
+          { label: "Claude Sonnet 5.5 migration guide", url: SONNET_MIGRATION },
+          { label: "Claude API versioning", url: CLAUDE_VERSIONING },
+        ],
+      },
+      {
+        heading: "Test before the cutoff",
+        paragraphs: [
+          `The lifecycle page tells you to update application code before the EOL date. It does not name the id to send. Pick the id you will call, then send one real prompt from a Region on this row before ${when}. Read modelLifecycle in that Region first.`,
+          "The [pre-migration test checklist](/guides/pre-migration-test-checklist/) is the longer list: evals, rejected fields, token limits, tools, price, and latency. This Bedrock row does not store a price.",
+        ],
+        sources,
+      },
+    ],
+    related: [
+      { href: `/shutdowns/aws-bedrock-${row?.shutdown_date ?? BEDROCK_OPUS41_SHUTDOWN_DATE}/`, label: `Bedrock shutdowns on ${when}` },
+      { href: `/models/aws-bedrock/${row?.slug ?? "anthropic-claude-opus-4-1-20250805-v1-0"}/`, label: row?.display_name ?? BEDROCK_OPUS41_ID },
+      { href: "/providers/aws-bedrock/", label: "Amazon Bedrock provider page" },
+      ...(anthropic ? [{ href: `/models/${anthropic.provider}/${anthropic.slug}/`, label: `Claude API ${anthropic.id}` }] : []),
+      ...(copilot ? [{ href: `/models/${copilot.provider}/${copilot.slug}/`, label: `GitHub Copilot ${copilot.id}` }] : []),
+      { href: `/guides/${BEDROCK_NOV27_GUIDE_SLUG}/`, label: "Amazon Bedrock Claude 3 Haiku and Sonnet ca-central-1 shutdown on November 27, 2026" },
+      { href: `/guides/${BEDROCK_NOV13_GUIDE_SLUG}/`, label: "Amazon Bedrock Claude 3 shutdown on November 13, 2026" },
+      { href: "/errors/bedrock-model-version-has-reached-the-end-of-its-life/", label: "This model version has reached the end of its life" },
+      { href: "/guides/find-model-ids-in-your-codebase/", label: "Find model ids in your codebase" },
+      { href: "/guides/pre-migration-test-checklist/", label: "Pre-migration test checklist" },
+      { href: "/scan/", label: "Scan retiring ids" },
+    ],
+    faqs: [
+      {
+        question: `Which Bedrock model id reaches end of life on ${when}?`,
+        answer: `The dataset lists ${idList(ordered)} with shutdown date ${row?.shutdown_date ?? BEDROCK_OPUS41_SHUTDOWN_DATE}. The stored status is ${row?.status ?? "Not published"}. The Regions note is ${regions}.`,
+      },
+      {
+        question: "What is the official recommended replacement?",
+        answer: `Not published. ${replacementFaq(ordered, catalog)} The lifecycle page says: "${BEDROCK_MIGRATE}" It does not name a model ID.`,
+      },
+      {
+        question: "What are the other dates in the source excerpt?",
+        answer: datesInExcerpt.length
+          ? `The source excerpt lists ${englishJoin(datesInExcerpt)}. SunsetDiff stores ${storedDates}. This guide does not store the other date as its own field.`
+          : "The source excerpt on this row does not list a month-name date.",
+      },
+      {
+        question: "Does the Claude API or GitHub Copilot use this date?",
+        answer: otherProviderLines.length
+          ? `${otherProviderLines.join(". ")}. Those shutdown dates are not the Bedrock date. Their replacements are not stored on the Bedrock row.`
+          : "The dataset has no Claude API or GitHub Copilot row for Claude Opus 4.1.",
+      },
+      {
+        question: "What does Bedrock say happens after end of life?",
+        answer: `The lifecycle page says: "${BEDROCK_FAIL}" It does not print an exception name for this row. While the model is Legacy, it says: "${BEDROCK_LEGACY_ACCESS}"`,
+      },
+      {
+        question: "What should I check besides the model id?",
+        answer: `On claude-sonnet-5-5, a non-default temperature, top_p, or top_k returns HTTP 400. See [temperature is deprecated for this model](/errors/claude-temperature-is-deprecated-for-this-model/). API version 2026-10-21 rejects those three fields on every model, even at the default. The versioning page says: "${BEDROCK_VERSIONING}" See [API version 2026-10-21 sampling parameters](/errors/claude-api-2026-10-21-sampling-params-400/). AWS did not name the replacement id for this Bedrock row.`,
+      },
+    ],
+    citations: [
+      BEDROCK_LEGACY,
+      "https://docs.aws.amazon.com/bedrock/latest/userguide/model-lifecycle.html",
+      ...(anthropic?.sources[0] ? [anthropic.sources[0].url] : []),
+      ...(copilot?.sources[0] ? [copilot.sources[0].url] : []),
       SONNET_MIGRATION,
       CLAUDE_VERSIONING,
     ],
@@ -4251,6 +4493,7 @@ function azureNovDecGuide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePag
       { href: "/shutdowns/azure-openai-2026-12-15/", label: "Azure OpenAI shutdowns on December 15, 2026" },
       { href: "/shutdowns/azure-openai-2026-12-16/", label: "Azure OpenAI shutdowns on December 16, 2026" },
       { href: "/shutdowns/azure-openai-2027-01-12/", label: "Azure OpenAI shutdowns on January 12, 2027" },
+      { href: `/guides/${AZURE_JAN_FEB_GUIDE_SLUG}/`, label: "Azure OpenAI retirements from January 12 to February 9, 2027" },
       { href: "/providers/azure-openai/", label: "Azure OpenAI provider page" },
       { href: "/errors/azure-openai-retired-model-410-gone/", label: "Azure OpenAI retired models return 410 Gone" },
       { href: `/guides/${AZURE_NOV19_GUIDE_SLUG}/`, label: "Azure OpenAI o-series retirement on November 19, 2026" },
@@ -4294,6 +4537,281 @@ function azureNovDecGuide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePag
       },
     ],
     citations: [AZURE_SCHEDULE, AZURE_RETIREMENTS, AZURE_WORKING, AZURE_VERSIONS, AZURE_MIGRATION],
+  };
+}
+
+function azureScheduleReplacementCell(model: ModelRecord): string | null {
+  const excerpt = model.sources.find((source) => source.url === AZURE_SCHEDULE)?.excerpt ?? "";
+  const cell = excerpt.split("|").map((part) => part.trim()).at(-1) ?? "";
+  if (!cell || cell === "—" || cell === "–" || cell === "-") return null;
+  return cell;
+}
+
+function azureModelForScheduleCell(cell: string, catalog: ModelRecord[]): ModelRecord | undefined {
+  const version = cell.match(/\(([^)]+)\)/)?.[1]?.trim();
+  const name = cell.replace(/\s*\([^)]*\)\s*/g, "").trim();
+  if (!name || !/^[A-Za-z0-9][A-Za-z0-9._:-]*$/.test(name)) return undefined;
+  const dated = version && /^\d{4}-\d{2}-\d{2}$/.test(version) ? `${name}-${version}` : null;
+  if (dated) {
+    const match = catalog.find((model) => model.provider === "azure-openai" && model.id === dated);
+    if (match) return match;
+  }
+  return catalog.find((model) => model.provider === "azure-openai" && model.id === name);
+}
+
+function azureJanFebGuide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePage {
+  const ordered = [...rows].sort((a, b) => (a.shutdown_date ?? "").localeCompare(b.shutdown_date ?? "") || a.id.localeCompare(b.id));
+  const first = ordered[0]?.shutdown_date ?? AZURE_JAN12_SHUTDOWN_DATE;
+  const last = ordered.at(-1)?.shutdown_date ?? AZURE_FEB9_SHUTDOWN_DATE;
+  const firstWhen = longDate(first);
+  const lastWhen = longDate(last);
+  const checked = newestRowCheck(ordered);
+  const dates = [...new Set(ordered.map((model) => model.shutdown_date).filter((date): date is string => Boolean(date)))].sort();
+  const batchLines = dates.map((date) => azureBatchSentence(date, azureExactCount(catalog, date)));
+  const byDate = dates
+    .map((date) => {
+      const group = ordered.filter((model) => model.shutdown_date === date);
+      if (!group.length) return "";
+      return `${date}: ${group.map((model) => `${model.id} (${azureScheduleLifecycle(model)})`).join(", ")}`;
+    })
+    .filter(Boolean)
+    .join(". ");
+  const named = ordered.filter((model) => publishedReplacementIds(model).length > 0);
+  const empty = ordered.filter((model) => publishedReplacementIds(model).length === 0);
+  const unstored = ordered.flatMap((model) => {
+    if (publishedReplacementIds(model).length > 0) return [];
+    const cell = azureScheduleReplacementCell(model);
+    if (!cell) return [];
+    return [{ model, cell, target: azureModelForScheduleCell(cell, catalog) }];
+  });
+  const previewEmpty = ordered.filter((model) => azureScheduleLifecycle(model) === "Preview" && publishedReplacementIds(model).length === 0);
+  const previewNamed = ordered.filter((model) => azureScheduleLifecycle(model) === "Preview" && publishedReplacementIds(model).length > 0);
+  const deprecated = ordered.filter((model) => azureScheduleLifecycle(model) === "Deprecated");
+  const gaEmpty = ordered.filter((model) => azureScheduleLifecycle(model) === "GA" && publishedReplacementIds(model).length === 0);
+  const realtimeDated = catalog.find((model) => model.provider === "azure-openai" && model.id === "gpt-realtime-2.1-2026-07-07");
+  const realtimeAlias = catalog.find((model) => model.provider === "azure-openai" && model.id === "gpt-realtime-2.1");
+  const openaiJan = catalog.filter(isJanuary2027Gpt4Shutdown);
+  const openaiJan20 = catalog.filter((model) => isJanuary2027AudioShutdown(model) && model.shutdown_date === JANUARY_20_AUDIO_SHUTDOWN_DATE);
+  const novDec = rowsFor(isAzureNovDecRetirement, catalog);
+  const april = rowsFor(isAzureApril14Retirement, catalog);
+  const sources = [
+    { label: "Azure OpenAI retirement schedule", url: AZURE_SCHEDULE },
+    { label: "Foundry Models lifecycle", url: AZURE_RETIREMENTS },
+  ];
+  const windowLabel = first === last ? longDate(first) : `${firstWhen} to ${lastWhen}`;
+  return {
+    slug: AZURE_JAN_FEB_GUIDE_SLUG,
+    title: `Azure OpenAI retirements from ${windowLabel} | SunsetDiff`,
+    description: `${ordered.length} Azure OpenAI ids retire from ${first} through ${last}. The table uses the shutdown date and replacement stored on each row. An empty replacement list says Not published.`,
+    h1: `Azure OpenAI retirements from ${windowLabel}`,
+    summary: `${ordered.length} Azure OpenAI versions retiring from ${first} through ${last}, the replacement stored on each row, and what a deployment does on each date.`,
+    answer: `The dataset has ${ordered.length} Azure OpenAI ids in this window. ${byDate}. ${named.length ? `The stored replacement is filled in for ${idList(named)}.` : "No row in this window stores a replacement."} ${empty.length ? `The replacements list is empty for ${idList(empty)}, so those cells say Not published.` : "Every row in this window stores a replacement."} The lifecycle page says a Retired model is removed from service and all inference requests return 410 Gone. Standard deployments can auto-upgrade. A deployment set to NoAutoUpgrade stops working. Provisioned deployments are not auto-upgraded.`,
+    checked,
+    steps: [
+      {
+        name: "Read the date table",
+        text: `The table is these ${ordered.length} Azure OpenAI ids. The lifecycle cell is the schedule's Lifecycle column, copied from the source excerpt stored on the row. Shutdown date and replacement are the fields stored on the row. Not published means the replacements list is empty. Open the model page before you change a deployment.`,
+      },
+      {
+        name: "List deployments on the resource",
+        text: "Call Deployments List, or Get-AzCognitiveServicesAccountDeployment, for each Azure OpenAI resource. Read properties.model.name and properties.model.version. A deployment name can differ from the model name.",
+      },
+      {
+        name: "Read versionUpgradeOption",
+        text: "OnceCurrentVersionExpired upgrades the deployment when the retirement date is reached. null means the same thing. NoAutoUpgrade never upgrades, and that deployment stops working. Provisioned deployments are not auto-upgraded.",
+      },
+      {
+        name: "Use the stored replacement, or shortlist one",
+        text: `Where the table names a replacement, that id is the one stored on the row. Where the cell says Not published, the replacements list is empty. The migration page asks: "${AZURE_SHORTLIST}" Do not wait for a target the row does not store. Deploy the model you picked and send one real request before the shutdown date on that row.`,
+      },
+    ],
+    sections: [
+      {
+        heading: "Models and dates",
+        paragraphs: [
+          `These ${ordered.length} ids are the Azure OpenAI rows in this guide. The model id links to its SunsetDiff model page. Lifecycle is the schedule's Lifecycle column, copied from the source excerpt stored on the row. Shutdown date and replacement are the fields stored on the row. Not published means the replacements list is empty. These rows do not store a deprecation_date. ${byDate}.`,
+          `The schedule says: "${AZURE_REPLACEMENT_COL}" This guide does not add a replacement the stored list does not have.`,
+        ],
+        table: {
+          caption: `${ordered.length} Azure OpenAI model ids retiring from ${first} through ${last}.`,
+          headers: ["Model id", "Lifecycle on the schedule", "Shutdown date", "Recommended replacement"],
+          rows: ordered.map((model) => [
+            modelLink(model),
+            azureScheduleLifecycle(model),
+            shutdownCell(model),
+            replacementText(model, catalog),
+          ]),
+        },
+        sources,
+      },
+      {
+        heading: "Replacements the rows store",
+        paragraphs: [
+          `The schedule says: "${AZURE_REPLACEMENT_COL}" It also says: "${AZURE_DONT_WAIT}" The lifecycle page says: "${AZURE_REPLACEMENT_LISTED}"`,
+          named.length
+            ? `The replacements list is filled in for ${idList(named)}. ${replacementFaq(named, catalog)}`
+            : "No row in this table stores a replacement.",
+          empty.length
+            ? `The replacements list is empty for ${idList(empty)}. Empty means the row does not store an official replacement. This guide does not add one.`
+            : "Every row in this table stores a replacement.",
+          unstored.length
+            ? unstored.map(({ model, cell, target }) => {
+              const quote = model.id === "gpt-4o-2024-05-13" && cell.includes("gpt-5.1") && cell.includes("2025-11-13")
+                ? ` The lifecycle page says: "${AZURE_JAN14_OFFERS}" Then: "${AZURE_JAN14_VERSION}"`
+                : "";
+              const linked = target
+                ? ` The dataset does store ${modelLink(target)} with shutdown date ${target.shutdown_date ?? "Not published"} and replacement ${replacementText(target, catalog)}.`
+                : "";
+              return `${model.id}: the replacements list is empty, so the table says Not published. The source excerpt on that row ends with ${cell}.${quote} SunsetDiff does not store that excerpt cell as an official replacement id.${linked}`;
+            }).join(" ")
+            : "No row has a schedule excerpt cell that is missing from the replacements list.",
+          realtimeAlias
+            ? `The stored replacement id gpt-realtime-2.1 is ${modelLink(realtimeAlias)}. Its stored shutdown date is ${realtimeAlias.shutdown_date ?? "Not published"}.`
+            : "The dataset has no Azure row for gpt-realtime-2.1.",
+          realtimeDated
+            ? `${modelLink(realtimeDated)} is a different id. It stores shutdown date ${realtimeDated.shutdown_date ?? "Not published"} and replacement ${replacementText(realtimeDated, catalog)}. The retiring row does not name that dated id as its replacement.`
+            : "The dataset has no Azure row for gpt-realtime-2.1-2026-07-07.",
+        ],
+        sources,
+      },
+      {
+        heading: "What happens to a deployment on the date",
+        paragraphs: [
+          `The lifecycle table says Retired means: "${AZURE_RETIRED}" New deployments are not allowed, and existing deployments do not work. The same page says the API value lifecycleStatus Deprecated means the model is retired and inference returns 410 Gone. The docs stage Deprecated is lifecycleStatus Deprecating, and inference still works. The sentences and the status map are on [Azure OpenAI retired models return 410 Gone](/errors/azure-openai-retired-model-410-gone/).`,
+          deprecated.length
+            ? `${idList(deprecated)} ${deprecated.length === 1 ? "is" : "are"} Deprecated on the schedule now, so inference still works until the shutdown date stored on ${deprecated.length === 1 ? "that row" : "those rows"}.`
+            : "No row in this table is Deprecated on the schedule.",
+          previewEmpty.length
+            ? `${idList(previewEmpty)} ${previewEmpty.length === 1 ? "is" : "are"} Preview on the schedule, and the replacements list is empty. The lifecycle page says: "${AZURE_PREVIEW_NOTE}" It also says ${AZURE_PREVIEW_END} And: "${AZURE_NO_REPLACEMENT}" The schedule does not store a replacement, so this page does not pick the upgrade path or the no-replacement path for ${previewEmpty.length === 1 ? "that preview row" : "those preview rows"}.`
+            : "No Preview row in this table has an empty replacements list.",
+          previewNamed.length
+            ? `${idList(previewNamed)} ${previewNamed.length === 1 ? "is" : "are"} Preview on the schedule, and the replacements list is filled in. The lifecycle page says: "${AZURE_PREVIEW_NOTE}" The replacement column is the target where an automatic upgrade is supported.`
+            : "No Preview row in this table stores a replacement.",
+          gaEmpty.length
+            ? `${idList(gaEmpty)} ${gaEmpty.length === 1 ? "is" : "are"} GA on the schedule. The lifecycle page says: "${AZURE_AUTO}" The migration page says: "${AZURE_PAYG}" The replacement column is the target where an automatic upgrade is supported. ${gaEmpty.length === 1 ? "This GA row has" : "These GA rows have"} an empty replacements list, so this page does not name the model an auto-upgrade would select.`
+            : "No GA row in this table has an empty replacements list.",
+          `The lifecycle page says: "${AZURE_PROVISIONED}" The migration page says: "${AZURE_PTU}" And: "${AZURE_BATCH_PATH}"`,
+          `Working with models says: "${AZURE_STANDARD_ONLY}" OnceCurrentVersionExpired means: "${AZURE_EXPIRED}" NoAutoUpgrade means: "${AZURE_NO_AUTO}" And: "${AZURE_NULL}"`,
+          `The same page says: "${AZURE_SPECIFIC}" Then: "${AZURE_THEN_DEFAULT}" A deployment you pinned to one of these versions can still move on the retirement date unless versionUpgradeOption is NoAutoUpgrade. NoAutoUpgrade does not move, and the deployment stops. That move still needs a default version. A row with an empty replacements list does not name one.`,
+        ],
+        sources: [
+          ...sources,
+          { label: "Working with Azure OpenAI models", url: AZURE_WORKING },
+          { label: "Model migration process", url: AZURE_MIGRATION },
+        ],
+      },
+      {
+        heading: "Find deployments that use these versions",
+        paragraphs: [
+          `The migration page says: "${AZURE_INVENTORY}" Working with models says: "${AZURE_LIST}" ${AZURE_NULL_FIELD} The model versions page says: "${AZURE_PORTAL}" And: "${AZURE_REST_VERSION}"`,
+          "The example response puts the model name and version on properties.model. The deployment's own name is the name field next to that object. Match properties.model.name and properties.model.version to the ids in the table.",
+          "Also search the repository. A hit is a candidate, not proof a deployment still uses that version. [How to find every model ID in your codebase](/guides/find-model-ids-in-your-codebase/) covers SDK argument names. The [scan page](/scan/) builds a search from dataset ids that have a shutdown date.",
+        ],
+        codes: [
+          {
+            caption: "Azure PowerShell, list deployments for one account",
+            code: `Get-AzCognitiveServicesAccountDeployment -ResourceGroupName {ResourceGroupName} -AccountName {AccountName}\n`,
+          },
+          {
+            caption: "Deployments List",
+            code: `GET https://management.azure.com/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.CognitiveServices/accounts/{accountName}/deployments?api-version=2023-05-01\n`,
+          },
+          { caption: "ripgrep", code: searchCode(ordered) },
+        ],
+        sources: [
+          { label: "Working with Azure OpenAI models", url: AZURE_WORKING },
+          { label: "Model versions", url: AZURE_VERSIONS },
+          { label: "Model migration process", url: AZURE_MIGRATION },
+        ],
+      },
+      {
+        heading: "Nearby guides",
+        paragraphs: [
+          novDec.length
+            ? `Earlier Azure dates in the dataset are on [Azure OpenAI retirements from November 15 to December 16, 2026](/guides/${AZURE_NOV_DEC_GUIDE_SLUG}/). That page has ${novDec.length} ids. It does not include the ids in this table.`
+            : "The dataset has no Azure OpenAI rows for the November and December 2026 guide.",
+          april.length
+            ? `Later gpt-4.1 and gpt-4o versions retire on ${AZURE_APRIL14_SHUTDOWN_DATE}. They are on [Azure OpenAI GPT-4.1 and GPT-4o retirement on ${longDate(AZURE_APRIL14_SHUTDOWN_DATE)}](/guides/${AZURE_APRIL14_GUIDE_SLUG}/). Those ${april.length} ids are not the rows in this table.`
+            : "The dataset has no Azure OpenAI rows for the April 14, 2027 guide.",
+          openaiJan.length
+            ? `OpenAI's API is a different provider. The dataset has ${openaiJan.length} OpenAI ids with shutdown date ${JANUARY_2027_SHUTDOWN_DATE}. They are on [GPT-4.1 and GPT-4o shutdown on ${longDate(JANUARY_2027_SHUTDOWN_DATE)}](/guides/${JANUARY_2027_GPT4_GUIDE_SLUG}/). That date is not an Azure deployment date.`
+            : "The dataset has no OpenAI ids for the January 2027 GPT-4.1 and GPT-4o guide.",
+          openaiJan20.length
+            ? `The dataset has ${openaiJan20.length} OpenAI audio and realtime ids with shutdown date ${JANUARY_20_AUDIO_SHUTDOWN_DATE}. They are on [OpenAI speech, audio, and realtime shutdowns in January 2027](/guides/${JANUARY_2027_AUDIO_GUIDE_SLUG}/). That page is not the Azure gpt-realtime-2 row.`
+            : "The dataset has no OpenAI audio or realtime ids with the January 20, 2027 shutdown date.",
+        ],
+        sources: [
+          ...sources,
+          { label: "OpenAI deprecations", url: OPENAI_DEPRECATIONS },
+        ],
+      },
+      {
+        heading: "Shutdown pages for these dates",
+        paragraphs: [
+          "SunsetDiff publishes a shutdown batch page when at least three model records share one provider and one exact shutdown date. A named date with fewer rows can still have a page.",
+          ...batchLines,
+          "The [Azure OpenAI provider page](/providers/azure-openai/) lists the other stored rows.",
+        ],
+        sources,
+      },
+    ],
+    related: [
+      ...dates
+        .filter((date) => azureExactCount(catalog, date) >= SHUTDOWN_BATCH_MIN || SMALL_SHUTDOWN_BATCHES.has(`azure-openai|${date}`))
+        .map((date) => ({ href: `/shutdowns/azure-openai-${date}/`, label: `Azure OpenAI shutdowns on ${longDate(date)}` })),
+      { href: "/providers/azure-openai/", label: "Azure OpenAI provider page" },
+      { href: "/errors/azure-openai-retired-model-410-gone/", label: "Azure OpenAI retired models return 410 Gone" },
+      { href: `/guides/${AZURE_NOV_DEC_GUIDE_SLUG}/`, label: "Azure OpenAI retirements from November 15 to December 16, 2026" },
+      { href: `/guides/${AZURE_APRIL14_GUIDE_SLUG}/`, label: `Azure OpenAI GPT-4.1 and GPT-4o retirement on ${longDate(AZURE_APRIL14_SHUTDOWN_DATE)}` },
+      { href: `/guides/${JANUARY_2027_GPT4_GUIDE_SLUG}/`, label: `GPT-4.1 and GPT-4o shutdown on ${longDate(JANUARY_2027_SHUTDOWN_DATE)}` },
+      { href: `/guides/${JANUARY_2027_AUDIO_GUIDE_SLUG}/`, label: "OpenAI speech, audio, and realtime shutdowns in January 2027" },
+      ...(realtimeAlias ? [{ href: `/models/${realtimeAlias.provider}/${realtimeAlias.slug}/`, label: realtimeAlias.id }] : []),
+      { href: "/guides/find-model-ids-in-your-codebase/", label: "Find model ids in your codebase" },
+      { href: "/guides/pre-migration-test-checklist/", label: "Pre-migration test checklist" },
+      { href: "/scan/", label: "Scan retiring ids" },
+    ],
+    faqs: [
+      {
+        question: `Which Azure OpenAI versions retire from ${firstWhen} to ${lastWhen}?`,
+        answer: `The dataset lists ${idList(ordered)}. ${byDate}.`,
+      },
+      {
+        question: "What is the official replacement?",
+        answer: `${replacementFaq(ordered, catalog)} The schedule says: "${AZURE_REPLACEMENT_COL}" ${empty.length ? `The replacements list is empty on ${idList(empty)}.` : "Every row stores a replacement."}`,
+      },
+      {
+        question: "Why does gpt-4o 2024-05-13 say Not published?",
+        answer: unstored.some((item) => item.model.id === "gpt-4o-2024-05-13")
+          ? unstored.filter((item) => item.model.id === "gpt-4o-2024-05-13").map(({ model, cell, target }) => {
+            const linked = target
+              ? ` The dataset stores ${model.id === target.id ? "that id" : target.id} at ${target.shutdown_date ?? "Not published"} with replacement ${replacementText(target, catalog)}.`
+              : "";
+            return `${model.id} stores no official replacement, so the table says Not published. The source excerpt on that row ends with ${cell}. The lifecycle page says: "${AZURE_JAN14_VERSION}" SunsetDiff does not store that excerpt cell as an official replacement id.${linked}`;
+          }).join(" ")
+          : "The gpt-4o-2024-05-13 row is not in this table, or its replacements list is already filled in.",
+      },
+      {
+        question: "What does Azure return after retirement?",
+        answer: `The lifecycle page says a Retired model is removed from service and: "${AZURE_RETIRED}" See [Azure OpenAI retired models return 410 Gone](/errors/azure-openai-retired-model-410-gone/).`,
+      },
+      {
+        question: "Will every deployment upgrade itself?",
+        answer: `No. The lifecycle page says: "${AZURE_AUTO}" And: "${AZURE_PROVISIONED}" Working with models says: "${AZURE_STANDARD_ONLY}" NoAutoUpgrade means: "${AZURE_NO_AUTO}" ${AZURE_NULL} ${empty.length ? `The rows with an empty replacements list do not name an upgrade target: ${idList(empty)}.` : "Every row in this table stores a replacement."}`,
+      },
+      {
+        question: "How do I find deployments that still use these versions?",
+        answer: `Working with models says: "${AZURE_LIST}" Read properties.model.name and properties.model.version. The model versions page says: "${AZURE_PORTAL}" The migration page says: "${AZURE_INVENTORY}"`,
+      },
+      {
+        question: "Is there a shutdown page for each of these dates?",
+        answer: `A shutdown batch page is published when at least three model records share one provider and one exact shutdown date, or when the date is explicitly included. ${batchLines.join(" ")}`,
+      },
+      {
+        question: "Is this the same shutdown as OpenAI's January 2027 guides?",
+        answer: `No. ${openaiJan.length} OpenAI ids use shutdown date ${JANUARY_2027_SHUTDOWN_DATE}. See [GPT-4.1 and GPT-4o shutdown on ${longDate(JANUARY_2027_SHUTDOWN_DATE)}](/guides/${JANUARY_2027_GPT4_GUIDE_SLUG}/). ${openaiJan20.length} OpenAI audio and realtime ids use shutdown date ${JANUARY_20_AUDIO_SHUTDOWN_DATE}. See [OpenAI speech, audio, and realtime shutdowns in January 2027](/guides/${JANUARY_2027_AUDIO_GUIDE_SLUG}/). Those pages are the OpenAI API. This page is Azure OpenAI.`,
+      },
+    ],
+    citations: [AZURE_SCHEDULE, AZURE_RETIREMENTS, AZURE_WORKING, AZURE_VERSIONS, AZURE_MIGRATION, OPENAI_DEPRECATIONS],
   };
 }
 
@@ -4378,7 +4896,7 @@ function azureApril14Guide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePa
           empty.length
             ? `The replacement cell is empty on ${idList(empty)}. Empty means Microsoft did not name a recommended replacement on that row. This guide does not add one.`
             : "Every row in this table stores a replacement.",
-          `gpt-4o version 2024-05-13 is a different row. It retires on 2027-01-14. The schedule cell on that row is gpt-5.1 (2025-11-13). The lifecycle page says: "${AZURE_JAN14_OFFERS}" Then: "${AZURE_JAN14_VERSION}" Those two sentences are about version 2024-05-13. They are not the April 14 rows. See [gpt-4o-2024-05-13](/models/azure-openai/gpt-4o-2024-05-13/) and [Azure OpenAI shutdowns on January 14, 2027](/shutdowns/azure-openai-2027-01-14/).`,
+          `gpt-4o version 2024-05-13 is a different row. It retires on 2027-01-14. The schedule cell on that row is gpt-5.1 (2025-11-13). The lifecycle page says: "${AZURE_JAN14_OFFERS}" Then: "${AZURE_JAN14_VERSION}" Those two sentences are about version 2024-05-13. They are not the April 14 rows. See [gpt-4o-2024-05-13](/models/azure-openai/gpt-4o-2024-05-13/), [Azure OpenAI shutdowns on January 14, 2027](/shutdowns/azure-openai-2027-01-14/), and [Azure OpenAI retirements from January 12 to February 9, 2027](/guides/${AZURE_JAN_FEB_GUIDE_SLUG}/).`,
         ],
         sources,
       },
@@ -4470,6 +4988,7 @@ function azureApril14Guide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePa
       { href: "/models/azure-openai/gpt-5-1/", label: "Azure gpt-5.1" },
       { href: "/models/azure-openai/gpt-4o-2024-05-13/", label: "Azure gpt-4o-2024-05-13" },
       { href: `/guides/${AZURE_NOV_DEC_GUIDE_SLUG}/`, label: "Azure OpenAI retirements from November 15 to December 16, 2026" },
+      { href: `/guides/${AZURE_JAN_FEB_GUIDE_SLUG}/`, label: "Azure OpenAI retirements from January 12 to February 9, 2027" },
       { href: `/guides/${AZURE_NOV19_GUIDE_SLUG}/`, label: "Azure OpenAI o-series retirement on November 19, 2026" },
       { href: "/guides/find-model-ids-in-your-codebase/", label: "Find model ids in your codebase" },
       { href: "/guides/pre-migration-test-checklist/", label: "Pre-migration test checklist" },
@@ -5346,7 +5865,7 @@ function azureAug24Guide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePage
       },
       {
         question: "What about the June 15, 2027 audio models, gpt-realtime-2.1, and the Codex sample string?",
-        answer: `${juneLine}. See [Azure OpenAI gpt-4o-mini-tts, transcribe, and realtime audio retirement on ${juneWhen}](/guides/${AZURE_JUNE15_GUIDE_SLUG}/). ${peerLine}. gpt-realtime-2 version 2026-05-06 retires on 2027-01-20 and names gpt-realtime-2.1. See [Azure OpenAI shutdowns on January 20, 2027](/shutdowns/azure-openai-2027-01-20/). gpt-realtime-2.1 version 2026-07-07 retires on 2027-06-25. gpt-5-codex version 2025-09-15 retires on 2027-03-17. None of those cells is the replacement for the ${AZURE_AUG24_SHUTDOWN_DATE} rows.`,
+        answer: `${juneLine}. See [Azure OpenAI gpt-4o-mini-tts, transcribe, and realtime audio retirement on ${juneWhen}](/guides/${AZURE_JUNE15_GUIDE_SLUG}/). ${peerLine}. gpt-realtime-2 version 2026-05-06 retires on 2027-01-20 and names gpt-realtime-2.1. See [Azure OpenAI shutdowns on January 20, 2027](/shutdowns/azure-openai-2027-01-20/) and [Azure OpenAI retirements from January 12 to February 9, 2027](/guides/${AZURE_JAN_FEB_GUIDE_SLUG}/). gpt-realtime-2.1 version 2026-07-07 retires on 2027-06-25. gpt-5-codex version 2025-09-15 retires on 2027-03-17. None of those cells is the replacement for the ${AZURE_AUG24_SHUTDOWN_DATE} rows.`,
       },
     ],
     citations: [
