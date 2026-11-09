@@ -93,6 +93,8 @@ describe("shutdown batches", () => {
       "azure-openai-2027-01-20",
       "azure-openai-2027-02-09",
       "google-vertex-2027-01-28",
+      "google-vertex-2027-03-15",
+      "google-gemini-api-2027-03-15",
       "anthropic-2026-11-24",
       "google-gemini-api-2026-12-03",
     ]) {

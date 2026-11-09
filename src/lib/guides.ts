@@ -62,6 +62,7 @@ import {
   isSonnet45Nov30Shutdown,
   isVertexNovDecGemini,
   isVertexVeoFloor,
+  showsGoogleEarly2027Guide,
   OPENROUTER_NOV_DEC_GUIDE_SLUG,
   showsOpenRouterNovDecGuide,
   APRIL_1_2027_GUIDE_SLUG,
@@ -72,6 +73,7 @@ import {
   OPUS45_GUIDE_SLUG,
   SONNET45_NOV30_GUIDE_SLUG,
   VERTEX_NOV_DEC_GUIDE_SLUG,
+  GOOGLE_EARLY_2027_GUIDE_SLUG,
 } from "./dataset-guides.ts";
 import { today, type FaqItem } from "./format.ts";
 
@@ -2522,6 +2524,7 @@ export function guidesForModel(model: ModelRecord, catalog: ModelRecord[], day =
   if (isNebiusNov9Shutdown(model)) add(NEBIUS_NOV9_GUIDE_SLUG);
   if (isGeminiNov17Shutdown(model)) add(GEMINI_NOV17_GUIDE_SLUG);
   if (showsGeminiDec1Guide(model) || isGeminiDec1AutoRoute(model)) add(GEMINI_DEC1_GUIDE_SLUG);
+  if (showsGoogleEarly2027Guide(model)) add(GOOGLE_EARLY_2027_GUIDE_SLUG);
   if (
     isVertexNovDecGemini(model)
     || isVertexVeoFloor(model)
