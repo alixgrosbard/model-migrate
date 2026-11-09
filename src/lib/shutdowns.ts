@@ -31,6 +31,8 @@ export const SMALL_SHUTDOWN_BATCHES = new Set([
   "azure-openai|2027-01-20",   // gpt-realtime-2-2026-05-06 (1 exact row)
   "azure-openai|2027-02-09",   // gpt-5-2025-08-07 and gpt-5-nano-2025-08-07 (2 exact rows)
   "google-vertex|2027-01-28",  // gemini-3.7-flash (1 exact row)
+  "google-vertex|2027-03-15",  // gemini-2.5-flash-image (1 exact row)
+  "google-gemini-api|2027-03-15", // gemini-2.5-flash-image (1 exact row)
   "google-gemini-api|2026-12-03", // gemini-omni-1.1-flash (1 exact row)
 ]);
 

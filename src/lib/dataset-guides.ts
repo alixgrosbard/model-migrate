@@ -611,6 +611,22 @@ export function isVertexNovDecGemini(model: ModelRecord): boolean {
     );
 }
 
+/** Vertex gemini-3.7-flash on 2027-01-28, plus both gemini-2.5-flash-image rows on 2027-03-15. */
+export function isGoogleEarly2027Shutdown(model: ModelRecord): boolean {
+  return GOOGLE_EARLY_2027_IDS.some((row) => model.provider === row.provider
+    && model.id === row.id
+    && model.shutdown_date === row.date
+    && model.shutdown_date_kind === "exact");
+}
+
+/** The three retiring rows, their stored replacements, and the Gemini API gemini-3.7-flash row that does not share the Vertex date. */
+export function showsGoogleEarly2027Guide(model: ModelRecord): boolean {
+  if (isGoogleEarly2027Shutdown(model)) return true;
+  if (model.provider === "google-vertex" && (model.id === "gemini-3.8-flash" || model.id === "gemini-3.1-flash-lite-image")) return true;
+  if (model.provider === "google-gemini-api" && model.id === "gemini-3.1-flash-lite-image") return true;
+  return model.provider === "google-gemini-api" && model.id === "gemini-3.7-flash";
+}
+
 /** Vertex Veo rows whose retirement cell is a floor. The ids and the day come from the dataset. */
 export function isVertexVeoFloor(model: ModelRecord): boolean {
   return model.provider === "google-vertex"
@@ -1412,6 +1428,8 @@ export function datasetShutdownGuides(catalog: ModelRecord[] = readCatalog()): G
   if (geminiDec1.length) pages.push(geminiDec1Guide(geminiDec1, catalog));
   const vertexNovDec = rowsFor(isVertexNovDecGemini, catalog);
   if (vertexNovDec.length) pages.push(vertexNovDecGuide(vertexNovDec, catalog));
+  const googleEarly2027 = rowsFor(isGoogleEarly2027Shutdown, catalog);
+  if (googleEarly2027.length) pages.push(googleEarly2027Guide(googleEarly2027, catalog));
   const openrouterNovDec = rowsFor((model) => isOpenRouterNovDecExpiration(model), catalog);
   if (openrouterNovDec.length) pages.push(openRouterNovDecGuide(openrouterNovDec, catalog));
   const sonnet45 = rowsFor(isSonnet45Nov30Shutdown, catalog);
@@ -6664,6 +6682,16 @@ export const VERTEX_NOV19_SHUTDOWN_DATE = "2026-11-19";
 export const VERTEX_DEC13_SHUTDOWN_DATE = "2026-12-13";
 export const VERTEX_NOV_DEC_GUIDE_SLUG = "vertex-ai-gemini-retirements-november-december-2026";
 export const VERTEX_NOV_DEC_CHECKED = "2026-11-02";
+
+/** Checked against the Vertex model versions page and the Gemini API deprecations page. The slug names the window. */
+export const GOOGLE_EARLY_2027_JAN28 = "2027-01-28";
+export const GOOGLE_EARLY_2027_MAR15 = "2027-03-15";
+export const GOOGLE_EARLY_2027_GUIDE_SLUG = "google-gemini-3-7-flash-2-5-flash-image-shutdowns-january-march-2027";
+const GOOGLE_EARLY_2027_IDS = [
+  { provider: "google-vertex", id: "gemini-3.7-flash", date: GOOGLE_EARLY_2027_JAN28 },
+  { provider: "google-vertex", id: "gemini-2.5-flash-image", date: GOOGLE_EARLY_2027_MAR15 },
+  { provider: "google-gemini-api", id: "gemini-2.5-flash-image", date: GOOGLE_EARLY_2027_MAR15 },
+] as const;
 const VERTEX_FLASH_ID = "gemini-3.6-flash";
 const VERTEX_LIVE_ID = "gemini-live-2.5-flash-native-audio";
 const VERTEX_FLASH_PAGE = "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/gemini/3-6-flash";
@@ -7568,7 +7596,7 @@ function vertexNovDecGuide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePa
           `The same model versions page puts gemini-live-2.5-flash-native-audio in the 12-month table: release date December 12, 2025, retirement date December 13, 2026, replacement model ID gemini-3.8-live. The Live model page says retirement date December 13, 2026.`,
           `Both model pages say: "${VERTEX_FOOTNOTE}" The Gemini API deprecations page is a different list. Checked on ${VERTEX_NOV_DEC_CHECKED}, the shutdown cell for gemini-3.6-flash says "No shutdown date announced." It does not list November 19, 2026, December 13, 2026, or the id gemini-live-2.5-flash-native-audio. ${apiFlash ? `The stored Gemini API row for gemini-3.6-flash has shutdown kind ${apiFlash.shutdown_date_kind} and ${apiFlash.shutdown_date ? `shutdown date ${apiFlash.shutdown_date}` : "no shutdown_date"}.` : "The dataset has no Gemini API row for gemini-3.6-flash."} See [Gemini API model shutdowns on November 17, 2026](/guides/${GEMINI_NOV17_GUIDE_SLUG}/).`,
           flash37
-            ? `gemini-3.7-flash is on the shorter-availability table with retirement date January 28, 2027 and replacement model ID gemini-3.8-flash. The stored shutdown date is ${flash37.shutdown_date ?? "Not published"} (${flash37.shutdown_date_kind}). January 28, 2027 is after mid-December, so that id is not in the table below.${flash37.shutdown_date && SMALL_SHUTDOWN_BATCHES.has(`google-vertex|${flash37.shutdown_date}`) ? ` The page is [/shutdowns/google-vertex-${flash37.shutdown_date}/](/shutdowns/google-vertex-${flash37.shutdown_date}/).` : ""}`
+            ? `gemini-3.7-flash is on the shorter-availability table with retirement date January 28, 2027 and replacement model ID gemini-3.8-flash. The stored shutdown date is ${flash37.shutdown_date ?? "Not published"} (${flash37.shutdown_date_kind}). January 28, 2027 is after mid-December, so that id is not in the table below.${flash37.shutdown_date && SMALL_SHUTDOWN_BATCHES.has(`google-vertex|${flash37.shutdown_date}`) ? ` The page is [/shutdowns/google-vertex-${flash37.shutdown_date}/](/shutdowns/google-vertex-${flash37.shutdown_date}/).` : ""} The January and March 2027 guide is [Google Gemini 3.7 Flash and 2.5 Flash Image shutdowns](/guides/${GOOGLE_EARLY_2027_GUIDE_SLUG}/).`
             : "The dataset has no gemini-3.7-flash row. The model versions page lists that id with retirement date January 28, 2027, which is after mid-December.",
         ],
         table: {
@@ -7745,6 +7773,7 @@ async with client.aio.live.connect(
       ...(flash37?.shutdown_date && SMALL_SHUTDOWN_BATCHES.has(`google-vertex|${flash37.shutdown_date}`)
         ? [{ href: `/shutdowns/google-vertex-${flash37.shutdown_date}/`, label: `Vertex AI shutdowns on ${longDate(flash37.shutdown_date)}` }]
         : []),
+      { href: `/guides/${GOOGLE_EARLY_2027_GUIDE_SLUG}/`, label: "Gemini 3.7 Flash and 2.5 Flash Image shutdowns in January and March 2027" },
       { href: `/guides/${GEMINI_NOV17_GUIDE_SLUG}/`, label: "Gemini API model shutdowns on November 17, 2026" },
       { href: "/guides/why-shutdown-dates-differ-by-platform/", label: "Why shutdown dates differ by platform" },
       { href: "/guides/find-model-ids-in-your-codebase/", label: "Find model ids in your codebase" },
@@ -7784,7 +7813,7 @@ async with client.aio.live.connect(
       {
         question: "Is gemini-3.7-flash in this window?",
         answer: flash37
-          ? `No. The model versions page lists gemini-3.7-flash with retirement date January 28, 2027 and replacement model ID gemini-3.8-flash. The stored shutdown date is ${flash37.shutdown_date ?? "Not published"}.${flash37.shutdown_date && SMALL_SHUTDOWN_BATCHES.has(`google-vertex|${flash37.shutdown_date}`) ? ` [/shutdowns/google-vertex-${flash37.shutdown_date}/](/shutdowns/google-vertex-${flash37.shutdown_date}/) lists that record.` : ""}`
+          ? `No. The model versions page lists gemini-3.7-flash with retirement date January 28, 2027 and replacement model ID gemini-3.8-flash. The stored shutdown date is ${flash37.shutdown_date ?? "Not published"}.${flash37.shutdown_date && SMALL_SHUTDOWN_BATCHES.has(`google-vertex|${flash37.shutdown_date}`) ? ` [/shutdowns/google-vertex-${flash37.shutdown_date}/](/shutdowns/google-vertex-${flash37.shutdown_date}/) lists that record.` : ""} The step-by-step page is [Google Gemini 3.7 Flash and 2.5 Flash Image shutdowns](/guides/${GOOGLE_EARLY_2027_GUIDE_SLUG}/).`
           : "No. The model versions page lists gemini-3.7-flash with retirement date January 28, 2027.",
       },
     ],
@@ -7797,6 +7826,367 @@ async with client.aio.live.connect(
       VERTEX_LIVE_MIGRATE,
       VERTEX_MIGRATE,
       GEMINI_DEPRECATIONS,
+    ],
+  };
+}
+
+const VERTEX_PRICING = "https://cloud.google.com/gemini-enterprise-agent-platform/generative-ai/pricing";
+const VERTEX_IMAGE_DOCS = "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/gemini/2-5-flash-image";
+const VERTEX_LITE_IMAGE_DOCS = "https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/gemini/3-1-flash-lite-image";
+const GEMINI_PRICING_PAGE = "https://ai.google.dev/gemini-api/docs/pricing";
+const GEMINI_IMAGE_DOCS = "https://ai.google.dev/gemini-api/docs/models/gemini-2.5-flash-image";
+const GEMINI_LITE_IMAGE_DOCS = "https://ai.google.dev/gemini-api/docs/models/gemini-3.1-flash-lite-image";
+const GEMINI_IMAGE_GUIDE = "https://ai.google.dev/gemini-api/docs/image-generation";
+const IMAGE_SHUTDOWN_WARNING =
+  "Warning: Gemini 2.5 Flash Image (gemini-2.5-flash-image) is deprecated and will be shut down on March 15, 2027; migrate to Gemini 3.1 Flash Lite Image to avoid service disruption.";
+const VERTEX_IMAGE_INPUT_EXCERPT =
+  "Gemini 2.5 Flash Image Input (text, image)*** $0.3 per 1M tokens for the <= 200K column";
+const VERTEX_LITE_INPUT_EXCERPT =
+  "Gemini 3.1 Flash-Lite Image (Nano Banana 2 Lite) Input (text, image, video) [3] $0.25 per 1M tokens for the <= 200K column";
+const API_IMAGE_INPUT_CELL = "$0.30 (text / image)";
+const API_IMAGE_OUTPUT_CELL = "$0.039 per image";
+const API_LITE_INPUT_CELL = "$0.25 (text/image/video)";
+const API_LITE_TEXT_OUTPUT = "$1.50 (text and thinking)";
+const API_LITE_IMAGE_OUTPUT = "$30.00 (images)";
+const API_LITE_IMAGE_EQUIV = "Equivalent to $0.0336 per 1K resolution image";
+const VERTEX_RETIRE_ERRORS =
+  "if you don't have time to follow the guide and just need to quickly resolve the errors caused by models reaching their retirement dates, do the following:";
+const VERTEX_FROM_37 = "To migrate to 3.8 Flash from 3.7 Flash or 3.6 Flash, do the following steps.";
+const VERTEX_NO_IMAGE_HOST =
+  "Both ids are image models. The Gemini API image generation guide's text-to-image sample uses client.interactions.create and POST https://generativelanguage.googleapis.com/v1beta/interactions. These records are Vertex model ids, and that guide does not show a Vertex host, so this page does not show a model-id swap.";
+
+function earlyProviderLabel(model: ModelRecord): string {
+  if (model.provider === "google-vertex") return "Google Vertex AI";
+  if (model.provider === "google-gemini-api") return "Google Gemini API";
+  return model.provider;
+}
+
+function storedNumber(value: number | null | undefined): string {
+  return value == null ? "Not published" : String(value);
+}
+
+function earlyExactCount(catalog: ModelRecord[], provider: string, date: string): number {
+  return catalog.filter((model) => model.provider === provider && model.shutdown_date === date && model.shutdown_date_kind === "exact").length;
+}
+
+function earlyBatchSentence(provider: string, date: string, count: number): string {
+  const path = `/shutdowns/${shutdownEventSlug(provider, date)}/`;
+  const hasPage = count >= SHUTDOWN_BATCH_MIN || SMALL_SHUTDOWN_BATCHES.has(`${provider}|${date}`);
+  const noun = count === 1 ? "record" : "records";
+  if (hasPage) return `${date} has ${count} ${provider} ${noun} with an exact shutdown date, so [${path}](${path}) exists.`;
+  return `${date} has ${count} ${provider} ${noun} with an exact shutdown date, so there is no ${path} page.`;
+}
+
+function googleEarly2027Guide(rows: ModelRecord[], catalog: ModelRecord[]): GuidePage {
+  const ordered = [...rows].sort((a, b) => (a.shutdown_date ?? "").localeCompare(b.shutdown_date ?? "")
+    || a.provider.localeCompare(b.provider)
+    || a.id.localeCompare(b.id));
+  const whenJan = longDate(GOOGLE_EARLY_2027_JAN28);
+  const whenMar = longDate(GOOGLE_EARLY_2027_MAR15);
+  const checked = newestRowCheck(ordered);
+  const flash37 = ordered.find((model) => model.provider === "google-vertex" && model.id === "gemini-3.7-flash");
+  const vertexImage = ordered.find((model) => model.provider === "google-vertex" && model.id === "gemini-2.5-flash-image");
+  const apiImage = ordered.find((model) => model.provider === "google-gemini-api" && model.id === "gemini-2.5-flash-image");
+  const vertexFlash38 = catalog.find((model) => model.provider === "google-vertex" && model.id === "gemini-3.8-flash");
+  const vertexLite = catalog.find((model) => model.provider === "google-vertex" && model.id === "gemini-3.1-flash-lite-image");
+  const apiLite = catalog.find((model) => model.provider === "google-gemini-api" && model.id === "gemini-3.1-flash-lite-image");
+  const api37 = catalog.find((model) => model.provider === "google-gemini-api" && model.id === "gemini-3.7-flash");
+  const limits = [flash37, vertexImage, apiImage, vertexFlash38, vertexLite, apiLite].filter((model): model is ModelRecord => Boolean(model));
+  const janCount = earlyExactCount(catalog, "google-vertex", GOOGLE_EARLY_2027_JAN28);
+  const vertexMarCount = earlyExactCount(catalog, "google-vertex", GOOGLE_EARLY_2027_MAR15);
+  const apiMarCount = earlyExactCount(catalog, "google-gemini-api", GOOGLE_EARLY_2027_MAR15);
+  const sources = [
+    { label: "Vertex AI model versions", url: GEMINI_VERTEX },
+    { label: "Gemini API deprecations", url: GEMINI_DEPRECATIONS },
+  ];
+  const byDate = ordered.map((model) => `${earlyProviderLabel(model)} ${model.id} on ${model.shutdown_date}`).join(". ");
+  return {
+    slug: GOOGLE_EARLY_2027_GUIDE_SLUG,
+    title: `Google Gemini 3.7 Flash and 2.5 Flash Image shutdowns from ${whenJan} to ${whenMar} | SunsetDiff`,
+    description: `Vertex AI retires gemini-3.7-flash on ${GOOGLE_EARLY_2027_JAN28}. Vertex and the Gemini API retire gemini-2.5-flash-image on ${GOOGLE_EARLY_2027_MAR15}. Replacements are gemini-3.8-flash and gemini-3.1-flash-lite-image.`,
+    h1: `Google Gemini 3.7 Flash and 2.5 Flash Image shutdowns from ${whenJan} to ${whenMar}`,
+    summary: `The three stored rows in this window: Vertex gemini-3.7-flash on ${GOOGLE_EARLY_2027_JAN28}, and gemini-2.5-flash-image on Vertex and the Gemini API on ${GOOGLE_EARLY_2027_MAR15}.`,
+    answer: `The dataset has ${ordered.length} rows in this window. ${byDate}. Each row stores status deprecated and an official replacement. Vertex gemini-3.7-flash stores gemini-3.8-flash. Both gemini-2.5-flash-image rows store gemini-3.1-flash-lite-image on the same provider. A deprecation date is Not published on these rows. The Vertex model versions page says retirement dates will not move earlier. The Gemini API deprecations page says a table date is the earliest possible retirement, and that a shutdown turns the endpoint off. Gemini API gemini-3.7-flash is a different row: ${api37?.shutdown_date ? `it stores shutdown date ${api37.shutdown_date}` : "it stores no shutdown_date"}.`,
+    checked,
+    steps: [
+      {
+        name: "Read the three rows",
+        text: `The table is these ${ordered.length} ids. Shutdown date and replacement are the fields stored on each row. Not published means the field is empty. Open the model page before you change a call. Vertex and the Gemini API each have their own gemini-2.5-flash-image row.`,
+      },
+      {
+        name: "Swap the model id",
+        text: `On Vertex, change gemini-3.7-flash to gemini-3.8-flash. The 3.8 Flash guide says: "${VERTEX_FROM_37}" Then: "${VERTEX_MODEL_STRING}" On each provider, change gemini-2.5-flash-image to gemini-3.1-flash-lite-image. Do not send the Vertex id to the Gemini API host, or the Gemini API id to Vertex.`,
+      },
+      {
+        name: "Test before the date",
+        text: `Send one real request to gemini-3.8-flash before ${whenJan}. Send one real image request to gemini-3.1-flash-lite-image on the provider you use before ${whenMar}. The Vertex page says to test mission critical features. The [pre-migration test checklist](/guides/pre-migration-test-checklist/) is the longer list.`,
+      },
+      {
+        name: "Read the stored region note",
+        text: "These rows do not store a region list. The stored note is a release date. A location list for gemini-3.7-flash, gemini-2.5-flash-image, or gemini-3.1-flash-lite-image is Not published on these rows. The 3.8 Flash quickstart sets location to global. That sample is not a region list for the retiring ids.",
+      },
+    ],
+    sections: [
+      {
+        heading: "Models and dates",
+        paragraphs: [
+          `These ${ordered.length} rows are the Google ids in this guide. The model id links to its SunsetDiff model page. Provider, deprecation date, shutdown date, and replacement are the fields stored on that row. Not published means the field is empty. These rows do not store a deprecation_date.`,
+          flash37
+            ? `Vertex puts gemini-3.7-flash on the shorter-availability table. The stored excerpt is "${flash37.sources.find((source) => source.url === GEMINI_VERTEX)?.excerpt ?? "Not published"}". The page says: "${VERTEX_SHORT}" And: "${VERTEX_STILL}" The stored release note is: "${flash37.region_or_platform_notes ?? "Not published"}".`
+            : "The dataset has no Vertex gemini-3.7-flash row.",
+          vertexImage
+            ? `Vertex puts gemini-2.5-flash-image on the image-model table under models available for at least 12 months after release. The stored excerpt is "${vertexImage.sources.find((source) => source.url === GEMINI_VERTEX)?.excerpt ?? "Not published"}". The stored release note is: "${vertexImage.region_or_platform_notes ?? "Not published"}".`
+            : "The dataset has no Vertex gemini-2.5-flash-image row.",
+          apiImage
+            ? `The Gemini API lists gemini-2.5-flash-image under Nano Banana models. The stored deprecations excerpt is "${apiImage.sources.find((source) => source.url === GEMINI_DEPRECATIONS)?.excerpt ?? "Not published"}". The pricing excerpt says: "${IMAGE_SHUTDOWN_WARNING}" The stored release note is: "${apiImage.region_or_platform_notes ?? "Not published"}".`
+            : "The dataset has no Gemini API gemini-2.5-flash-image row.",
+          api37
+            ? `Gemini API gemini-3.7-flash is not one of the three shutdown rows. Status ${api37.status}. Shutdown kind ${api37.shutdown_date_kind}. ${api37.shutdown_date ? `Shutdown date ${api37.shutdown_date}.` : "No shutdown_date is stored."} The stored note says: "${api37.region_or_platform_notes ?? "Not published"}". The deprecations excerpt says the endpoint is not shutting down and automatically routes API requests to gemini-3.8-flash. Do not copy the Vertex date ${GOOGLE_EARLY_2027_JAN28} onto that API id.`
+            : "The dataset has no Gemini API gemini-3.7-flash row.",
+        ],
+        table: {
+          caption: `${ordered.length} model ids with an exact shutdown date on ${GOOGLE_EARLY_2027_JAN28} or ${GOOGLE_EARLY_2027_MAR15}.`,
+          headers: ["Model id", "Provider", "Deprecation date", "Shutdown date", "Recommended replacement"],
+          rows: ordered.map((model) => [
+            modelLink(model),
+            earlyProviderLabel(model),
+            deprecationCell(model),
+            shutdownCell(model),
+            replacementText(model, catalog),
+          ]),
+        },
+        sources,
+      },
+      {
+        heading: "What breaks",
+        paragraphs: [
+          `On ${whenJan} the Vertex gemini-3.7-flash row reaches the shutdown date stored in the dataset. On ${whenMar} both gemini-2.5-flash-image rows reach the shutdown date stored on that row. The Vertex model versions page says: "${VERTEX_RETIRE_ERRORS}" The three steps on that page are: update the application to point to the recommended upgrades, test all mission critical features, and deploy the updates. It does not print an HTTP status for that moment.`,
+          `The same page says: "${VERTEX_EXTEND}" And: "${VERTEX_FOOTNOTE}" A Vertex retirement date is not a Gemini API shutdown date. The Gemini API deprecations page says: "${GEMINI_SHUTDOWN}" It also says: "${GEMINI_EARLIEST}" The Gemini API gemini-2.5-flash-image row stores shutdown_date_kind ${apiImage?.shutdown_date_kind ?? "Not published"}. The page still calls the table date the earliest possible retirement.`,
+          `The pricing warning for the Gemini API image id says: "${IMAGE_SHUTDOWN_WARNING}" It says "service disruption" and does not print an HTTP status.`,
+        ],
+        sources: [
+          { label: "Vertex AI model versions", url: GEMINI_VERTEX },
+          { label: "Gemini API deprecations", url: GEMINI_DEPRECATIONS },
+          { label: "Gemini API pricing", url: GEMINI_PRICING_PAGE },
+        ],
+      },
+      {
+        heading: "Change gemini-3.7-flash to gemini-3.8-flash",
+        paragraphs: [
+          `This section is the Vertex id. The 3.8 Flash guide says: "${VERTEX_FROM_37}" Then: "${VERTEX_MODEL_STRING}" Then: "${VERTEX_BUDGET}". ${VERTEX_MINIMAL} Under mandatory API rules, that page says deprecated sampling parameters (temperature, top_k, top_p): "${VERTEX_IGNORED}" It says unsupported parameters: "${VERTEX_THROW}" The checklist says: "${VERTEX_REMOVE_LIST}" It also says: "${VERTEX_HISTORY}" And: "${VERTEX_PREFILL}"`,
+          vertexFlash38
+            ? `The stored replacement row is gemini-3.8-flash, status ${vertexFlash38.status}, shutdown kind ${vertexFlash38.shutdown_date_kind}, shutdown date ${vertexFlash38.shutdown_date ?? "Not published"}. The model versions excerpt says "${vertexFlash38.sources.find((source) => source.url === GEMINI_VERTEX)?.excerpt ?? "Not published"}". September 2, 2027 or later is a floor for the replacement. It is not the ${GOOGLE_EARLY_2027_JAN28} date.`
+            : "The dataset has no Vertex gemini-3.8-flash row.",
+          "The quickstart below sets location to global. A location list for gemini-3.7-flash is Not published on the stored row. Price, context window, and max output tokens are Not published on the Vertex gemini-3.7-flash row and on the Vertex gemini-3.8-flash row. The [migrate diff](/migrate/google-vertex__gemini-3-7-flash__to__google-vertex__gemini-3-8-flash/) shows the stored model-id swap.",
+        ],
+        codes: [
+          {
+            caption: "Retiring Vertex model id, same client shape as the 3.8 Flash quickstart",
+            code: `from google import genai
+
+client = genai.Client(enterprise=True, project="PROJECT_ID", location="global")
+
+response = client.models.generate_content(
+  model="gemini-3.7-flash",
+  contents="How does AI work?",
+)
+print(response.text)
+`,
+          },
+          {
+            caption: "3.8 Flash quickstart",
+            code: `from google import genai
+
+client = genai.Client(enterprise=True, project="PROJECT_ID", location="global")
+
+response = client.models.generate_content(
+  model="gemini-3.8-flash",
+  contents="How does AI work?",
+)
+print(response.text)
+`,
+          },
+        ],
+        sources: [
+          { label: "Developer's guide to Gemini 3.8 Flash", url: VERTEX_FLASH_GUIDE },
+          { label: "Migrate to the latest Gemini models", url: VERTEX_MIGRATE },
+          { label: "Vertex AI model versions", url: GEMINI_VERTEX },
+        ],
+      },
+      {
+        heading: "Change gemini-2.5-flash-image to gemini-3.1-flash-lite-image",
+        paragraphs: [
+          "Each provider stores its own replacement id, gemini-3.1-flash-lite-image. The display name on the Vertex docs excerpt is Gemini 3.1 Flash-Lite Image (Nano Banana 2 Lite). The Gemini API pricing page heading is Gemini 3.1 Flash Lite Image (Nano Banana 2 Lite).",
+          vertexLite
+            ? `The Vertex replacement stores status ${vertexLite.status}, shutdown kind ${vertexLite.shutdown_date_kind}, and shutdown date ${vertexLite.shutdown_date ?? "Not published"}. The model versions excerpt says "${vertexLite.sources.find((source) => source.url === GEMINI_VERTEX)?.excerpt ?? "Not published"}". June 28, 2027 or later is a floor. It is not a shutdown on ${whenMar}.`
+            : "The dataset has no Vertex gemini-3.1-flash-lite-image row.",
+          apiLite
+            ? `The Gemini API replacement stores status ${apiLite.status}, shutdown kind ${apiLite.shutdown_date_kind}, and ${apiLite.shutdown_date ? `shutdown date ${apiLite.shutdown_date}` : "no shutdown_date"}. The deprecations excerpt says "${apiLite.sources.find((source) => source.url === GEMINI_DEPRECATIONS)?.excerpt ?? "Not published"}".`
+            : "The dataset has no Gemini API gemini-3.1-flash-lite-image row.",
+          `The Vertex image migration record says: "${VERTEX_NO_IMAGE_HOST}" This guide does not invent a Vertex image call. The Gemini API migration diff stores a text-to-image sample that calls client.interactions.create. The model field is the only change shown below. The key header on that sample is left out. The [Vertex migrate diff](/migrate/google-vertex__gemini-2-5-flash-image__to__google-vertex__gemini-3-1-flash-lite-image/) and the [Gemini API migrate diff](/migrate/google-gemini-api__gemini-2-5-flash-image__to__google-gemini-api__gemini-3-1-flash-lite-image/) are the stored swaps.`,
+        ],
+        codes: [
+          {
+            caption: "Gemini API text-to-image sample shape, retiring model id",
+            code: `from google import genai
+
+client = genai.Client()
+
+interaction = client.interactions.create(
+    model="gemini-2.5-flash-image",
+    input="Create a picture of a nano banana dish in a fancy restaurant with a Gemini theme",
+)
+`,
+          },
+          {
+            caption: "Same sample shape, stored Gemini API replacement",
+            code: `from google import genai
+
+client = genai.Client()
+
+interaction = client.interactions.create(
+    model="gemini-3.1-flash-lite-image",
+    input="Create a picture of a nano banana dish in a fancy restaurant with a Gemini theme",
+)
+`,
+          },
+        ],
+        sources: [
+          { label: "Gemini API image generation", url: GEMINI_IMAGE_GUIDE },
+          { label: "Vertex AI model versions", url: GEMINI_VERTEX },
+          { label: "Gemini API deprecations", url: GEMINI_DEPRECATIONS },
+        ],
+      },
+      {
+        heading: "Prices and limits the rows store",
+        paragraphs: [
+          "Context tokens and max output tokens below are the numbers stored on each row. Not published means that field is empty. Input price and output price are the stored input_price_per_mtok and output_price_per_mtok fields. A blank field is not a price of zero.",
+          `The Vertex pricing excerpt for gemini-2.5-flash-image says: "${VERTEX_IMAGE_INPUT_EXCERPT}" The excerpt for gemini-3.1-flash-lite-image says: "${VERTEX_LITE_INPUT_EXCERPT}" Those excerpts quote the input cell. An output price sentence is Not published in the stored excerpts. The dataset still stores output_price_per_mtok ${storedNumber(vertexImage?.specs.output_price_per_mtok)} on Vertex gemini-2.5-flash-image and ${storedNumber(vertexLite?.specs.output_price_per_mtok)} on Vertex gemini-3.1-flash-lite-image.`,
+          `The Gemini API pricing page's paid standard input cell for gemini-2.5-flash-image says ${API_IMAGE_INPUT_CELL}. The paid output cell says ${API_IMAGE_OUTPUT_CELL}. The dataset stores output_price_per_mtok ${storedNumber(apiImage?.specs.output_price_per_mtok)} on that row. This guide does not relabel ${API_IMAGE_OUTPUT_CELL} as a per-million-token price. The replacement's paid input cell says ${API_LITE_INPUT_CELL}. Its paid output cell says ${API_LITE_TEXT_OUTPUT} and ${API_LITE_IMAGE_OUTPUT}. The same cell says: "${API_LITE_IMAGE_EQUIV}". The dataset stores output_price_per_mtok ${storedNumber(apiLite?.specs.output_price_per_mtok)} on that replacement, which matches the text-and-thinking figure, not the ${API_LITE_IMAGE_OUTPUT} figure.`,
+          "Vertex gemini-3.7-flash and Vertex gemini-3.8-flash store no price. Those cells say Not published.",
+        ],
+        table: {
+          caption: "Stored context, max output, and price fields. Not published means the field is empty.",
+          headers: ["Model id", "Context tokens", "Max output tokens", "Input price stored", "Output price stored"],
+          rows: limits.map((model) => [
+            modelLink(model),
+            storedNumber(model.specs.context_window_tokens),
+            storedNumber(model.specs.max_output_tokens),
+            storedNumber(model.specs.input_price_per_mtok),
+            storedNumber(model.specs.output_price_per_mtok),
+          ]),
+        },
+        sources: [
+          { label: "Vertex pricing", url: VERTEX_PRICING },
+          { label: "Vertex gemini-2.5-flash-image docs", url: VERTEX_IMAGE_DOCS },
+          { label: "Vertex gemini-3.1-flash-lite-image docs", url: VERTEX_LITE_IMAGE_DOCS },
+          { label: "Gemini API pricing", url: GEMINI_PRICING_PAGE },
+          { label: "Gemini API gemini-2.5-flash-image docs", url: GEMINI_IMAGE_DOCS },
+          { label: "Gemini API gemini-3.1-flash-lite-image docs", url: GEMINI_LITE_IMAGE_DOCS },
+        ],
+      },
+      {
+        heading: "Region notes",
+        paragraphs: [
+          `A region or location list is Not published on these rows. The stored notes are release dates. Vertex gemini-3.7-flash: "${flash37?.region_or_platform_notes ?? "Not published"}". Vertex gemini-2.5-flash-image: "${vertexImage?.region_or_platform_notes ?? "Not published"}". Gemini API gemini-2.5-flash-image: "${apiImage?.region_or_platform_notes ?? "Not published"}".`,
+          `The Vertex page says: "${VERTEX_FOOTNOTE}" The 3.8 Flash quickstart in this guide sets location to global. That is the sample's location argument. It is not a published region list for gemini-3.7-flash. November and December 2026 Vertex locations for other ids are on [Vertex AI Gemini retirements in November and December 2026](/guides/${VERTEX_NOV_DEC_GUIDE_SLUG}/). This guide does not copy those lists onto these ids.`,
+        ],
+        sources: [
+          { label: "Vertex AI model versions", url: GEMINI_VERTEX },
+          { label: "Gemini API deprecations", url: GEMINI_DEPRECATIONS },
+        ],
+      },
+      {
+        heading: "Find the model ids in your code",
+        paragraphs: [
+          "Search the repository for the three ids in the first table. A hit is a candidate. Also search configs that set a Vertex location, and configs that call the Gemini API host. The same model id string can point at either provider. [How to find every model ID in your codebase](/guides/find-model-ids-in-your-codebase/) covers SDK argument names. The [scan page](/scan/) builds a search from dataset ids that have a shutdown date.",
+        ],
+        codes: [{ caption: "ripgrep", code: searchCode(ordered) }],
+        sources,
+      },
+      {
+        heading: "Shutdown pages for these dates",
+        paragraphs: [
+          `SunsetDiff publishes a shutdown batch page when at least ${SHUTDOWN_BATCH_MIN} model records share one provider and one exact shutdown date, or when a date is explicitly included.`,
+          earlyBatchSentence("google-vertex", GOOGLE_EARLY_2027_JAN28, janCount),
+          earlyBatchSentence("google-vertex", GOOGLE_EARLY_2027_MAR15, vertexMarCount),
+          earlyBatchSentence("google-gemini-api", GOOGLE_EARLY_2027_MAR15, apiMarCount),
+          "March 15, 2027 is two pages, one per provider. The Vertex page does not list the Gemini API row, and the Gemini API page does not list the Vertex row.",
+          `November 19, 2026 and December 13, 2026 are a different window. See [Vertex AI Gemini retirements in November and December 2026](/guides/${VERTEX_NOV_DEC_GUIDE_SLUG}/).`,
+        ],
+        sources: [{ label: "Vertex AI model versions", url: GEMINI_VERTEX }, { label: "Gemini API deprecations", url: GEMINI_DEPRECATIONS }],
+      },
+    ],
+    related: [
+      { href: "/models/google-vertex/gemini-3-7-flash/", label: "Vertex gemini-3.7-flash" },
+      { href: "/models/google-vertex/gemini-2-5-flash-image/", label: "Vertex gemini-2.5-flash-image" },
+      { href: "/models/google-gemini-api/gemini-2-5-flash-image/", label: "Gemini API gemini-2.5-flash-image" },
+      { href: "/models/google-vertex/gemini-3-8-flash/", label: "Vertex gemini-3.8-flash" },
+      { href: "/models/google-vertex/gemini-3-1-flash-lite-image/", label: "Vertex gemini-3.1-flash-lite-image" },
+      { href: "/models/google-gemini-api/gemini-3-1-flash-lite-image/", label: "Gemini API gemini-3.1-flash-lite-image" },
+      { href: "/models/google-gemini-api/gemini-3-7-flash/", label: "Gemini API gemini-3.7-flash" },
+      { href: "/migrate/google-vertex__gemini-3-7-flash__to__google-vertex__gemini-3-8-flash/", label: "Vertex gemini-3.7-flash to gemini-3.8-flash" },
+      { href: "/migrate/google-vertex__gemini-2-5-flash-image__to__google-vertex__gemini-3-1-flash-lite-image/", label: "Vertex image id to gemini-3.1-flash-lite-image" },
+      { href: "/migrate/google-gemini-api__gemini-2-5-flash-image__to__google-gemini-api__gemini-3-1-flash-lite-image/", label: "Gemini API image id to gemini-3.1-flash-lite-image" },
+      { href: "/providers/google-vertex/", label: "Google Vertex AI provider page" },
+      { href: "/providers/google-gemini-api/", label: "Google Gemini API provider page" },
+      { href: `/shutdowns/google-vertex-${GOOGLE_EARLY_2027_JAN28}/`, label: `Vertex AI shutdowns on ${whenJan}` },
+      { href: `/shutdowns/google-vertex-${GOOGLE_EARLY_2027_MAR15}/`, label: `Vertex AI shutdowns on ${whenMar}` },
+      { href: `/shutdowns/google-gemini-api-${GOOGLE_EARLY_2027_MAR15}/`, label: `Gemini API shutdowns on ${whenMar}` },
+      { href: `/guides/${VERTEX_NOV_DEC_GUIDE_SLUG}/`, label: "Vertex AI Gemini retirements in November and December 2026" },
+      { href: "/guides/why-shutdown-dates-differ-by-platform/", label: "Why shutdown dates differ by platform" },
+      { href: "/guides/find-model-ids-in-your-codebase/", label: "Find model ids in your codebase" },
+      { href: "/guides/pre-migration-test-checklist/", label: "Pre-migration test checklist" },
+      { href: "/scan/", label: "Scan retiring ids" },
+    ],
+    faqs: [
+      {
+        question: "Which Google models shut down in January and March 2027?",
+        answer: `The dataset lists ${ordered.map((model) => `${earlyProviderLabel(model)} ${model.id} on ${model.shutdown_date}`).join("; ")}. Each row is status deprecated. A deprecation date is Not published.`,
+      },
+      {
+        question: "What is the official replacement?",
+        answer: `${replacementFaq(ordered, catalog)} Vertex gemini-3.8-flash stores shutdown date ${vertexFlash38?.shutdown_date ?? "Not published"} with kind ${vertexFlash38?.shutdown_date_kind ?? "Not published"}. Vertex gemini-3.1-flash-lite-image stores ${vertexLite?.shutdown_date ?? "Not published"} with kind ${vertexLite?.shutdown_date_kind ?? "Not published"}. Gemini API gemini-3.1-flash-lite-image stores ${apiLite?.shutdown_date ? `shutdown date ${apiLite.shutdown_date}` : "no shutdown_date"} and the excerpt says "No shutdown date announced".`,
+      },
+      {
+        question: "What breaks on the shutdown date?",
+        answer: `The Vertex page says to resolve the errors caused by models reaching their retirement dates. It does not print an HTTP status. It says: "${VERTEX_EXTEND}" The Gemini API page says: "${GEMINI_SHUTDOWN}" The pricing warning says: "${IMAGE_SHUTDOWN_WARNING}"`,
+      },
+      {
+        question: "Does Gemini API gemini-3.7-flash shut down on January 28, 2027?",
+        answer: api37
+          ? `No. The Vertex row stores ${GOOGLE_EARLY_2027_JAN28}. The Gemini API row stores shutdown kind ${api37.shutdown_date_kind} and ${api37.shutdown_date ? `shutdown date ${api37.shutdown_date}` : "no shutdown_date"}. Its excerpt says the endpoint is not shutting down and automatically routes API requests to gemini-3.8-flash.`
+          : "The dataset has no Gemini API gemini-3.7-flash row.",
+      },
+      {
+        question: "Do Vertex and the Gemini API share one March 15 page?",
+        answer: `${earlyBatchSentence("google-vertex", GOOGLE_EARLY_2027_MAR15, vertexMarCount)} ${earlyBatchSentence("google-gemini-api", GOOGLE_EARLY_2027_MAR15, apiMarCount)} They are separate provider pages.`,
+      },
+      {
+        question: "Is a region list published?",
+        answer: "No. A region or location list is Not published on these rows. The stored note on each row is a release date. The 3.8 Flash quickstart sets location to global. That sample is not a region list for the retiring ids.",
+      },
+      {
+        question: "What changes besides the gemini-3.7-flash model id?",
+        answer: `The 3.8 Flash guide says: "${VERTEX_BUDGET}". ${VERTEX_MINIMAL} It says: "${VERTEX_IGNORED}" It also says: "${VERTEX_THROW}" The checklist says: "${VERTEX_REMOVE_LIST}" And: "${VERTEX_PREFILL}" Price and token limits for the two Vertex text rows are Not published.`,
+      },
+      {
+        question: "What token limits change for the image ids?",
+        answer: `Vertex gemini-2.5-flash-image stores context ${storedNumber(vertexImage?.specs.context_window_tokens)} and max output ${storedNumber(vertexImage?.specs.max_output_tokens)}. Vertex gemini-3.1-flash-lite-image stores context ${storedNumber(vertexLite?.specs.context_window_tokens)} and max output ${storedNumber(vertexLite?.specs.max_output_tokens)}. Gemini API gemini-2.5-flash-image stores context ${storedNumber(apiImage?.specs.context_window_tokens)} and max output ${storedNumber(apiImage?.specs.max_output_tokens)}. Gemini API gemini-3.1-flash-lite-image stores context ${storedNumber(apiLite?.specs.context_window_tokens)} and max output ${storedNumber(apiLite?.specs.max_output_tokens)}.`,
+      },
+    ],
+    citations: [
+      GEMINI_VERTEX,
+      VERTEX_FLASH_GUIDE,
+      VERTEX_MIGRATE,
+      GEMINI_DEPRECATIONS,
+      GEMINI_PRICING_PAGE,
+      GEMINI_IMAGE_GUIDE,
+      GEMINI_IMAGE_DOCS,
+      GEMINI_LITE_IMAGE_DOCS,
+      VERTEX_PRICING,
+      VERTEX_IMAGE_DOCS,
+      VERTEX_LITE_IMAGE_DOCS,
     ],
   };
 }

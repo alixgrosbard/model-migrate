@@ -59,6 +59,7 @@ const ALLOWED_HOSTS = new Set([
   "ai.google.dev",
   "aistudio.google.com",
   "docs.cloud.google.com",
+  "cloud.google.com",
   "firebase.google.com",
   "learn.microsoft.com",
   "docs.aws.amazon.com",
@@ -2490,6 +2491,103 @@ describe("guides", () => {
     expect(text).toContain("/guides/vertex-ai-gemini-retirements-november-december-2026/");
     expect(full).toContain("/guides/vertex-ai-gemini-retirements-november-december-2026/");
     expect(lastmodForUrl("https://sunsetdiff.com/guides/vertex-ai-gemini-retirements-november-december-2026/")).toBe("2026-11-02");
+  });
+
+  it("builds the Google early 2027 Gemini guide from the dataset and publishes the March 15 date pages", async () => {
+    const models = await loadModels();
+    const wanted = [
+      ["google-vertex", "gemini-3.7-flash", "2027-01-28", "gemini-3.8-flash"],
+      ["google-gemini-api", "gemini-2.5-flash-image", "2027-03-15", "gemini-3.1-flash-lite-image"],
+      ["google-vertex", "gemini-2.5-flash-image", "2027-03-15", "gemini-3.1-flash-lite-image"],
+    ] as const;
+    const rows = wanted.map(([provider, id]) => models.find((model) => model.provider === provider && model.id === id));
+    expect(rows.every(Boolean)).toBe(true);
+    if (rows.some((model) => !model)) return;
+    const present = rows.filter((model): model is ModelRecord => Boolean(model));
+    expect(present.map((model) => [model.provider, model.id, model.shutdown_date, model.status, model.shutdown_date_kind])).toEqual(
+      wanted.map(([provider, id, date]) => [provider, id, date, "deprecated", "exact"]),
+    );
+    expect(present.map((model) => model.replacements.map((item) => item.model_id))).toEqual(wanted.map((row) => [row[3]]));
+    expect(present.every((model) => model.deprecation_date == null)).toBe(true);
+
+    const { shutdownEvents } = await import("../src/lib/shutdowns.ts");
+    const events = shutdownEvents(models);
+    const jan = events.find((event) => event.slug === "google-vertex-2027-01-28");
+    const vertexMar = events.find((event) => event.slug === "google-vertex-2027-03-15");
+    const apiMar = events.find((event) => event.slug === "google-gemini-api-2027-03-15");
+    expect(jan?.models.map((model) => model.id)).toEqual(["gemini-3.7-flash"]);
+    expect(vertexMar?.models.map((model) => model.id)).toEqual(["gemini-2.5-flash-image"]);
+    expect(apiMar?.models.map((model) => model.id)).toEqual(["gemini-2.5-flash-image"]);
+
+    const guide = guides.find((item) => item.slug === "google-gemini-3-7-flash-2-5-flash-image-shutdowns-january-march-2027");
+    expect(guide).toBeTruthy();
+    if (!guide) return;
+    expect(guidePath(guide.slug)).toBe("/guides/google-gemini-3-7-flash-2-5-flash-image-shutdowns-january-march-2027/");
+    const checked = present.flatMap((model) => model.sources.map((source) => source.last_checked)).sort().at(-1);
+    expect(guideChecked(guide)).toBe(checked);
+    expect(guide.h1).toBe("Google Gemini 3.7 Flash and 2.5 Flash Image shutdowns from January 28, 2027 to March 15, 2027");
+    const table = guide.sections.find((section) => section.heading === "Models and dates")?.table;
+    expect(table?.headers).toEqual(["Model id", "Provider", "Deprecation date", "Shutdown date", "Recommended replacement"]);
+    expect(table?.rows.map((row) => row[0])).toEqual(present.map((model) => `[${model.id}](/models/${model.provider}/${model.slug}/)`));
+    expect(table?.rows.map((row) => row[2])).toEqual(["Not published", "Not published", "Not published"]);
+    expect(table?.rows.map((row) => row[3])).toEqual(["2027-01-28", "2027-03-15", "2027-03-15"]);
+    expect(table?.rows[0]?.[4]).toContain("gemini-3.8-flash");
+    expect(table?.rows[1]?.[4]).toContain("gemini-3.1-flash-lite-image");
+    expect(table?.rows[2]?.[4]).toContain("gemini-3.1-flash-lite-image");
+    const blob = JSON.stringify(guide);
+    expect(blob).toContain("](/shutdowns/google-vertex-2027-01-28/)");
+    expect(blob).toContain("](/shutdowns/google-vertex-2027-03-15/)");
+    expect(blob).toContain("](/shutdowns/google-gemini-api-2027-03-15/)");
+    expect(blob).toContain("/providers/google-vertex/");
+    expect(blob).toContain("/providers/google-gemini-api/");
+    expect(blob).toContain("/models/google-gemini-api/gemini-3-7-flash/");
+    expect(blob).toContain("no shutdown_date");
+    expect(blob).toContain("automatically routes API requests to gemini-3.8-flash");
+    expect(blob).toContain("Not published");
+    expect(blob).toContain("A region or location list is Not published");
+    expect(blob).toContain("$0.039 per image");
+    expect(blob).toContain("$30.00 (images)");
+    expect(blob).toContain("does not show a Vertex host");
+    expect(blob).toContain("https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/model-versions");
+    expect(blob).toContain("https://ai.google.dev/gemini-api/docs/deprecations");
+    expect(blob).toContain("https://ai.google.dev/gemini-api/docs/pricing");
+    expect(blob).toContain("https://cloud.google.com/gemini-enterprise-agent-platform/generative-ai/pricing");
+    expect(blob).toContain("/guides/vertex-ai-gemini-retirements-november-december-2026/");
+    expect(blob).not.toContain("Bearer");
+    expect(blob).not.toMatch(/[—–]/);
+    const sample = guide.sections.flatMap((section) => section.codes ?? []).map((item) => item.code).join("\n");
+    expect(sample).toContain('model="gemini-3.7-flash"');
+    expect(sample).toContain('model="gemini-3.8-flash"');
+    expect(sample).toContain('model="gemini-2.5-flash-image"');
+    expect(sample).toContain('model="gemini-3.1-flash-lite-image"');
+    expect(sample).toContain("rg -n");
+    expect(sitemapSection(guidePath(guide.slug))).toBe("sitemap-guides.xml");
+    for (const model of present) {
+      expect(guidesForModel(model, models).map((link) => link.href)[0]).toBe(guidePath(guide.slug));
+    }
+    const vertexReplacement = models.find((model) => model.provider === "google-vertex" && model.id === "gemini-3.8-flash");
+    const apiReplacement = models.find((model) => model.provider === "google-gemini-api" && model.id === "gemini-3.1-flash-lite-image");
+    const apiFlash = models.find((model) => model.provider === "google-gemini-api" && model.id === "gemini-3.7-flash");
+    expect(guidesForModel(vertexReplacement!, models).map((link) => link.href)).toContain(guidePath(guide.slug));
+    expect(guidesForModel(apiReplacement!, models).map((link) => link.href)).toContain(guidePath(guide.slug));
+    expect(guidesForModel(apiFlash!, models).map((link) => link.href)[0]).toBe(guidePath(guide.slug));
+    expect(apiFlash?.shutdown_date).toBeNull();
+    const graph = guideGraph("https://sunsetdiff.com/", guide);
+    expect(graph.some((node) => node["@type"] === "HowTo")).toBe(true);
+    expect(graph.some((node) => node["@type"] === "FAQPage")).toBe(true);
+    const providerPage = readFileSync("src/pages/providers/[provider].astro", "utf8");
+    const shutdownPage = readFileSync("src/pages/shutdowns/[slug].astro", "utf8");
+    expect(providerPage).toContain("/guides/google-gemini-3-7-flash-2-5-flash-image-shutdowns-january-march-2027/");
+    expect(providerPage).toContain('href="/shutdowns/google-vertex-2027-03-15/"');
+    expect(providerPage).toContain('href="/shutdowns/google-gemini-api-2027-03-15/"');
+    expect(shutdownPage).toContain("google-gemini-3-7-flash-2-5-flash-image-shutdowns-january-march-2027");
+    const text = llmsTxt("https://sunsetdiff.com", [], []);
+    const full = llmsFull("https://sunsetdiff.com", []);
+    expect(text).toContain("/guides/google-gemini-3-7-flash-2-5-flash-image-shutdowns-january-march-2027/");
+    expect(full).toContain("/guides/google-gemini-3-7-flash-2-5-flash-image-shutdowns-january-march-2027/");
+    expect(lastmodForUrl("https://sunsetdiff.com/guides/google-gemini-3-7-flash-2-5-flash-image-shutdowns-january-march-2027/")).toBe(checked);
+    const index = guidesIndexGraph("https://sunsetdiff.com/", guides.map((item) => ({ name: item.h1, path: guidePath(item.slug) })), []);
+    expect(JSON.stringify(index)).toContain("/guides/google-gemini-3-7-flash-2-5-flash-image-shutdowns-january-march-2027/");
   });
 
   it("builds the OpenRouter November and December 2026 expiration guide from the dataset", async () => {
