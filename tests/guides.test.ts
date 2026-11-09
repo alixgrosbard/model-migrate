@@ -850,6 +850,68 @@ describe("guides", () => {
     expect(shutdownPage).toContain("amazon-bedrock-claude-3-haiku-sonnet-ca-central-1-november-27-2026");
   });
 
+  it("builds the Bedrock Claude Opus 4.1 January 8, 2027 guide from the dataset", async () => {
+    const models = await loadModels();
+    const rows = models
+      .filter((model) => model.provider === "aws-bedrock" && model.id === "anthropic.claude-opus-4-1-20250805-v1:0" && model.shutdown_date === "2027-01-08")
+      .sort((a, b) => a.id.localeCompare(b.id) || a.slug.localeCompare(b.slug));
+    expect(rows.map((model) => model.id)).toEqual(["anthropic.claude-opus-4-1-20250805-v1:0"]);
+    expect(rows[0]?.status).toBe("legacy");
+    expect(rows[0]?.deprecation_date).toBe("2026-07-08");
+    expect(rows[0]?.replacements).toEqual([]);
+    expect(rows[0]?.region_or_platform_notes).toContain("us-east-1");
+    const guide = guides.find((item) => item.slug === "amazon-bedrock-claude-opus-4-1-shutdown-january-8-2027");
+    expect(guide).toBeTruthy();
+    if (!guide) return;
+    expect(guidePath(guide.slug)).toBe("/guides/amazon-bedrock-claude-opus-4-1-shutdown-january-8-2027/");
+    const checked = rows.flatMap((model) => model.sources.map((source) => source.last_checked)).sort().at(-1);
+    expect(guideChecked(guide)).toBe(checked);
+    expect(guide.h1).toContain("January 8, 2027");
+    const table = guide.sections.find((section) => section.heading === "The model shutting down")?.table;
+    expect(table?.headers).toEqual(["Model id", "Legacy date stored", "Shutdown date", "Regions", "Recommended replacement"]);
+    expect(table?.rows.map((row) => row[0])).toEqual(
+      rows.map((model) => `[${model.id}](/models/${model.provider}/${model.slug}/)`),
+    );
+    expect(table?.rows.map((row) => row[1])).toEqual(rows.map((model) => model.deprecation_date));
+    expect(table?.rows.map((row) => row[2])).toEqual(rows.map((model) => model.shutdown_date));
+    expect(table?.rows[0]?.[3]).toContain("us-east-1, us-east-2, us-west-2");
+    expect(table?.rows.every((row) => row[4] === "Not published")).toBe(true);
+    const blob = JSON.stringify(guide);
+    expect(blob).toContain("anthropic.claude-opus-4-1-20250805-v1:0");
+    expect(blob).toContain("/models/aws-bedrock/anthropic-claude-opus-4-1-20250805-v1-0/");
+    expect(blob).toContain("/shutdowns/aws-bedrock-2027-01-08/");
+    expect(blob).toContain("/providers/aws-bedrock/");
+    expect(blob).toContain("https://docs.aws.amazon.com/bedrock/latest/userguide/model-lifecycle-legacy.html");
+    expect(blob).toContain("https://docs.aws.amazon.com/bedrock/latest/userguide/model-lifecycle.html");
+    expect(blob).toContain("The replacement list is empty");
+    expect(blob).toContain("claude-opus-4-1-20250805");
+    expect(blob).toContain("Claude Opus 4.1");
+    expect(blob).not.toContain("The official replacement is claude-opus-4-8");
+    expect(blob).not.toMatch(/[—–]/);
+    expect(sitemapSection(guidePath(guide.slug))).toBe("sitemap-guides.xml");
+    expect(guidesForModel(rows[0], models).map((link) => link.href)[0]).toBe(guidePath(guide.slug));
+    const graph = guideGraph("https://sunsetdiff.com/", guide);
+    expect(graph.some((node) => node["@type"] === "HowTo")).toBe(true);
+    expect(graph.some((node) => node["@type"] === "FAQPage")).toBe(true);
+    expect(graph.find((node) => node["@type"] === "Article")).toMatchObject({
+      author: { "@type": "Organization", name: "SunsetDiff" },
+      publisher: { "@type": "Organization", name: "SunsetDiff" },
+      dateModified: checked,
+    });
+    const providerPage = readFileSync("src/pages/providers/[provider].astro", "utf8");
+    const shutdownPage = readFileSync("src/pages/shutdowns/[slug].astro", "utf8");
+    expect(providerPage).toContain("/guides/amazon-bedrock-claude-opus-4-1-shutdown-january-8-2027/");
+    expect(providerPage).toContain("/models/aws-bedrock/anthropic-claude-opus-4-1-20250805-v1-0/");
+    expect(shutdownPage).toContain("amazon-bedrock-claude-opus-4-1-shutdown-january-8-2027");
+    const text = llmsTxt("https://sunsetdiff.com", [], []);
+    const full = llmsFull("https://sunsetdiff.com", []);
+    expect(text).toContain("/guides/amazon-bedrock-claude-opus-4-1-shutdown-january-8-2027/");
+    expect(full).toContain("/guides/amazon-bedrock-claude-opus-4-1-shutdown-january-8-2027/");
+    expect(lastmodForUrl("https://sunsetdiff.com/guides/amazon-bedrock-claude-opus-4-1-shutdown-january-8-2027/")).toBe(checked);
+    const events = shutdownEvents(models);
+    expect(events.some((event) => event.slug === "aws-bedrock-2027-01-08" && event.models.some((model) => model.id === rows[0].id))).toBe(true);
+  });
+
   it("builds the Azure OpenAI November 19 guide from the dataset", async () => {
     const models = await loadModels();
     const rows = models
@@ -1009,6 +1071,95 @@ describe("guides", () => {
     expect(text).toContain("/guides/azure-openai-retirements-november-december-2026/");
     expect(full).toContain("/guides/azure-openai-retirements-november-december-2026/");
     expect(lastmodForUrl("https://sunsetdiff.com/guides/azure-openai-retirements-november-december-2026/")).toBe("2026-11-02");
+  });
+
+  it("builds the Azure OpenAI January and February 2027 guide from the dataset", async () => {
+    const models = await loadModels();
+    const ids = [
+      "gpt-chat-latest-2026-08-06",
+      "gpt-4o-2024-05-13",
+      "gpt-realtime-2-2026-05-06",
+      "gpt-5-2025-08-07",
+      "gpt-5-nano-2025-08-07",
+    ];
+    const rows = models
+      .filter((model) => model.provider === "azure-openai" && ids.includes(model.id))
+      .sort((a, b) => (a.shutdown_date ?? "").localeCompare(b.shutdown_date ?? "") || a.id.localeCompare(b.id));
+    expect(rows.map((model) => [model.id, model.shutdown_date])).toEqual([
+      ["gpt-chat-latest-2026-08-06", "2027-01-12"],
+      ["gpt-4o-2024-05-13", "2027-01-14"],
+      ["gpt-realtime-2-2026-05-06", "2027-01-20"],
+      ["gpt-5-2025-08-07", "2027-02-09"],
+      ["gpt-5-nano-2025-08-07", "2027-02-09"],
+    ]);
+    expect(rows.find((model) => model.id === "gpt-realtime-2-2026-05-06")?.replacements.map((item) => item.model_id)).toEqual(["gpt-realtime-2.1"]);
+    expect(rows.filter((model) => model.id !== "gpt-realtime-2-2026-05-06").every((model) => model.replacements.length === 0)).toBe(true);
+    const guide = guides.find((item) => item.slug === "azure-openai-retirements-january-february-2027");
+    expect(guide).toBeTruthy();
+    if (!guide) return;
+    expect(guidePath(guide.slug)).toBe("/guides/azure-openai-retirements-january-february-2027/");
+    const checked = rows.flatMap((model) => model.sources.map((source) => source.last_checked)).sort().at(-1);
+    expect(guideChecked(guide)).toBe(checked);
+    expect(guide.h1).toBe("Azure OpenAI retirements from January 12, 2027 to February 9, 2027");
+    const table = guide.sections.find((section) => section.heading === "Models and dates")?.table;
+    expect(table?.headers).toEqual(["Model id", "Lifecycle on the schedule", "Shutdown date", "Recommended replacement"]);
+    expect(table?.rows.map((row) => row[0])).toEqual(
+      rows.map((model) => `[${model.id}](/models/${model.provider}/${model.slug}/)`),
+    );
+    expect(table?.rows.map((row) => row[1])).toEqual(["Preview", "Deprecated", "Preview", "GA", "GA"]);
+    expect(table?.rows.map((row) => row[2])).toEqual(rows.map((model) => model.shutdown_date));
+    expect(table?.rows.map((row) => row[3])).toEqual([
+      "Not published",
+      "Not published",
+      "[gpt-realtime-2.1](/models/azure-openai/gpt-realtime-2-1/)",
+      "Not published",
+      "Not published",
+    ]);
+    const blob = JSON.stringify(guide);
+    expect(blob).toContain("gpt-5.1 (2025-11-13)");
+    expect(blob).toContain("The replacement model is gpt-5.1 version 2025-11-13.");
+    expect(blob).toContain("does not store that excerpt cell as an official replacement id");
+    expect(blob).toContain("/models/azure-openai/gpt-5-1-2025-11-13/");
+    expect(blob).toContain("2027-07-13");
+    expect(blob).toContain("/shutdowns/azure-openai-2027-01-12/");
+    expect(blob).toContain("/shutdowns/azure-openai-2027-01-14/");
+    expect(blob).toContain("/shutdowns/azure-openai-2027-01-20/");
+    expect(blob).toContain("/shutdowns/azure-openai-2027-02-09/");
+    expect(blob).toContain("/guides/azure-openai-retirements-november-december-2026/");
+    expect(blob).toContain("/guides/azure-openai-gpt-4-1-gpt-4o-retirement-april-14-2027/");
+    expect(blob).toContain("/guides/openai-gpt-4-1-gpt-4o-shutdown-january-2027/");
+    expect(blob).toContain("/guides/openai-audio-realtime-tts-shutdowns-january-2027/");
+    expect(blob).toContain("/providers/azure-openai/");
+    expect(blob).toContain("All inference requests return 410 Gone.");
+    expect(blob).toContain("https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/model-retirement-schedule");
+    expect(blob).not.toMatch(/[—–]/);
+    expect(sitemapSection(guidePath(guide.slug))).toBe("sitemap-guides.xml");
+    for (const model of rows) {
+      expect(guidesForModel(model, models).map((link) => link.href)[0]).toBe(guidePath(guide.slug));
+    }
+    const graph = guideGraph("https://sunsetdiff.com/", guide);
+    expect(graph.some((node) => node["@type"] === "HowTo")).toBe(true);
+    expect(graph.some((node) => node["@type"] === "FAQPage")).toBe(true);
+    expect(graph.find((node) => node["@type"] === "Article")).toMatchObject({
+      author: { "@type": "Organization", name: "SunsetDiff" },
+      publisher: { "@type": "Organization", name: "SunsetDiff" },
+      dateModified: checked,
+    });
+    const providerPage = readFileSync("src/pages/providers/[provider].astro", "utf8");
+    const shutdownPage = readFileSync("src/pages/shutdowns/[slug].astro", "utf8");
+    expect(providerPage).toContain("/guides/azure-openai-retirements-january-february-2027/");
+    expect(providerPage).toContain('href="/shutdowns/azure-openai-2027-02-09/"');
+    expect(shutdownPage).toContain("azure-openai-retirements-january-february-2027");
+    const text = llmsTxt("https://sunsetdiff.com", [], []);
+    const full = llmsFull("https://sunsetdiff.com", []);
+    expect(text).toContain("/guides/azure-openai-retirements-january-february-2027/");
+    expect(full).toContain("/guides/azure-openai-retirements-january-february-2027/");
+    expect(lastmodForUrl("https://sunsetdiff.com/guides/azure-openai-retirements-january-february-2027/")).toBe(checked);
+    const events = shutdownEvents(models);
+    const feb9 = events.find((event) => event.slug === "azure-openai-2027-02-09");
+    expect(feb9?.models.map((model) => model.id).sort()).toEqual(["gpt-5-2025-08-07", "gpt-5-nano-2025-08-07"]);
+    const index = guidesIndexGraph("https://sunsetdiff.com/", guides.map((item) => ({ name: item.h1, path: guidePath(item.slug) })), []);
+    expect(JSON.stringify(index)).toContain("/guides/azure-openai-retirements-january-february-2027/");
   });
 
   it("builds the Azure OpenAI April 14, 2027 GPT-4.1 and GPT-4o guide from the dataset", async () => {

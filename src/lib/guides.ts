@@ -3,8 +3,10 @@ import { aliasSnapshotView } from "./aliases.ts";
 import {
   AZURE_APRIL14_GUIDE_SLUG,
   AZURE_NOV19_GUIDE_SLUG,
+  AZURE_JAN_FEB_GUIDE_SLUG,
   AZURE_NOV_DEC_GUIDE_SLUG,
   BEDROCK_JAMBA_NOV26_GUIDE_SLUG,
+  BEDROCK_OPUS41_GUIDE_SLUG,
   BEDROCK_MARENGO_NOV30_GUIDE_SLUG,
   BEDROCK_MAR30_GUIDE_SLUG,
   BEDROCK_NOV13_GUIDE_SLUG,
@@ -32,7 +34,9 @@ import {
   isAzureChatLatestNov17,
   isAzureCodexMini,
   isAzureNov19OSeries,
+  isAzureJanFebRetirement,
   isAzureNovDecRetirement,
+  isBedrockOpus41Jan8Shutdown,
   isBedrockJambaNov26Shutdown,
   isBedrockMarengoNov30Shutdown,
   isBedrockMar30OpenWeightShutdown,
@@ -2495,6 +2499,7 @@ export function guidesForModel(model: ModelRecord, catalog: ModelRecord[], day =
   if (isBedrockNov27Shutdown(model) || (model.provider === "aws-bedrock" && (model.id === "anthropic.claude-3-haiku-20240307-v1:0" || model.id === "anthropic.claude-3-sonnet-20240229-v1:0"))) {
     add(BEDROCK_NOV27_GUIDE_SLUG);
   }
+  if (isBedrockOpus41Jan8Shutdown(model)) add(BEDROCK_OPUS41_GUIDE_SLUG);
   if (isBedrockJambaNov26Shutdown(model)) add(BEDROCK_JAMBA_NOV26_GUIDE_SLUG);
   if (isBedrockMarengoNov30Shutdown(model) || (model.provider === "aws-bedrock" && model.id === "twelvelabs.marengo-embed-3-0-v1:0")) {
     add(BEDROCK_MARENGO_NOV30_GUIDE_SLUG);
@@ -2507,6 +2512,7 @@ export function guidesForModel(model: ModelRecord, catalog: ModelRecord[], day =
   if (isMistralApril30Retirement(model)) add(MISTRAL_APRIL30_GUIDE_SLUG);
   if (isVertexApril1EmbeddingShutdown(model)) add(VERTEX_EMBED_APRIL1_GUIDE_SLUG);
   if (isAzureNovDecRetirement(model)) add(AZURE_NOV_DEC_GUIDE_SLUG);
+  if (isAzureJanFebRetirement(model)) add(AZURE_JAN_FEB_GUIDE_SLUG);
   if (isAzureNov19OSeries(model) || isAzureCodexMini(model) || isAzureChatLatestNov17(model)) add(AZURE_NOV19_GUIDE_SLUG);
   if (isCopilotNov16Shutdown(model)) add(COPILOT_NOV16_GUIDE_SLUG);
   if (isFireworksNov7Shutdown(model)) add(FIREWORKS_NOV7_GUIDE_SLUG);
