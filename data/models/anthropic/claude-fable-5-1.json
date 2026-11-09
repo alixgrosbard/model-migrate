@@ -23,6 +23,12 @@
       "label": "Anthropic models overview",
       "last_checked": "2026-11-09",
       "excerpt": "claude-fable-5-1 | Context window 1M tokens | Max output 128K tokens | Text and image input, text output, vision, and tool use."
+    },
+    {
+      "url": "https://platform.claude.com/docs/en/models/fable-5-1/overview.md",
+      "label": "Anthropic model docs",
+      "last_checked": "2026-11-09",
+      "excerpt": "Model ID: claude-fable-5-1 | context window 1000000 | max output 128000 | input $10/MTok | output $50/MTok"
     }
   ],
   "specs": {
@@ -33,21 +39,16 @@
     "currency": "USD",
     "context_window_tokens": 1000000,
     "max_output_tokens": 128000,
-    "modalities_in": [
-      "text",
-      "image"
-    ],
-    "modalities_out": [
-      "text"
-    ],
-    "supports_tools": true,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
     "supports_json_schema": null,
-    "supports_vision": true,
+    "supports_vision": null,
     "supports_streaming": null,
     "supports_batch": null,
     "supports_prompt_caching": null,
-    "reasoning": "always",
-    "knowledge_cutoff": "Jun 2026",
+    "reasoning": null,
+    "knowledge_cutoff": null,
     "endpoints": null,
     "specs_sources": {
       "cached_input_price_per_mtok": {
@@ -55,47 +56,23 @@
         "last_checked": "2026-11-09"
       },
       "context_window_tokens": {
-        "url": "https://platform.claude.com/docs/en/about-claude/models/overview",
+        "url": "https://platform.claude.com/docs/en/models/fable-5-1/overview.md",
         "last_checked": "2026-11-09"
       },
       "input_price_per_mtok": {
         "url": "https://platform.claude.com/docs/en/about-claude/pricing",
         "last_checked": "2026-11-09"
       },
-      "knowledge_cutoff": {
-        "url": "https://platform.claude.com/docs/en/about-claude/models/overview",
-        "last_checked": "2026-11-09"
-      },
       "max_output_tokens": {
-        "url": "https://platform.claude.com/docs/en/about-claude/models/overview",
-        "last_checked": "2026-11-09"
-      },
-      "modalities_in": {
-        "url": "https://platform.claude.com/docs/en/about-claude/models/overview",
-        "last_checked": "2026-11-09"
-      },
-      "modalities_out": {
-        "url": "https://platform.claude.com/docs/en/about-claude/models/overview",
+        "url": "https://platform.claude.com/docs/en/models/fable-5-1/overview.md",
         "last_checked": "2026-11-09"
       },
       "output_price_per_mtok": {
         "url": "https://platform.claude.com/docs/en/about-claude/pricing",
         "last_checked": "2026-11-09"
-      },
-      "reasoning": {
-        "url": "https://platform.claude.com/docs/en/about-claude/models/overview",
-        "last_checked": "2026-11-09"
-      },
-      "supports_tools": {
-        "url": "https://platform.claude.com/docs/en/about-claude/models/overview",
-        "last_checked": "2026-11-09"
-      },
-      "supports_vision": {
-        "url": "https://platform.claude.com/docs/en/about-claude/models/overview",
-        "last_checked": "2026-11-09"
       }
     }
   },
   "first_seen": "2026-10-17T15:59:19.574Z",
-  "updated_at": "2026-10-24T04:39:18.299Z"
+  "updated_at": "2026-11-09T22:23:32.850Z"
 }
