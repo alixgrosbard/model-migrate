@@ -1,4 +1,5 @@
 import type { FaqItem } from "./format.ts";
+import { THINKING_BLOCK_ERROR } from "./request-error-more.ts";
 
 /** Hub for request settings and endpoints a replacement rejects. */
 export const BREAKING_CHANGES_PATH = "/breaking-changes/";
@@ -30,6 +31,11 @@ const GEMINI_DEPRECATIONS = "https://ai.google.dev/gemini-api/docs/deprecations"
 const CLAUDE_VERSIONING = "https://platform.claude.com/docs/en/api/versioning";
 const CLAUDE_MIGRATION_2026 = "https://platform.claude.com/docs/en/api/migration-2026-10-21";
 const ISSUE_MESSAGE_PARAM = "https://github.com/pydantic/pydantic-ai/issues/10923";
+const THINKING_TROUBLE = "https://platform.claude.com/docs/en/build-with-claude/thinking-troubleshooting";
+const PRESERVED_THINKING = "https://platform.claude.com/docs/en/build-with-claude/preserved-thinking";
+const FABLE_WHATS_NEW = "https://platform.claude.com/docs/en/models/fable-5-2/whats-new-fable-5-2";
+const FABLE_MIGRATION = "https://platform.claude.com/docs/en/models/fable-5-2/migration-guide";
+const BEDROCK_BINDING = "https://docs.aws.amazon.com/bedrock/latest/userguide/claude-messages-thinking-block-binding.html";
 
 const CHECKED_ERRORS = "2026-10-20";
 const CHECKED_LATER = "2026-10-21";
@@ -724,6 +730,34 @@ export const breakingChanges: BreakingChange[] = [
     error_page: null,
     migrations: [],
     citations: cited([CLAUDE_MIGRATION_2026, ISSUE_MESSAGE_PARAM, CLAUDE_VERSIONING]),
+  },
+  {
+    id: "anthropic-thinking-block-bound-to-a-different-conversation",
+    provider: "anthropic",
+    provider_name: "Anthropic",
+    model_family: "Claude Fable 5.2 and the other models that run the prefix check",
+    models: [
+      anthropic("claude-fable-5-2", "claude-fable-5-2", "rejects"),
+      anthropic("claude-mythos-5-2", "claude-mythos-5-2", "rejects"),
+      anthropic("claude-fable-5-1", "claude-fable-5-1", "rejects"),
+      anthropic("claude-mythos-5-1", "claude-mythos-5-1", "rejects"),
+      anthropic("claude-opus-5-5", "claude-opus-5-5", "rejects"),
+      anthropic("claude-sonnet-5-5", "claude-sonnet-5-5", "rejects"),
+      anthropic("claude-haiku-5-5", "claude-haiku-5-5", "rejects"),
+    ],
+    old_setting: "replaying a thinking block after the system prompt, tools, or earlier messages changed",
+    what_happens:
+      "The thinking troubleshooting page says this request can return HTTP 400 invalid_request_error. On the Claude API, Claude Fable 5.2 and Claude Mythos 5.2 return that error whatever the account age when prefix_mismatch_behavior is unset. Claude Fable 5.1 returns it for accounts created on or after August 31, 2026 at 00:00 UTC. Sending the same body again does not clear it.",
+    error_text: THINKING_BLOCK_ERROR,
+    fix: "Send the thinking-binding-controls-2026-08-01 beta header and set thinking.block_binding.prefix_mismatch_behavior to drop_block on that request and every later request, or strip the named block and every later thinking and redacted_thinking block. Keep later history append-only.",
+    source_url: THINKING_TROUBLE,
+    source_label: "Thinking troubleshooting",
+    quote_source_url: THINKING_TROUBLE,
+    quote_source_label: "Thinking troubleshooting",
+    checked: "2026-11-10",
+    error_page: "/errors/claude-thinking-block-bound-to-a-different-conversation/",
+    migrations: [],
+    citations: cited([THINKING_TROUBLE, PRESERVED_THINKING, FABLE_WHATS_NEW, FABLE_MIGRATION, BEDROCK_BINDING]),
   },
 ];
 
