@@ -426,7 +426,9 @@ function readCatalog(): ModelRecord[] {
     }
   }
   catalogCache = applyAliasSnapshotShutdowns(
-    models.sort((a, b) => a.provider.localeCompare(b.provider) || a.id.localeCompare(b.id)),
+    models.sort(
+      (a, b) => a.provider.localeCompare(b.provider) || a.id.localeCompare(b.id) || a.slug.localeCompare(b.slug),
+    ),
   );
   return catalogCache;
 }
@@ -861,7 +863,14 @@ function sonnet45Nov30Guide(rows: ModelRecord[], catalog: ModelRecord[]): GuideP
   const replacementModel = replacement
     ? catalog.find((model) => model.provider === "anthropic" && model.id === replacement)
     : undefined;
-  const bedrock = catalog.find((model) => model.provider === "aws-bedrock" && model.id === "anthropic.claude-sonnet-4-5-20250929-v1:0");
+  const bedrockRows = catalog
+    .filter((model) => model.provider === "aws-bedrock" && model.id === "anthropic.claude-sonnet-4-5-20250929-v1:0")
+    .sort((a, b) => (a.shutdown_date ?? "9999").localeCompare(b.shutdown_date ?? "9999") || a.slug.localeCompare(b.slug));
+  const bedrock = bedrockRows[0];
+  const laterBedrock = bedrockRows.filter((model) => model.shutdown_date && model.shutdown_date !== bedrock?.shutdown_date);
+  const laterBedrockSentence = laterBedrock.length
+    ? ` The lifecycle page also lists ${laterBedrock.map((model) => `shutdown date ${model.shutdown_date}${model.region_or_platform_notes ? ` for ${model.region_or_platform_notes}` : ""}`).join("; ")}.`
+    : "";
   const copilot = catalog.find((model) => model.provider === "github-copilot" && model.id === "Claude Sonnet 4.5");
   const sources = [
     { label: "Anthropic model deprecations", url: CLAUDE_DEPRECATIONS },
@@ -937,7 +946,7 @@ function sonnet45Nov30Guide(rows: ModelRecord[], catalog: ModelRecord[]): GuideP
       {
         heading: "Bedrock and Copilot use other dates",
         paragraphs: [
-          `Bedrock's Claude Sonnet 4.5 model card says: "${SONNET_BEDROCK_CARD}" The legacy lifecycle table lists the same id with legacy date October 8, 2026 and EOL date April 8, 2027.${bedrock ? ` The stored Bedrock row is ${modelLink(bedrock)}, shutdown date ${bedrock.shutdown_date ?? "Not published"}.` : ""}`,
+          `Bedrock's Claude Sonnet 4.5 model card says: "${SONNET_BEDROCK_CARD}" The legacy lifecycle table lists the same id with legacy date October 8, 2026 and EOL date April 8, 2027.${bedrock ? ` The stored Bedrock row is ${modelLink(bedrock)}, shutdown date ${bedrock.shutdown_date ?? "Not published"}.` : ""}${laterBedrockSentence}`,
           `GitHub's Copilot retirement history lists Claude Sonnet 4.5 with retirement date 2026-09-01 and suggested alternative Latest Claude Sonnet model. That phrase is not a model id.${copilot ? ` The stored Copilot row is ${modelLink(copilot)}, shutdown date ${copilot.shutdown_date ?? "Not published"}.` : ""} That date is already past on the day this guide was checked. It is not November 30, 2026.`,
           "Use the date for the host that receives the request. A Claude API string and a Bedrock string can sit in the same repository and still shut down on different days.",
         ],
