@@ -1,0 +1,64 @@
+{
+  "id": "gpt-image-2-2026-04-21",
+  "slug": "gpt-image-2-2026-04-21",
+  "provider": "openai",
+  "display_name": "gpt-image-2-2026-04-21",
+  "family": "gpt-image-2",
+  "status": "deprecated",
+  "announced_date": "2026-11-10",
+  "deprecation_date": null,
+  "shutdown_date": "2027-02-10",
+  "shutdown_date_kind": "exact",
+  "region_or_platform_notes": null,
+  "replacements": [
+    {
+      "model_id": "gpt-image-2.6-sunburst",
+      "provider": "openai",
+      "kind": "official",
+      "source_url": "https://developers.openai.com/api/docs/deprecations"
+    },
+    {
+      "model_id": "gpt-image-2.6-flare",
+      "provider": "openai",
+      "kind": "official",
+      "source_url": "https://developers.openai.com/api/docs/deprecations"
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://developers.openai.com/api/docs/deprecations",
+      "label": "OpenAI deprecations",
+      "last_checked": "2026-11-10",
+      "excerpt": "February 10, 2027 | gpt-image-2 | gpt-image-2-2026-04-21 | gpt-image-2.6-sunburst or gpt-image-2.6-flare"
+    },
+    {
+      "url": "https://developers.openai.com/api/docs/models/gpt-image-2.md",
+      "label": "OpenAI model docs",
+      "last_checked": "2026-11-10",
+      "excerpt": "Model ID: gpt-image-2 | Default snapshot gpt-image-2-2026-04-21"
+    }
+  ],
+  "specs": {
+    "input_price_per_mtok": null,
+    "output_price_per_mtok": null,
+    "cached_input_price_per_mtok": null,
+    "batch_discount_pct": null,
+    "currency": null,
+    "context_window_tokens": null,
+    "max_output_tokens": null,
+    "modalities_in": null,
+    "modalities_out": null,
+    "supports_tools": null,
+    "supports_json_schema": null,
+    "supports_vision": null,
+    "supports_streaming": null,
+    "supports_batch": null,
+    "supports_prompt_caching": null,
+    "reasoning": null,
+    "knowledge_cutoff": null,
+    "endpoints": null,
+    "specs_sources": {}
+  },
+  "first_seen": "2026-11-10T21:26:44.040Z",
+  "updated_at": "2026-11-10T21:26:44.040Z"
+}

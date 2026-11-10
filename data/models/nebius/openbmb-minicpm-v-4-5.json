@@ -4,7 +4,7 @@
   "provider": "nebius",
   "display_name": "openbmb/MiniCPM-V-4_5",
   "family": null,
-  "status": "deprecated",
+  "status": "retired",
   "announced_date": null,
   "deprecation_date": null,
   "shutdown_date": "2026-11-09",
@@ -22,7 +22,7 @@
     {
       "url": "https://docs.tokenfactory.nebius.com/model-deprecations-november-2026",
       "label": "Nebius Token Factory model deprecations",
-      "last_checked": "2026-11-09",
+      "last_checked": "2026-11-10",
       "excerpt": "| [`openbmb/MiniCPM-V-4_5`](https://tokenfactory.nebius.com/models/catalog/image2text/openbmb%2FMiniCPM-V-4_5) | [`nvidia/Nemotron-3.5-Super-VL`](https://tokenfactory.nebius.com/models/catalog/image2text/nvidia%2FNemotron-3.5-Super-VL) |"
     }
   ],
@@ -48,5 +48,5 @@
     "specs_sources": {}
   },
   "first_seen": "2026-10-28T08:29:01.833Z",
-  "updated_at": "2026-10-28T08:29:01.833Z"
+  "updated_at": "2026-11-10T21:26:44.040Z"
 }
