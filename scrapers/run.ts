@@ -27,7 +27,7 @@ import { assembleFireworks, loadFireworksPages } from "./fireworks.ts";
 import { assembleCopilot, loadCopilotPages } from "./github-copilot.ts";
 import { assembleMinimax, loadMinimaxPage } from "./minimax.ts";
 import { assembleCloudflare, loadCloudflarePages } from "./cloudflare-workers-ai.ts";
-import { DEPRECATIONS_URL as OPENAI_URL, parseOpenAI, parseOpenAIPricing, PRICING_URL as OPENAI_PRICING } from "./openai.ts";
+import { DEPRECATIONS_URL as OPENAI_URL, detachUndatedAliasShutdowns, parseOpenAI, parseOpenAIPricing, PRICING_URL as OPENAI_PRICING } from "./openai.ts";
 import { addDocumentedOpenAIModels, applyCodexPlatformNotes, OPENAI_MODELS_INDEX_URL } from "./openai-catalog.ts";
 import { canonicalizeModel, realContentKey, recordIdentity } from "../src/lib/stable-export.ts";
 import { writeMigrations } from "./write-migrations.ts";
@@ -181,7 +181,13 @@ async function scrapeAll(previous: ModelRecord[]): Promise<Map<string, ScrapedMo
   const cohereDeprecations = await loadMarkdown(COHERE_DEPRECATIONS, "snapshots/fixtures/cohere/deprecations-2026-10-27.md", "cohere", "deprecations");
   const cohereModels = await loadMarkdown(COHERE_MODELS, "snapshots/fixtures/cohere/models-2026-10-27.md", "cohere", "models");
 
-  const openai = guardParse("openai", () => parseOpenAI(openaiHtml, openaiPricing, checked));
+  const openai = guardParse("openai", () => {
+    const parsed = parseOpenAI(openaiHtml, openaiPricing, checked);
+    const alreadyDated = previous
+      .filter((model) => model.provider === "openai" && model.shutdown_date)
+      .map((model) => model.id);
+    return detachUndatedAliasShutdowns(parsed, alreadyDated);
+  });
   const anthropic = guardParse("anthropic", () => {
     const models = parseAnthropic(anthropicHtml, anthropicPricing, checked);
     applyAnthropicOverview(models, anthropicModels, checked);

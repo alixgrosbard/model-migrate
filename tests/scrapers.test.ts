@@ -11,7 +11,7 @@ import { DEPRECATIONS_URL as GROQ_DEPRECATIONS, MODELS_URL as GROQ_MODELS, parse
 import { buildMigration } from "../scrapers/migrations.ts";
 import { modelSchema } from "../src/schema.ts";
 import { parseMistral } from "../scrapers/mistral.ts";
-import { parseOpenAI } from "../scrapers/openai.ts";
+import { detachUndatedAliasShutdowns, parseOpenAI } from "../scrapers/openai.ts";
 import { parseVertex } from "../scrapers/google-vertex.ts";
 import { applyProviderGate, providerKeptLine, sanityCheck } from "../scrapers/sanity.ts";
 import { carryForwardDocumentedModels } from "../scrapers/carry.ts";
@@ -81,6 +81,39 @@ describe("official snapshots", () => {
     expect(models.find((model) => model.id === "gpt-4")?.display_name).toBe("gpt-4");
     const ids = models.flatMap((model) => [model.id, ...model.replacements.map((item) => item.model_id)]);
     expect(ids.some((id) => id.includes("*"))).toBe(false);
+  });
+
+  it("keeps a new snapshot shutdown date off the undated alias", () => {
+    const html = `
+      <h1>Deprecations</h1>
+      <h3>2026-11-10: GPT Image 2</h3>
+      <p>The gpt-image-2 model and gpt-image-2-2026-04-21 snapshot are deprecated and will be removed from the API on February 10, 2027.</p>
+      <table>
+        <tr><th>Shutdown date</th><th>Model / system</th><th>Recommended replacement</th></tr>
+        <tr>
+          <td>February 10, 2027</td>
+          <td><code>gpt-image-2</code> | <code>gpt-image-2-2026-04-21</code></td>
+          <td><code>gpt-image-2.6-sunburst</code> or <code>gpt-image-2.6-flare</code></td>
+        </tr>
+        <tr>
+          <td>October 23, 2026</td>
+          <td><code>o1-2024-12-17</code> | <code>o1</code></td>
+          <td><code>gpt-5.6-sol</code></td>
+        </tr>
+      </table>`;
+    const parsed = parseOpenAI(html, "", "2026-11-10");
+    const kept = detachUndatedAliasShutdowns(parsed, ["o1"]);
+    const alias = kept.find((model) => model.id === "gpt-image-2");
+    const snapshot = kept.find((model) => model.id === "gpt-image-2-2026-04-21");
+    const o1 = kept.find((model) => model.id === "o1");
+    expect(snapshot?.shutdown_date).toBe("2027-02-10");
+    expect(snapshot?.shutdown_date_kind).toBe("exact");
+    expect(alias?.shutdown_date).toBeNull();
+    expect(alias?.shutdown_date_kind).toBe("none");
+    expect(alias?.id.includes("*")).toBe(false);
+    expect(alias?.display_name.includes("*")).toBe(false);
+    expect(o1?.shutdown_date).toBe("2026-10-23");
+    expect(o1?.shutdown_date_kind).toBe("exact");
   });
 
   it("parses Anthropic status and not-sooner-than dates", () => {
