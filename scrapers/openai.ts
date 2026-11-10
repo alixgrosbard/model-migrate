@@ -108,6 +108,33 @@ export function parseOpenAI(html: string, pricing = "", checked = todayISO()): S
   return dedupe(found);
 }
 
+const DATED_SNAPSHOT = /^(.+)-\d{4}-\d{2}-\d{2}$/;
+
+/**
+ * A cell that names both gpt-image-2 and gpt-image-2-2026-04-21 publishes one
+ * shutdown date. The date stays on the dated snapshot. An undated alias that
+ * did not already have its own shutdown date keeps kind none, and the alias
+ * view copies the snapshot date as via_snapshots. An alias that already has
+ * a shutdown date, such as o1, keeps that date.
+ */
+export function detachUndatedAliasShutdowns<T extends ScrapedModel>(models: T[], alreadyDated: Iterable<string> = []): T[] {
+  const owned = new Set(alreadyDated);
+  const snapshotDates = new Map<string, Set<string>>();
+  for (const model of models) {
+    const alias = model.id.match(DATED_SNAPSHOT)?.[1];
+    if (!alias || !model.shutdown_date) continue;
+    const dates = snapshotDates.get(alias) ?? new Set<string>();
+    dates.add(model.shutdown_date);
+    snapshotDates.set(alias, dates);
+  }
+  return models.map((model) => {
+    if (DATED_SNAPSHOT.test(model.id) || !model.shutdown_date || owned.has(model.id)) return model;
+    const dates = snapshotDates.get(model.id);
+    if (!dates?.has(model.shutdown_date)) return model;
+    return { ...model, status: "active", shutdown_date: null, shutdown_date_kind: "none" };
+  });
+}
+
 export function parseOpenAIPricing(markdown: string): Map<string, { input: number | null; output: number | null; cached: number | null }> {
   const map = new Map<string, { input: number | null; output: number | null; cached: number | null }>();
   const start = markdown.indexOf("### Standard pricing data");

@@ -110,14 +110,20 @@ describe("gpt-4o-mini lookup fields", () => {
       expect(aliasSnapshotView(model!, models)?.label, id).toContain("the alias itself is not listed by name");
     }
     const derived = models.filter((model) => model.shutdown_date_kind === "via_snapshots").map((model) => `${model.provider}:${model.id}`);
-    expect(derived.sort()).toEqual([
+    const required = [
       "openai:gpt-4.1",
       "openai:gpt-4.1-mini",
       "openai:gpt-4o",
       "openai:gpt-4o-mini",
       "openai:gpt-4o-mini-search-preview",
       "openai:gpt-4o-search-preview",
-    ]);
+    ];
+    for (const key of required) expect(derived).toContain(key);
+    for (const key of derived) {
+      const [provider, id] = key.split(":");
+      const model = models.find((item) => item.provider === provider && item.id === id);
+      expect(aliasSnapshotView(model!, models)?.badgeDate).toBe(model?.shutdown_date);
+    }
 
     const rows = await loadModelRows();
     const mcp = rows.find((model) => model.provider === "openai" && model.id === "gpt-4o-mini");

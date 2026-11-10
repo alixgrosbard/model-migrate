@@ -41,6 +41,8 @@ export interface AliasSnapshotView {
   checked: string;
   label: string;
   badgeMessage: string;
+  /** True when a deprecations excerpt names this alias id, not only its snapshots. */
+  listedByName: boolean;
 }
 
 interface AliasInput {
@@ -112,11 +114,26 @@ function dateClause(rows: AliasSnapshotRow[]): string {
     .join(". ");
 }
 
-export function aliasLabel(rows: AliasSnapshotRow[]): string {
+export function aliasListedByName(aliasId: string, sources: { url: string; label: string; excerpt: string }[]): boolean {
+  return sources.some((source) => {
+    if (!isDeprecationsSource(source)) return false;
+    const tokens = source.excerpt.split(/[^A-Za-z0-9._:/-]+/).filter(Boolean);
+    const snapshot = new RegExp(`^${escapeRegex(aliasId)}-\\d{4}-\\d{2}-\\d{2}$`);
+    return tokens.includes(aliasId) && tokens.some((token) => snapshot.test(token));
+  });
+}
+
+export function aliasLabel(rows: AliasSnapshotRow[], listed = false): string {
   const publisher = publisherPhrase(rows[0].sourceUrl);
   const dates = [...new Set(rows.map((row) => row.shutdownDate))];
+  if (listed && dates.length === 1) {
+    return `This alias and its dated snapshots shut down on ${dates[0]} per ${publisher}.`;
+  }
   if (dates.length === 1) {
     return `All dated snapshots behind this alias shut down on ${dates[0]} per ${publisher} (the alias itself is not listed by name).`;
+  }
+  if (listed) {
+    return `This alias is listed with its dated snapshots on ${publisher}. ${dateClause(rows)}.`;
   }
   return `Dated snapshots behind this alias are listed on ${publisher} (the alias itself is not listed by name). ${dateClause(rows)}.`;
 }
@@ -156,6 +173,7 @@ export function aliasSnapshotView(model: AliasInput, models: AliasInput[]): Alia
   const replacementIds = [...new Set(rows.filter((row) => row.shutdownDate === badgeDate).flatMap((row) => row.replacementIds))];
   const checked = rows.map((row) => row.checked).sort().at(-1) ?? rows[0].checked;
   const deprecationsUrl = rows.find((row) => row.shutdownDate === badgeDate)?.sourceUrl ?? rows[0].sourceUrl;
+  const listedByName = aliasListedByName(model.id, model.sources);
   return {
     snapshots: rows,
     sharedDate: dates.length === 1 ? dates[0] : null,
@@ -164,8 +182,9 @@ export function aliasSnapshotView(model: AliasInput, models: AliasInput[]): Alia
     defaultSnapshot: defaultSnapshot(model.id, model, rows),
     deprecationsUrl,
     checked,
-    label: aliasLabel(rows),
+    label: aliasLabel(rows, listedByName),
     badgeMessage: `snapshots retire ${badgeDate}`,
+    listedByName,
   };
 }
 
@@ -247,8 +266,9 @@ export function aliasLead(view: AliasSnapshotView): string {
 export function aliasReplacementSentence(view: AliasSnapshotView): string {
   if (!view.replacementIds.length) return "No official replacement is published for the dated snapshots.";
   const scope = view.sharedDate ? "those dated snapshots" : `the snapshots that shut down on ${view.badgeDate}`;
-  if (view.replacementIds.length === 1) return `The official replacement for ${scope} is ${view.replacementIds[0]}. The alias itself is not listed by name.`;
-  return `The official replacements for ${scope} are ${view.replacementIds.join(", ")}. The alias itself is not listed by name.`;
+  const named = view.listedByName ? "" : " The alias itself is not listed by name.";
+  if (view.replacementIds.length === 1) return `The official replacement for ${scope} is ${view.replacementIds[0]}.${named}`;
+  return `The official replacements for ${scope} are ${view.replacementIds.join(", ")}.${named}`;
 }
 
 function modelDocSource(aliasId: string, snaps: AliasInput[]): Source | null {
