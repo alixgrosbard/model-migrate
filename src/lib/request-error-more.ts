@@ -98,7 +98,231 @@ const OPENAI_CHANGELOG = "https://developers.openai.com/api/docs/changelog";
 const USER_FIELD_REPLACED =
   "This field is being replaced by safety_identifier and prompt_cache_key. Use prompt_cache_key instead to maintain caching optimizations.";
 
+const THINKING_TROUBLE = "https://platform.claude.com/docs/en/build-with-claude/thinking-troubleshooting";
+const PRESERVED_THINKING = "https://platform.claude.com/docs/en/build-with-claude/preserved-thinking";
+const FABLE_WHATS_NEW = "https://platform.claude.com/docs/en/models/fable-5-2/whats-new-fable-5-2";
+const FABLE_MIGRATION = "https://platform.claude.com/docs/en/models/fable-5-2/migration-guide";
+const BEDROCK_BINDING = "https://docs.aws.amazon.com/bedrock/latest/userguide/claude-messages-thinking-block-binding.html";
+
+export const THINKING_BLOCK_ERROR =
+  'messages.{i}.content.{j}: Invalid `signature` in `thinking` block. The block is bound to a different conversation. Remove the block, or set `thinking.block_binding.prefix_mismatch_behavior` to "drop_block".';
+
 export const moreRequestErrors: RequestErrorPage[] = [
+  {
+    slug: "claude-thinking-block-bound-to-a-different-conversation",
+    provider: "anthropic",
+    cause: "Replaying a thinking block after the conversation prefix changed.",
+    title: "The block is bound to a different conversation | SunsetDiff",
+    description:
+      "HTTP 400 when a replayed thinking block is bound to a different conversation. Claude Fable 5.2 returns it for every account. Source: Anthropic's thinking troubleshooting page.",
+    h1: "The block is bound to a different conversation",
+    lead: "A request that sends back an earlier thinking block can return HTTP 400 after the system prompt, tools, or earlier messages change. Sending the same body again does not clear it. SunsetDiff is not Anthropic.",
+    errorQuoted: true,
+    errorText: THINKING_BLOCK_ERROR,
+    quoteSourceLabel: "Thinking troubleshooting",
+    quoteSourceUrl: THINKING_TROUBLE,
+    rule: "The thinking troubleshooting page says a request that replays earlier thinking blocks to Claude Fable 5.2, Claude Mythos 5.2, Claude Fable 5.1, Claude Mythos 5.1, Claude Opus 5.5, Claude Sonnet 5.5, or Claude Haiku 5.5 can fail with a 400 invalid_request_error and this message. If the request did not send the thinking-binding-controls-2026-08-01 beta header, the message adds that the setting requires that value in the anthropic-beta header. Common causes are an edited, reordered, or removed turn, a per-turn reminder that was injected and later removed, a rebuilt system prompt or tools array, and client-side compaction that kept recent turns and their thinking. Server-side compaction at a token threshold and context editing never trigger this error. Retrying the same request body does not clear it. On the Claude API, when prefix_mismatch_behavior is unset, Claude Fable 5.2 and Claude Mythos 5.2 return the 400 whatever the account age. Claude Fable 5.1 returns it for accounts created on or after August 31, 2026 at 00:00 UTC, and not for older accounts. On Claude Sonnet 5.5 and Claude Haiku 5.5, block_binding works only with thinking type adaptive. The [Preserved thinking](https://platform.claude.com/docs/en/build-with-claude/preserved-thinking) page gives the account-age table. The [Fable 5.2 what's new](https://platform.claude.com/docs/en/models/fable-5-2/whats-new-fable-5-2) page and the [Fable 5.2 migration guide](https://platform.claude.com/docs/en/models/fable-5-2/migration-guide) state the Fable 5.2 change. The [Bedrock thinking block binding](https://docs.aws.amazon.com/bedrock/latest/userguide/claude-messages-thinking-block-binding.html) page states the Bedrock check.",
+    ruleSourceLabel: "Thinking troubleshooting",
+    ruleSourceUrl: THINKING_TROUBLE,
+    modelsCaption: "Models named on the thinking troubleshooting page and the preserved thinking account table.",
+    models: [
+      {
+        id: "claude-fable-5-2",
+        provider: "anthropic",
+        slug: "claude-fable-5-2",
+        note: "On the Claude API, a request that leaves prefix_mismatch_behavior unset gets a 400 error whatever the account age. The Fable 5.2 migration guide says the prefix check applies to every account.",
+      },
+      {
+        id: "claude-mythos-5-2",
+        provider: "anthropic",
+        slug: "claude-mythos-5-2",
+        note: "On the Claude API, the same 400 error for every account. The migration guide says Amazon Bedrock returns that 400 for edited earlier turns.",
+      },
+      {
+        id: "claude-fable-5-1",
+        provider: "anthropic",
+        slug: "claude-fable-5-1",
+        note: "On the Claude API, the 400 applies to accounts created on or after August 31, 2026 at 00:00 UTC. Accounts created before that date do not get the error when the field is unset. Amazon Bedrock lists this model as running the check, and a failed check returns a 400 by default. The Bedrock page does not split that by account age.",
+      },
+      {
+        id: "claude-mythos-5-1",
+        provider: "anthropic",
+        slug: "claude-mythos-5-1",
+        note: "On the Claude API, a 400 error for every account. Amazon Bedrock says Claude Mythos 5.1 does not run this prefix check.",
+      },
+      {
+        id: "claude-opus-5-5",
+        provider: "anthropic",
+        slug: "claude-opus-5-5",
+        note: "On the Claude API, a 400 error for accounts created on or after August 31, 2026. Older accounts do not get the error when the field is unset. Amazon Bedrock lists this model as running the check, and a failed check returns a 400 by default.",
+      },
+      {
+        id: "claude-sonnet-5-5",
+        provider: "anthropic",
+        slug: "claude-sonnet-5-5",
+        note: "Same Claude API account rule as Claude Opus 5.5. block_binding works only with thinking type adaptive.",
+      },
+      {
+        id: "claude-haiku-5-5",
+        provider: "anthropic",
+        slug: "claude-haiku-5-5",
+        note: "Same Claude API account rule as Claude Opus 5.5. block_binding works only with thinking type adaptive.",
+      },
+    ],
+    fixes: [
+      {
+        heading: "Raw SDK",
+        text: [
+          "The troubleshooting page says to send the thinking-binding-controls-2026-08-01 beta header and set thinking.block_binding.prefix_mismatch_behavior to drop_block on the retry and every later request. The request then succeeds without the invalidated reasoning. The Preserved thinking page shows this request and says not to resend the same body, because it fails the same way every time. Treat drop_block as a stopgap. Dropping blocks can raise output tokens. Sending block_binding without the beta header returns a 400 whose message ends block_binding: Extra inputs are not permitted.",
+        ],
+        samples: [
+          {
+            caption: "Python",
+            code: `client = anthropic.Anthropic()
+
+response = client.beta.messages.create(
+    model="claude-fable-5-1",
+    max_tokens=16000,
+    thinking={
+        "type": "adaptive",
+        "block_binding": {"prefix_mismatch_behavior": "drop_block"},
+    },
+    messages=[
+        {
+            "role": "user",
+            "content": "What is the greatest common divisor of 1071 and 462?",
+        }
+    ],
+    betas=["thinking-binding-controls-2026-08-01"],
+)
+`,
+          },
+          {
+            caption: "TypeScript",
+            code: `const client = new Anthropic();
+
+const response = await client.beta.messages.create({
+  model: "claude-fable-5-1",
+  max_tokens: 16000,
+  thinking: {
+    type: "adaptive",
+    block_binding: { prefix_mismatch_behavior: "drop_block" }
+  },
+  messages: [
+    { role: "user", content: "What is the greatest common divisor of 1071 and 462?" }
+  ],
+  betas: ["thinking-binding-controls-2026-08-01"]
+});
+`,
+          },
+        ],
+        sourceLabel: "Preserved thinking",
+        sourceUrl: PRESERVED_THINKING,
+      },
+      {
+        heading: "Or strip the named block and later thinking blocks",
+        text: [
+          "If you cannot send the beta header, or you cannot send block_binding, strip the block the error names and every later thinking and redacted_thinking block. Leave each turn's other blocks in place, then retry once. On Claude Sonnet 5.5 and Claude Haiku 5.5, block_binding works only with thinking type adaptive, so any other thinking setting on those models uses this option.",
+        ],
+        samples: [],
+        sourceLabel: "Thinking troubleshooting",
+        sourceUrl: THINKING_TROUBLE,
+      },
+      {
+        heading: "Amazon Bedrock",
+        text: [
+          "The Bedrock page says to add block_binding on the thinking object and include thinking-binding-controls-2026-08-01 in anthropic_beta. Sent without that beta value, block_binding returns 400 thinking.adaptive.block_binding: Extra inputs are not permitted. The page says this error is permanent for that request. An automatic retry loop will not clear it. When you catch it, either strip all thinking blocks from history and retry, or retry with prefix_mismatch_behavior set to drop_block and the beta header.",
+        ],
+        samples: [
+          {
+            caption: "JSON",
+            code: `{
+  "anthropic_version": "bedrock-2023-05-31",
+  "anthropic_beta": ["thinking-binding-controls-2026-08-01"],
+  "max_tokens": 16000,
+  "thinking": {
+    "type": "adaptive",
+    "block_binding": {
+      "prefix_mismatch_behavior": "drop_block"
+    }
+  },
+  "messages": [{ "role": "user", "content": "Your prompt here" }]
+}
+`,
+          },
+        ],
+        sourceLabel: "Bedrock thinking block binding",
+        sourceUrl: BEDROCK_BINDING,
+      },
+      {
+        heading: "LiteLLM",
+        text: [
+          "The thinking troubleshooting page, the Preserved thinking page, the Fable 5.2 pages, and the Bedrock page do not show a LiteLLM call. Use the same fields those pages name: the thinking-binding-controls-2026-08-01 beta header and thinking.block_binding.prefix_mismatch_behavior set to drop_block, or strip the named block and every later thinking and redacted_thinking block.",
+        ],
+        samples: [],
+        sourceLabel: "Thinking troubleshooting",
+        sourceUrl: THINKING_TROUBLE,
+      },
+      {
+        heading: "Vercel AI SDK",
+        text: [
+          "Those same official pages do not show a Vercel AI SDK call. The Messages request still needs the thinking-binding-controls-2026-08-01 beta header and prefix_mismatch_behavior set to drop_block, or the thinking blocks removed as the troubleshooting page describes.",
+        ],
+        samples: [],
+        sourceLabel: "Preserved thinking",
+        sourceUrl: PRESERVED_THINKING,
+      },
+      {
+        heading: "Keep later conversations append-only",
+        text: [
+          "The troubleshooting page says to keep the history append-only: pass earlier turns back exactly as sent and received, and add instructions with a mid-conversation system message instead of editing system or tools. The Preserved thinking page says to keep system and tools the same for the whole conversation and only add to the end of messages. The Fable 5.2 what's new page says code on Claude Fable 5.1 that edits its history can run without errors on an older account and fail after the switch to Claude Fable 5.2.",
+          "A tools entry of type computer_20251124 returns a 400 error on every platform except Amazon Bedrock. The Fable 5.2 migration guide says to declare computer_toolset_20260801 instead.",
+        ],
+        samples: [],
+        sourceLabel: "What's new in Claude Fable 5.2",
+        sourceUrl: FABLE_WHATS_NEW,
+      },
+    ],
+    guides: [],
+    seeAlso: [
+      {
+        href: `${FABLE_MIGRATION}#fable-5-2-computer-use`,
+        label: "computer_20251124 returns 400 everywhere except Bedrock. Use computer_toolset_20260801.",
+      },
+      { href: FABLE_MIGRATION, label: "Claude Fable 5.2 migration guide" },
+      { href: PRESERVED_THINKING, label: "Preserved thinking" },
+      { href: BEDROCK_BINDING, label: "Bedrock thinking block binding" },
+    ],
+    faqs: [
+      {
+        question: "Which models can return this sentence?",
+        answer:
+          "The [thinking troubleshooting](https://platform.claude.com/docs/en/build-with-claude/thinking-troubleshooting) page names Claude Fable 5.2, Claude Mythos 5.2, Claude Fable 5.1, Claude Mythos 5.1, Claude Opus 5.5, Claude Sonnet 5.5, and Claude Haiku 5.5.",
+      },
+      {
+        question: "Does Claude Fable 5.1 return it for every account?",
+        answer:
+          "No. The [Preserved thinking](https://platform.claude.com/docs/en/build-with-claude/preserved-thinking) table says Claude Fable 5.1 returns the 400 for accounts created on or after August 31, 2026 at 00:00 UTC, and not for older accounts, when prefix_mismatch_behavior is unset. Claude Fable 5.2 and Claude Mythos 5.2 return the 400 whatever the account age. On the Claude API, Claude Mythos 5.1 returns it for every account.",
+      },
+      {
+        question: "Will a retry of the same body clear it?",
+        answer:
+          "No. The troubleshooting page says retrying the same request body does not clear the error. The Fable 5.2 migration guide says the same. The Bedrock page says an automatic retry loop will not clear it.",
+      },
+      {
+        question: "What are the two recoveries?",
+        answer:
+          "Send the thinking-binding-controls-2026-08-01 beta header and set thinking.block_binding.prefix_mismatch_behavior to drop_block on that request and every later request. Or strip the named block and every later thinking and redacted_thinking block, then retry once. On Claude Sonnet 5.5 and Claude Haiku 5.5, block_binding works only with thinking type adaptive.",
+      },
+      {
+        question: "What is the Extra inputs are not permitted 400?",
+        answer:
+          "The Preserved thinking page says sending block_binding without the beta header returns a 400 whose message ends block_binding: Extra inputs are not permitted. The Bedrock page prints 400 thinking.adaptive.block_binding: Extra inputs are not permitted.",
+      },
+    ],
+    citations: [THINKING_TROUBLE, PRESERVED_THINKING, FABLE_WHATS_NEW, FABLE_MIGRATION, BEDROCK_BINDING],
+    checked: "2026-11-10",
+  },
   {
     slug: "claude-sonnet-5-5-thinking-disabled",
     provider: "anthropic",

@@ -98,7 +98,29 @@ describe("request error pages", () => {
   it("lists both pages in llms.txt, lastmod, and JSON-LD", () => {
     const text = llmsTxt("https://sunsetdiff.com", [], []);
     const full = llmsFull("https://sunsetdiff.com", []);
-    expect(requestErrors.length).toBe(23);
+    expect(requestErrors.length).toBe(24);
+    const thinkingBlock = requestErrors.find((page) => page.slug === "claude-thinking-block-bound-to-a-different-conversation");
+    expect(thinkingBlock?.checked).toBe("2026-11-10");
+    expect(thinkingBlock?.errorQuoted).toBe(true);
+    expect(thinkingBlock?.errorText).toBe(
+      'messages.{i}.content.{j}: Invalid `signature` in `thinking` block. The block is bound to a different conversation. Remove the block, or set `thinking.block_binding.prefix_mismatch_behavior` to "drop_block".',
+    );
+    expect(thinkingBlock?.quoteSourceUrl).toBe("https://platform.claude.com/docs/en/build-with-claude/thinking-troubleshooting");
+    expect(thinkingBlock?.models.map((item) => item.id)).toEqual([
+      "claude-fable-5-2",
+      "claude-mythos-5-2",
+      "claude-fable-5-1",
+      "claude-mythos-5-1",
+      "claude-opus-5-5",
+      "claude-sonnet-5-5",
+      "claude-haiku-5-5",
+    ]);
+    expect(thinkingBlock?.rule).toContain("August 31, 2026");
+    expect(thinkingBlock?.rule).toContain("does not clear");
+    expect(thinkingBlock?.lead).toContain("SunsetDiff is not Anthropic");
+    expect(JSON.stringify(thinkingBlock)).not.toMatch(/[—–]/);
+    expect(text).toContain("/errors/claude-thinking-block-bound-to-a-different-conversation/");
+    expect(full).toContain("/errors/claude-thinking-block-bound-to-a-different-conversation/");
     const bedrockEol = requestErrors.find((page) => page.slug === "bedrock-model-version-has-reached-the-end-of-its-life");
     expect(bedrockEol?.errorQuoted).toBe(true);
     expect(bedrockEol?.checked).toBe("2026-10-31");
