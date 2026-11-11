@@ -15,7 +15,7 @@
     {
       "url": "https://docs.aws.amazon.com/bedrock/latest/userguide/model-lifecycle-legacy.html",
       "label": "Amazon Bedrock model lifecycle (legacy)",
-      "last_checked": "2026-11-10",
+      "last_checked": "2026-11-11",
       "excerpt": "Policy page https://docs.aws.amazon.com/bedrock/latest/userguide/model-lifecycle.html | Claude Sonnet 4.5 | anthropic.claude-sonnet-4-5-20250929-v1:0 | us-gov-east-1, us-gov-west-1 | October 27, 2026 | April 27, 2027 | January 27, 2027"
     }
   ],
