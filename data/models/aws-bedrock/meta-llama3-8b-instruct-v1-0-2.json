@@ -15,7 +15,7 @@
     {
       "url": "https://docs.aws.amazon.com/bedrock/latest/userguide/model-lifecycle-legacy.html",
       "label": "Amazon Bedrock model lifecycle (legacy)",
-      "last_checked": "2026-11-11",
+      "last_checked": "2026-11-12",
       "excerpt": "Policy page https://docs.aws.amazon.com/bedrock/latest/userguide/model-lifecycle.html | Llama 3 8B Instruct | meta.llama3-8b-instruct-v1:0 | us-gov-west-1 | November 9, 2026 | May 9, 2027 | To be announced"
     }
   ],

@@ -15,7 +15,7 @@
     {
       "url": "https://developers.cloudflare.com/workers-ai/changelog/",
       "label": "Cloudflare Workers AI changelog",
-      "last_checked": "2026-11-11",
+      "last_checked": "2026-11-12",
       "excerpt": "- @cf/qwen/qwen1.5-0.5b-chat"
     }
   ],
